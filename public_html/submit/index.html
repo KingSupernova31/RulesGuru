@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-122686421-1"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'UA-122686421-1');
+		</script>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<link rel="stylesheet" href="/globalResources/globalcss.css">
+		<script defer src="/globalResources/globaljs&html.js"></script>
+
+		<link rel="stylesheet" href="submit.css">
+		<script defer src="submit.js"></script>
+
+		<style id="cursorStyle"></style>
+	</head>
+	<body onresize="compressMobileNameDescription()">
+		<h1>Submit a Question</h1>
+		<br>
+		<textarea id="question" placeholder="Enter your question here"></textarea>
+		<br>
+		<textarea id="answer" placeholder="Enter the answer here (optional)"></textarea>
+		<input id="name" placeholder="Enter your name if you'd like to be credited for this question"></input>
+		<br>
+		<button onclick="submit()" id="submit" class="specialButtonBlack">Submit</button>
+
+		<div id="FOUCOverlay"></div>
+		<div id="jsDisabled">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your Javascript is disabled. You'll need to enable it in order for the site to work.</p>
+		</div>
+		<div id="jsOutOfDate">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your browser is out of date. You'll need to update it to a newer version in order for the site to work.</p>
+		</div>
+		<script>
+			//Check for Javascript
+			document.getElementById("jsDisabled").style.display = "none";
+
+			eval("const foo = 'bar'");
+
+			document.getElementById("jsOutOfDate").style.display = "none";
+		</script>
+	</body>
+</html>

@@ -1,0 +1,70 @@
+#sidebar label {
+	display: block;
+}
+
+#sidebar {
+	background-color: white;
+	position: fixed;
+	height: calc(100% - 4.8rem);
+	width: 13rem;
+	top: 2.8rem;
+	left: 0;
+	transition: transform 0.33s;
+	transform: translate(-14.3rem);
+	padding-left: 1rem;
+	z-index: 1;
+	overflow: auto;
+	border-right-color: #80a0ff;
+	border-right-style: solid;
+	border-right-width: 0.3rem;
+	padding-bottom: 2rem;
+}
+
+#sidebar input {
+	background-color: white;
+	max-width: 11rem;
+	margin-right: 0.2rem;
+}
+
+#sidebar ul {
+	list-style-image: url("icons/red-x.png");
+	margin-left: 2rem;
+}
+
+#sidebar li {
+	width: fit-content;
+}
+
+#sidebar h4, #sidebar label {
+	width: fit-content;
+}
+
+#sidebar h4 {
+	margin-bottom: 0.3rem;
+	font-weight: bold;
+}
+
+#settingsButton {
+	cursor: pointer;
+	display: none;
+}
+
+.sidebarButton {
+	background-color: #80a0ff;
+	background-size: 100% 100%;
+	color: white;
+	width: 5.5rem;
+	padding-top: 0.25rem;
+	padding-bottom: 0.25rem;
+	font-size: 0.75rem;
+	border-radius: 1rem;
+	border-style: none;
+	transition: background-color 0.5s ease;
+	font-weight: 400;
+	outline: none;
+	display: inline-block;
+}
+
+.sidebarButton:hover {
+	background-color: #282828;
+}

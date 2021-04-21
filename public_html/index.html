@@ -1,0 +1,115 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-122686421-1"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'UA-122686421-1');
+		</script>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<link rel="stylesheet" href="globalResources/globalcss.css">
+		<script defer src="globalResources/globaljs&html.js"></script>
+
+		<link rel="stylesheet" href="/globalResources/mana.min.css">
+		<link rel="stylesheet" href="rulesguru.css">
+		<link rel="stylesheet" href="globalResources/sidebar.css">
+		<link rel="stylesheet" href="globalResources/cardDisplays.css">
+		<script defer src="https://cdn.jsdelivr.net/npm/kute.js@2.1.0/dist/kute.min.js"></script>
+		<script defer src="/globalResources/loadingAnimationShapes.js"></script>
+		<script defer src="/globalResources/allSets.js"></script>
+		<script defer src="/globalResources/allTags.js"></script>
+		<script defer src="playerNames.js"></script>
+		<script defer src="AvsAn-simple.js"></script>
+		<script defer src="/globalResources/createCardDisplay.js"></script>
+		<script defer src="/globalResources/sidebarjs&html.js"></script>
+		<script defer src="rulesguru.js"></script>
+		<script defer src="loadingControlFlow.js"></script>
+		<script defer src="/globalResources/searchLinkMappings.js"></script>
+		<script defer src="/globalResources/searchLinks.js"></script>
+		<script defer src="searchLinkCardNamesDiff.js"></script>
+		<script defer src="/allRuleNumbers.js"></script>
+		<script defer src="/globalResources/sidebarDelayedLoading.js"></script>
+
+	</head>
+	<body>
+		<div id="pageContent">
+			<div id="questionsListArea">
+				<h4 id="questionsListCount">0 Matching Questions</h4>
+				<p>Click on a question to view it.</p>
+				<textarea id="questionsListDisplay" readonly></textarea>
+				<button class="sidebarButton" id="questionsListHideButton">Hide</button>
+			</div>
+			<div id="moveForQuestionsList">
+				<div id="scrollContainer">
+					<div id="startPage">
+						<img id="homepageImage" src="trail-of-evidence.jpg" alt="Trail of Evidence, by Daniel Ljunggren">
+						<h1 id="welcome">Welcome to RulesGuru</h1>
+						<div id="basicInfo">
+							<p id="startText">RulesGuru is a database of <b>Magic: The Gathering</b> rules questions. Access the  settings in the top left in order to filter questions by difficulty, topic, format legality, and more. You can also submit your own questions to be added to the database.
+							<br><br>
+							There are currently <span id="questionCount">1023</span> questions available.</p>
+
+							<p id="startTextMobile">RulesGuru is a database of <b>Magic: The Gathering</b> rules questions; Use the settings in the top left to edit the filtering options. You can also submit your own questions. There are currently <span id="questionCountMobile">1023</span> questions available.</p>
+							<button id="submitQuestionButton" class="specialButtonBlack bigButton">Submit Question</button>
+							<button id="viewQuestions" class="specialButtonBlack bigButton doNotCloseSidebarOnClick">View Questions</span></button>
+						</div>
+						<div id="recognitions">
+							<h2>RulesGuru Recognitions</h2>
+							<p>As Kaldheim approaches, I would like to recognize <b>Ryan Sears</b> and <b>Tobias Vyseri</b> for their contributions.
+							<br><br>
+							Ryan is a level 2 judge from Michigan and a moderator for the <a href="https://www.facebook.com/groups/358305221218820">Rules Day Tuesday</a> project, which helps teach MTG rules and policy to over 300 people. He's only been on the RulesGuru team for 3 months, but has already been a huge asset in that time. From suggesting new features for making the question approval process better, to offering to help manage the RulesGuru <a href="https://twitter.com/MTGRulesGuru">Twitter</a> account, to going back through old questions and updating their tags, he appears to leave no area untouched when he sees something that could be improved.
+							<br><br>
+							Tobi is a level 2 judge from British Columbia and was the first person to join the RulesGuru project. She's been steadfastly contributing for almost 2 years now, and in total has approved more than 300 questions. (Over a third of the entire database.) She's also a graphic designer by trade, and has contributed many of the icons and style choices that are currently in use on RulesGuru. She even designed some custom <a href="http://www.vyseri.com/judgebunny.html">Judge Bunnies</a> to be given out along with the judge promos for these recognitions.
+							<br><br>
+							A huge thank you to both Tobi and Ryan, along with the rest of our wonderful admin team. If you'd like to get involved yourself, anyone is welcome. More information is available <a href="../get-involved">here</a>.</p>
+						</div>
+					</div>
+
+					<div id="questionPage">
+						<h1 id="questionId"></h1>
+						<p id="submittedByField">Submitted by <span id="submittedBy"></span></p>
+						<div id="pictures">
+							<div id="picturesUnsorted"></div>
+							<div id="pictureRows"></div>
+						</div>
+						<div id="questionPageBackgroundBox">
+							<p id="question"></p>
+							<button id="showAnswer" class="specialButtonBlack">Show Answer</button>
+							<button id="nextQuestion" class="specialButtonBlack doNotCloseSidebarOnClick">Another Question</button>
+							<p id="answer"></p>
+						</div>
+						<div id="questionIssue">
+							<p>Is there an issue with this question? Please</p>
+							<button id="questionIssueButton">let us know</button><p>.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div id="FOUCOverlay"></div>
+		<div id="jsDisabled">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your Javascript is disabled. You'll need to enable it in order for the site to work.</p>
+		</div>
+		<div id="jsOutOfDate">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your browser is out of date. You'll need to update it to a newer version in order for the site to work.</p>
+		</div>
+		<script>
+			//Check for Javascript
+			document.getElementById("jsDisabled").style.display = "none";
+
+			eval("const foo = 'bar'");
+
+			document.getElementById("jsOutOfDate").style.display = "none";
+		</script>
+	</body>
+</html>

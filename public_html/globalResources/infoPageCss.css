@@ -1,0 +1,100 @@
+#symbolList {
+	columns: 4.5rem auto;
+}
+
+#pseudoSymbolList {
+	display: grid;
+	grid-template-columns: 6rem 50rem;
+}
+
+h3 {
+	margin-bottom: 1rem;
+	margin-top: 2rem;
+	text-align: center;
+}
+
+h3::before {
+	display: block;
+	content: "";
+	height: 3.2rem;
+	margin: -3.2rem 0 0;
+}
+
+h1, h2 {
+	text-align: center;
+}
+
+.grid {
+	display: grid;
+  grid-template-columns: 40% auto;
+	border-color: #80a0ff;
+	border-width: 0.05rem;
+	border-style: solid;
+	background-color: white;
+}
+
+.grid > * {
+	padding: 0.5rem;
+	border-top-style: solid;
+	border-color: #80a0ff;
+	border-width: 0.05rem;
+}
+
+.noBorder {
+	border-style: none;
+}
+
+#templateExample, #previewExample {
+	padding: 0;
+	width: 100%;
+}
+
+#templateExampleBackground {
+	background-color: white;
+}
+
+li {
+	margin-left: 1rem;
+	margin-top: 0.5rem;
+}
+
+.header {
+	background-color: #80a0ff;
+	color: white;
+	padding: 0.3rem;
+	text-align: center;
+	font-weight: bold;
+	border-top: 3.5rem solid transparent;
+	margin-top: -3.5rem;
+	background-clip: padding-box;
+}
+
+.content {
+	background-color: white;
+	padding: 1rem 1rem 2rem 1rem;
+	margin-bottom: 0.5rem;
+}
+
+.indent {
+	margin-left: 1rem;
+}
+
+.gridLeft {
+	font-weight: bold;
+	padding-right: 3rem;
+}
+
+#center {
+	transform: translateX(15rem);
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+	width: fit-content;
+}
+
+.nowrap {
+	white-space: nowrap;
+}
+
+.inline {
+	display: inline;
+}

@@ -1,0 +1,107 @@
+#content {
+	text-align: center;
+	max-width: 50rem;
+	background-color: white;
+	border-color: black;
+	border-width: 0.03rem;
+	border-style: solid;
+	max-width: 50rem;
+	margin-top: 1rem;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 1rem;
+}
+
+.line {
+	height: 0;
+	width: 80%;
+	border-top-style: solid;
+	border-width: 0.1rem;
+	margin: auto;
+	border-color: #dbdbdb;
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+}
+
+h1 {
+	margin-bottom: 1rem;
+}
+
+.grid {
+	margin-top: 2rem;
+	display: grid;
+	border-color: #80a0ff;
+	border-width: 0.05rem;
+	border-style: solid;
+	background-color: white;
+}
+
+.grid > * {
+	padding: 0.5rem;
+	border-top-style: solid;
+	border-color: #80a0ff;
+	border-width: 0.05rem;
+}
+
+.grid4 {
+	grid-template-columns: 15% 16% auto 15%;
+}
+
+.grid3 {
+	grid-template-columns: 15% 16% auto;
+}
+
+.grid4 :nth-child(4n+1), .grid4 :nth-child(4n+2), .grid4 :nth-child(4n+3) {
+	border-right-style: solid;
+}
+
+.grid4 :nth-child(4n+3) {
+	text-align: left;
+}
+
+.grid3 :nth-child(3n+1), .grid3 :nth-child(3n+2) {
+	border-right-style: solid;
+}
+
+.grid3 :nth-child(3n) {
+	text-align: left;
+}
+
+.grid .header {
+	background-color: #80a0ff;
+	color: white;
+	padding: 0.3rem;
+	text-align: center;
+	font-weight: bold;
+}
+
+.inline {
+	display: inline;
+}
+
+#questionIssueButton {
+	text-decoration: underline;
+	color: #0000ee;
+	cursor: pointer;
+	background-color: transparent;
+	border: none;
+}
+
+#jsonWrapper {
+	width: 20rem;
+	position: relative;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+#json {
+	text-align: left;
+}
+
+a {
+	overflow-wrap: break-word;
+}
+
+#nowrap {
+	white-space: nowrap;
+}

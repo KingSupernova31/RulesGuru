@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<title>RulesGuru</title>
+
+		<link rel="stylesheet" href="previewData.css">
+		<link rel="stylesheet" href="/globalResources/cardDisplays.css">
+		<link rel="stylesheet" href="/globalResources/globalcss.css">
+		<script defer src="/globalResources/globaljs&html.js"></script>
+		<script defer src="/globalResources/createCardDisplay.js"></script>
+		<script defer src="previewData.js"></script>
+
+	</head>
+	<body>
+		<div id="questionPage">
+			<h1 id="questionId"></h1>
+			<p id="submittedByField">Submitted by <span id="submittedBy"></span></p>
+			<div id="extras">
+				<p>Level: <span id="level"></span></p>
+				<p>Complexity: <span id="complexity"></span></p>
+			</div>
+			<p id="questionErrors"></p>
+			<p id="questionWarnings"></p>
+			<div id="pictures">
+				<div id="picturesUnsorted"></div>
+				<div id="pictureRows"></div>
+			</div>
+			<div id="questionPageBackgroundBox">
+				<p id="question"></p>
+				<button id="showAnswer" class="specialButtonBlack">Hide Answer</button>
+				<button id="nextQuestion" class="specialButtonBlack doNotCloseSidebarOnClick">Another Question</button>
+				<p id="answer"></p>
+			</div>
+		</div>
+
+		<div id="FOUCOverlay"></div>
+		<div id="jsDisabled">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your Javascript is disabled. You'll need to enable it in order for the site to work.</p>
+		</div>
+		<div id="jsOutOfDate">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your browser is out of date. You'll need to update it to a newer version in order for the site to work.</p>
+		</div>
+		<div id="generatorPreview">
+			<h1 id="generatorCount">0 cards in generator</h1>
+			<p id="generatorError"></p>
+			<div id="generatorPictures"></div>
+		</div>
+		<script>
+			//Check for Javascript
+			document.getElementById("jsDisabled").style.display = "none";
+
+			eval("const foo = 'bar'");
+
+			document.getElementById("jsOutOfDate").style.display = "none";
+		</script>
+
+		<script>
+			//Don't display the start page if it's about to load a question.
+			if (/\?\d/.test(window.location.href)) {
+				document.getElementById("startPage").style.display = "none";
+			}
+		</script>
+		<button class="specialButtonBlack" id="generatorDisplayToggle">Display oracle text</button>
+	</body>
+</html>

@@ -1,0 +1,26 @@
+#questionIssueButton {
+	text-decoration: underline;
+	color: #0000ee;
+	cursor: pointer;
+	background-color: transparent;
+	border: none;
+}
+
+ul {
+	list-style-type: none;
+}
+
+ul li:not(:last-child) {
+	margin-bottom: 1rem;
+}
+
+#info {
+	max-width: 50rem;
+	position: relative;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+.bold, .bold > * {
+	font-weight: bold !important;
+}

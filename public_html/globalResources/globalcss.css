@@ -1,0 +1,381 @@
+/*
+Reset
+*/
+
+* {
+	margin: 0;
+	padding: 0;
+	font-family: helvetica, sans-serif;
+}
+
+*:not(h1):not(h2):not(h3):not(h4):not(h5):not(h6) {
+	font-size: 1rem;
+}
+
+p, label, button, a, li {
+	font-weight: 100;
+}
+
+/*
+Reset
+*/
+
+#jsDisabled {
+	z-index: 6;
+	position: fixed;
+	height: 100%;
+	top: 0;
+	left: 0;
+	right: 0;
+	text-align: center;
+	padding-top: 20%;
+	opacity: 100;
+	background: linear-gradient(white, #d8d8d8);
+	background-repeat: repeat-x;
+	background-attachment: fixed;
+}
+
+#jsOutOfDate {
+	z-index: 5;
+	position: fixed;
+	height: 100%;
+	top: 0;
+	left: 0;
+	right: 0;
+	text-align: center;
+	padding-top: 20%;
+	opacity: 100;
+	background: linear-gradient(white, #d8d8d8);
+	background-repeat: repeat-x;
+	background-attachment: fixed;
+}
+
+#jsDisabled > *, #jsOutOfDate > * {
+	margin-left: 1rem;
+	margin-right: 1rem;
+}
+
+#FOUCOverlay {
+	z-index: 4;
+	position: fixed;
+	height: 100%;
+	top: 0;
+	left: 0;
+	right: 0;
+	opacity: 100;
+	background: linear-gradient(white, #d8d8d8);
+	background-repeat: repeat-x;
+	background-attachment: fixed;
+}
+
+html {
+	height: 100%;
+	overflow-x: hidden;
+}
+
+body {
+	box-sizing: border-box;
+	background: linear-gradient(white, #d8d8d8);
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	padding-top: 3.5rem;
+}
+
+.roundedCorners {
+	border-radius: 1rem;
+}
+
+#topBanner {
+	position: fixed;
+	width: 100%;
+	height: 2.5rem;
+	background-color: #282828;
+	z-index: 2;
+	top: 0;
+	left: 0;
+	border-bottom-color: #80a0ff;
+	border-bottom-style: solid;
+	border-bottom-width: 0.3rem;
+}
+
+.specialButtonBlack {
+	background-color: #80a0ff;
+	background-size: 100% 100%;
+	color: white;
+	width: 12rem;
+	padding-top: 0.5rem;
+	padding-bottom: 0.5rem;
+	font-size: 1rem;
+	border-radius: 1rem;
+	border-style: none;
+	transition: background-color 0.5s ease;
+	font-weight: 400;
+	outline: none;
+}
+
+.specialButtonBlack:hover {
+	background-color: #282828;
+}
+
+.bannerLeft {
+	position: absolute;
+	margin-left: 1.5rem;
+	top: 50%;
+	transform: translateY(-50%);
+}
+
+#topBannerRightText {
+	position: absolute;
+	right: 0;
+	height: 2.5rem;
+}
+
+#topBannerRightText > * {
+	display: inline;
+	cursor: pointer;
+	color: white;
+	text-decoration: none;
+}
+
+#topBannerRightText > *:hover > p {
+	color: #80a0ff;
+}
+
+#aboutLink:hover img {
+	content:url("icons/about-hover.png");
+}
+
+#openContactFormButton:hover img {
+	content:url("icons/contact-hover.png");
+}
+
+#donations:hover img {
+	content:url("icons/donate-hover.png");
+}
+
+#followLink:hover img {
+	content:url("icons/twitter-hover.png");
+}
+
+#topBannerRightText > * > * {
+	display: inline;
+}
+
+#topBannerRightText img {
+	transform: translateY(25%);
+	margin-right: 0.1rem;
+}
+
+#topBannerRightText p {
+	margin-right: 1rem;
+}
+
+#settingsButton:hover {
+	content:url("icons/settings-hover.png");
+}
+
+#contactFormBannerText {
+	text-align: right;
+}
+
+#contactFormBannerText > p {
+	display: inline;
+	color: white;
+}
+
+#contactFormPopupArea {
+	height: 20rem;
+	width: 15rem;
+	position: fixed;
+	right: 2rem;
+	bottom: 2rem;
+	z-index: 2;
+	pointer-events: none;
+}
+
+#contactFormPopupArea * {
+	pointer-events: auto;
+}
+
+#contactFormPopup {
+	display: none;
+	background-color: white;
+	height: calc(100% - 0.4rem);
+	width: calc(100% - 0.4rem);
+	text-align: center;
+	filter: drop-shadow(0rem 0rem 0.5rem #474747);
+}
+
+#contactFormContent {
+	resize: none;
+	background-color: white;
+	width: calc(90% - 0.4rem);
+	height: calc(100% - 7.9rem);
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+	padding: 0.2rem;
+}
+
+#contactFormEmailField {
+	background-color: white;
+	width: calc(90% - 0.4rem);
+	margin-bottom: 0.7rem;
+	padding: 0.1rem 0.2rem 0.1rem 0.2rem;
+}
+
+#contactFormSubmissionSuccess {
+	display: none;
+	background-color: white;
+	height: 3rem;
+	width: calc(100% - 0.4rem);
+	margin-top: 75%;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 3rem;
+	filter: drop-shadow(0rem 0rem 0.5rem #474747);
+}
+
+#contactFormSubmissionFailure {
+	display: none;
+	position: relative;
+	background-color: red;
+	border-color: black;
+	height: 9.5rem;
+	width: calc(100% - 0.4rem);
+	margin-top: 50%;
+	text-align: center;
+	filter: drop-shadow(0rem 0rem 0.5rem #474747);
+}
+
+#contactFormSubmissionFailureCenter {
+	position: relative;
+	top: 50%;
+	transform: translateY(-50%);
+	margin: 0.3rem;
+}
+
+#contactFormSubmissionFailureCenter p {
+	display: block;
+	margin: 0;
+	margin-bottom: 0.1rem;
+}
+
+#bannerName, #bannerNameMobile {
+	position: absolute;
+	color: white;
+	font-weight: 600;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	cursor: pointer;
+}
+
+#bannerNameMobile {
+	display: none;
+}
+
+#bannerName0, #bannerNameMobile0 {
+	font-size: 1.9rem;
+}
+
+#bannerName1, #bannerNameMobile1 {
+	color: #80a0ff;
+	font-size: 1.9rem;
+}
+
+#bannerName:hover #bannerName0, #bannerNameMobile:hover #bannerNameMobile0 {
+	color: #80a0ff;
+}
+
+#bannerName:hover #bannerName1, #bannerNameMobile:hover #bannerNameMobile1 {
+	color: white;
+}
+
+.tooltip, .fakeTooltip {
+	position: fixed;
+	background-color: white;
+	display: none;
+	padding: 1rem;
+	width: 20rem;
+	filter: drop-shadow(0rem 0rem 0.5rem #474747);
+	z-index: 5;
+	border-radius: 0.7rem;
+}
+
+.bannerImage {
+	height: 1.6rem;
+}
+
+#pageContent {
+	transition: transform 0.33s;
+	position: relative;
+}
+
+@media only screen and (max-width: 65rem) {
+  .bannerText {
+    display: none !important;
+  }
+	.bannerLeft {
+		margin-left: 1rem;
+	}
+	#topBannerRightText {
+		margin-right: 1rem;
+	}
+	#topBannerRightText > * > p {
+		display: none;
+	}
+	.tooltip {
+		width: 15rem !important;
+	}
+}
+
+@media only screen and (max-width: 60rem) {
+	.tooltip {
+		width: 15rem !important;
+	}
+}
+
+@media only screen and (max-width: 45rem) {
+	.bannerLeft {
+		transform: translateY(-50%) !important;
+	}
+}
+
+@media only screen and (max-width: 30rem) {
+	#bannerNameMobile {
+		display: block;
+	}
+	#bannerName {
+		display: none;
+	}
+}
+
+@media only screen and (max-height: 30rem) {
+	#contactFormPopupArea {
+		height: 13rem !important;
+	}
+}
+
+
+
+#loadingAnimationBox {
+	z-index: 6;
+	position: absolute;
+	width: 6rem;
+	height: 8rem;
+	top: calc(50% - 4rem);
+	left: calc(50% - 3rem);
+	transform: scale(0);
+	transition: transform 0.5s;
+}
+
+#loadingAnimationText {
+	font-weight: bold;
+	margin-left: 1rem;
+}
+
+#loadingAnimation {
+	width: 6rem;
+	height: 6rem;
+	border-radius: 5rem;
+}

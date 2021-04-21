@@ -1,0 +1,18 @@
+#aboutLink {
+	display: none;
+}
+
+#questionIssueButton {
+	text-decoration: underline;
+	color: #0000ee;
+	cursor: pointer;
+	background-color: transparent;
+	border: none;
+}
+
+#info {
+	max-width: 50rem;
+	position: relative;
+	left: 50%;
+	transform: translateX(-50%);
+}

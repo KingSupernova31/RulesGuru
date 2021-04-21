@@ -1,0 +1,254 @@
+/*
+Start Page
+*/
+
+body {
+	padding-top: 2.79rem; /*Firefox is stupid.*/
+	height: 100%;
+}
+
+#pageContent {
+	height: 100%;
+	transform: translate(0);
+}
+
+#homepageImage {
+	width: 100%;
+	max-height: 25rem;
+	object-fit: cover;
+	display: block;
+	transform: scaleX(1.001); /*Firefox remains stupid.*/
+}
+
+#welcome {
+	color: white;
+	position: absolute;
+	font-size: 3rem;
+	text-shadow: 0rem 0rem 0.5rem black;
+	width: 100%;
+	text-align: center;
+	transform: translateY(-100%);
+}
+
+@media only screen and (max-width: 32.95rem) {
+}
+
+#startPage {
+	margin: auto;
+	text-align: center;
+	transition: transform 0.5s;
+}
+
+#startPage div {
+	margin-left: auto;
+	margin-right: auto;
+	height: fit-content;
+	text-align: center;
+	background-color: white;
+	border-width: 0.03rem;
+	padding: 1rem;
+	padding-bottom: 2rem;
+	border-bottom-color: #80a0ff;
+	border-bottom-style: solid;
+	border-bottom-width: 0.3rem;
+	border-top-color: #80a0ff;
+	border-top-style: solid;
+	border-top-width: 0.3rem;
+}
+
+#startPage div p {
+	margin: auto;
+	position: relative;
+	top: 1.5rem;
+	margin-bottom: 2.5rem;
+	max-width: 50rem;
+}
+
+#basicInfo > .specialButtonBlack {
+	margin: 0.5rem;
+}
+
+#recognitions {
+	border-color: black;
+	margin-top: 3rem;
+	display: none;
+}
+
+#startTextMobile {
+	display: none;
+}
+
+@media only screen and (max-width: 60rem) {
+	#startText {
+		display: none;
+	}
+	#startTextMobile {
+		display: block;
+	}
+}
+
+/*
+Question Page
+*/
+
+#questionPage {
+	display: none;
+	margin: auto;
+	text-align: center;
+	padding-top: 0.7rem;
+	transition: transform 0.5s;
+}
+
+#questionPage ul {
+	list-style-type: none;
+}
+
+#question {
+	margin-bottom: 2rem;
+}
+
+#answer {
+	margin-top: 2rem;
+}
+
+#questionPageBackgroundBox {
+	background-color: white;
+	margin-top: 2rem;
+	margin-bottom: 2rem;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 2rem;
+	border-bottom-color: #80a0ff;
+	border-bottom-style: solid;
+	border-bottom-width: 0.3rem;
+	border-top-color: #80a0ff;
+	border-top-style: solid;
+	border-top-width: 0.3rem;
+
+	transition: height 0.2s ease-in;
+}
+
+#questionPageBackgroundBox > .specialButtonBlack {
+	margin: 0.5rem;
+}
+
+#question, #answer {
+	max-width: 50rem;
+	text-align: center;
+	position: relative;
+	left: 50%;
+	transform: translate(-50%);
+}
+
+#answer {
+	display: none;
+	width: 100%;
+	opacity: 0;
+	transition: opacity 0.2s ease-in;
+}
+
+#pictures {
+	width: 100%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#answer p {
+	text-align: left;
+	margin-left: 15%;
+	margin-right: 15%;
+}
+
+#questionIssue * {
+	font-size: 0.8rem;
+	display: inline;
+}
+
+#questionIssueButton {
+	text-decoration: underline;
+	color: #0000ee;
+	cursor: pointer;
+	background-color: transparent;
+	border: none;
+}
+
+#submittedByField, #submittedBy {
+	font-size: 0.85rem;
+	margin-bottom: 0.5rem;
+}
+
+#submittedBy {
+	font-weight: bold;
+}
+
+/*
+Misc.
+*/
+
+#picturesUnsorted {
+	display: none;
+}
+
+.cardDisplay {
+	margin: 0.5rem;
+	overflow: visible;
+	display: inline-block;
+	position: relative;
+}
+
+#scrollContainer {
+	height: calc(100vh - 2.79rem);
+	overflow-y: auto;
+	overflow-x: hidden;
+	position: relative;
+}
+
+#questionsListArea {
+	background-color: white;
+	position: fixed;
+	height: 100%;
+	top: 0;
+	left: 0;
+	transition: transform 0.33s;
+	transform: translate(-7.9375rem);
+	padding-left: 1rem;
+	padding-right: 1rem;
+	z-index: 1;
+	overflow: auto;
+	border-right-color: #80a0ff;
+	border-right-style: solid;
+	border-right-width: 0.3rem;
+}
+
+#moveForQuestionsList {
+	transition: width 0.33s;
+	width: 100%;
+	position: absolute;
+	right: 0;
+}
+
+#questionsListCount {
+	margin-bottom: 0.5rem;
+	margin-top: 0.8rem;
+	max-width: 5.5rem;
+}
+
+#questionsListArea p {
+	max-width: 5.5rem;
+}
+
+#questionsListDisplay {
+	resize: none;
+	height: calc(100vh - 14rem);
+	width: 5.5rem;
+	cursor: pointer;
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+	display: block;
+}
+
+.awaitingUpdate {
+	cursor: wait !important;
+	filter: brightness(50%);
+	pointer-events: none !important;
+}

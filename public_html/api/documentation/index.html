@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-122686421-1"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'UA-122686421-1');
+		</script>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<link rel="stylesheet" href="/globalResources/globalcss.css">
+		<script defer src="/globalResources/globaljs&html.js"></script>
+
+		<link rel="stylesheet" href="api-documentation.css">
+		<script defer src="api-documentation.js"></script>
+	</head>
+	<body>
+		<div id="content">
+				<h1>RulesGuru API</h1>
+
+				<p>The RulesGuru API provides a way for developers to access rules questions programmatically. Requests should be submitted to /api/questions/ as a GET request with parameter "json=[settings]", where "[settings]" is percent-encoded JSON. The properties of the JSON object are explained in the table below:</p>
+
+				<div class="grid grid4">
+					<p class="header">Property</p>
+					<p class="header">Data Type</p>
+					<p class="header">Description</p>
+					<p class="header">Default Value</p>
+					<p>count</p>
+					<p>Number</p>
+					<p>The number of questions you want.</p>
+					<p>1</p>
+					<p>level</p>
+					<p>Array of strings</p>
+					<p>Length 1 to 4, contains any combination of acceptable levels. Options are "1", "2", "3", and "Corner Case".</p>
+					<p>["1", "2"]</p>
+					<p>complexity</p>
+					<p>Array of strings</p>
+					<p>Length 1 to 3, contains any combination acceptable complexities. Options are "Simple", "Intermediate", and "Complicated".</p>
+					<p>["Simple", "Intermediate"]</p>
+					<p>legality</p>
+					<p>String</p>
+					<p>Can be "Standard", "Pioneer", "Modern", "All of Magic", or "Choose Expansions".</p>
+					<p>"Modern"</p>
+					<p>expansions</p>
+					<p>Array of strings</p>
+					<p>Only used if legality is "Choose Expansions". Refer to the dropdown menu in the sidebar on the home page for a list of all available expansions.</p>
+					<p>[]</p>
+					<p>playableOnly</p>
+					<p>Boolean</p>
+					<p>If true, questions will be limited to cards that see tournament play in the given format. Not used if legality is "All of Magic" or "Choose Expansions".</p>
+					<p>false</p>
+					<p>tags</p>
+					<p>Array of strings</p>
+					<p>A list of tags. Refer to the dropdown menu in the sidebar on the home page for a list of all available tags.</p>
+					<p>[]</p>
+					<p>rules</p>
+					<p>Array of strings</p>
+					<p>A list of rules. Refer to the dropdown menu in the sidebar on the home page for a list of all available rules. Or, you know, the CR.</p>
+					<p>[]</p>
+					<p>cards</p>
+					<p>Array of strings</p>
+					<p>A list of cards. Refer to the dropdown menu in the sidebar on the home page for a list of all available cards. Or, you know, Scryfall.</p>
+					<p>[]</p>
+					<p>tagsConjunc</p>
+					<p>String</p>
+					<p>The logical conjunction to be used upon the list of tags. Can be "AND", "OR", or "NOT".</p>
+					<p>"OR"</p>
+					<p>rulesConjunc</p>
+					<p>String</p>
+					<p>The logical conjunction to be used upon the list of rules. Can be "AND", "OR", or "NOT".</p>
+					<p>"OR"</p>
+					<p>cardsConjunc</p>
+					<p>String</p>
+					<p>The logical conjunction to be used upon the list of cards. Can be "AND", "OR", or "NOT".</p>
+					<p>"OR"</p>
+				</div>
+				<br><br>
+				<p>Here is an example JSON string:</p>
+				<br>
+				<div id="jsonWrapper">
+					<p id="json">
+						{<br>
+							&nbsp;&nbsp;&nbsp;"count": 1,<br>
+							&nbsp;&nbsp;&nbsp;"level": ["1", "2"],<br>
+							&nbsp;&nbsp;&nbsp;"complexity": ["Simple", "Intermediate"],<br>
+							&nbsp;&nbsp;&nbsp;"legality": "Modern",<br>
+							&nbsp;&nbsp;&nbsp;"expansions": [],<br>
+							&nbsp;&nbsp;&nbsp;"playableOnly": false,<br>
+							&nbsp;&nbsp;&nbsp;"tags": [],<br>
+							&nbsp;&nbsp;&nbsp;"tagsConjunc": "OR",<br>
+							&nbsp;&nbsp;&nbsp;"rules": [],<br>
+							&nbsp;&nbsp;&nbsp;"rulesConjunc": "OR",<br>
+							&nbsp;&nbsp;&nbsp;"cards": [],<br>
+							&nbsp;&nbsp;&nbsp;"cardsConjunc": "OR"<br>
+						}
+					</p>
+				</div>
+				<br><br>
+				<p>After minifying and percent-encoding it, here is the resulting query:</p>
+				<br>
+				<a href="/api/questions/?json=%7B%22count%22%3A1%2C%22level%22%3A%5B%221%22%2C%222%22%5D%2C%22complexity%22%3A%5B%22Simple%22%2C%22Intermediate%22%5D%2C%22legality%22%3A%22Modern%22%2C%22expansions%22%3A%5B%5D%2C%22playableOnly%22%3Afalse%2C%22tags%22%3A%5B%5D%2C%22tagsConjunc%22%3A%22OR%22%2C%22rules%22%3A%5B%5D%2C%22rulesConjunc%22%3A%22OR%22%2C%22cards%22%3A%5B%5D%2C%22cardsConjunc%22%3A%22OR%22%7D">https://rulesguru.net/api/questions/<span id="nowrap">?j</span>son=%7B%22count%22%3A1%2C%22level%22%3A%5B%221%22%2C%222%22%5D%2C%22complexity%22%3A%5B%22Simple%22%2C%22Intermediate%22%5D%2C%22legality%22%3A%22Modern%22%2C%22expansions%22%3A%5B%5D%2C%22playableOnly%22%3Afalse%2C%22tags%22%3A%5B%5D%2C%22tagsConjunc%22%3A%22OR%22%2C%22rules%22%3A%5B%5D%2C%22rulesConjunc%22%3A%22OR%22%2C%22cards%22%3A%5B%5D%2C%22cardsConjunc%22%3A%22OR%22%7D</a>
+
+				<br>
+				<div class="line"></div>
+				<br>
+
+				<p>The return value is a JSON array of objects each representing a question. Each question object has the following properties:</p>
+
+				<div class="grid grid3">
+					<p class="header">Property</p>
+					<p class="header">Data Type</p>
+					<p class="header">Description</p>
+					<p>id</p>
+					<p>Number</p>
+					<p>The ID of the question.</p>
+					<p>level</p>
+					<p>String</p>
+					<p>The level of the question.</p>
+					<p>complexity</p>
+					<p>String</p>
+					<p>The complexity of the question.</p>
+					<p>tags</p>
+					<p>Array of strings</p>
+					<p>The tags that the question has.</p>
+					<p>question</p>
+					<p>String</p>
+					<p>The text of the question.</p>
+					<p>answer</p>
+					<p>String</p>
+					<p>The answer to the question.</p>
+					<p>submitterName</p>
+					<p>String</p>
+					<p>The person who submitted the question. The empty string if no name was given.</p>
+					<p>includedCards</p>
+					<p>Array of strings</p>
+					<p>A list of cards mentioned in the question or answer.</p>
+				</div>
+				<br><br>
+				<p>The RulesGuru server has to perform a large number of computations in order to find questions that match some parameters. In order to not overload the server, please limit requests to one at a time, with a minimum delay of 100 milliseconds in between each request. In other words, do not submit multiple concurrent requests; wait for one to return, then wait 100 milliseconds, then submit another request. If you need multiple questions all of the same settings, submit a single request with the appropriate "count" variable; do not submit that many individual requests.</p>
+				<br>
+				<p>This API is a work in progress, meaning features and syntax may change. If you have any feature requests or bug reports, please <button class="inline" id="questionIssueButton">let us know</button>.</p>
+		</div>
+
+		<div id="FOUCOverlay"></div>
+		<div id="jsDisabled">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your Javascript is disabled. You'll need to enable it in order for the site to work.</p>
+		</div>
+		<div id="jsOutOfDate">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your browser is out of date. You'll need to update it to a newer version in order for the site to work.</p>
+		</div>
+		<script>
+			//Check for Javascript
+			document.getElementById("jsDisabled").style.display = "none";
+
+			eval("const foo = 'bar'");
+
+			document.getElementById("jsOutOfDate").style.display = "none";
+		</script>
+	</body>
+</html>

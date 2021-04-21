@@ -1,0 +1,11 @@
+#donations, #openContactFormButton, #followLink, #aboutLink {
+	display: none;
+}
+
+#editorLink:hover img {
+	content:url("editor-hover.png");
+}
+
+.styleTypeNone {
+	list-style-type: none;
+}

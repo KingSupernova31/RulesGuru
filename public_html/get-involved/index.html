@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-122686421-1"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'UA-122686421-1');
+		</script>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<link rel="stylesheet" href="/globalResources/globalcss.css">
+		<link rel="stylesheet" href="/globalResources/infoPageCss.css">
+		<script defer src="/globalResources/globaljs&html.js"></script>
+
+		<link rel="stylesheet" href="get-involved.css">
+		<script defer src="get-involved.js"></script>
+	</head>
+	<body>
+		<h1>Get Involved</h1>
+		<br>
+		<div id="info">
+			<h4 class="header">Overview</h4>
+			<p class="content">RulesGuru maintains a small team of people who look over each submitted question in order to format them properly and make sure their answers are accurate before they become publicly visible. Want to join our admin team? We'd love to have you!</p>
+			<h4 class="header">Available Roles</h4>
+			<div class="content">
+				<ul>
+					<li><b>Editor:</b> Editors are the backbone of RulesGuru. They're the ones who first look over submitted questions and format them for the site. This role doesn't require any special knowledge, and is ideal for anyone who wants to dip their toes in the water.</li>
+					<li><b>Grammar Guru:</b> It's always nice when things are written professionally, and RulesGuru questions are no different. Our grammar gurus check over each question before it's approved to ensure that everything looks proper. God forbid something goes live missing the oxford comma; I don't know how we'd live with ourselves.</li>
+					<li><b>Template Guru:</b> RulesGuru questions don't just use single cards; each one has a list of search criteria that generates all cards with equivalent functionality. This dramatically increases the size of the effective question pool, allowing searches to return more results and lowering the chance of seeing the same question twice. It is however, easy to accidentally include a card you don't mean to in the search, making the question appear... strange. The Template Gurus looks over all the card templates and makes sure there aren't any Cheatyfaces sneaking in there.</li>
+					<li><b>Rules Guru:</b> Correct answers are the most important part of RulesGuru. Our Rules Gurus look over each question and make sure the answer is accurate and clearly explained. They are integral to making sure that we can be trusted as a reliable resource. In other words, RulesGuru Rules Gurus rule!</li>
+				</ul>
+				<br>
+				<p>The "guru" roles solely verify the content of existing questions, while editors are responsible for the formatting of user-submitted questions. If you'd like to do both, you can apply for multiple roles. (Any role can write new questions.) If you're unsure of what would fit you best, the editor role is a good way to learn the ropes, and you can always change your role later.</p>
+			</div>
+			<h4 class="header">Required skills</h4>
+			<div class="content">
+				<ul>
+					<li><b>Editor:</b> Editors are a jack of all trades, master of none position. You should have a decent familiarity with the English language and Magic's basic rules, but don't need to be an expert in any area. Newer judges and non-judges are more than welcome. Enthusiasm and a willingness to learn from your mistakes are the most important qualities for this role.</li>
+					<li><b>Grammar Guru:</b> You should have a strong knowledge of English spelling and grammar, along with an eye for detail. Familiarity with the conventional phrasing of judge questions such as those used on Judge Academy, Judgeapps, or the Judge Center is a nice bonus. Similarly, a basic knowledge of how oracle text is formatted on Magic cards is beneficial.</li>
+					<li><b>Template Guru:</b> You'll be designing search queries to match certain cards while not others. If you do a lot of card searches on Gatherer, Scryfall, or another Magic card search engine, you're probably well-suited for this role. Familiarity with the common phrasings that Wizards uses on cards is also beneficial.</li>
+					<li><b>Rules Guru:</b> You are the final safeguard against factual errors in RulesGuru content. You'll also be responsible for making sure that the answer is clearly explained and properly backed up with rule citations, along with marking the question with the appropriate difficulty and tags. You should have a deep technical knowledge of the content and layout of the comprehensive rules, from how trample works all the way up to the most obscure corner cases. You'll need to be able to parse complicated board states and figure out what's going on. You'll also be responsible for making sure that answers are explained clearly and succinctly in a way people can understand. Experience mentoring less experienced judges and/or teaching players how to play Magic is helpful.</li>
+				</ul>
+				<br>
+				<p>The three "guru" roles are very specific, so you don't need unrelated knowledge to perform them well. Grammar and template gurus don't need any rules knowledge, etc.</p>
+			</div>
+			<h4 class="header">Details</h4>
+			<div class="content">
+				<p>RulesGuru works on a three month development cycle, so you can try it out for a few months at a time and decide at the end whether to continue on for another term. While you're on our team there's no required time commitment; you can spend as much or as little time on questions as you choose. At the end of each cycle, a few members of the team will be selected to receive a recognition and be sent some judge foils as a thank you. You can see past recognitions <a href="/recognitions">here</a>.</p>
+				<br>
+				<p>Working on RulesGuru is a great way to improve your familiarity with Magic's rules and card pool, learn how to convey that knowledge to others in a clear and intuitive way, practice your writing skills, and learn good question design principles in general. It also lets you connect with other judges and rules nerds who have a passion for Magic.</p>
+				<br>
+				<p class="bold">If you'd like to apply, please fill out <a href="https://docs.google.com/forms/d/1vsJQ7-JZw098DLBAot4UJVkQX8Egf599DjlGcAu_hyw">this google form</a>. If you have any questions about the process, <button id="questionIssueButton">contact us</button>.</p>
+			</div>
+		</div>
+
+		<div id="FOUCOverlay"></div>
+		<div id="jsDisabled">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your Javascript is disabled. You'll need to enable it in order for the site to work.</p>
+		</div>
+		<div id="jsOutOfDate">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your browser is out of date. You'll need to update it to a newer version in order for the site to work.</p>
+		</div>
+		<script>
+			//Check for Javascript
+			document.getElementById("jsDisabled").style.display = "none";
+
+			eval("const foo = 'bar'");
+
+			document.getElementById("jsOutOfDate").style.display = "none";
+		</script>
+	</body>
+</html>

@@ -1,0 +1,633 @@
+body {
+	margin: 0 2rem 0 2rem;
+}
+
+#tooltipsymbols {
+	column-count: 5;
+	display: none;
+	color: black;
+	width: fit-content;
+}
+
+.optionLabel {
+	display: inline;
+}
+
+h1 {
+	text-align: center;
+}
+
+#tagList {
+	margin-left: 3rem;
+}
+
+#tagList li {
+	list-style-image: url("../globalResources/icons/red-x.png");
+}
+
+#question, #answer {
+	width: 100%;
+	height: 15rem;
+	resize: vertical;
+	padding: 0.2rem;
+}
+
+#questionStuffDiv {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	margin-top: 2rem;
+	column-gap: 3rem;
+}
+
+@media only screen and (max-width: 40rem) {
+	#questionStuffDiv {
+		display: grid;
+		grid-template-columns: 100%;
+		margin-top: 2rem;
+		text-align: center;
+	}
+	#questionStuffDiv > label {
+		margin: auto;
+	}
+	#question {
+		margin-bottom: 1rem;
+		margin-top: -4rem;
+	}
+	#clearFields {
+		justify-self: center !important;
+		margin-bottom: 1rem;
+	}
+	#cardGenerators {
+		margin-bottom: 1rem;
+	}
+	#tagList * {
+		margin: auto;
+	}
+	#questionStuffDiv > button {
+		margin: auto;
+	}
+	#questionEditButtons button {
+		margin: auto;
+	}
+	#templateScrollContainer {
+		width: 19.5rem !important;
+		height: 24.33rem !important;
+	}
+	#templateScrollContainer * {
+		font-size: 0.75rem;
+	}
+	#templateScrollContainer .specialButtonBlack {
+		width: 9rem;
+	}
+	#multiEntryDiv {
+		width: 19.5rem !important;
+		height: 24.33rem !important;
+	}
+	#multiEntryDiv * {
+		font-size: 0.75rem;
+	}
+	#multiEntryDiv .specialButtonBlack {
+		width: 9rem;
+	}
+	#previewButton {
+		width: 6rem;
+	}
+}
+
+#questionStuffDiv > label {
+	width: fit-content;
+}
+
+.emptyCell {
+	height: 1rem;
+}
+
+li {
+	width: fit-content;
+}
+
+/*Card generators display*/
+
+.cardGenerator {
+	margin-bottom: 0.3rem;
+}
+
+#cardGenerators li {
+	list-style-image: none;
+	list-style-type: none;
+}
+
+.cardGenerator > *:not(ul) {
+	margin-right: 0.3rem;
+	display: inline;
+}
+
+.cardCount {
+	font-weight: bold;
+}
+
+.subCardGeneratorList {
+	max-height: 5.5rem;
+	overflow: auto;
+}
+
+.subCardGeneratorTemplate {
+	max-height: 6rem;
+	overflow: auto;
+}
+
+.subCard {
+	margin-left: 1.5rem;
+}
+
+.subCardGeneratorX {
+	margin-right: 0.3rem;
+}
+
+.subCard {
+	width: fit-content;
+}
+
+.cardGenerator > .templateButton {
+	display: none;
+}
+
+/*Multi entry and template divs*/
+#multiEntryDiv {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 26rem;
+	height: 32rem;
+	padding: 0.7rem;
+	text-align: center;
+	background-color: white;
+	z-index: 2;
+	display: none;
+}
+
+#multiEntryHeading {
+	margin: 0.5rem;
+}
+
+#multiEntryText {
+	resize: none;
+	width: 90%;
+	height: 72%;
+	margin: 1rem;
+}
+
+#ownerOptionsGreyout {
+	opacity: 0.5;
+	background-color: grey;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: none;
+	z-index: 3;
+}
+
+#cardGeneratorgreyout {
+	opacity: 0.5;
+	background-color: grey;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: none;
+	z-index: 1;
+}
+
+#templateScrollContainer {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 26rem;
+	height: 32.44rem;
+	z-index: 2;
+	display: none;
+	overflow: hidden;
+}
+
+#templateDiv {
+	width: calc(100% - 1.4rem);
+	height: 28rem;
+	text-align: center;
+	background-color: white;
+	overflow: auto;
+	padding: 0.7rem;
+}
+
+#templateBoxHeading {
+	margin: 0.5rem;
+}
+
+.templateRule > * {
+	margin: 0.2rem;
+	display: inline;
+}
+
+#templateBottomDiv {
+	width: 100%;
+	height: 4rem;
+	background-color: white;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	text-align: center;
+}
+
+.templateRuleDeleteButton {
+	margin-left: 0.2rem;
+	transform: translateY(30%);
+}
+
+.templateRule {
+	display: grid;
+	grid-template-columns: 4% 35% 26% 35%;
+	text-align: left;
+}
+
+.templateRuleWithLongName {
+	display: grid;
+	grid-template-columns: 4% 51% 10% 35%;
+	text-align: left;
+}
+
+.templateRuleWithExtra {
+	grid-template-columns: 4% 23% 28% 10% 35% !important;
+}
+
+textarea.templateInput, input.templateInput {
+	-webkit-appearance: textfield;
+  -moz-appearance: textfield;
+  appearance: textfield;
+	transition: 0.25s;
+	resize: none;
+	height: 1.35rem;
+	display: table-cell;
+	vertical-align: top;
+}
+
+.templateRule select {
+	height: 1.5rem;
+}
+
+#ownerOnly {
+	display: none;
+	float: left;
+}
+
+#ownerOnly button, #ownerOnly label {
+	display: block;
+	margin-bottom: 0.4rem;
+}
+
+#previewButton {
+	position: absolute;
+	top: 0rem;
+	right: 0rem;
+	z-index: 2;
+}
+
+#questionsListCount {
+	float: left;
+	clear: left;
+	margin-bottom: 0.5rem;
+	width: fit-content;
+	display: none;
+	margin-top: 0.8rem;
+}
+
+#questionsListDisplay {
+	float: left;
+	clear: left;
+	resize: none;
+	height: calc(100vh - 12rem);
+	width: 4rem;
+	margin-right: 3rem;
+	display: none;
+}
+
+#topCenterDiv {
+	margin: auto;
+	width: fit-content;
+	text-align: center;
+}
+
+#topCenterDiv > * {
+	margin-top: 0.2rem;
+	margin-bottom: 0.2rem;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#topCenterDiv > h1 {
+	margin-bottom: 0.5rem;
+}
+
+#logOutButton#logOutButton {
+	display: none;
+}
+
+#getQuestionIdInput {
+	width: 12rem !important;
+	margin-bottom: 1rem;
+	text-align: center;
+}
+
+#password {
+	width: 6.8rem;
+}
+
+#welcomeText {
+	display: none;
+}
+
+#clearFields {
+	justify-self: end;
+}
+
+#settingsButton {
+	display: none;
+}
+
+#sidebarExtras {
+	display: none;
+}
+
+#questionInfo {
+	display: none;
+	font-weight: bold;
+}
+
+#questionSubmitterNameField {
+	display: none;
+	font-weight: bold;
+}
+
+#adminInfo {
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin-top: 3rem;
+	margin-right: 2rem;
+}
+
+#approveOrUnapprove, #updateButton {
+	display: none;
+}
+
+#questionEditButtons button {
+	width: 13rem;
+	margin-bottom: 0.4rem;
+}
+
+#tagEditor {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 26rem;
+	height: 32.44rem;
+	z-index: 4;
+	display: none;
+	background-color: white;
+	padding: 1rem;
+	text-align: center;
+	overflow: auto;
+}
+
+.tagEditorAddRemoveCount {
+	font-weight: bold;
+	display: inline;
+}
+
+#tagEditorBottomDiv {
+	width: 100%;
+	height: 4rem;
+	background-color: white;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+}
+
+#tagEditorAddRemoveIntoDiv {
+	display: none;
+	margin-top: 1rem;
+}
+
+#tagEditorAddRemoveCenter {
+	text-align: right;
+	margin: 2rem auto 0 auto;
+	width: fit-content;
+}
+
+#tagEditorAddRemoveCount1 {
+	display: none;
+}
+
+#tagEditorSuggestions {
+	display: none;
+}
+
+#tagEditorList {
+	display: none;
+}
+
+.tagEditorTab {
+	border-style: none;
+	border-top-left-radius: 0.3rem;
+	border-top-right-radius: 0.3rem;
+	padding: 0.2rem 0.4rem;
+	outline: none;
+}
+
+.tagEditorTab:hover, .tagEditorTab:focus {
+	filter: brightness(70%);
+}
+
+.activeTab {
+	background-color: #e0e0e0;
+	filter: none !important;
+}
+
+.tagEditorPage {
+	border-radius: 0.5rem;
+	border-width: 0.05rem;
+	height: 23rem;
+	padding: 0.5rem;
+	background-color: #e0e0e0;
+	overflow: auto;
+}
+
+#tagEditor h3 {
+	margin-bottom: 0.5rem;
+}
+
+.awaitingUpdate {
+	cursor: wait !important;
+	filter: brightness(50%);
+	pointer-events: none !important;
+}
+
+#tagEditorSuggestionsListsContainerTag {
+	margin-top: 1rem;
+	display: flex;
+	min-height: 89%;
+}
+
+.tagEditorSuggestionsLeft {
+	flex: 0 0 50%;
+	border-right: solid 0.01rem;
+}
+
+.tagEditorSuggestionsRight {
+	flex: 1;
+	border-left: solid 0.01rem;
+}
+
+#tagEditorSuggestionsTagRight ul {
+	padding-left: 0.5rem;
+}
+
+#tagEditorSuggestions h4 {
+	text-align: center;
+	margin-bottom: 0.3rem;
+}
+
+#tagEditorSuggestionsListsContainerTag ul {
+	margin-top: 0.5rem;
+	list-style-type: none;
+}
+
+#tagEditorSuggestionsListsContainerRule {
+	margin-top: 1rem;
+	min-height: 89%;
+	display: none;
+}
+
+#tagEditorSuggestionsListsContainerRanges {
+	margin-top: 1rem;
+	min-height: 89%;
+	display: none;
+}
+
+#tagEditorSuggestionsListsContainerRanges input {
+	width: 5rem;
+}
+
+#tagEditorSuggestionsListsContainerRanges label {
+	font-weight: bold;
+}
+
+#adminEditor {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 26rem;
+	height: 32.44rem;
+	z-index: 4;
+	display: none;
+	background-color: white;
+	padding: 1rem;
+	text-align: center;
+	overflow: auto;
+}
+
+#adminEditorBottomDiv {
+	width: 100%;
+	height: 4rem;
+	background-color: white;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+}
+
+#adminEditor label {
+	width: fit-content;
+	display: block;
+	margin-bottom: 0.4rem;
+}
+
+#adminEditorInputRules p {
+	width: fit-content;
+	margin-bottom: 0.3rem
+}
+
+#adminEditorInputRules checkbox {
+	width: fit-content;
+	display: inline;
+	margin-bottom: 0.4rem;
+}
+
+#adminEditorInputRules li {
+	margin-left: 1rem;
+	list-style-type: none;
+}
+
+#adminNames {
+	margin: 1rem;
+}
+
+#adminEditorInputEmailAddress {
+	width: 19rem;
+}
+
+#informationEditor {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 90%;
+	height: 80%;
+	z-index: 4;
+	display: none;
+	background-color: white;
+	padding: 1rem;
+	text-align: center;
+	overflow: auto;
+}
+
+#informationEditorBottomDiv {
+	width: 100%;
+	height: 4rem;
+	background-color: white;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+}
+
+#donations, #openContactFormButton, #followLink, #aboutLink {
+	display: none;
+}
+
+#adminAboutLink:hover img {
+	content:url("../globalResources/icons/about-hover.png");
+}
+
+#rulesLink:hover img {
+	content:url("cr-hover.png");
+}
+
+#informationEditorSelect {
+	margin: 1rem;
+}
+
+#informationEditorText {
+	resize: none;
+	height: 82%;
+	width: 98%;
+	display: block;
+	position: relative;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 0.2rem;
+}
