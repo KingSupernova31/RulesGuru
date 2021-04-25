@@ -445,7 +445,7 @@ cron.schedule("0 0 0 * * *", function() {
 		}
 	});
 
-	const apiUrls = JSON.parse(readFileSync("mostPlayedApiUrls.json", "utf8")); //URLs need to be hidden as the API is private.
+	const apiUrls = JSON.parse(fs.readFileSync("mostPlayedApiUrls.json", "utf8")); //URLs need to be hidden as the API is private.
 
 	downloadFile("data_files/mostPlayedStandard.json", apiUrls.standard, function() {
 		finishedDownloads++;
