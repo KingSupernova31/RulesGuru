@@ -425,7 +425,7 @@ month	1-12
 day of week	0-6 (0 is sunday)
 */
 //Every day:
-//cron.schedule("0 0 0 * * *", function() {
+cron.schedule("0 0 0 * * *", function() {
 	let finishedDownloads = 0;
 	downloadFile("data_files/rawAllKeywords.json", "https://mtgjson.com/api/v5/Keywords.json", function() {
 		try {
@@ -545,4 +545,4 @@ day of week	0-6 (0 is sunday)
 			handleError(err);
 		}
 	});
-//});
+});
