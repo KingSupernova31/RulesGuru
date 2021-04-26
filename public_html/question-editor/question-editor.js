@@ -451,7 +451,7 @@ const addTemplateRule = function(field, operator, value, fieldOption) {
 			operators = ["Includes:", "Doesn't include:", "Exactly:"];
 			tooltip = `The order of the symbols doesn't matter. You can use ::generic::, ::phyrexian::, ::hybrid::, and ::[color]:: to match multiple symbols.<br><br>If "Doesn't include" is selected, only cards that don't have <b>all</b> of those symbols are returned. If "don't have <b>any</b>" is the desired query, use multiple "Doesn't include" rules.`;
 			break;
-		case "Converted mana cost":
+		case "Mana value":
 			operators = ["=", ">", "<"];
 			break;
 		case "Supertypes":
@@ -566,7 +566,7 @@ const addTemplateRule = function(field, operator, value, fieldOption) {
 		}, 0, event.srcElement)
 	});
 
-	if (field === "Converted mana cost") {
+	if (field === "Mana value") {
 		rule.classList.add("templateRuleWithLongName");
 	}
 

@@ -24,12 +24,11 @@ const downloadFile = function(dest, source, callback) {
 			file.close(callback);
 		});
 	}).on('error', function(err) {
-		handleError(err)
-		fs.unlink(dest);
+		handleError(err);
 	});
 };
 
-const manualMeldCards = [{"colorIdentity":["W"],"colors":[],"convertedManaCost":11,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Brisela, Voice of Nightmares","names":["Bruna, the Fading Light","Gisela, the Broken Blade","Brisela, Voice of Nightmares"],"power":"9","printings":["EMN","PEMN","V17"],"side":"b","subtypes":["Eldrazi","Angel"],"supertypes":["Legendary"],"text":"Flying, first strike, vigilance, lifelink\nYour opponents can't cast spells with converted mana cost 3 or less.","toughness":"10","type":"Legendary Creature — Eldrazi Angel","types":["Creature"]},{"colorIdentity":["W"],"colors":["W"],"convertedManaCost":7,"layout":"meld","leadershipSkills":{"brawl":false,"commander":true,"oathbreaker":false},"legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","penny":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{5}{W}{W}","name":"Bruna, the Fading Light","names":["Bruna, the Fading Light","Gisela, the Broken Blade","Brisela, Voice of Nightmares"],"power":"5","printings":["EMN","PEMN","V17"],"side":"a","subtypes":["Angel","Horror"],"supertypes":["Legendary"],"text":"When you cast this spell, you may return target Angel or Human creature card from your graveyard to the battlefield.\nFlying, vigilance\n(Melds with Gisela, the Broken Blade.)","toughness":"7","type":"Legendary Creature — Angel Horror","types":["Creature"]},{"colorIdentity":["B"],"colors":[],"convertedManaCost":7,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pauper":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Chittering Host","names":["Midnight Scavengers","Graf Rats","Chittering Host"],"power":"5","printings":["EMN"],"side":"b","subtypes":["Eldrazi","Horror"],"supertypes":[],"text":"Haste\nMenace (This creature can't be blocked except by two or more creatures.)\nWhen Chittering Host enters the battlefield, other creatures you control get +1/+0 and gain menace until end of turn.","toughness":"6","type":"Creature — Eldrazi Horror","types":["Creature"]},{"colorIdentity":["W"],"colors":["W"],"convertedManaCost":4,"layout":"meld","leadershipSkills":{"brawl":false,"commander":true,"oathbreaker":false},"legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{2}{W}{W}","name":"Gisela, the Broken Blade","names":["Bruna, the Fading Light","Gisela, the Broken Blade","Brisela, Voice of Nightmares"],"power":"4","printings":["EMN","PEMN","V17"],"side":"a","subtypes":["Angel","Horror"],"supertypes":["Legendary"],"text":"Flying, first strike, lifelink\nAt the beginning of your end step, if you both own and control Gisela, the Broken Blade and a creature named Bruna, the Fading Light, exile them, then meld them into Brisela, Voice of Nightmares.","toughness":"3","type":"Legendary Creature — Angel Horror","types":["Creature"]},{"colorIdentity":["B"],"colors":["B"],"convertedManaCost":2,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pauper":"Legal","penny":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{1}{B}","name":"Graf Rats","names":["Midnight Scavengers","Graf Rats","Chittering Host"],"power":"2","printings":["EMN"],"side":"a","subtypes":["Rat"],"supertypes":[],"text":"At the beginning of combat on your turn, if you both own and control Graf Rats and a creature named Midnight Scavengers, exile them, then meld them into Chittering Host.","toughness":"1","type":"Creature — Rat","types":["Creature"]},{"colorIdentity":["R"],"colors":[],"convertedManaCost":0,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Hanweir Battlements","names":["Hanweir Battlements","Hanweir Garrison","Hanweir, the Writhing Township"],"printings":["EMN","PEMN"],"side":"a","subtypes":[],"supertypes":[],"text":"{T}: Add {C}.\n{R}, {T}: Target creature gains haste until end of turn.\n{3}{R}{R}, {T}: If you both own and control Hanweir Battlements and a creature named Hanweir Garrison, exile them, then meld them into Hanweir, the Writhing Township.","type":"Land","types":["Land"]},{"colorIdentity":["R"],"colors":["R"],"convertedManaCost":3,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{2}{R}","name":"Hanweir Garrison","names":["Hanweir Battlements","Hanweir Garrison","Hanweir, the Writhing Township"],"power":"2","printings":["EMN","PEMN"],"side":"a","subtypes":["Human","Soldier"],"supertypes":[],"text":"Whenever Hanweir Garrison attacks, create two 1/1 red Human creature tokens that are tapped and attacking.\n(Melds with Hanweir Battlements.)","toughness":"3","type":"Creature — Human Soldier","types":["Creature"]},{"colorIdentity":["R"],"colors":[],"convertedManaCost":3,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Hanweir, the Writhing Township","names":["Hanweir Battlements","Hanweir Garrison","Hanweir, the Writhing Township"],"power":"7","printings":["EMN","PEMN"],"side":"b","subtypes":["Eldrazi","Ooze"],"supertypes":["Legendary"],"text":"Trample, haste\nWhenever Hanweir, the Writhing Township attacks, create two 3/2 colorless Eldrazi Horror creature tokens that are tapped and attacking.","toughness":"4","type":"Legendary Creature — Eldrazi Ooze","types":["Creature"]},{"colorIdentity":["B"],"colors":["B"],"convertedManaCost":5,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pauper":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{4}{B}","name":"Midnight Scavengers","names":["Midnight Scavengers","Graf Rats","Chittering Host"],"power":"3","printings":["EMN"],"side":"a","subtypes":["Human","Rogue"],"supertypes":[],"text":"When Midnight Scavengers enters the battlefield, you may return target creature card with converted mana cost 3 or less from your graveyard to your hand.\n(Melds with Graf Rats.)","toughness":"3","type":"Creature — Human Rogue","types":["Creature"]}];
+const manualMeldCards = [{"colorIdentity":["W"],"colors":[],"convertedManaCost":11,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Brisela, Voice of Nightmares","names":["Bruna, the Fading Light","Gisela, the Broken Blade","Brisela, Voice of Nightmares"],"power":"9","printings":["EMN","PEMN","V17"],"side":"b","subtypes":["Eldrazi","Angel"],"supertypes":["Legendary"],"text":"Flying, first strike, vigilance, lifelink\nYour opponents can't cast spells with mana value 3 or less.","toughness":"10","type":"Legendary Creature — Eldrazi Angel","types":["Creature"]},{"colorIdentity":["W"],"colors":["W"],"convertedManaCost":7,"layout":"meld","leadershipSkills":{"brawl":false,"commander":true,"oathbreaker":false},"legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","penny":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{5}{W}{W}","name":"Bruna, the Fading Light","names":["Bruna, the Fading Light","Gisela, the Broken Blade","Brisela, Voice of Nightmares"],"power":"5","printings":["EMN","PEMN","V17"],"side":"a","subtypes":["Angel","Horror"],"supertypes":["Legendary"],"text":"When you cast this spell, you may return target Angel or Human creature card from your graveyard to the battlefield.\nFlying, vigilance\n(Melds with Gisela, the Broken Blade.)","toughness":"7","type":"Legendary Creature — Angel Horror","types":["Creature"]},{"colorIdentity":["B"],"colors":[],"convertedManaCost":7,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pauper":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Chittering Host","names":["Midnight Scavengers","Graf Rats","Chittering Host"],"power":"5","printings":["EMN"],"side":"b","subtypes":["Eldrazi","Horror"],"supertypes":[],"text":"Haste\nMenace (This creature can't be blocked except by two or more creatures.)\nWhen Chittering Host enters the battlefield, other creatures you control get +1/+0 and gain menace until end of turn.","toughness":"6","type":"Creature — Eldrazi Horror","types":["Creature"]},{"colorIdentity":["W"],"colors":["W"],"convertedManaCost":4,"layout":"meld","leadershipSkills":{"brawl":false,"commander":true,"oathbreaker":false},"legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{2}{W}{W}","name":"Gisela, the Broken Blade","names":["Bruna, the Fading Light","Gisela, the Broken Blade","Brisela, Voice of Nightmares"],"power":"4","printings":["EMN","PEMN","V17"],"side":"a","subtypes":["Angel","Horror"],"supertypes":["Legendary"],"text":"Flying, first strike, lifelink\nAt the beginning of your end step, if you both own and control Gisela, the Broken Blade and a creature named Bruna, the Fading Light, exile them, then meld them into Brisela, Voice of Nightmares.","toughness":"3","type":"Legendary Creature — Angel Horror","types":["Creature"]},{"colorIdentity":["B"],"colors":["B"],"convertedManaCost":2,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pauper":"Legal","penny":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{1}{B}","name":"Graf Rats","names":["Midnight Scavengers","Graf Rats","Chittering Host"],"power":"2","printings":["EMN"],"side":"a","subtypes":["Rat"],"supertypes":[],"text":"At the beginning of combat on your turn, if you both own and control Graf Rats and a creature named Midnight Scavengers, exile them, then meld them into Chittering Host.","toughness":"1","type":"Creature — Rat","types":["Creature"]},{"colorIdentity":["R"],"colors":[],"convertedManaCost":0,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Hanweir Battlements","names":["Hanweir Battlements","Hanweir Garrison","Hanweir, the Writhing Township"],"printings":["EMN","PEMN"],"side":"a","subtypes":[],"supertypes":[],"text":"{T}: Add {C}.\n{R}, {T}: Target creature gains haste until end of turn.\n{3}{R}{R}, {T}: If you both own and control Hanweir Battlements and a creature named Hanweir Garrison, exile them, then meld them into Hanweir, the Writhing Township.","type":"Land","types":["Land"]},{"colorIdentity":["R"],"colors":["R"],"convertedManaCost":3,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{2}{R}","name":"Hanweir Garrison","names":["Hanweir Battlements","Hanweir Garrison","Hanweir, the Writhing Township"],"power":"2","printings":["EMN","PEMN"],"side":"a","subtypes":["Human","Soldier"],"supertypes":[],"text":"Whenever Hanweir Garrison attacks, create two 1/1 red Human creature tokens that are tapped and attacking.\n(Melds with Hanweir Battlements.)","toughness":"3","type":"Creature — Human Soldier","types":["Creature"]},{"colorIdentity":["R"],"colors":[],"convertedManaCost":3,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Hanweir, the Writhing Township","names":["Hanweir Battlements","Hanweir Garrison","Hanweir, the Writhing Township"],"power":"7","printings":["EMN","PEMN"],"side":"b","subtypes":["Eldrazi","Ooze"],"supertypes":["Legendary"],"text":"Trample, haste\nWhenever Hanweir, the Writhing Township attacks, create two 3/2 colorless Eldrazi Horror creature tokens that are tapped and attacking.","toughness":"4","type":"Legendary Creature — Eldrazi Ooze","types":["Creature"]},{"colorIdentity":["B"],"colors":["B"],"convertedManaCost":5,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pauper":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{4}{B}","name":"Midnight Scavengers","names":["Midnight Scavengers","Graf Rats","Chittering Host"],"power":"3","printings":["EMN"],"side":"a","subtypes":["Human","Rogue"],"supertypes":[],"text":"When Midnight Scavengers enters the battlefield, you may return target creature card with mana value 3 or less from your graveyard to your hand.\n(Melds with Graf Rats.)","toughness":"3","type":"Creature — Human Rogue","types":["Creature"]}];
 
 const updateAllCards = function() {
 	try {
@@ -61,6 +60,7 @@ const updateAllCards = function() {
 			}
 		}
 
+		//Add in meld cards manually.
 		for (let i in manualMeldCards) {
 			allCards[manualMeldCards[i].name] = manualMeldCards[i];
 		}
@@ -108,6 +108,12 @@ const updateAllCards = function() {
 			}
 		}
 
+		//Change cmc to mana value.
+		for (let i in allCards) {
+			allCards[i].manaValue = allCards[i].convertedManaCost;
+			allCards[i].faceManaValue = allCards[i].faceConvertedManaCost;
+		}
+
 		//Remove redundant layouts and fix incorrect layouts. Left over afterwards: "normal", "split (half)", "split (full)", "flip", "transforming double-faced", "modal double-faced" "meld", "adventurer", "other".
 		for (let i in allCards) {
 			if (allCards[i].layout === "leveler" || allCards[i].layout === "saga") {
@@ -130,10 +136,10 @@ const updateAllCards = function() {
 			}
 		}
 
-		//Fix split card CMC.
+		//Fix split card mana value.
 		for (let i in allCards) {
 			if (allCards[i].layout === "split") {
-				allCards[i].convertedManaCost = allCards[i].faceConvertedManaCost;
+				allCards[i].manaValue = allCards[i].faceManaValue;
 			}
 		}
 
@@ -144,30 +150,30 @@ const updateAllCards = function() {
 			}
 		}
 
-		//Fix adventurer card CMC.
+		//Fix adventurer card mana value.
 		for (let i in allCards) {
 			if (allCards[i].layout === "adventurer" && allCards[i].side === "b") {
-				allCards[i].convertedManaCost = allCards[i].faceConvertedManaCost;
+				allCards[i].manaValue = allCards[i].faceManaValue;
 			}
 		}
 
-		//Fix mdfc CMC. Assumes no hybrid.
+		//Fix mdfc mana value. Assumes no hybrid.
 		for (let i in allCards) {
 			if (allCards[i].layout === "modal double-faced" && allCards[i].side === "b") {
 				if (allCards[i].manaCost) {
 					const manaCostSymbols = allCards[i].manaCost.match(/{[A-Z0-9]}/g);
-					let cmc = 0;
+					let manaValue = 0;
 					for (let symbol of manaCostSymbols) {
 						const result = parseInt(symbol.slice(1));
 						if (isNaN(result)) {
-							cmc++;
+							manaValue++;
 						} else {
-							cmc += result;
+							manaValue += result;
 						}
 					}
-					allCards[i].convertedManaCost = cmc;
+					allCards[i].manaValue = manaValue;
 				} else {
-					allCards[i].convertedManaCost = 0;
+					allCards[i].manaValue = 0;
 				}
 			}
 		}
@@ -181,7 +187,7 @@ const updateAllCards = function() {
 				combinedProps.name = allCards[i].names[0] + " // " + allCards[i].names[1];
 				combinedProps.type = allCards[allCards[i].names[0]].type + " // " + allCards[allCards[i].names[1]].type;
 				combinedProps.manaCost = allCards[allCards[i].names[0]].manaCost + " // " + allCards[allCards[i].names[1]].manaCost;
-				combinedProps.convertedManaCost = allCards[allCards[i].names[0]].convertedManaCost + allCards[allCards[i].names[1]].convertedManaCost;
+				combinedProps.manaValue = allCards[allCards[i].names[0]].manaValue + allCards[allCards[i].names[1]].manaValue;
 				combinedProps.text = allCards[allCards[i].names[0]].text + "\n//\n" + allCards[allCards[i].names[1]].text;
 				for (let j in propsToCombine) {
 					combinedProps[propsToCombine[j]] = allCards[i][propsToCombine[j]].concat(allCards[allCards[i].names[1]][propsToCombine[j]]);
@@ -282,7 +288,7 @@ const updateAllCards = function() {
 			}
 		}
 
-		const relevantProps = ["colorIdentity", "colorIndicator", "colors", "convertedManaCost", "layout", "legalities", "loyalty", "manaCost", "name", "names", "power", "side", "subtypes", "supertypes", "text", "toughness", "type", "types", "rulesText", "printingsName", "printingsCode", "keywords", "playability"];
+		const relevantProps = ["colorIdentity", "colorIndicator", "colors", "manaValue", "layout", "legalities", "loyalty", "manaCost", "name", "names", "power", "side", "subtypes", "supertypes", "text", "toughness", "type", "types", "rulesText", "printingsName", "printingsCode", "keywords", "playability"];
 		for (let i in allCards) {
 			const allProps = Object.keys(allCards[i]);
 			for (let j in allProps) {
@@ -399,8 +405,8 @@ const disperseFiles = function() {
 
 		//Update cards.
 		const allCards = JSON.parse(fs.readFileSync("data_files/finalAllCards.json", "utf8"));
-		writeCardList(allCards, "allCards.json", ["name", "names", "manaCost", "type", "rulesText", "power", "toughness", "loyalty", "layout", "legalities", "printingsName", "types", "side", "supertypes", "subtypes", "convertedManaCost", "colors", "colorIndicator", "keywords", "playability"], "json");
-		writeCardList(allCards, "public_html/question-editor/allCards.js", ["name", "names", "rulesText", "power", "toughness", "loyalty", "layout", "types", "type", "side", "supertypes", "subtypes", "convertedManaCost", "colors", "colorIndicator", "manaCost", "keywords"], "js");
+		writeCardList(allCards, "allCards.json", ["name", "names", "manaCost", "type", "rulesText", "power", "toughness", "loyalty", "layout", "legalities", "printingsName", "types", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "keywords", "playability"], "json");
+		writeCardList(allCards, "public_html/question-editor/allCards.js", ["name", "names", "rulesText", "power", "toughness", "loyalty", "layout", "types", "type", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "manaCost", "keywords"], "js");
 
 		//SearchLink mappings.
 		updateSearchLinkMappings();
@@ -419,7 +425,7 @@ month	1-12
 day of week	0-6 (0 is sunday)
 */
 //Every day:
-cron.schedule("0 0 0 * * *", function() {
+//cron.schedule("0 0 0 * * *", function() {
 	let finishedDownloads = 0;
 	downloadFile("data_files/rawAllKeywords.json", "https://mtgjson.com/api/v5/Keywords.json", function() {
 		try {
@@ -472,7 +478,7 @@ cron.schedule("0 0 0 * * *", function() {
 		try {
 			const rawAllSets = JSON.parse(fs.readFileSync("data_files/rawAllSets.json")).data;
 
-			//Each set is an object with name, code, releaseDate, and validFirstPrinting.
+			//Each set is an object with name, code, and releaseDate.
 			const finalAllSets = [];
 			const properties = ["code", "name", "releaseDate"];
 
@@ -483,25 +489,9 @@ cron.schedule("0 0 0 * * *", function() {
 					newSet[properties[j]] = rawAllSets[i][properties[j]];
 				}
 
-				//Determine if it's a validFirstPrinting set.
-				let validSet = true;
-				for (let j in rawAllSets[i].cards) {
-					if (rawAllSets[i].cards[j].hasOwnProperty("releaseDate")) {
-						validSet = false;
-					}
-				}
-				if (validSet === true && rawAllSets[i].type !== "duel deck") {
-					newSet.validFirstPrinting = true;
-				} else {
-					newSet.validFirstPrinting = false;
-				}
 				//Happy Holidays and Celebration cards don't have a normal first printing, so we have to let their promotional printing be valid. We set the printing date to the far future so that they're always last chronologically. HarperPrism book promos were distributed over the course of only 5 months, so they're left in the chronological position of the first one to come out.
 				if (rawAllSets[i].name === "Happy Holidays" || rawAllSets[i].name === "Celebration") {
-					newSet.validFirstPrinting = true;
 					newSet.releaseDate = "9999-99-99";
-				}
-				if (rawAllSets[i].name === "Media Inserts") {
-					newSet.validFirstPrinting = true;
 				}
 
 				finalAllSets.push(newSet);
@@ -555,4 +545,4 @@ cron.schedule("0 0 0 * * *", function() {
 			handleError(err);
 		}
 	});
-});
+//});

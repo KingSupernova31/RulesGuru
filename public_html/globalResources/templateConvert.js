@@ -134,17 +134,17 @@ const templateConvert = function(template, globalCardList) {
 							}
 						}
 						break;
-					case "Converted mana cost":
+					case "Mana value":
 						if (currentRule.operator === "=") {
-							if (currentCard.convertedManaCost !== Number(currentRule.value)) {
+							if (currentCard.manaValue !== Number(currentRule.value)) {
 								 currentCardValid = false;
 							}
 						} else if (currentRule.operator === ">") {
-							if (!(currentCard.convertedManaCost > currentRule.value)) {
+							if (!(currentCard.manaValue > currentRule.value)) {
 								 currentCardValid = false;
 							}
 						} else if (currentRule.operator === "<") {
-							if (!(currentCard.convertedManaCost < currentRule.value)) {
+							if (!(currentCard.manaValue < currentRule.value)) {
 								 currentCardValid = false;
 							}
 						}
