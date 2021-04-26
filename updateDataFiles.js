@@ -1,7 +1,5 @@
 "use strict";
 
-console.log("hi")
-
 const https = require("https"),
 			fs = require("fs"),
 			request = require("request"),
