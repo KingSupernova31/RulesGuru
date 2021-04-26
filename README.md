@@ -5,7 +5,7 @@ If you have a bug report or feature request, feel free to open an issue or comme
 
 Wizards of the Coast is constantly releasing more cards, often with new layouts and abilities. Scalability and versatility are therefore a high priority for new features, and code should keep future maintainability in mind.
 
-To run a local version of RulesGuru, you'll need [Node.js](https://nodejs.org/en/). Download all files from this repository and run `npm install` in that directory to install all the required node modules. Then download and generate the data files with `node updateDataFiles.js` You can then start all scripts running with `pm2 start ecosystem.config.js` or run only the server with `node server.js`. (Note that the server takes around 30 seconds to start.)
+To run a local version of RulesGuru, you'll need [Node.js](https://nodejs.org/en/). Download the files from this repository and run `npm install` in that directory to install the required node modules. Then download and generate RulesGuru's data files with `node updateDataFiles.js`. (This usually takes several minutes.) You can then start all scripts running with `pm2 start ecosystem.config.js` or run only the server with `node server.js`. (Note that the server takes around 30 seconds to start.)
 
 Certain files in this repository contain placeholder data as detailed below:
 
