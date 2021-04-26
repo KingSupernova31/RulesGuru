@@ -1,14 +1,6 @@
 const nodemailer = require("nodemailer"),
 			fs = require("fs"),
-			transporter = nodemailer.createTransport({
-				host: 'smtp.zoho.com',
-				port: 465,
-				secure: true,
-				auth: {
-					user: "admin@rulesguru.net",
-					pass: fs.readFileSync("emailPassword.txt", "utf8")
-					}
-				});
+			transporter = nodemailer.createTransport(JSON.parse(fs.readFileSync("emailCredentials.json", "utf8")));
 
 //General error handling function- puts the error in the console and emails it to me.
 const handleError = function(error) {

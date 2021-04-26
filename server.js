@@ -10,15 +10,7 @@ const express = require("express"),
 			handleError = require("./handleError.js"),
 			getUnfinishedQuestion = require("./getUnfinishedQuestion.js"),
 			nodemailer = require("nodemailer"),
-			transporter = nodemailer.createTransport({
-				host: 'smtp.zoho.com',
-				port: 465,
-				secure: true,
-				auth: {
-					user: "admin@rulesguru.net",
-					pass: fs.readFileSync("emailPassword.txt", "utf8")
-					}
-				});
+			transporter = nodemailer.createTransport(JSON.parse(fs.readFileSync("emailCredentials.json", "utf8")));
 
 const templateConvert = require("./public_html/globalResources/templateConvert.js"),
 			aVsAn = require("./AvsAn-simple.js"),
@@ -621,6 +613,12 @@ General:
 API:
 
 /api/questions
+
+Development:
+
+mostPlayedStandard: Mirror since the origin API is private.
+mostPlayedPioneer: Mirror since the origin API is private.
+mostPlayedModern: Mirror since the origin API is private.
 
 */
 
@@ -1369,4 +1367,14 @@ app.post("/changeQuestionStatusByOwner", async function(req, res) {
 			updateIndexQuestionCount();
 		}
 	}
+});
+
+app.get("/mostPlayedStandard", function(req, res) {
+	res.send(fs.readFileSync("data_files/mostPlayedStandard.json", "utf8"));
+});
+app.get("/mostPlayedPioneer", function(req, res) {
+	res.send(fs.readFileSync("data_files/mostPlayedPioneer.json", "utf8"));
+});
+app.get("/mostPlayedModern", function(req, res) {
+	res.send(fs.readFileSync("data_files/mostPlayedModern.json", "utf8"));
 });

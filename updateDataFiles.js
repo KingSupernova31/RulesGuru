@@ -1,19 +1,12 @@
 "use strict";
 
+console.log("hi")
+
 const https = require("https"),
 			fs = require("fs"),
 			request = require("request"),
-			cron = require("node-cron"),
 			nodemailer = require("nodemailer"),
-			transporter = nodemailer.createTransport({
-				host: 'smtp.zoho.com',
-				port: 465,
-				secure: true,
-				auth: {
-					user: "admin@rulesguru.net",
-					pass: fs.readFileSync("emailPassword.txt", "utf8")
-				}
-			}),
+			transporter = nodemailer.createTransport(JSON.parse(fs.readFileSync("emailCredentials.json", "utf8"))),
 			handleError = require("./handleError.js");;
 
 const downloadFile = function(dest, source, callback) {
@@ -416,133 +409,122 @@ const disperseFiles = function() {
 	}
 }
 
-/*
-second	0-59
-minute	0-59
-hour	0-23
-day of month	1-31
-month	1-12
-day of week	0-6 (0 is sunday)
-*/
-//Every day:
-cron.schedule("0 0 0 * * *", function() {
-	let finishedDownloads = 0;
-	downloadFile("data_files/rawAllKeywords.json", "https://mtgjson.com/api/v5/Keywords.json", function() {
-		try {
-			const allKeywords = JSON.parse(fs.readFileSync("data_files/rawAllKeywords.json", "utf8")).data;
-			if (Object.keys(allKeywords).length === 3 && allKeywords.keywordAbilities.length > 30) {
-				fs.writeFileSync("data_files/finalAllKeywords.json", JSON.stringify(allKeywords));
-				finishedDownloads++;
-				if (finishedDownloads === 6) {
-					updateAllCards();
-				}
+let finishedDownloads = 0;
+downloadFile("data_files/rawAllKeywords.json", "https://mtgjson.com/api/v5/Keywords.json", function() {
+	try {
+		const allKeywords = JSON.parse(fs.readFileSync("data_files/rawAllKeywords.json", "utf8")).data;
+		if (Object.keys(allKeywords).length === 3 && allKeywords.keywordAbilities.length > 30) {
+			fs.writeFileSync("data_files/finalAllKeywords.json", JSON.stringify(allKeywords));
+			finishedDownloads++;
+			if (finishedDownloads === 6) {
+				updateAllCards();
+			}
+		} else {
+			handleError(new Error("allKeywordsUpdate keywordAbilities too short"));
+		}
+	} catch (err) {
+		handleError(err);
+	}
+});
+
+downloadFile("data_files/rawAllCards.json", "https://mtgjson.com/api/v5/AtomicCards.json", function() {
+	finishedDownloads++;
+	if (finishedDownloads === 6) {
+		updateAllCards();
+	}
+});
+
+const apiUrls = JSON.parse(fs.readFileSync("mostPlayedApiUrls.json", "utf8")); //URLs need to be hidden as the API is private.
+
+downloadFile("data_files/mostPlayedStandard.json", apiUrls.standard, function() {
+	finishedDownloads++;
+	if (finishedDownloads === 6) {
+		updateAllCards();
+	}
+});
+
+downloadFile("data_files/mostPlayedPioneer.json", apiUrls.pioneer, function() {
+	finishedDownloads++;
+	if (finishedDownloads === 6) {
+		updateAllCards();
+	}
+});
+
+downloadFile("data_files/mostPlayedModern.json", apiUrls.modern, function() {
+	finishedDownloads++;
+	if (finishedDownloads === 6) {
+		updateAllCards();
+	}
+});
+
+downloadFile("data_files/rawAllSets.json", "https://mtgjson.com/api/v5/AllPrintings.json", function() {
+	try {
+		const rawAllSets = JSON.parse(fs.readFileSync("data_files/rawAllSets.json")).data;
+
+		//Each set is an object with name, code, and releaseDate.
+		const finalAllSets = [];
+		const properties = ["code", "name", "releaseDate"];
+
+		for (let i in rawAllSets) {
+			const newSet = {};
+
+			for (let j in properties) {
+				newSet[properties[j]] = rawAllSets[i][properties[j]];
+			}
+
+			//Happy Holidays and Celebration cards don't have a normal first printing, so we have to let their promotional printing be valid. We set the printing date to the far future so that they're always last chronologically. HarperPrism book promos were distributed over the course of only 5 months, so they're left in the chronological position of the first one to come out.
+			if (rawAllSets[i].name === "Happy Holidays" || rawAllSets[i].name === "Celebration") {
+				newSet.releaseDate = "9999-99-99";
+			}
+
+			finalAllSets.push(newSet);
+		}
+
+		//Sort the sets chronologically by release date.
+		finalAllSets.sort(function(a,b) {
+			if (a.releaseDate && !b.releaseDate) {
+				return 1;
+			} else if (!a.releaseDate && b.releaseDate) {
+				return -1;
+			} else if (!a.releaseDate && !b.releaseDate) {
+				return 0;
 			} else {
-				handleError(new Error("allKeywordsUpdate keywordAbilities too short"));
-			}
-		} catch (err) {
-			handleError(err);
-		}
-	});
-
-	downloadFile("data_files/rawAllCards.json", "https://mtgjson.com/api/v5/AtomicCards.json", function() {
-		finishedDownloads++;
-		if (finishedDownloads === 6) {
-			updateAllCards();
-		}
-	});
-
-	const apiUrls = JSON.parse(fs.readFileSync("mostPlayedApiUrls.json", "utf8")); //URLs need to be hidden as the API is private.
-
-	downloadFile("data_files/mostPlayedStandard.json", apiUrls.standard, function() {
-		finishedDownloads++;
-		if (finishedDownloads === 6) {
-			updateAllCards();
-		}
-	});
-
-	downloadFile("data_files/mostPlayedPioneer.json", apiUrls.pioneer, function() {
-		finishedDownloads++;
-		if (finishedDownloads === 6) {
-			updateAllCards();
-		}
-	});
-
-	downloadFile("data_files/mostPlayedModern.json", apiUrls.modern, function() {
-		finishedDownloads++;
-		if (finishedDownloads === 6) {
-			updateAllCards();
-		}
-	});
-
-	downloadFile("data_files/rawAllSets.json", "https://mtgjson.com/api/v5/AllPrintings.json", function() {
-		try {
-			const rawAllSets = JSON.parse(fs.readFileSync("data_files/rawAllSets.json")).data;
-
-			//Each set is an object with name, code, and releaseDate.
-			const finalAllSets = [];
-			const properties = ["code", "name", "releaseDate"];
-
-			for (let i in rawAllSets) {
-				const newSet = {};
-
-				for (let j in properties) {
-					newSet[properties[j]] = rawAllSets[i][properties[j]];
+				if (a.releaseDate.slice(0,4) !== b.releaseDate.slice(0,4)) {
+					return a.releaseDate.slice(0,4) - b.releaseDate.slice(0,4);
 				}
-
-				//Happy Holidays and Celebration cards don't have a normal first printing, so we have to let their promotional printing be valid. We set the printing date to the far future so that they're always last chronologically. HarperPrism book promos were distributed over the course of only 5 months, so they're left in the chronological position of the first one to come out.
-				if (rawAllSets[i].name === "Happy Holidays" || rawAllSets[i].name === "Celebration") {
-					newSet.releaseDate = "9999-99-99";
+				if (a.releaseDate.slice(5,7) !== b.releaseDate.slice(5,7)) {
+					return a.releaseDate.slice(5,7) - b.releaseDate.slice(5,7);
 				}
-
-				finalAllSets.push(newSet);
+				if (a.releaseDate.slice(8,10) !== b.releaseDate.slice(8,10)) {
+					return a.releaseDate.slice(8,10) - b.releaseDate.slice(8,10);
+				}
 			}
+		});
 
-			//Sort the sets chronologically by release date.
-			finalAllSets.sort(function(a,b) {
-				if (a.releaseDate && !b.releaseDate) {
-					return 1;
-				} else if (!a.releaseDate && b.releaseDate) {
-					return -1;
-				} else if (!a.releaseDate && !b.releaseDate) {
-					return 0;
-				} else {
-					if (a.releaseDate.slice(0,4) !== b.releaseDate.slice(0,4)) {
-						return a.releaseDate.slice(0,4) - b.releaseDate.slice(0,4);
-					}
-					if (a.releaseDate.slice(5,7) !== b.releaseDate.slice(5,7)) {
-						return a.releaseDate.slice(5,7) - b.releaseDate.slice(5,7);
-					}
-					if (a.releaseDate.slice(8,10) !== b.releaseDate.slice(8,10)) {
-						return a.releaseDate.slice(8,10) - b.releaseDate.slice(8,10);
-					}
-				}
-			});
-
-			if (finalAllSets.length > 400) {
-				fs.writeFileSync("data_files/finalAllSets.json", JSON.stringify(finalAllSets));
-				finishedDownloads++;
-				if (finishedDownloads === 6) {
-					updateAllCards();
-				}
-			} else {
-				handleError(new Error("allSetsUpdate array too short"));
+		if (finalAllSets.length > 400) {
+			fs.writeFileSync("data_files/finalAllSets.json", JSON.stringify(finalAllSets));
+			finishedDownloads++;
+			if (finishedDownloads === 6) {
+				updateAllCards();
 			}
-
-		} catch (err) {
-			handleError(err);
+		} else {
+			handleError(new Error("allSetsUpdate array too short"));
 		}
-	});
 
-	downloadFile("data_files/rawAllRules.json", "https://slack.vensersjournal.com/allrules", function() {
-		try {
-			const rawAllRules = fs.readFileSync("data_files/rawAllRules.json", "utf8");
-			if (Object.keys(JSON.parse(rawAllRules)).length > 1000) {
-				fs.writeFileSync("data_files/finalAllRules.json", rawAllRules);
-			} else {
-				handleError(new Error("allRulesUpdate rules too short"));
-			}
-		} catch (err) {
-			handleError(err);
+	} catch (err) {
+		handleError(err);
+	}
+});
+
+downloadFile("data_files/rawAllRules.json", "https://slack.vensersjournal.com/allrules", function() {
+	try {
+		const rawAllRules = fs.readFileSync("data_files/rawAllRules.json", "utf8");
+		if (Object.keys(JSON.parse(rawAllRules)).length > 1000) {
+			fs.writeFileSync("data_files/finalAllRules.json", rawAllRules);
+		} else {
+			handleError(new Error("allRulesUpdate rules too short"));
 		}
-	});
+	} catch (err) {
+		handleError(err);
+	}
 });

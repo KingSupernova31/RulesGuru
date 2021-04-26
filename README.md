@@ -3,6 +3,15 @@ The source code for [RulesGuru](http://rulesguru.net/), a resource for Magic jud
 
 If you have a bug report or feature request, feel free to open an issue or comment on an existing one. However, pull requests will only be accepted if you're a member of the RulesGuru project. See [here](https://rulesguru.net/get-involved) for more information.
 
-To run a local version of RulesGuru, you'll need to install [Node.js](https://nodejs.org/en/). Download all files from this repository and run `npm install` in that directory to install all the required node modules. You can then start all scripts running with `pm2 start ecosystem.config.js` or run only the server with `node server.js`.
+Wizards of the Coast is constantly releasing more cards, often with new layouts and abilities. Scalability and versatility are therefore a high priority for new features, and code should keep future maintainability in mind.
 
-Wizards of the Coast is constantly releasing more cards, often with new layouts or abilities. Scalability and versatility are therefore a high priority for any features. Pull requests should keep this in mind and try to be as future-proof as possible.
+To run a local version of RulesGuru, you'll need [Node.js](https://nodejs.org/en/). Download all files from this repository and run `npm install` in that directory to install all the required node modules. Then download and generate the data files with `node updateDataFiles.js` You can then start all scripts running with `pm2 start ecosystem.config.js` or run only the server with `node server.js`. (Note that the server takes around 30 seconds to start.)
+
+Certain files in this repository contain placeholder data as detailed below:
+
+* `emailCredentials.json` and `discordPassword.txt` do not contain real passwords, and your local application will encounter an error if it tries to use them. If you want to use that functionality, you'll need to supply your own email and/or Discord credentials.
+* `savedAnnouncements.js` has a placeholder announcement.
+* `admins.json` contains data for a single test admin. If you need admins with different permissions, start the server as described above, then navigate to `localhost:8080/question-editor`, log in to the owner account with password `correcthorsebatterystaple`, and use the admin editor to add/edit the desired admin accounts.
+* `questionDatabase.db` is an older version of the one in use on the live RulesGuru site. This may sometimes result in errors due to data mismatches. If this happens to you, let me know I'll upload a newer version of the database.
+* The API that RulesGuru uses to fetch metagame data is private, so for development purposes we host a mirror of that data ourselves at the URLs in `mostPlayedApiUrls.json`. Please do not use this data for any other purpose.
+* `logs/` and `backups/` are also (obviously) not up-to-date.

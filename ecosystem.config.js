@@ -13,21 +13,9 @@ module.exports = {
 			"log_date_format": "YYYY-MM-DD HH:mm"
 		},
 		{
-			"name": "RGdailyEmails",
-			"script": "dailyEmails.js",
-			"watch": "dailyEmails.js",
-			"log_date_format": "YYYY-MM-DD HH:mm"
-		},
-		{
-			"name": "RGupdateDataFiles",
-			"script": "updateDataFiles.js",
-			"watch": "updateDataFiles.js",
-			"log_date_format": "YYYY-MM-DD HH:mm"
-		},
-		{
-			"name": "RGcreateBackups",
-			"script": "createBackups.js",
-			"watch": "createBackups.js",
+			"name": "RGregularJobScheduling.js",
+			"script": "regularJobScheduling.js",
+			"watch": "regularJobScheduling.js",
 			"log_date_format": "YYYY-MM-DD HH:mm"
 		},
 		{

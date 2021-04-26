@@ -1,19 +1,10 @@
 "use strict";
 
-const cron = require("node-cron"),
-			sqlite = require("sqlite3").verbose(),
+const sqlite = require("sqlite3").verbose(),
 			fs = require("fs"),
 			util = require("util"),
 			nodemailer = require("nodemailer"),
-			transporter = nodemailer.createTransport({
-				host: 'smtp.zoho.com',
-				port: 465,
-				secure: true,
-				auth: {
-					user: "admin@rulesguru.net",
-					pass: fs.readFileSync("emailPassword.txt", "utf8")
-					}
-				}),
+			transporter = nodemailer.createTransport(JSON.parse(fs.readFileSync("emailCredentials.json", "utf8"))),
 			handleError = require("./handleError.js"),
 			getUnfinishedQuestion = require("./getUnfinishedQuestion.js");
 
@@ -69,37 +60,34 @@ const handleEmails = function(peopleToEmail) {
 	});
 }
 
-//Every day:
-cron.schedule("0 0 10 * * *", function() {
-	try {
-		const allAdmins = JSON.parse(fs.readFileSync("admins.json", "utf8"));
-		const peopleToEmail = [];
-		for (let i in allAdmins) {
-			let sendEmail = false;
-			switch (allAdmins[i].reminderEmailFrequency) {
-				case "Never":
-					sendEmail = false;
-					break;
-				case "Daily":
+try {
+	const allAdmins = JSON.parse(fs.readFileSync("admins.json", "utf8"));
+	const peopleToEmail = [];
+	for (let i in allAdmins) {
+		let sendEmail = false;
+		switch (allAdmins[i].reminderEmailFrequency) {
+			case "Never":
+				sendEmail = false;
+				break;
+			case "Daily":
+				sendEmail = true;
+				break;
+			case "Daily minus weekends":
+				if ([1, 2, 3, 4, 5].includes(new Date().getDay())) {
 					sendEmail = true;
-					break;
-				case "Daily minus weekends":
-					if ([1, 2, 3, 4, 5].includes(new Date().getDay())) {
-						sendEmail = true;
-					}
-					break;
-				case "Weekly":
-					if (new Date().getDay() === 0) {
-						sendEmail = true;
-					}
-					break;
-			}
-			if (sendEmail) {
-				peopleToEmail.push(allAdmins[i]);
-			}
+				}
+				break;
+			case "Weekly":
+				if (new Date().getDay() === 0) {
+					sendEmail = true;
+				}
+				break;
 		}
-	  handleEmails(peopleToEmail);
-	} catch (err) {
-		handleError(err)
+		if (sendEmail) {
+			peopleToEmail.push(allAdmins[i]);
+		}
 	}
-});
+  handleEmails(peopleToEmail);
+} catch (err) {
+	handleError(err)
+}
