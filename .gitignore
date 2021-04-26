@@ -1,4 +1,4 @@
-#Sensitive files, uploaded with placeholder data to display file structure:
+#Sensitive files:
 
 emailPassword.txt
 discordPassword.txt
@@ -6,7 +6,7 @@ admins.json
 mostPlayedApiUrls.json
 
 
-#Files that get updated automatically by the update script. Uploaded with old data to display file structure (rawAllCards and rawAllSets were truncated to fit under the 50mb Github limit):
+#Files that get updated automatically by the data file update script:
 
 data_files/
 allCards.json
@@ -22,16 +22,11 @@ public_html/question-editor/allCards.js
 public_html/question-editor/allRules.js
 
 
-#Miscellaneous stuff that changes, uploaded with old data to display file structure:
+#Miscellaneous stuff that changes programmatically or doesn't need to be tracked for other reasons:
 
 questionDatabase.db
 public_html/question-editor/savedAnnouncements.js
-
-
-#Not uploaded at all:
-
 logs/
-node_modules/
 backups/
+node_modules/
 .DS_Store
-emailPassword.txt

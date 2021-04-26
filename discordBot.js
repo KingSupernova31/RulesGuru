@@ -6,7 +6,7 @@ client.login(fs.readFileSync("discordPassword.txt", "utf8").trim());
 
 client.on("message", function(message) {
 	if (message.author.bot) return;
-	const match = message.content.match(/#\d{1,4}(?=($| |,|\.))/g);
+	const match = message.content.match(/#\d{1,4}(?![^\W_])/g);
 	if (match) {
 		for (let command of match) {
 			const questionNum = command.slice(1);
