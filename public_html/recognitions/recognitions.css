@@ -1,3 +1,16 @@
 .setSymbol {
 	height: 1.5rem;
 }
+
+h2 img {
+	transform: translateY(0.2rem);
+}
+
+body {
+	max-width: 50rem;
+	margin: auto;
+}
+
+#description {
+	text-align: center;
+}
