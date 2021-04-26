@@ -34,3 +34,4 @@ logs/
 node_modules/
 backups/
 .DS_Store
+emailPassword.txt
