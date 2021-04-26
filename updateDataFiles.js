@@ -8,6 +8,9 @@ const https = require("https"),
 			handleError = require("./handleError.js");;
 
 const downloadFile = function(dest, source, callback) {
+	if (!fs.existsSync(dest)) {
+		fs.writeFileSync(dest, "");
+	}
 	let file = fs.createWriteStream(dest);
 	let request = https.get(source, function(response) {
 		response.pipe(file);
@@ -405,6 +408,14 @@ const disperseFiles = function() {
 	} catch (err) {
 		handleError(err)
 	}
+}
+
+if (!fs.existsSync("data_files")) {
+	fs.mkdirSync("data_files", function(err) {
+		if (err) {
+			handleError(err);
+		}
+	});
 }
 
 let finishedDownloads = 0;
