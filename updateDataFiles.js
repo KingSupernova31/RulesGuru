@@ -331,7 +331,7 @@ const writeCardList = function(allCards, path, properties, format) {
 
 	//Write to the file.
 	if (format === "js") {
-		fs.writeFileSync(path, `const allCards = ${JSON.stringify(newAllCards)}`);
+		fs.writeFileSync(path, `const allCards = ${JSON.stringify(newAllCards)}` + "\n\nmodule.exports = allCards");
 	} else if (format === "json") {
 		fs.writeFileSync(path, JSON.stringify(newAllCards));
 	}
@@ -363,7 +363,7 @@ const updateSearchLinkMappings = function() {
 		}
 	}
 
-	fs.writeFileSync("public_html/globalResources/searchLinkMappings.js", "const searchLinkMappings = " + JSON.stringify(searchLinkMappings));
+	fs.writeFileSync("public_html/globalResources/searchLinkMappings.js", "const searchLinkMappings = " + JSON.stringify(searchLinkMappings) + "\n\nmodule.exports = searchLinkMappings");
 
 
 	const allCardNames = Object.values(JSON.parse(fs.readFileSync("data_files/finalAllCards.json", "utf8"))).map(function(card) {
@@ -376,26 +376,26 @@ const updateSearchLinkMappings = function() {
 		}
 	}
 
-	fs.writeFileSync("public_html/searchLinkCardNamesDiff.js", "const searchLinkCardNamesDiff = " + JSON.stringify(differenceIndices));
+	fs.writeFileSync("public_html/searchLinkCardNamesDiff.js", "const searchLinkCardNamesDiff = " + JSON.stringify(differenceIndices) + "\n\nmodule.exports = searchLinkCardNamesDiff");
 }
 
 const disperseFiles = function() {
 	try{
 		//Update rule object.
 		const allRules = fs.readFileSync("data_files/finalAllRules.json", "utf8");
-		fs.writeFileSync("public_html/question-editor/allRules.js", "const allRules = " + allRules);
+		fs.writeFileSync("public_html/question-editor/allRules.js", "const allRules = " + allRules + "\n\nmodule.exports = allRules");
 		fs.writeFileSync("allRules.json", allRules);
 
 		//Update rule numbers.
-		fs.writeFileSync("public_html/allRuleNumbers.js", "const allRuleNumbers = " + JSON.stringify(Object.keys(JSON.parse(allRules))));
+		fs.writeFileSync("public_html/allRuleNumbers.js", "const allRuleNumbers = " + JSON.stringify(Object.keys(JSON.parse(allRules))) + "\n\nmodule.exports = allRuleNumbers");
 
 		//Update keywords.
 		const allKeywords = fs.readFileSync("data_files/finalAllKeywords.json", "utf8");
-		fs.writeFileSync("public_html/globalResources/allKeywords.js", "const allKeywords = " + allKeywords);
+		fs.writeFileSync("public_html/globalResources/allKeywords.js", "const allKeywords = " + allKeywords + "\n\nmodule.exports = allKeywords");
 
 		//Update sets.
 		const allSets = fs.readFileSync("data_files/finalAllSets.json", "utf8");
-		fs.writeFileSync("public_html/globalResources/allSets.js", "const allSets = " + allSets);
+		fs.writeFileSync("public_html/globalResources/allSets.js", "const allSets = " + allSets + "\n\nmodule.exports = allSets");
 
 		//Update cards.
 		const allCards = JSON.parse(fs.readFileSync("data_files/finalAllCards.json", "utf8"));

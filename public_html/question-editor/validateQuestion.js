@@ -298,3 +298,5 @@ const validateQuestion = function(questionObj, templateEmptyness) {
 		"warnings": warnings
 	};
 }
+
+module.exports = validateQuestion
