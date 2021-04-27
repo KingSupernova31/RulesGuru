@@ -419,10 +419,13 @@ if (!fs.existsSync("data_files")) {
 }
 
 let finishedDownloads = 0;
-downloadFile("data_files/rawAllKeywords.json", "https://mtgjson.com/api/v5/Keywords.json", function() {
+downloadFile("data_files/rawAllKeywords.json", "https://slack.vensersjournal.com/keywords", function() {
 	try {
-		const allKeywords = JSON.parse(fs.readFileSync("data_files/rawAllKeywords.json", "utf8")).data;
+		const allKeywords = JSON.parse(fs.readFileSync("data_files/rawAllKeywords.json", "utf8"));
 		if (Object.keys(allKeywords).length === 3 && allKeywords.keywordAbilities.length > 30) {
+			for (let i in allKeywords.abilityWords) {
+				allKeywords.abilityWords[i] = allKeywords.abilityWords[i][0].toUpperCase() + allKeywords.abilityWords[i].slice(1);
+			}
 			fs.writeFileSync("data_files/finalAllKeywords.json", JSON.stringify(allKeywords));
 			finishedDownloads++;
 			if (finishedDownloads === 6) {
