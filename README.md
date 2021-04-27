@@ -10,8 +10,8 @@ To run a local version of RulesGuru, you'll need [Node.js](https://nodejs.org/en
 Certain files in this repository contain placeholder data as detailed below:
 
 * `emailCredentials.json` and `discordPassword.txt` do not contain real passwords, and your local application will encounter an error if it tries to use them. If you want to use that functionality, you'll need to supply your own email and/or Discord credentials.
-* `savedAnnouncements.js` has a placeholder announcement.
 * `admins.json` contains data for a single test admin. If you need admins with different permissions, start the server as described above, then navigate to `localhost:8080/question-editor`, log in to the owner account with password `correcthorsebatterystaple`, and use the admin editor to add/edit the desired admin accounts.
-* `questionDatabase.db` is an older version of the one in use on the live RulesGuru site. This may sometimes result in errors due to data mismatches. If this happens to you, let me know I'll upload a newer version of the database.
+* `questionDatabase.db`, `public_html/globalResources/searchLinkMappings.js`, and `public_html/searchLinkCardNamesDiff.js`, are older version of the ones in use on the live RulesGuru site. This may occasionally result in errors due to data mismatches when run locally. If this happens to you, let me know I'll upload a newer version of them.
 * The API that RulesGuru uses to fetch metagame data is private, so for development purposes we host a mirror of that data ourselves at the URLs in `mostPlayedApiUrls.json`. Please do not use this data for any other purpose.
 * `logs/` and `backups/` are also (obviously) not up-to-date.
+* `savedAnnouncements.js` has a placeholder announcement.
