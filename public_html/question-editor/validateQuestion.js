@@ -192,7 +192,7 @@ const validateQuestion = function(questionObj, templateEmptyness) {
 	if (foundPronounExpressions !== null) {
 		foundPronounExpressions.forEach(function(element) {
 			if (!questionObj.question.includes(`[${element.slice(1, element.indexOf(" "))}]`)) {
-				errors.push(`The pronoun expression "${element}" in the answer doesn't refer to any player.`);
+				errors.push(`The pronoun expression "${element}" in the answer doesn't refer to any player in the question.`);
 			}
 		});
 	}

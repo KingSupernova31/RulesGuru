@@ -14,5 +14,11 @@
     "rewire": "^5.0.0",
     "sqlite3": "^5.0.1",
     "util": "^0.12.3"
+  },
+  "scripts": {
+    "test": "jest",
+    "start": "pm2 start ecosystem.config.js",
+    "start-server": "node server.js",
+    "stop": "pm2 stop ecosystem.config.js"
   }
 }
