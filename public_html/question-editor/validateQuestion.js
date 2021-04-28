@@ -191,8 +191,8 @@ const validateQuestion = function(questionObj, templateEmptyness) {
 	foundPronounExpressions = questionObj.answer.match(pronounExpressionRegex);
 	if (foundPronounExpressions !== null) {
 		foundPronounExpressions.forEach(function(element) {
-			if (!questionObj.question.includes(`[${element.slice(1, element.indexOf(" "))}]`)) {
-				errors.push(`The pronoun expression "${element}" in the answer doesn't refer to any player in the question.`);
+			if (!questionObj.question.includes(`[${element.slice(1, element.indexOf(" "))}]`) && !questionObj.answer.includes(`[${element.slice(1, element.indexOf(" "))}]`)) {
+				errors.push(`The pronoun expression "${element}" in the answer doesn't refer to any player.`);
 			}
 		});
 	}

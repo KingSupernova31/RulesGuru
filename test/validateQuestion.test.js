@@ -51,7 +51,7 @@ describe('validateQuestion', () => {
       assert(validation.warnings.length === 0, `expected no warnings, got: ${validation.warnings}`)
     })
 
-    it('should fail if there is a pronoun in the answer, but no player in the question', async () => {
+    it('should fail if there is a pronoun in the answer, but no player in the question or answer', async () => {
       questionData.question = 'Some person sacrifies a token. How many tokens are left on the battlefield?'
       questionData.answer = 'Four are left for [AP s].'
 
@@ -76,6 +76,15 @@ describe('validateQuestion', () => {
       const validation = validateQuestion(questionData, {})
       assert(validation.errors.length === 0, `expected no errors, got: ${validation.errors}`)
       assert(validation.warnings.length === 0, `expected no warnings, got: ${validation.warnings}`)
+    })
+
+    it('should succeed if there is a player in the answer, and a pronoun in the answer, even if not referred in the question', async () => {
+      questionData.question = 'Someone sacrifies a token. How many tokens are left on the battlefield?'
+      questionData.answer = '[AP] will have four tokens left. [AP s] can then do something else.'
+
+      const validation = validateQuestion(questionData, {})
+      assert(validation.errors.length === 0, `expected no errors, got: ${validation.errors}`)
+      assert(validation.warnings.length === 1, `expected a warning, did not receive one`) // Warning for no player in the Q
     })
   })
 })
