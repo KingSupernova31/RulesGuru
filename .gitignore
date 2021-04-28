@@ -4,12 +4,10 @@ data_files/
 allCards.json
 allRules.json
 public_html/allRuleNumbers.js
-public_html/searchLinkCardNamesDiff.js
 public_html/globalResources/allKeywords.js
 public_html/globalResources/allRules.js
 public_html/globalResources/allSets.js
 public_html/globalResources/allTags.js
-public_html/globalResources/searchLinkMappings.js
 public_html/question-editor/allCards.js
 public_html/question-editor/allRules.js
 
