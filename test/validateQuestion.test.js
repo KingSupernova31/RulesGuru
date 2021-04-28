@@ -5,13 +5,18 @@
 */
 
 const assert = require('assert')
-const validateQuestion = require('../public_html/question-editor/validateQuestion')
+const path = require('path')
+const rewire = require('rewire')
+
+const ValidateQuestion = rewire(path.join(__dirname, '../public_html/question-editor/validateQuestion'))
 
 // Code state relies on some globals existing, have to declare them as such. We
 // should fix this reliance later to make the code easier to work with. :)
-allKeywords = require('../public_html/globalResources/allKeywords')
-allCards = require('../public_html/question-editor/allCards')
-allSubtypes = []
+ValidateQuestion.__set__('allKeywords', rewire(path.join(__dirname, '../public_html/globalResources/allKeywords')).__get__('allKeywords'))
+ValidateQuestion.__set__('allCards', rewire(path.join(__dirname, '../public_html/question-editor/allCards')).__get__('allCards'))
+ValidateQuestion.__set__('allSubtypes', [])
+
+const validateQuestion = ValidateQuestion.__get__('validateQuestion')
 
 const questionData = {}
 
@@ -30,7 +35,7 @@ describe('validateQuestion', () => {
   describe('pronoun validation', () => {
     it('should succeed when there are no pronouns in the question', async () => {
       questionData.question = '[AP] sacrifies a token. How many tokens does [AP] have left on the battlefield?'
-      questionData.answer = 'Four. One for air, fire, water, and earth.'
+      questionData.answer = 'Four. Because reasons.'
 
       const validation = validateQuestion(questionData, {})
       assert(validation.errors.length === 0, `expected no errors, got: ${validation.errors}`)
@@ -39,7 +44,7 @@ describe('validateQuestion', () => {
 
     it('should succeed when there are no pronouns in the answer', async () => {
       questionData.question = '[AP] sacrifies a token. How many tokens does [AP s] have left on the battlefield?'
-      questionData.answer = 'Four. One for air, fire, water, and earth.'
+      questionData.answer = 'Four. Because reasons.'
 
       const validation = validateQuestion(questionData, {})
       assert(validation.errors.length === 0, `expected no errors, got: ${validation.errors}`)
