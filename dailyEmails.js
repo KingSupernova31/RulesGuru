@@ -72,8 +72,13 @@ try {
 			case "Daily":
 				sendEmail = true;
 				break;
-			case "Daily minus weekends":
+			case "Daily except weekends":
 				if ([1, 2, 3, 4, 5].includes(new Date().getDay())) {
+					sendEmail = true;
+				}
+				break;
+			case "Every Sunday and Tuesday":
+				if ([0, 2].includes(new Date().getDay())) {
 					sendEmail = true;
 				}
 				break;
