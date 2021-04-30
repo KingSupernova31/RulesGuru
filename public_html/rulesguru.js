@@ -808,13 +808,15 @@ const displayQuestionsList = function(questionsList) {
 }
 
 //Load a question when clicked in the questions list.
-document.getElementById("questionsListDisplay").addEventListener("mouseup", function() {
-	const lineNum = this.value.substr(0, this.selectionStart).split("\n").length;
-	if (!isNaN(parseInt(this.value.split("\n")[lineNum - 1]))) {
-		document.getElementById("questionPage").style.transform = "scale(0)";
-		document.getElementById("startPage").style.transform = "scale(0)";
-		goToQuestion(parseInt(this.value.split("\n")[lineNum - 1]));
-	}
+document.getElementById("questionsListDisplay").addEventListener("mouseup", function(event) {
+ if (event.offsetX < this.clientWidth){ // Ignore a click on scrollbar
+	  const lineNum = this.value.substr(0, this.selectionStart).split("\n").length;
+	  if (!isNaN(parseInt(this.value.split("\n")[lineNum - 1]))) {
+		  document.getElementById("questionPage").style.transform = "scale(0)";
+		  document.getElementById("startPage").style.transform = "scale(0)";
+		  goToQuestion(parseInt(this.value.split("\n")[lineNum - 1]));
+	  }
+ }
 });
 
 //Prevent double-clicking in the questions list from selecting text.
