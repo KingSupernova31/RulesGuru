@@ -1377,9 +1377,11 @@ const displayQuestionsList = function(questionsList) {
 
 //Load a question when clicked in the questions list.
 document.getElementById("questionsListDisplay").addEventListener("mouseup", function() {
-	const lineNum = this.value.substr(0, this.selectionStart).split("\n").length;
-	if (!isNaN(parseInt(this.value.split("\n")[lineNum - 1]))) {
-		getQuestionId(parseInt(this.value.split("\n")[lineNum - 1]));
+	if (event.offsetX < this.clientWidth){ // Ignore a click on scrollbar
+		const lineNum = this.value.substr(0, this.selectionStart).split("\n").length;
+		if (!isNaN(parseInt(this.value.split("\n")[lineNum - 1]))) {
+			getQuestionId(parseInt(this.value.split("\n")[lineNum - 1]));
+		}
 	}
 });
 
