@@ -44,7 +44,7 @@ document.querySelector("body").insertAdjacentHTML("beforeend", `
 <div id="contactFormPopupArea">
 	<div id="contactFormPopup" class="roundedCorners">
 		<textarea id="contactFormContent" placeholder="Your message. If you'd like a response, please provide your email address below."></textarea>
-		<input type="email" id="contactFormEmailField" placeholder="Return email address"></input>
+		<input type="email" id="contactFormEmailField" placeholder="Email address"></input>
 		<button id="contactFormSubmitButton" class="specialButtonBlack">Send</button>
 	</div>
 	<div id="contactFormSubmissionSuccess" class="roundedCorners">
