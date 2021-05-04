@@ -108,7 +108,7 @@ const db = new sqlite.Database("questionDatabase.db", function(err) {
 			return result;
 		};
 
-		updateReferenceObjects();
+		updateReferenceObjects(true);
 	};
 });
 
@@ -189,7 +189,7 @@ const convertAllTemplates = function(question, allCards) {
 };
 
 //Update the reference question database and card object that are stored in memory.
-const updateReferenceObjects = function() {
+const updateReferenceObjects = function(startServer) {
 
 	const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
 
@@ -219,13 +219,15 @@ const updateReferenceObjects = function() {
 			}
 			console.log("Reference question array generation complete");
 			updateIndexQuestionCount();
-			server = app.listen(8080, function () {
-				console.log("Listening on port 8080");
-			});
+			if (startServer) {
+				server = app.listen(8080, function () {
+					console.log("Listening on port 8080");
+				});
+			}
 		}
 	});
 }
-setInterval(updateReferenceObjects, 86400000);
+setInterval(updateReferenceObjects, 86400000, false);
 
 //Modifies the original question to matches the settings specified and returns it, or returns false if it can't match.
 const questionMatchesSettings = function(question, settings, allCards) {
