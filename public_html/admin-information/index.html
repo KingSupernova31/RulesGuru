@@ -130,8 +130,6 @@
 			<p class="content">Each question has some number of tags: a list of labels that help categorize the topic or topics that the question is about.
 			<br><br>
 			Please add any tags that relate to the question. The list of all possible tags can be seen by selecting the input box and scrolling through the drop-down list. (For example, a question about the difference between triggers and replacement effects should have both of those tags.) If there's a tag category that you think would fit your question but isn't in the dropdown list, please let me know.
-			<br><br>
-			Any rule citations in the answer will automatically generate a tag for that area of the rules. These tags cannot be deleted from the question.
 			</p>
 			<h4 class="header" id="CardGenerators">Card Generators</h4>
 			<p class="content">Each card in the question is chosen randomly from among a set of cards that do equivalent things. For example, most questions involving Shock would work equally well with Tarfire, so you can specify that the question will randomly pick between the two. This dramatically increases the effective question pool for minimal effort.
@@ -189,10 +187,22 @@
 			<h4 class="header" id="CardGenerators2">Card Generators</h4>
 			<p class="content">Card generators are enclosed in single brackets: "[card 1]", "[card 2]", etc. You can also enter individual card names in brackets and they'll be converted into lists automatically. More information on card generators is <a href="#CardGenerators">here</a>.</p>
 			<h4 class="header" id="RuleCitations">Rule Citations</h4>
-			<p class="content">Any statement in the answer should be backed up with one or more rule citations whenever possible. A rule citations is simply the number of the appropriate section in the comprehensive rules. (With no period at the end.) Gatherer rulings are not rules and are not used on RulesGuru.
-			<br><br>
-			Put rule citations in parentheses directly after the statement they're referring to. (In the middle of a sentence is fine.) If the citation is at the end of a sentence, put it after the period. If it's in the middle of a sentence at the end of a phrase or clause, put it before the comma. If multiple rules say the same thing, quote all of them, separated from each other with a slash. (This allows user searches for specific rules to work optimally.)
-			</p>
+			<div class="content">
+				<p>Any statement in the answer should be backed up with one or more rule citations. A rule citation is simply the rule number of the appropriate section in the comprehensive rules, inside brackets. (With no period at the end.) Gatherer rulings are not rules and are not used in RulesGuru's answers.</p>
+				<br>
+				<p>Most rule citations are not part of the statement that they're referring to, so they should be in parentheses directly after that statement. (If it's in the middle of a sentence at the end of a phrase or clause, put it before the comma. If it's is at the end of a sentence, put it after the period.) In rare cases the answer will need to directly reference a rule as part of the sentence, in which case it should not be parenthesized.</p>
+				<br>
+				<p>If multiple redundant rules all say the same thing, quote all of them, separated from each other with a slash. (This allows user searches for specific rules to find the maximum number of relevant questions.) If multiple rules say different things that are all relevant to the phrase, include them all separated by commas.</p>
+				<br>
+				<p>Examples:</p>
+				<br>
+				<ul>
+					<li>[AP] may concede at any time, even while a spell is resolving. ([405.6g])</li>
+					<li>Devoid is applied before Painter's Servant ([613.1e], [613.3]), so it's blue.</li>
+					<li>It dies when state-based actions are checked after the spell resolves. ([117.5]/[704.3])</li>
+					<li>It's unclear whether [616.1f] allows a replacement effect in a later step to apply to one in an earlier step.</li>
+				</ul>
+			</div>
 			<h4 class="header" id="Symbols">Symbols</h4>
 			<div class="content">
 				<p>RulesGuru can render mana symbols and other symbols in the question and answer text. Type them inside braces. Here is the full list of possible symbols:</p>
