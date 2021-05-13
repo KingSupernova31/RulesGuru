@@ -191,7 +191,8 @@ const getSpecificQuestion = function(questionId, callback) {
 	};
 	httpRequest.open("POST", "/getSpecificQuestion", true);
 	httpRequest.setRequestHeader("Content-Type", "application/json");
-	httpRequest.send(JSON.stringify({"id": questionId}));
+	httpRequest.send(JSON.stringify({"id": questionId,
+	                                 "settings": sidebarSettings}));
 	return httpRequest;
 }
 
@@ -302,6 +303,7 @@ const getPlayerNamesMap = function() {
 
 //Accepts a string containing various [expressions] and returns the untagged HTML version.
 const replaceExpressions = function(string, playerNamesMap, oracle, citedRules) {
+
 	let pronouns = {
 		"male": {
 			"s": "he",
