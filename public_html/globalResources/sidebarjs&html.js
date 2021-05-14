@@ -186,7 +186,7 @@ let	sidebarOpen = false,
 let oldSettingsValid = true;
 
 if (!oldSettings || Object.keys(oldSettings).length !== Object.keys(defaultSettings).length) {
-	oldSettingsValid = false;\
+	oldSettingsValid = false;
 } else {
 	const oldSettingsKeys = Object.keys(oldSettings);
 	const defaultSettingsKeys = Object.keys(defaultSettings);

@@ -29,6 +29,8 @@ const convertSearchLinkToSettings = function(searchLink) {
 		"level": [],
 		"complexity": [],
 		"legality": "",
+		"expansions": [],
+		"playableOnly": false,
 		"tags": [],
 		"tagsConjunc": "",
 		"rules": [],
