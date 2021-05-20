@@ -12,7 +12,7 @@ if (!/^https?:\/\/(?:localhost:8080|rulesguru\.net)\/\?(?:\d*(RG.+GG)?)$/.test(w
 let goToSearchLink = false,
 		searchLink;
 if (window.location.href.match("/\?(\d*)RG")) {
-	searchLink = window.location.href.slice(window.location.href.indexOf("RG") + 4, window.location.href.length - 2);
+	searchLink = window.location.href.slice(window.location.href.indexOf("RG") + 2, window.location.href.length - 2);
 	let numbermatch = window.location.href.match(/\?(\d)+/); // Case where there is a specific question and a searchlink
 	if (numbermatch === null) {
 		history.replaceState({}, "", ".");

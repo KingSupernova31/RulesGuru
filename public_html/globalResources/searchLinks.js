@@ -268,6 +268,7 @@ if (typeof goToSearchLink === "undefined") {
 }
 if (goToSearchLink) {
 	const newSidebarSettings = convertSearchLinkToSettings(searchLink);
+	console.log(searchLink, newSidebarSettings)
 	for (let i in newSidebarSettings) {
 		sidebarSettings[i] = newSidebarSettings[i];
 	}
