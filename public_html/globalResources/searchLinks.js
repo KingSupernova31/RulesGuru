@@ -270,25 +270,33 @@ if (typeof goToSearchLink === "undefined") {
 }
 if (goToSearchLink) {
 	const newSidebarSettings = convertSearchLinkToSettings(searchLink);
+	console.log(searchLink, newSidebarSettings)
 	for (let i in newSidebarSettings) {
 		sidebarSettings[i] = newSidebarSettings[i];
 	}
-
-	const httpRequest = new XMLHttpRequest();
-	httpRequest.open("POST", "/logSearchLinkData", true);
-	httpRequest.setRequestHeader("Content-Type", "application/json");
-	httpRequest.send(JSON.stringify(sidebarSettings));
-	displayNextRandomQuestion();
-	let intervalID = {"intervalID": 0};
-	intervalID.intervalID = setInterval(function(intervalID) {
-		if (nextQuestion) {
-			setTimeout(function() {
-				toggleAnimation("stop");
-				setTimeout(function() {
-					alert(`You've been linked to a specific set of search criteria. You'll be shown a random question that matches those criteria, and can click "next question" to see more matching questions. To view or change your search criteria, click the settings button in the upper left.`);
-				}, 20);
-			}, 0)
-			clearInterval(intervalID.intervalID);
-		}
-	}, 100, intervalID);
+  if ((typeof goToQuestionNum === "number")){ // Search link + specific question
+    document.getElementById("FOUCOverlay").style.display = "none";
+	  document.getElementById("startPage").style.display = "none";
+	  goToQuestion(goToQuestionNum, function() {
+		  toggleAnimation("stop");
+	  });
+	} else {
+	  const httpRequest = new XMLHttpRequest();
+	  httpRequest.open("POST", "/logSearchLinkData", true);
+	  httpRequest.setRequestHeader("Content-Type", "application/json");
+	  httpRequest.send(JSON.stringify(sidebarSettings));
+	  displayNextRandomQuestion();
+	  let intervalID = {"intervalID": 0};
+	  intervalID.intervalID = setInterval(function(intervalID) {
+		  if (nextQuestion) {
+			  setTimeout(function() {
+				  toggleAnimation("stop");
+				  setTimeout(function() {
+					  alert(`You've been linked to a specific set of search criteria. You'll be shown a random question that matches those criteria, and can click "next question" to see more matching questions. To view or change your search criteria, click the settings button in the upper left.`);
+				  }, 20);
+			  }, 0)
+			  clearInterval(intervalID.intervalID);
+		  }
+	  }, 100, intervalID);
+  }
 }

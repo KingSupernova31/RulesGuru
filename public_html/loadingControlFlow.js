@@ -1,6 +1,6 @@
 //Handle sites that append garbage to the url.
-if (!/^https?:\/\/(?:localhost:8080|rulesguru\.net)\/\?(?:\d+|RG.+GG)$/.test(window.location.href)) {
-	const match = window.location.href.match(/^https?:\/\/(?:localhost:8080|rulesguru\.net)\/(\?(?:\d+|RG.+GG))/);
+if (!/^https?:\/\/(?:localhost:8080|rulesguru\.net)\/\?(?:\d*(RG.+GG)?)$/.test(window.location.href)) {
+	const match = window.location.href.match(/^https?:\/\/(?:localhost:8080|rulesguru\.net)\/(\?(?:\d*(RG.+GG)?))/);
 	if (match === null) {
 		history.replaceState({}, "", ".");
 	} else {
@@ -11,9 +11,14 @@ if (!/^https?:\/\/(?:localhost:8080|rulesguru\.net)\/\?(?:\d+|RG.+GG)$/.test(win
 //Check for searchLinks.
 let goToSearchLink = false,
 		searchLink;
-if (window.location.href.includes("/?RG")) {
-	searchLink = window.location.href.slice(window.location.href.indexOf("/?RG") + 4, window.location.href.length - 2);
-	history.replaceState({}, "", ".");
+if (window.location.href.match("/\?(\d*)RG")) {
+	searchLink = window.location.href.slice(window.location.href.indexOf("RG") + 2, window.location.href.length - 2);
+	let numbermatch = window.location.href.match(/\?(\d)+/); // Case where there is a specific question and a searchlink
+	if (numbermatch === null) {
+		history.replaceState({}, "", ".");
+	} else {
+		history.replaceState({}, "", `./${numbermatch[0]}`);
+	}
 	goToSearchLink = true;
 }
 
@@ -23,14 +28,14 @@ if (window.location.href.includes("?") && !window.location.href.includes("?RG"))
 	goToQuestionNum = Number(window.location.href.match(/\/?(\d+)$/)[1]);
 }
 
-if (typeof goToQuestionNum === "number") {
+if (goToSearchLink) {
+	document.getElementById("startPage").style.display = "none";
+} else if (typeof goToQuestionNum === "number") {
 	document.getElementById("FOUCOverlay").style.display = "none";
 	document.getElementById("startPage").style.display = "none";
 	goToQuestion(goToQuestionNum, function() {
 		toggleAnimation("stop");
 	});
-} else if (goToSearchLink) {
-	document.getElementById("startPage").style.display = "none";
 } else {
 	toggleAnimation("stop");
 	document.getElementById("FOUCOverlay").style.display = "none";
@@ -45,7 +50,6 @@ window.addEventListener("popstate", function(event) {
 			loadedQuestions.currentQuestion = loadedQuestions.pastQuestions[questionNum];
 			displayCurrentQuestion();
 		} else {
-			console.log("Not saved")
 			goToQuestion(questionNum);
 		}
 	} else {

@@ -722,7 +722,22 @@ app.post("/getSpecificQuestion", function(req, res) {
 	}
 
 	if (selectedQuestion) {
-		sendQuestion(selectedQuestion, res, allCards);
+	  let settings = req.body.settings;
+	  // Ignore settings that are impossible to follow for a specific question
+	  settings.level = selectedQuestion.level;
+	  settings.complexity= selectedQuestion.complexity;
+	  settings.tags = [];
+	  settings.rules = [];
+	  settings.tagsConjunc= 'OR';
+	  settings.rulesConjunc= 'OR';
+	                  
+	  let matchingCriteria = questionMatchesSettings(
+	      JSON.parse(JSON.stringify(selectedQuestion)), settings, allCards);
+	  if (matchingCriteria){
+	    sendQuestion(matchingCriteria, res, allCards);
+    } else {
+		  sendQuestion(selectedQuestion, res, allCards);
+	  }
 	} else {
 		res.json({"error":"That question doesn't exist or is pending approval."});
 	}
