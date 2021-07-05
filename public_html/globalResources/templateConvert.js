@@ -183,7 +183,7 @@ const templateConvert = function(template, globalCardList) {
 						}
 						break;
 					case "Rules text":
-						const replacedValue = currentRule.value.replace(/::name::/g, currentCard.name);
+						const replacedValue = currentRule.value.replace(/::name::/g, currentCard.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
 						if (currentRule.operator === "Matches:") {
 							let regex = new RegExp(replacedValue);
 							if (!regex.test(currentCard.rulesText)) {

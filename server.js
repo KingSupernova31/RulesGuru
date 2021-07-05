@@ -730,7 +730,7 @@ app.post("/getSpecificQuestion", function(req, res) {
 	  settings.rules = [];
 	  settings.tagsConjunc= 'OR';
 	  settings.rulesConjunc= 'OR';
-	                  
+
 	  let matchingCriteria = questionMatchesSettings(
 	      JSON.parse(JSON.stringify(selectedQuestion)), settings, allCards);
 	  if (matchingCriteria){
