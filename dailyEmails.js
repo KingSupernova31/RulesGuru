@@ -44,8 +44,8 @@ const handleEmails = function(peopleToEmail) {
 					transporter.sendMail({
 						from: "admin@rulesguru.net",
 						to: peopleToEmail[i].emailAddress,
-						subject: `Your ${peopleToEmail[i].reminderEmailFrequency.split(" ")[0].toLowerCase()} RulesGuru pending question`,
-						text: `Hi ${peopleToEmail[i].name.split(" ")[0]},\n\nYour ${peopleToEmail[i].reminderEmailFrequency.split(" ")[0].toLowerCase()} question is #${result.id}. Head on over to https://rulesguru.net/question-editor/?${result.id} and check it out!`
+						subject: `Your RulesGuru question to approve`,
+						text: `Hi ${peopleToEmail[i].name.split(" ")[0]},\n\nYour question today is #${result.id}. Head on over to https://rulesguru.net/question-editor/?${result.id} and check it out!`
 					}, function(err) {
 						if (err) {
 							handleError(err);
@@ -67,13 +67,17 @@ try {
 		let sendEmail = false;
 		switch (allAdmins[i].reminderEmailFrequency) {
 			case "Never":
-				sendEmail = false;
 				break;
 			case "Daily":
 				sendEmail = true;
 				break;
 			case "Daily except weekends":
 				if ([1, 2, 3, 4, 5].includes(new Date().getDay())) {
+					sendEmail = true;
+				}
+				break;
+			case "Every three days":
+				if (Math.floor(Date.now() / 259200000) % 3 === 0) {
 					sendEmail = true;
 				}
 				break;
