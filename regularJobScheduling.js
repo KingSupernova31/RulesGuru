@@ -18,6 +18,6 @@ cron.schedule("0 0 5 * * *", function() {
 	require('child_process').fork('createBackups.js');
 });
 
-cron.schedule("0 0 12 * * *", function() {
+cron.schedule("0 0 10 * * *", function() {
 	require('child_process').fork('dailyEmails.js');
 });

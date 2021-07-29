@@ -1,14 +1,3 @@
-Object.defineProperty(Array.prototype, "includesCaseInsensitive", {
-	"value": function(value) {
-		for (let i = 0 ; i < this.length ; i++) {
-			if (this[i].toLowerCase() === value.toLowerCase()) {
-				return true;
-			}
-		}
-		return false;
-	}
-});
-
 const templateConvert = function(template, globalCardList) {
 	//An empty template returns no cards, not all of them.
 	if (template.length === 0) {
@@ -184,17 +173,17 @@ const templateConvert = function(template, globalCardList) {
 						break;
 					case "Subtypes":
 						if (currentRule.operator === "Includes:") {
-							if (!currentCard.subtypes.includesCaseInsensitive(currentRule.value)) {
+							if (!currentCard.subtypes.includesNoCase(currentRule.value)) {
 								currentCardValid = false;
 							}
 						} else if (currentRule.operator === "Doesn't include:") {
-							if (currentCard.subtypes.includesCaseInsensitive(currentRule.value)) {
+							if (currentCard.subtypes.includesNoCase(currentRule.value)) {
 								currentCardValid = false;
 							}
 						}
 						break;
 					case "Rules text":
-						const replacedValue = currentRule.value.replace(/::name::/g, currentCard.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+						const replacedValue = currentRule.value.replace(/::name::/g, currentCard.name);
 						if (currentRule.operator === "Matches:") {
 							let regex = new RegExp(replacedValue);
 							if (!regex.test(currentCard.rulesText)) {
@@ -217,11 +206,11 @@ const templateConvert = function(template, globalCardList) {
 						break;
 					case "Keywords":
 						if (currentRule.operator === "Includes:") {
-							if (!currentCard.keywords.includesCaseInsensitive(currentRule.value)) {
+							if (!currentCard.keywords.includesNoCase(currentRule.value)) {
 								currentCardValid = false;
 							}
 						} else if (currentRule.operator === "Doesn't include:") {
-							if (currentCard.keywords.includesCaseInsensitive(currentRule.value)) {
+							if (currentCard.keywords.includesNoCase(currentRule.value)) {
 								currentCardValid = false;
 							}
 						}

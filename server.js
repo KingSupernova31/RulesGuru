@@ -19,6 +19,17 @@ const templateConvert = require("./public_html/globalResources/templateConvert.j
 
 let referenceQuestionArray;
 
+Object.defineProperty(Array.prototype, "includesNoCase", {
+	"value": function(value) {
+		for (let i = 0 ; i < this.length ; i++) {
+			if (this[i].toLowerCase() === value.toLowerCase()) {
+				return true;
+			}
+		}
+		return false;
+	}
+});
+
 //Array randomizer. Shuffles in place.
 const shuffle = function(array) {
   let currentIndex = array.length, temporaryValue, randomIndex;
@@ -719,7 +730,7 @@ app.post("/getSpecificQuestion", function(req, res) {
 	  settings.rules = [];
 	  settings.tagsConjunc= 'OR';
 	  settings.rulesConjunc= 'OR';
-
+	                  
 	  let matchingCriteria = questionMatchesSettings(
 	      JSON.parse(JSON.stringify(selectedQuestion)), settings, allCards);
 	  if (matchingCriteria){

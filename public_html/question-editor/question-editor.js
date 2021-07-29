@@ -77,6 +77,17 @@ const removeTag = function() {
 	}
 };
 
+Object.defineProperty(Array.prototype, "includesNoCase", {
+	"value": function(value) {
+		for (let i = 0 ; i < this.length ; i++) {
+			if (this[i].toLowerCase() === value.toLowerCase()) {
+				return true;
+			}
+		}
+		return false;
+	}
+});
+
 //Handle card generator entry.
 let allCardsDatalist = document.createElement("datalist");
 allCardsDatalist.setAttribute("id", "allCardsDatalist");

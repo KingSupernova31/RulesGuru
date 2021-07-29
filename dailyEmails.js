@@ -67,17 +67,13 @@ try {
 		let sendEmail = false;
 		switch (allAdmins[i].reminderEmailFrequency) {
 			case "Never":
+				sendEmail = false;
 				break;
 			case "Daily":
 				sendEmail = true;
 				break;
 			case "Daily except weekends":
 				if ([1, 2, 3, 4, 5].includes(new Date().getDay())) {
-					sendEmail = true;
-				}
-				break;
-			case "Every three days":
-				if (Math.floor(Date.now() / 259200000) % 3 === 0) {
 					sendEmail = true;
 				}
 				break;
