@@ -44,8 +44,8 @@ const handleEmails = function(peopleToEmail) {
 					transporter.sendMail({
 						from: "admin@rulesguru.net",
 						to: peopleToEmail[i].emailAddress,
-						subject: `Your RulesGuru question to approve`,
-						text: `Hi ${peopleToEmail[i].name.split(" ")[0]},\n\nYour question today is #${result.id}. Head on over to https://rulesguru.net/question-editor/?${result.id} and check it out!`
+						subject: `Your ${peopleToEmail[i].reminderEmailFrequency.split(" ")[0].toLowerCase()} RulesGuru pending question`,
+						text: `Hi ${peopleToEmail[i].name.split(" ")[0]},\n\nYour ${peopleToEmail[i].reminderEmailFrequency.split(" ")[0].toLowerCase()} question is #${result.id}. Head on over to https://rulesguru.net/question-editor/?${result.id} and check it out!`
 					}, function(err) {
 						if (err) {
 							handleError(err);
