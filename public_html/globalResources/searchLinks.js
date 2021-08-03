@@ -285,10 +285,10 @@ if (goToSearchLink) {
 	  httpRequest.open("POST", "/logSearchLinkData", true);
 	  httpRequest.setRequestHeader("Content-Type", "application/json");
 	  httpRequest.send(JSON.stringify(sidebarSettings));
+	  displayNextRandomQuestion();
 	  let intervalID = {"intervalID": 0};
 	  intervalID.intervalID = setInterval(function(intervalID) {
 		  if (nextQuestion) {
-		    displayNextRandomQuestion();
 			  setTimeout(function() {
 				  toggleAnimation("stop");
 				  setTimeout(function() {
