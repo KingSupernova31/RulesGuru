@@ -285,6 +285,9 @@ if (goToSearchLink) {
 	  httpRequest.open("POST", "/logSearchLinkData", true);
 	  httpRequest.setRequestHeader("Content-Type", "application/json");
 	  httpRequest.send(JSON.stringify(sidebarSettings));
+	  if (typeof doSomethingOnSidebarSettingsUpdate !== "undefined") {
+		  doSomethingOnSidebarSettingsUpdate();
+	  }
 	  displayNextRandomQuestion();
 	  let intervalID = {"intervalID": 0};
 	  intervalID.intervalID = setInterval(function(intervalID) {
