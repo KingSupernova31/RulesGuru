@@ -77,7 +77,7 @@ try {
 				}
 				break;
 			case "Every three days":
-				if (Math.floor(Date.now() / 259200000) % 3 === 0) {
+				if (Math.floor(Date.now() / 86400000) % 3 === 0) {
 					sendEmail = true;
 				}
 				break;
