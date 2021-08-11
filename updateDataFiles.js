@@ -322,7 +322,7 @@ const writeCardList = function(allCards, path, properties, format) {
 		}
 	}
 	//Remove cards that rulesguru doesn't allow.
-	const disallowedCards = ["Chaos Orb", "Falling Star", "Goblin Game", "Aether Searcher", "Agent of Acquisitions", "Animus of Predation", "Arcane Savant", "Archdemon of Paliano", "Caller of the Untamed", "Canal Dredger", "Cogwork Grinder", "Cogwork Librarian", "Cogwork Spy", "Cogwork Tracker", "Custodi Peacekeeper", "Deal Broker", "Garbage Fire", "Illusionary Informant", "Leovold's Operative", "Lore Seeker", "Lurking Automaton", "Noble Banneret", "Paliano, the High City", "Paliano Vanguard", "Pyretic Hunter", "Regicide", "Smuggler Captain", "Spire Phantasm", "Volatile Chimera", "Whispergear Sneak"];
+	const disallowedCards = ["Chaos Orb", "Falling Star", "Goblin Game"];
 	for (let i in newAllCards) {
 		if (disallowedCards.includes(newAllCards[i].name)) {
 			delete newAllCards[i];
