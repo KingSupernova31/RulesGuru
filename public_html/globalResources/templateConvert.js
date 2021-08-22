@@ -17,6 +17,10 @@ const templateConvert = function(template, globalCardList) {
 		let currentValidCards = Object.values(globalCardList);
 		currentValidCards = currentValidCards.filter(function(currentCard) {
 			let currentCardValid = true;
+			//Nontraditional cards with layout "other" shouldn't appear in templates.
+			if (currentCard.layout === "other") {
+				currentCardValid = false;
+			}
 			for (let i = 0 ; i < template.length ; i++) {
 				let currentRule = template[i];
 				switch (currentRule.field) {
