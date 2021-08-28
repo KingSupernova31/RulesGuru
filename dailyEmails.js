@@ -86,6 +86,11 @@ try {
 					sendEmail = true;
 				}
 				break;
+			case "Every Tuesday and Friday":
+				if ([2, 5].includes(new Date().getDay())) {
+					sendEmail = true;
+				}
+				break;
 			case "Weekly":
 				if (new Date().getDay() === 0) {
 					sendEmail = true;
