@@ -156,7 +156,7 @@
 		<div>
 			<h3 id="SpecialFormatting">Special Formatting</h3>
 			<h4 class="header">General</h4>
-			<p class="content">RulesGuru uses several non-literal formatting types (referred to here as "expressions"), which are are either replaced with randomly-generated content (player names and cards) or with special formatting (pronouns, verbs, rule citations, and symbols). All expressions should be enclosed in brackets, except for symbols, which use braces.</p>
+			<p class="content">RulesGuru uses several <a href="https://xkcd.com/1341/">non-literal</a> formatting types (referred to here as "expressions"), which are are either replaced with randomly-generated content (player names and cards) or with special formatting (pronouns, verbs, rule citations, and symbols). All expressions should be enclosed in brackets, except for symbols, which use braces.</p>
 			<h4 class="header" id="Player">Player Names</h4>
 			<div class="content">
 				<p>Player names are randomly generated. Simply type the type of player and RulesGuru will replace that with an actual name when the question is displayed on the main page.</p>
@@ -188,7 +188,7 @@
 			<p class="content">Card generators are enclosed in single brackets: "[card 1]", "[card 2]", etc. You can also enter individual card names in brackets and they'll be converted into lists automatically. More information on card generators is <a href="#CardGenerators">here</a>.</p>
 			<h4 class="header" id="RuleCitations">Rule Citations</h4>
 			<div class="content">
-				<p>Any statement in the answer should be backed up with one or more rule citations. A rule citation is simply the rule number of the appropriate section in the comprehensive rules, inside brackets. (With no period at the end.) Gatherer rulings are not rules and are not used in RulesGuru's answers.</p>
+				<p>Any statement in the answer should be backed up with one or more rule citations. A rule citation is simply the rule number of the appropriate section in the comprehensive rules, inside brackets. (With no period at the end.) Gatherer rulings are not rules and are not used in RulesGuru's answers except as specified <a href="#unsupportedAnswers">here</a>.</p>
 				<br>
 				<p>Most rule citations are not part of the statement that they're referring to, so they should be in parentheses directly after that statement. (If it's in the middle of a sentence at the end of a phrase or clause, put it before the comma. If it's is at the end of a sentence, put it after the period.) In rare cases the answer will need to directly reference a rule as part of the sentence, in which case it should not be parenthesized.</p>
 				<br>
@@ -276,6 +276,12 @@
 					<p>::green::</p><p><i class='ms ms-g ms-cost'></i><i class='ms ms-gp ms-cost'></i><i class='ms ms-bg ms-split ms-cost'></i><i class='ms ms-rg ms-split ms-cost'></i><i class='ms ms-gw ms-split ms-cost'></i><i class='ms ms-gu ms-split ms-cost'></i><i class='ms ms-2g ms-split ms-cost'></i></p>
 				</div>
 			</div>
+			<h4 class="header" id="externalLinks">External Links</h4>
+			<div class="content">
+				<p>In <a href="#unsupportedAnswers">rare cases</a>, you may want to include an external link in the question or answer. You can do that with HTML, like this:</p>
+				<br>
+				<p><span class="blue">&#60;a href="</span>URL goes here<span class="blue">"&#62;</span>link text goes here<span class="blue">&#60;/a&#62;</span></p>
+			</div>
 			<h4 class="header" id="Example">Example</h4>
 			<div class="content">
 				<p><b>You Type:</b></p>
@@ -322,8 +328,8 @@
 			<div class="content">
 				<ul>
 					<li>Changing question phrasing from what was originally submitted is perfectly ok. It'll often be necessary if the original question was worded poorly or grammatically incorrect. However, do not change the fundamental question itself to something different. Always ensure that the cards used in the original question are one of the possibilities in the card generators used in the final question.</li>
-					<li>Trick questions or questions with misleading (but still unambiguous) wording are allowed; these may often have an answer of "this can't happen as described". The explanation for these questions should always be written so as to clear up any potential confusion stemming from the question. The tags and difficulty of the question should be chosen as though the described actions leading to the question were legal.</li>
-					<li>Questions that don't have an answer in the rules are allowed. (See <a href="#SupportedSources">here</a>.)</li>
+					<li>Trick questions or questions with misleading (but still unambiguous) wording are allowed; these often have an answer of "this can't happen as described". The explanation for these questions should always be written so as to clear up any potential confusion stemming from the question.</li>
+					<li>Questions that don't have an answer in the rules are allowed. (See <a href="#unsupportedAnswers">here</a>.)</li>
 				</ul>
 			</div>
 			<h4 class="header" id="Phrasing">Phrasing and Grammar Guidelines</h4>
@@ -405,8 +411,12 @@
 					<li>What happens if a player takes a certain illegal action?</li>
 				</ul>
 			</div>
-			<h4 class="header" id="SupportedSources">Supported Sources</h4>
-			<p class="content">Sometimes the rules will not include an answer to a given rules question, or the answer the CR gives will conflict with what Wizards of the Coast intends. In these cases, the question should be given the "Unsupported answers" tag. The answer should mention both exactly what the CR says and why there's an issue, along with the Official answer from Wizards if available.</p>
+			<h4 class="header" id="unsupportedAnswers">Unsupported Answers</h4>
+			<div class="content">
+				<p>Sometimes the comprehensive rules will not include an answer to a given rules question, or the answer the CR gives will conflict with what Wizards of the Coast intends to happen. In these cases, the question should be given the "Unsupported answers" tag. The answer section should begin with the intended answer to the question, followed by whatever justification exists for it. This could be a Gatherer ruling, a JudgeApps post, a tweet by the rules manager, etc. (You can link to the official answer as described <a href="#externalLinks">here</a>.) After this, you should explain what the CR actually says and how it conflicts with the intended answer.</p>
+				<br>
+				<p>You can see some examples <a href="/?RG1g7hI94IIGG">here</a>.</p>
+			</div>
 			<h4 class="header" id="upcomingSets">Upcoming Sets</h4>
 			<p class="content">RulesGuru supports spoilers for upcoming cards, you'll be able to add them to card generators as normal even before the set is released. If a question includes currently-unreleased cards, feel free to approve it as normal. If you're an editor and need to cite the rules about a new mechanic and the new rules aren't out yet, just format the rest of the question and approve it without citations. It'll remain in the verification queue until the new rules are released, at which point our rules gurus will go through the queue and add citations to them all.
 			<br><br>
@@ -416,7 +426,7 @@
 			<br><br>
 			I want RulesGuru to be the best possible resource for judges and for players. If you ever notice anything that could be improved or optimized, including on the admin side of things, please let me know. If you have questions about this information or any other part of RulesGuru, please don't hesitate to ask the admin Facebook chat.
 			<br><br>
-			All content that is submitted to or edited on RulesGuru is the intellectual property of RulesGuru.</p>
+			All content that is submitted to or edited on RulesGuru is the intellectual property of Isaac King.</p>
 		</div>
 
 		<div id="FOUCOverlay"></div>
