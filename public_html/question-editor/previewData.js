@@ -184,7 +184,7 @@ const replaceExpressions = function(string, playerNamesMap, oracle) {
 	}
 
 	//Replace player names and pronouns.
-	string = string.replace(/\[((?:AP|NAP)[ab123]?)(?: (o|s|pp|pa|[a-zA-Z']+\|[a-zA-Z']+))?\]/g, function(match, capt1, capt2, offset) {
+	string = string.replace(/\[((?:AP[ab]?|NAP[ab123]?))(?: (o|s|pp|pa|[a-zA-Z']+\|[a-zA-Z']+))?\]/g, function(match, capt1, capt2, offset) {
 		if (capt2) {
 			if (capt2.includes("|")) {
 				return (playerNamesMap[capt1].gender === "male" || playerNamesMap[capt1].gender === "female") ? capt2.split("|")[0] : capt2.split("|")[1];
