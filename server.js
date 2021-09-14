@@ -262,40 +262,24 @@ const questionMatchesSettings = function(question, settings, allCards) {
 		const requiredRulesFuzzy = settings.rules.filter(function(currentvalue){
 			return !currentvalue.endsWith(".");
 		});
+		const isCitedExact = function (element) {
+			return citedRules.includes(element);
+		};
+		const isCitedFuzzy = function(element){
+			return citedRules.some(function(element2){
+				return element2.match(new RegExp(element + "(?=[a-z\.]|$)"));
+			});
+		};
 		if (settings.rulesConjunc === "OR") {
-			if (!(requiredRulesExact.some(function(element) {
-					return citedRules.includes(element);
-				})
-				||
-				requiredRulesFuzzy.some(function(element){
-					return citedRules.some(function(element2){
-						return element2.startsWith(element);
-					});
-				}))) {
+			if (!(requiredRulesExact.some(isCitedExact) || requiredRulesFuzzy.some(isCitedFuzzy))) {
 				return false;
 			}
 		} else if (settings.rulesConjunc === "AND") {
-			if (!(requiredRulesExact.every(function(element){
-					return citedRules.includes(element);
-				})
-				&&
-				requiredRulesFuzzy.every(function(element){
-					return citedRules.some(function(element2){
-						return element2.startsWith(element);
-					});
-				}))) {
+			if (!(requiredRulesExact.every(isCitedExact) && requiredRulesFuzzy.every(isCitedFuzzy))) {
 				return false;
 			}
 		} else if (settings.rulesConjunc === "NOT") {
-			if (requiredRulesExact.some(function(element){
-					return citedRules.includes(element);
-				})
-				||
-				requiredRulesFuzzy.some(function(element){
-					return citedRules.some(function(element2){
-						return element2.startsWith(element);
-					});
-				})) {
+			if (requiredRulesExact.some(isCitedExact) || requiredRulesFuzzy.some(isCitedFuzzy)) {
 				return false;
 			}
 		}
