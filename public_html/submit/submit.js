@@ -3,7 +3,6 @@
 let requestObj = {};
 
 const submit = function() {
-	document.getElementById("submit").disabled=true;
 	document.getElementById("cursorStyle").innerHTML = "* {cursor: wait !important;}";
 	requestObj.question = document.getElementById("question").value;
 	requestObj.answer = document.getElementById("answer").value;
@@ -64,7 +63,6 @@ const submit = function() {
 	httpRequest.setRequestHeader("Content-Type", "application/json");
 	httpRequest.send(JSON.stringify(requestObj));
 	localStorage.setItem("contactFormName", document.getElementById("name").value);
-	document.getElementById("submit").disabled=false;
 }
 
 const clearFields = function() {
