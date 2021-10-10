@@ -182,11 +182,11 @@ const updateAllCards = function() {
 			 combinedCards = {};
 		for (let i in allCards) {
 			if ((allCards[i].layout === "split" || allCards[i].layout === "aftermath") && allCards[i].side === "a") {
-			    aName = allCards[i].faceName;
-			    if(allCards[i].names[0] === aName){
+			    let aName = allCards[i].name;
+			    // bName is the element of names that aName isn't
+			    let bName = allCards[i].names[0];
+			    if(bName === aName){
 			        bName = allCards[i].names[1];
-			    } else {
-			        bName = allCards[i].names[0];
 			    }
 				let combinedProps = {};
 				combinedProps.name = aName + " // " + bName;
