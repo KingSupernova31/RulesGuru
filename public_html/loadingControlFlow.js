@@ -24,7 +24,7 @@ if (window.location.href.match("/\?(\d*)RG")) {
 
 //Check for question id.
 let goToQuestionNum = null;
-if (window.location.href.includes("?") && !window.location.href.includes("?RG")) {
+if (window.location.href.match(/\?\d/)) {
 	goToQuestionNum = Number(window.location.href.match(/\/?(\d+)$/)[1]);
 }
 
