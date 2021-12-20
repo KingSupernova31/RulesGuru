@@ -182,14 +182,20 @@ const updateAllCards = function() {
 			 combinedCards = {};
 		for (let i in allCards) {
 			if ((allCards[i].layout === "split" || allCards[i].layout === "aftermath") && allCards[i].side === "a") {
+			    let aName = allCards[i].name;
+			    // bName is the element of names that aName isn't
+			    let bName = allCards[i].names[0];
+			    if(bName === aName){
+			        bName = allCards[i].names[1];
+			    }
 				let combinedProps = {};
-				combinedProps.name = allCards[i].names[0] + " // " + allCards[i].names[1];
-				combinedProps.type = allCards[allCards[i].names[0]].type + " // " + allCards[allCards[i].names[1]].type;
-				combinedProps.manaCost = allCards[allCards[i].names[0]].manaCost + " // " + allCards[allCards[i].names[1]].manaCost;
-				combinedProps.manaValue = allCards[allCards[i].names[0]].manaValue + allCards[allCards[i].names[1]].manaValue;
-				combinedProps.text = allCards[allCards[i].names[0]].text + "\n//\n" + allCards[allCards[i].names[1]].text;
+				combinedProps.name = aName + " // " + bName;
+				combinedProps.type = allCards[aName].type + " // " + allCards[bName].type;
+				combinedProps.manaCost = allCards[aName].manaCost + " // " + allCards[bName].manaCost;
+				combinedProps.manaValue = allCards[aName].manaValue + allCards[bName].manaValue;
+				combinedProps.text = allCards[aName].text + "\n//\n" + allCards[bName].text;
 				for (let j in propsToCombine) {
-					combinedProps[propsToCombine[j]] = allCards[i][propsToCombine[j]].concat(allCards[allCards[i].names[1]][propsToCombine[j]]);
+					combinedProps[propsToCombine[j]] = allCards[aName][propsToCombine[j]].concat(allCards[bName][propsToCombine[j]]);
 					combinedProps[propsToCombine[j]] = Array.from(new Set(combinedProps[propsToCombine[j]]));
 				}
 				let currentCard = JSON.parse(JSON.stringify(allCards[i]));
