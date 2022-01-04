@@ -76,6 +76,11 @@ try {
 					sendEmail = true;
 				}
 				break;
+			case "Every two days":
+				if (Math.floor(Date.now() / 86400000) % 2 === 0) {
+					sendEmail = true;
+				}
+				break;
 			case "Every three days":
 				if (Math.floor(Date.now() / 86400000) % 3 === 0) {
 					sendEmail = true;
