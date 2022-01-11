@@ -316,6 +316,7 @@ const updateAllCards = function() {
 	} catch (err) {
 		handleError(err);
 	}
+	console.log("Finished updating all cards.");
 	disperseFiles();
 };
 
@@ -421,6 +422,7 @@ const disperseFiles = function() {
 		//SearchLink mappings.
 		updateSearchLinkMappings();
 
+		console.log("Finished dispersing all cards");
 	} catch (err) {
 		handleError(err)
 	}
@@ -437,6 +439,7 @@ if (!fs.existsSync("data_files")) {
 let finishedDownloads = 0;
 downloadFile("data_files/rawAllKeywords.json", "https://slack.vensersjournal.com/keywords", function() {
 	try {
+		console.log("rawAllKeywords downloaded");
 		const allKeywords = JSON.parse(fs.readFileSync("data_files/rawAllKeywords.json", "utf8"));
 		if (Object.keys(allKeywords).length === 3 && allKeywords.keywordAbilities.length > 30) {
 			for (let i in allKeywords.abilityWords) {
@@ -444,7 +447,7 @@ downloadFile("data_files/rawAllKeywords.json", "https://slack.vensersjournal.com
 			}
 			fs.writeFileSync("data_files/finalAllKeywords.json", JSON.stringify(allKeywords));
 			finishedDownloads++;
-			if (finishedDownloads === 6) {
+			if (finishedDownloads === 7) {
 				updateAllCards();
 			}
 		} else {
@@ -456,8 +459,9 @@ downloadFile("data_files/rawAllKeywords.json", "https://slack.vensersjournal.com
 });
 
 downloadFile("data_files/rawAllCards.json", "https://mtgjson.com/api/v5/AtomicCards.json", function() {
+	console.log("rawAllCards downloaded");
 	finishedDownloads++;
-	if (finishedDownloads === 6) {
+	if (finishedDownloads === 7) {
 		updateAllCards();
 	}
 });
@@ -465,27 +469,31 @@ downloadFile("data_files/rawAllCards.json", "https://mtgjson.com/api/v5/AtomicCa
 const apiUrls = JSON.parse(fs.readFileSync("mostPlayedApiUrls.json", "utf8")); //URLs need to be hidden as the API is private.
 
 downloadFile("data_files/mostPlayedStandard.json", apiUrls.standard, function() {
+	console.log("mostPlayedStandard downloaded");
 	finishedDownloads++;
-	if (finishedDownloads === 6) {
+	if (finishedDownloads === 7) {
 		updateAllCards();
 	}
 });
 
 downloadFile("data_files/mostPlayedPioneer.json", apiUrls.pioneer, function() {
+	console.log("mostPlayedPioneer downloaded");
 	finishedDownloads++;
-	if (finishedDownloads === 6) {
+	if (finishedDownloads === 7) {
 		updateAllCards();
 	}
 });
 
 downloadFile("data_files/mostPlayedModern.json", apiUrls.modern, function() {
+	console.log("mostPlayedModern downloaded");
 	finishedDownloads++;
-	if (finishedDownloads === 6) {
+	if (finishedDownloads === 7) {
 		updateAllCards();
 	}
 });
 
 downloadFile("data_files/rawAllSets.json", "https://mtgjson.com/api/v5/AllPrintings.json", function() {
+	console.log("rawAllSets downloaded");
 	try {
 		const rawAllSets = JSON.parse(fs.readFileSync("data_files/rawAllSets.json")).data;
 
@@ -532,23 +540,27 @@ downloadFile("data_files/rawAllSets.json", "https://mtgjson.com/api/v5/AllPrinti
 		if (finalAllSets.length > 400) {
 			fs.writeFileSync("data_files/finalAllSets.json", JSON.stringify(finalAllSets));
 			finishedDownloads++;
-			if (finishedDownloads === 6) {
+			if (finishedDownloads === 7) {
 				updateAllCards();
 			}
 		} else {
 			handleError(new Error("allSetsUpdate array too short"));
 		}
-
 	} catch (err) {
 		handleError(err);
 	}
 });
 
 downloadFile("data_files/rawAllRules.json", "https://slack.vensersjournal.com/allrules", function() {
+	console.log("rawAllRules downloaded");
 	try {
 		const rawAllRules = fs.readFileSync("data_files/rawAllRules.json", "utf8");
 		if (Object.keys(JSON.parse(rawAllRules)).length > 1000) {
 			fs.writeFileSync("data_files/finalAllRules.json", rawAllRules);
+			finishedDownloads++;
+			if (finishedDownloads === 7) {
+				updateAllCards();
+			}
 		} else {
 			handleError(new Error("allRulesUpdate rules too short"));
 		}
