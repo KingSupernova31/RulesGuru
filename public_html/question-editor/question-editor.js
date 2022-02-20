@@ -1107,8 +1107,8 @@ const convertTypingRealTime = function(element) {
 			cursorPos = element.selectionStart;
 
 	//General text changes:
-/*
-	//Remove double spaces.
+
+/*	//Remove double spaces.
 	while (newValue.includes("  ")) {
 		if (cursorPos === newValue.indexOf("  ") + 1) {
 			newValue = newValue.replace("  ", " ");
@@ -1116,14 +1116,13 @@ const convertTypingRealTime = function(element) {
 			newValue = newValue.replace("  ", " ");
 			cursorPos -= 1;
 		}
-	}
-*/
+	}*/ //IF THIS IS REENABLED IT BREAKS CURSORPOS SINCE IT CHANGES THE NUMBER OF CHARS
+
 	//Replace quotes with better quotes.
 	newValue = newValue.replace(/’/g, "'");
 	newValue = newValue.replace(/“/g, "\"");
 	newValue = newValue.replace(/”/g, "\"");
 
-/*
 	//Capitalize the first letter at the beginning of a sentence after a parenthetical statement.
 	newValue = newValue.replace(/\. \([^()]+?\) ([a-z])/g, function(match, capt1) {
 		return match.slice(0, -1) + capt1[0].toUpperCase() + capt1.substring(1);
@@ -1135,10 +1134,10 @@ const convertTypingRealTime = function(element) {
 	//Capitalize the first letter of the first sentence.
 	if (newValue[0]) {
 		newValue = newValue[0].toUpperCase() + newValue.substring(1);
-	}*/
+	}
 
 	//Expression changes:
-	const valueBeforeExpressionChanges = newValue;
+	let valueBeforeExpressionChanges = newValue;
 
 	//Set card generator expressions to lowercase.
 	newValue = newValue.replace(/\[card \d+\]/gi, function(match) {
@@ -1226,7 +1225,124 @@ const convertTypingRealTime = function(element) {
 		newValue = newValue.replace(new RegExp("\\{" + manaSymbols[i] + "\\}", "ig"), "{" + manaSymbols[i] + "}");
 	}
 
+	//Add in verb conjugations.
+	const conjugations = [
+		["discards", "discard"],
+		["activates", "activate"],
+		["attacks", "attack"],
+		["casts", "cast"],
+		["plays", "play"],
+		["wants", "want"],
+		["targets", "target"],
+		["does", "do"],
+		["reveals", "reveal"],
+		["resolves", "resolve"],
+		["chooses", "choose"],
+		["has", "have"],
+		["moves", "move"],
+		["taps", "tap"],
+		["draws", "draw"],
+		["puts", "put"],
+		["loses", "lose"],
+		["uses", "use"],
+		["controls", "control"],
+		["Does", "do"],
+		["doesn't", "don't"],
+		["passes", "pass"],
+		["enchants", "enchant"],
+		["sacrifices", "sacrifice"],
+		["mills", "mill"]
+	];
+	let allConjugationsMashedTogether = "";
+	for (let conjugation of conjugations) {
+		for (let word of conjugation) {
+			allConjugationsMashedTogether += word + "|";
+		}
+	}
+	allConjugationsMashedTogether = allConjugationsMashedTogether.slice(0, allConjugationsMashedTogether.length - 1); //Remove trailing "|".
+
+	const isBeginningOfPronounExpression = function(string) {
+		if (string[0] !== "[") {
+			return false;
+		}
+		let expression = "";
+		let position = 0;
+		while (position < string.length) {
+			expression += string[position];
+			if (string[position] === "]") {
+				break;
+			}
+			position++;
+		}
+		if (!expression[expression.length - 1] === "]") {
+			return false;
+		}
+		const pronounPlayers = ["NAP1", "NAP2", "NAP3", "APa", "APb", "NAPa", "NAPb", "AP", "NAP"];
+		const pronounTypes = ["s", "o", "pp", "pa"];
+		const allPossiblePronouns = [];
+		for (let player of pronounPlayers) {
+			for (let type of pronounTypes) {
+				allPossiblePronouns.push(player + " " + type);
+			}
+		}
+		for (let possiblePronoun of allPossiblePronouns) {
+			if (expression === `[${possiblePronoun}]`) {
+				return expression;
+			}
+		}
+		return false;
+	}
+	const isBeginningOfNounExpression = function(string) {
+		if (string[0] !== "[") {
+			return false;
+		}
+		let expression = "";
+		let position = 0;
+		while (position < string.length) {
+			expression += string[position];
+			if (string[position] === "]") {
+				break;
+			}
+			position++;
+		}
+		if (!expression[expression.length - 1] === "]") {
+			return false;
+		}
+		const players = ["NAP1", "NAP2", "NAP3", "APa", "APb", "NAPa", "NAPb", "AP", "NAP"];
+		for (let player of players) {
+			if (expression === `[${player}]`) {
+				return expression;
+			}
+		}
+		return false;
+	}
+	let listOfVerbConjugated = [];
+	newValue = newValue.replace(new RegExp("(?<=^| )(?:" + allConjugationsMashedTogether + ")(?= |\\.|$)", "g"), function(match, offset) {
+		while (offset >= 0) {//Search backwards through the string.
+			if (isBeginningOfNounExpression(newValue.slice(offset))) {//If the player expression before the match is a noun, we don't want to replace the match.
+				return match;
+			}
+			const pronounExpression = isBeginningOfPronounExpression(newValue.slice(offset));
+			if (pronounExpression) {
+				const playerReferredToByPronounExpression = pronounExpression.match(/\[([NAPap123]+)/)[1];
+				for (let conjugation of conjugations) {
+					for (let word of conjugation) {
+						if (match === word) {
+							listOfVerbConjugated.push({"offset": offset, "word": word})
+							return `[${playerReferredToByPronounExpression} ${conjugation[0]}|${conjugation[1]}]`;
+						}
+					}
+				}
+			}
+			offset--;
+		}
+	});
+
 	//Perform the replacement and put the cursor where it should be.
+	for (let verb of listOfVerbConjugated) { //Add brackets around any conjugated verbs in the old text so that the cursor positioning knows to take them into account.
+		element.value = element.value.replace(new RegExp(`.{${verb.offset}}` + verb.word), "[" + verb.word + "]");
+	}
+
 	if (newValue !== element.value) {
 		if (valueBeforeExpressionChanges !== newValue) {
 			const expressionStartPos = Math.max(element.value.slice(0, cursorPos).lastIndexOf("["), element.value.slice(0, cursorPos).lastIndexOf("{"));
