@@ -1246,7 +1246,6 @@ const convertTypingRealTime = function(element) {
 		["loses", "lose"],
 		["uses", "use"],
 		["controls", "control"],
-		["Does", "do"],
 		["doesn't", "don't"],
 		["passes", "pass"],
 		["enchants", "enchant"],
