@@ -1238,7 +1238,6 @@ const convertTypingRealTime = function(element) {
 		["reveals", "reveal"],
 		["resolves", "resolve"],
 		["chooses", "choose"],
-		["has", "have"],
 		["makes", "make"],
 		["moves", "move"],
 		["pays", "pay"],
