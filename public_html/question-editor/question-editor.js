@@ -1350,7 +1350,7 @@ const convertTypingRealTime = function(element) {
 		return false;
 	}
 	let listOfVerbConjugated = [];
-	newValue = newValue.replace(new RegExp("(?<=^| )(?:" + allConjugationsMashedTogether + ")(?= |\\.|$)", "g"), function(match, offset) {
+	newValue = newValue.replace(new RegExp("(?<= )(?:" + allConjugationsMashedTogether + ")(?= |\\.|$)", "g"), function(match, offset) {
 		while (offset >= 0) {//Search backwards through the string.
 			if (isBeginningOfNounExpression(newValue.slice(offset))) {//If the player expression before the match is a noun, we don't want to replace the match.
 				return match;
@@ -1369,6 +1369,7 @@ const convertTypingRealTime = function(element) {
 			}
 			offset--;
 		}
+		return match; //If no pronoun or noun expressions are found, don't change the string.
 	});
 
 	//Perform the replacement and put the cursor where it should be.
