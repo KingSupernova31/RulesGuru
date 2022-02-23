@@ -1351,6 +1351,9 @@ const convertTypingRealTime = function(element) {
 	let listOfVerbConjugated = [];
 	newValue = newValue.replace(new RegExp("(?<= )(?:" + allConjugationsMashedTogether + ")(?= |\\.|$)", "g"), function(match, offset) {
 		while (offset >= 0) {//Search backwards through the string.
+			if (newValue[offset] === ".") {//We only look at pronouns in the same sentence as the verb.
+				return match;
+			}
 			if (isBeginningOfNounExpression(newValue.slice(offset))) {//If the player expression before the match is a noun, we don't want to replace the match.
 				return match;
 			}
