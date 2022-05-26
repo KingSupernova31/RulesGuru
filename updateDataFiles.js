@@ -437,7 +437,7 @@ if (!fs.existsSync("data_files")) {
 }
 
 let finishedDownloads = 0;
-downloadFile("data_files/rawAllKeywords.json", "https://slack.vensersjournal.com/keywords", function() {
+downloadFile("data_files/rawAllKeywords.json", "https://api.academyruins.com/keywords", function() {
 	try {
 		console.log("rawAllKeywords downloaded");
 		const allKeywords = JSON.parse(fs.readFileSync("data_files/rawAllKeywords.json", "utf8"));
@@ -551,7 +551,7 @@ downloadFile("data_files/rawAllSets.json", "https://mtgjson.com/api/v5/AllPrinti
 	}
 });
 
-downloadFile("data_files/rawAllRules.json", "https://slack.vensersjournal.com/allrules", function() {
+downloadFile("data_files/rawAllRules.json", "https://api.academyruins.com/allrules", function() {
 	console.log("rawAllRules downloaded");
 	try {
 		const rawAllRules = fs.readFileSync("data_files/rawAllRules.json", "utf8");
