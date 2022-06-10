@@ -182,7 +182,7 @@ const replaceExpressions = function(string, playerNamesMap, oracle) {
 
 	//Replace rules citations and create tooltips.
 	string = string.replace(/\[(\d{3}(\.\d{1,3}([a-z])?)?)\]/g, function(match, capt1) {
-		return `<a href="https://vensersjournal.com/${capt1}" target="_blank" tooltip="${window.parentData.allRules[capt1] ? window.parentData.allRules[capt1].ruleText.replace(/"/g, "&quot") : "This rule doesn't appear to exist. Please check your citation and try again."}">${capt1}</a>`;
+		return `<a href="https://yawgatog.com/resources/magic-rules/#R${capt1.replace('.', '')}" target="_blank" tooltip="${window.parentData.allRules[capt1] ? window.parentData.allRules[capt1].ruleText.replace(/"/g, "&quot") : "This rule doesn't appear to exist. Please check your citation and try again."}">${capt1}</a>`;
 	});
 
 	//Replace card names.
