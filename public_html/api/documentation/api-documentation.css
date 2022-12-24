@@ -44,7 +44,7 @@ h1 {
 }
 
 .grid4 {
-	grid-template-columns: 15% 16% auto 15%;
+	grid-template-columns: 14% 17% auto 15%;
 }
 
 .grid3 {
@@ -100,6 +100,7 @@ h1 {
 
 a {
 	overflow-wrap: break-word;
+	border: none !important; /*Necessary because my grid styling was sloppy and includes any child, not just grid cells*/
 }
 
 #nowrap {

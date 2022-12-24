@@ -255,7 +255,7 @@ document.addEventListener("DOMContentLoaded", function() {
 //Secret go to admin page.
 let keysPressed = "";
 document.addEventListener("keypress", function(event) {
-	if (document.activeElement.tagName !== "TEXTAREA") {
+	if (document.activeElement.tagName !== "TEXTAREA" && document.activeElement.tagName !== "INPUT") {
 		keysPressed += event.key;
 		if (keysPressed.slice(-5).toLowerCase() === "admin") {
 			if (typeof currentQuestion === "object" && currentQuestion) {

@@ -1225,8 +1225,8 @@ const convertTypingRealTime = function(element) {
 		newValue = newValue.replace(new RegExp("\\{" + manaSymbols[i] + "\\}", "ig"), "{" + manaSymbols[i] + "}");
 	}
 
-	//Add in verb conjugations.
-	const conjugations = [
+	//Add in verb conjugations. Temporarily deisabled because it's awful.
+	const conjugations = [/*
 		["discards", "discard"],
 		["activates", "activate"],
 		["attacks", "attack"],
@@ -1284,7 +1284,7 @@ const convertTypingRealTime = function(element) {
 		["mills", "mill"],
 		["blocks", "block"],
 		["gains", "gain"]
-	];
+	*/];
 	let allConjugationsMashedTogether = "";
 	for (let conjugation of conjugations) {
 		for (let word of conjugation) {

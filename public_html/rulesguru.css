@@ -247,3 +247,25 @@ Misc.
 	filter: brightness(50%);
 	pointer-events: none !important;
 }
+
+#boothInfo {
+	display: none;
+}
+
+#testQuestionCorrect {
+	background-color: green;
+	margin-right: 1rem;
+	margin-bottom: 0.5rem;
+}
+
+#testQuestionIncorrect {
+	background-color: red;
+}
+
+#testQuestionCorrect:hover {
+	background-color: #282828;
+}
+
+#testQuestionIncorrect:hover {
+	background-color: #282828;
+}

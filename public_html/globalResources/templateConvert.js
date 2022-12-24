@@ -64,15 +64,14 @@ const templateConvert = function(template, globalCardList) {
 									tempSymbolString = currentRule.value,
 									pseudoSymbolMap = {
 										"::generic::": ["{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}", "{7}", "{8}", "{9}", "{10}", "{11}", "{12}", "{13}", "{14}", "{15}", "{16}", "{17}", "{18}", "{19}", "{20}", "{X}", "{Y}", "{2/W}", "{2/U}", "{2/B}", "{2/R}", "{2/G}"],
-										"::phyrexian::": ["{W/P}", "{U/P}", "{B/P}", "{R/P}", "{G/P}"],
+										"::phyrexian::": ["{W/P}", "{U/P}", "{B/P}", "{R/P}", "{G/P}", "{W/U/P}", "{W/B/P}", "{U/B/P}", "{U/R/P}", "{B/R/P}", "{B/G/P}", "{R/W/P}", "{R/G/P}", "{G/W/P}", "{G/U/P}",],
 										"::hybrid::": ["{W/U}", "{W/B}", "{U/B}", "{U/R}", "{B/R}", "{B/G}", "{R/W}", "{R/G}", "{G/W}", "{G/U}", "{2/W}", "{2/U}", "{2/B}", "{2/R}", "{2/G}"],
-										"::white::": ["{W}", "{W/P}", "{W/U}", "{W/B}", "{R/W}", "{G/W}", "{2/W}"],
-										"::blue::": ["{U}", "{U/P}", "{W/U}", "{U/B}", "{U/R}", "{G/U}", "{2/U}"],
-										"::black::": ["{B}", "{B/P}", "{W/B}", "{U/B}", "{B/R}", "{B/G}", "{2/B}"],
-										"::red::": ["{R}", "{R/P}", "{U/R}", "{B/R}", "{R/W}", "{R/G}", "{2/R}"],
-										"::green::": ["{G}", "{G/P}", "{B/G}", "{R/G}", "{G/W}", "{G/U}", "{2/G}"]
+										"::white::": ["{W}", "{W/P}", "{W/U}", "{W/B}", "{R/W}", "{G/W}", "{2/W}", "{W/U/P}", "{W/B/P}", "{R/W/P}", "{R/G/P}", "{G/W/P}"],
+										"::blue::": ["{U}", "{U/P}", "{W/U}", "{U/B}", "{U/R}", "{G/U}", "{2/U}", "{W/U/P}", "{U/B/P}", "{U/R/P}", "{G/U/P}"],
+										"::black::": ["{B}", "{B/P}", "{W/B}", "{U/B}", "{B/R}", "{B/G}", "{2/B}", "{W/B/P}", "{U/B/P}", "{B/R/P}", "{B/G/P}"],
+										"::red::": ["{R}", "{R/P}", "{U/R}", "{B/R}", "{R/W}", "{R/G}", "{2/R}", "{U/R/P}", "{B/R/P}", "{R/W/P}", "{R/G/P}"],
+										"::green::": ["{G}", "{G/P}", "{B/G}", "{R/G}", "{G/W}", "{G/U}", "{2/G}", "{B/G/P}", "{R/G/P}", "{G/W/P}", "{G/U/P}"]
 									};
-
 						const marriageTheoremMet = function(pseudoSymbols, symbols) {
 							if (pseudoSymbols.length === 0 || symbols.length === 0) {
 								return false;

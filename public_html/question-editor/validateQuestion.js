@@ -47,7 +47,7 @@ const validateQuestion = function(questionObj, templateEmptyness) {
 	//Check for incorrectly formatted strings inside brackets.
 	if (questionObj.question.match(/\[.*?\]/g)) {
 		questionObj.question.match(/\[.*?\]/g).some(function(element) {
-			if (!/^\[(((AP|NAP)[ab123]?( (o|s|pp|pa|[a-zA-Z']+\|[a-zA-Z']+))?)|(\d{3}(\.\d{1,3}([a-z])?)?)|(card \d+))\]$/.test(element)) {
+			if (!/^\[(((AP|NAP)[ab123]?( (o|s|pp|pa|[a-zA-Z']+\|[a-zA-Z']+))?)|(\d{3}(\.\d{1,3}([a-z])?)?)|(card \d+)|([+-]?\d\d?))\]$/.test(element)) {
 				if (!allCardNames.includes(element.slice(1, element.length - 1))) {
 					errors.push(`"${element}" is not formatted correctly.`);
 					return true;
@@ -57,7 +57,7 @@ const validateQuestion = function(questionObj, templateEmptyness) {
 	}
 	if (questionObj.answer.match(/\[.*?\]/g)) {
 		questionObj.answer.match(/\[.*?\]/g).some(function(element) {
-			if (!/^\[(((AP|NAP)[ab123]?( (o|s|pp|pa|[a-zA-Z']+\|[a-zA-Z']+))?)|(\d{3}(\.\d{1,3}([a-z])?)?)|(card \d+))\]$/.test(element)) {
+			if (!/^\[(((AP|NAP)[ab123]?( (o|s|pp|pa|[a-zA-Z']+\|[a-zA-Z']+))?)|(\d{3}(\.\d{1,3}([a-z])?)?)|(card \d+)|([+-]?\d\d?))\]$/.test(element)) {
 				if (!allCardNames.includes(element.slice(1, element.length - 1))) {
 					errors.push(`"${element}" is not formatted correctly.`);
 					return true;

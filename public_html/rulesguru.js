@@ -171,6 +171,7 @@ const getSpecificQuestion = function(questionId, callback) {
 		if (httpRequest.status === 200) {
 			if (httpRequest.response) {
 				response = JSON.parse(httpRequest.response);
+				console.log(response);
 				if (response.error) {
 					getQuestionError = response.error;
 				} else {
@@ -251,10 +252,43 @@ const symbolFixer = function(inputString) {
 		"{2/U}": "<i class='ms ms-2u ms-split ms-cost'></i>",
 		"{2/B}": "<i class='ms ms-2b ms-split ms-cost'></i>",
 		"{2/R}": "<i class='ms ms-2r ms-split ms-cost'></i>",
-		"{2/G}": "<i class='ms ms-2g ms-split ms-cost'></i>"
+		"{2/G}": "<i class='ms ms-2g ms-split ms-cost'></i>",
+		"{CHAOS}": "<i class='ms ms-chaos'></i>",
+		"{W/U/P}": "<i class='ms ms-wup ms-cost'></i>",
+		"{W/B/P}": "<i class='ms ms-wbp ms-cost'></i>",
+		"{U/B/P}": "<i class='ms ms-ubp ms-cost'></i>",
+		"{U/R/P}": "<i class='ms ms-urp ms-cost'></i>",
+		"{B/R/P}": "<i class='ms ms-brp ms-cost'></i>",
+		"{B/G/P}": "<i class='ms ms-bgp ms-cost'></i>",
+		"{R/W/P}": "<i class='ms ms-rwp ms-cost'></i>",
+		"{R/G/P}": "<i class='ms ms-rgp ms-cost'></i>",
+		"{G/W/P}": "<i class='ms ms-gwp ms-cost'></i>",
+		"{G/U/P}": "<i class='ms ms-gup ms-cost'></i>",
+		"{P}": "<i class='ms ms-p'></i>",
+		"[0]": "<i class='ms ms-loyalty-zero ms-loyalty-0 ms-2x'></i>",
+		"[+1]": "<i class='ms ms-loyalty-up ms-loyalty-1 ms-2x'></i>",
+		"[+2]": "<i class='ms ms-loyalty-up ms-loyalty-2 ms-2x'></i>",
+		"[+3]": "<i class='ms ms-loyalty-up ms-loyalty-3 ms-2x'></i>",
+		"[+4]": "<i class='ms ms-loyalty-up ms-loyalty-4 ms-2x'></i>",
+		"[+5]": "<i class='ms ms-loyalty-up ms-loyalty-5 ms-2x'></i>",
+		"[-1]": "<i class='ms ms-loyalty-down ms-loyalty-1 ms-2x'></i>",
+		"[-2]": "<i class='ms ms-loyalty-down ms-loyalty-2 ms-2x'></i>",
+		"[-3]": "<i class='ms ms-loyalty-down ms-loyalty-3 ms-2x'></i>",
+		"[-4]": "<i class='ms ms-loyalty-down ms-loyalty-4 ms-2x'></i>",
+		"[-5]": "<i class='ms ms-loyalty-down ms-loyalty-5 ms-2x'></i>",
+		"[-6]": "<i class='ms ms-loyalty-down ms-loyalty-6 ms-2x'></i>",
+		"[-7]": "<i class='ms ms-loyalty-down ms-loyalty-7 ms-2x'></i>",
+		"[-8]": "<i class='ms ms-loyalty-down ms-loyalty-8 ms-2x'></i>",
+		"[-9]": "<i class='ms ms-loyalty-down ms-loyalty-9 ms-2x'></i>",
+		"[-10]": "<i class='ms ms-loyalty-down ms-loyalty-10 ms-2x'></i>",
+		"[-11]": "<i class='ms ms-loyalty-down ms-loyalty-11 ms-2x'></i>",
+		"[-12]": "<i class='ms ms-loyalty-down ms-loyalty-12 ms-2x'></i>",
+		"[-13]": "<i class='ms ms-loyalty-down ms-loyalty-13 ms-2x'></i>",
+		"[-14]": "<i class='ms ms-loyalty-down ms-loyalty-14 ms-2x'></i>",
+		"[-15]": "<i class='ms ms-loyalty-down ms-loyalty-15 ms-2x'></i>",
 	};
-	let outputString = inputString.replace(/{[A-Z0-9][A-Z0-9\/]?[A-Z]?}/g, function(match) {
-		return symbolMap[match];
+	let outputString = inputString.replace(/[{\[][A-Z0-9/+-]{1,5}[}\]]/g, function(match) {
+		return symbolMap[match] || match;
 	});
 	return outputString;
 };
@@ -828,3 +862,82 @@ document.getElementById("questionsListDisplay").addEventListener("mousedown", fu
 	}
 });
 getQuestionsList(displayQuestionsList)
+
+//Secret booth mode.
+let boothKeysPressed = "";
+let boothActive = false;
+let testLength;
+let testQuestionsCompleted = 0;
+let testQuestionsCorrectCount = 0;
+document.addEventListener("keypress", function(event) {
+	if (document.activeElement.tagName !== "TEXTAREA" && document.activeElement.tagName !== "INPUT") {
+		boothKeysPressed += event.key;
+		if (boothKeysPressed.slice(-5).toLowerCase() === "booth") {
+			if (boothActive) {
+				boothActive = false;
+				document.getElementById("boothInfo").style.display = "none";
+			} else {
+				boothActive = true;
+				testLength = Number(prompt("How many questions in this test?"));
+				while (isNaN(testLength) || !Number.isInteger(testLength)) {
+					testLength = Number(prompt("That wasn't an integer. How many questions in this test?"));
+				}
+				testQuestionsCompleted = 0;
+				testQuestionsCorrectCount = 0;
+				document.getElementById("boothInfo").style.display = "block";
+				updateTestData();
+			}
+		}
+	}
+});
+
+const updateTestData = function() {
+	document.getElementById("testLength").textContent = testLength;
+	document.getElementById("testQuestionsCompleted").textContent = testQuestionsCompleted;
+	document.getElementById("testQuestionsCorrectCount").textContent = testQuestionsCorrectCount;
+};
+
+const proceedInTest = function() {
+	if (testQuestionsCompleted === testLength) {
+		const percentage = Math.round((testQuestionsCorrectCount / testQuestionsCompleted) * 100);
+		alert(`All done! Your final score is ${percentage}%.`);
+		boothActive = false;
+		document.getElementById("boothInfo").style.display = "none";
+	} else {
+		displayNextRandomQuestion();
+	}
+};
+
+const handleTestQuestionCorrect = function() {
+	testQuestionsCompleted++;
+	testQuestionsCorrectCount++;
+	updateTestData();
+	setTimeout(proceedInTest, 0);
+};
+
+const handleTestQuestionIncorrect = function() {
+	testQuestionsCompleted++;
+	updateTestData();
+	setTimeout(proceedInTest, 0);
+};
+
+document.getElementById("testQuestionCorrect").addEventListener("click", handleTestQuestionCorrect);
+
+document.getElementById("testQuestionIncorrect").addEventListener("click", handleTestQuestionIncorrect);
+
+//Keyboard shortcuts
+document.addEventListener("keydown", function(event) {
+	if (document.activeElement.tagName !== "TEXTAREA" && document.activeElement.tagName !== "INPUT") {
+		if (event.key === "ArrowRight") {
+			displayNextRandomQuestion();
+		} else if (["ArrowUp", "ArrowDown"].includes(event.key)) {
+			toggleAnswer();
+		} else if (boothActive) {
+			if (event.key === "=") {
+				handleTestQuestionCorrect();
+			} else if (event.key === "-") {
+				handleTestQuestionIncorrect();
+			}
+		}
+	}
+})

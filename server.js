@@ -512,7 +512,7 @@ const sendAPIQuestions = function(questions, res, allCards) {
 	};
 	for (let question of questions) {
 		const questionToSend = JSON.parse(JSON.stringify(question));
-		questionToSend.oracle = [];
+		questionToSend.includedCards = [];
 		let chosenCards = [];
 		if (questionToSend.cardLists.length > 0) {
 
@@ -533,7 +533,7 @@ const sendAPIQuestions = function(questions, res, allCards) {
 			}
 
 			for (let i = 0 ; i < chosenCards.length ; i++) {
-				questionToSend.oracle.push(allCards[chosenCards[i]]);
+				questionToSend.includedCards.push(allCards[chosenCards[i]]);
 			}
 		}
 		//Don't send the cardLists since they're not needed.
@@ -541,14 +541,21 @@ const sendAPIQuestions = function(questions, res, allCards) {
 
 		//Handle formatting.
 		const playerNamesMap = getPlayerNamesMap();
-		questionToSend.question = replaceExpressions(questionToSend.question, playerNamesMap, questionToSend.oracle);
-		questionToSend.answer = replaceExpressions(questionToSend.answer, playerNamesMap, questionToSend.oracle);
+		questionToSend.questionRaw = questionToSend.question;
+		questionToSend.answerRaw = questionToSend.answer;
+		questionToSend.question = replaceExpressions(questionToSend.question, playerNamesMap, questionToSend.includedCards);
+		questionToSend.answer = replaceExpressions(questionToSend.answer, playerNamesMap, questionToSend.includedCards);
 
-		questionToSend.includedCards = questionToSend.oracle.map(function(card) {
-			return card.name;
+		//Add citedRules
+		const allRules = JSON.parse(fs.readFileSync("allRules.json"));
+		const allNeededRuleNumbers = (questionToSend.questionRaw + questionToSend.answerRaw).match(/(?<=\[)(\d{3}(\.\d{1,3}([a-z])?)?)(?=\])/g) || [];
+		const allNeededRules = Object.values(allRules).filter(function(rule) {
+			return allNeededRuleNumbers.includes(rule.ruleNumber);
 		});
-
-		delete questionToSend.oracle;
+		questionToSend.citedRules = {};
+		for (let rule of allNeededRules) {
+			questionToSend.citedRules[rule.ruleNumber] = rule;
+		}
 
 		allQuestionsToSend.questions.push(questionToSend);
 	}
@@ -620,7 +627,8 @@ app.get("/api/questions", function(req, res) {
 						"rules": [],
 						"rulesConjunc": "OR",
 						"cards": [],
-						"cardsConjunc": "OR"
+						"cardsConjunc": "OR",
+						"id": NaN
 					};
 
 			for (let prop in defaults) {
@@ -635,24 +643,45 @@ app.get("/api/questions", function(req, res) {
 	}
 
 	try {
-		const questionsToReturn = [];
 
-		for (let i = 0 ; i < questionArray.length ; i++) {
-			const result = questionMatchesSettings(questionArray[i], requestSettings, allCards);
-			if (result) {
-				questionsToReturn.push(result);
-				if (questionsToReturn.length === requestSettings.count) {
-					break;
+		if (requestSettings.id > 0) {
+			let questionToReturn;
+			for (let i = 0 ; i < questionArray.length ; i++) {
+				if (questionArray[i].id = requestSettings.id) {
+					questionToReturn
+				}
+
+				const result = questionMatchesSettings(questionArray[i], requestSettings, allCards);
+				if (result) {
+					questionsToReturn.push(result);
+					if (questionsToReturn.length === requestSettings.count) {
+						break;
+					}
 				}
 			}
-		}
+			if (questionsToReturn.length === requestSettings.count) {
+				sendAPIQuestions(questionsToReturn, res, allCards);
+			} else {
+				res.json({"status": 204, "error":"There are not enough questions that fit your parameters."});
+			}
 
-		if (questionsToReturn.length === requestSettings.count) {
-			sendAPIQuestions(questionsToReturn, res, allCards);
 		} else {
-			res.json({"status": 204, "error":"There are not enough questions that fit your parameters."});
+			const questionsToReturn = [];
+			for (let i = 0 ; i < questionArray.length ; i++) {
+				const result = questionMatchesSettings(questionArray[i], requestSettings, allCards);
+				if (result) {
+					questionsToReturn.push(result);
+					if (questionsToReturn.length === requestSettings.count) {
+						break;
+					}
+				}
+			}
+			if (questionsToReturn.length === requestSettings.count) {
+				sendAPIQuestions(questionsToReturn, res, allCards);
+			} else {
+				res.json({"status": 204, "error":"There are not enough questions that fit your parameters."});
+			}
 		}
-
 	} catch (error) {
 		res.json({"status": 400, "error":"Incorrectly formatted json."});
 	}
