@@ -24,14 +24,14 @@ const submit = function() {
 	httpRequest.onabort = function() {
 		addToSubmissionBacklog(requestObj);
 		handleSubmissionBacklog(5000);
-		alert("There was an error submitting your question. (Request aborted.) Your question has been saved locally and will be automatically submitted once possible. If you're sure that you have an internet connection and the problem persists, please report the issue using the contact form in the upper right.");
+		alert("There was an error submitting your question. (Request aborted.) Your question has been saved locally and will be automatically submitted once possible. Please report the issue using the contact form in the upper right.");
 		document.getElementById("cursorStyle").innerHTML = "";
 		clearFields()
 	}
 	httpRequest.onerror = function() {
 		addToSubmissionBacklog(requestObj);
 		handleSubmissionBacklog(5000);
-		alert("There was an unknown error submitting your question. Your question has been saved locally and will be automatically submitted once possible. If you're sure that you have an internet connection and the problem persists, please report the issue using the contact form in the upper right.");
+		alert("You do not have internet access at the moment. Your question has been saved locally and will be automatically submitted once possible. If you're sure that you have an internet connection and the problem persists, please report the issue using the contact form in the upper right.");
 		document.getElementById("cursorStyle").innerHTML = "";
 		clearFields()
 	}
@@ -80,3 +80,12 @@ const compressMobileNameDescription = function() {
 document.onload = compressMobileNameDescription;
 
 document.getElementById("name").value = localStorage.getItem("contactFormName");
+
+document.addEventListener("keypress", function(event) {
+	if (document.activeElement.tagName === "TEXTAREA" || document.activeElement.tagName === "INPUT") {
+		if (!event.shiftKey && event.key === "Enter") {
+			event.preventDefault();
+			submit();
+		}
+	}
+});

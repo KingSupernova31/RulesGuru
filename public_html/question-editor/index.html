@@ -306,7 +306,9 @@
 						<option>Loyalty</option>
 						<option>Number of</option>
 					</select>
-					<button class="specialButtonBlack" onclick="addTemplateRule(document.getElementById('templateRuleList').value)">Add rule</button>
+					<button class="specialButtonBlack" id="addTemplateRuleButton" onclick="addTemplateRule(document.getElementById('templateRuleList').value)">Add rule</button>
+					<br>
+					<button class="specialButtonBlack" id="addORGroupButton" onclick="addOrGroup()">Add OR group</button>
 					<br><br>
 					<div id="templateRules"></div>
 					<div id="templateBottomDiv">

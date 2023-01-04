@@ -631,3 +631,27 @@ textarea.templateInput, input.templateInput {
 	transform: translateX(-50%);
 	padding: 0.2rem;
 }
+
+#addORGroupButton {
+	margin-top: 0.3rem;
+}
+
+div[data-orgroup="0"] {
+	background-color: #73f1ff;
+}
+
+div[data-orgroup="1"] {
+	background-color: #ff7373;
+}
+
+div[data-orgroup="2"] {
+	background-color: #dc73ff;
+}
+
+div[data-orgroup="3"] {
+	background-color: #73ff73;
+}
+
+div[data-orgroup="4"] {
+	background-color: #ffff2b;
+}

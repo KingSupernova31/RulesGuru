@@ -21,39 +21,50 @@ const templateConvert = function(template, globalCardList) {
 			if (currentCard.layout === "other") {
 				currentCardValid = false;
 			}
+			const orGroupsSatisfied = {};
 			for (let i = 0 ; i < template.length ; i++) {
+				if (!currentCardValid) {//If a previous rule has already determined that this card is invalid, we don't need to check if it satisfies this one.
+					continue;
+				}
 				let currentRule = template[i];
+				if (currentRule.orGroup !== null && !orGroupsSatisfied[currentRule.orGroup]) {
+					orGroupsSatisfied[currentRule.orGroup] = false;
+				}
+				if (currentRule.orGroup !== null && orGroupsSatisfied[currentRule.orGroup]) {//If this rule is in an OR group that has already been satisfied, we can skip checking it.
+					continue;
+				}
+				let currentRuleSatiesfied = true;
 				switch (currentRule.field) {
 					case "Layout":
 						if (currentRule.operator === "Is:") {
 							if (currentCard.layout !== currentRule.value) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "Not:") {
 							if (currentCard.layout === currentRule.value) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						}
 						break;
 					case "Multi-part side":
 						if (currentRule.operator === "Is:") {
 							if (!currentCard.side || currentCard.side !== currentRule.value) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "Not:") {
 							if (currentCard.side && currentCard.side === currentRule.value) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						}
 						break;
 					case "Colors":
 						if (currentRule.operator === "Includes:") {
 							if (!currentCard.colors.includes(currentRule.value)) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "Doesn't include:") {
 							if (currentCard.colors.includes(currentRule.value)) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						}
 						break;
@@ -111,11 +122,11 @@ const templateConvert = function(template, globalCardList) {
 								if (cardManaCostArray.includes(templateSymbols[i])) {
 									cardManaCostArray.splice(cardManaCostArray.indexOf(templateSymbols[i]), 1)
 								} else {
-									currentCardValid = false;
+									currentRuleSatiesfied = false;
 								}
 							}
 							if (templatePseudoSymbols.length > 0 && !marriageTheoremMet(templatePseudoSymbols, cardManaCostArray)) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "Doesn't include:") {
 							let includedAllSymbols = true;
@@ -130,69 +141,69 @@ const templateConvert = function(template, globalCardList) {
 								includedAllSymbols = false;
 							}
 							if (includedAllSymbols) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "Exactly:") {
 							for (let i = 0 ; i < templateSymbols.length ; i++) {
 								if (cardManaCostArray.includes(templateSymbols[i])) {
 									cardManaCostArray.splice(cardManaCostArray.indexOf(templateSymbols[i]), 1)
 								} else {
-									currentCardValid = false;
+									currentRuleSatiesfied = false;
 								}
 							}
 							if (templatePseudoSymbols.length !== cardManaCostArray.length) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 							if (templatePseudoSymbols.length > 0 && !marriageTheoremMet(templatePseudoSymbols, cardManaCostArray)) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						}
 						break;
 					case "Mana value":
 						if (currentRule.operator === "=") {
 							if (currentCard.manaValue !== Number(currentRule.value)) {
-								 currentCardValid = false;
+								 currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === ">") {
 							if (!(currentCard.manaValue > currentRule.value)) {
-								 currentCardValid = false;
+								 currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "<") {
 							if (!(currentCard.manaValue < currentRule.value)) {
-								 currentCardValid = false;
+								 currentRuleSatiesfied = false;
 							}
 						}
 						break;
 					case "Supertypes":
 						if (currentRule.operator === "Includes:") {
 							if (!currentCard.supertypes.includes(currentRule.value)) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "Doesn't include:") {
 							if (currentCard.supertypes.includes(currentRule.value)) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						}
 						break;
 					case "Types":
 						if (currentRule.operator === "Includes:") {
 							if (!currentCard.types.includes(currentRule.value)) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "Doesn't include:") {
 							if (currentCard.types.includes(currentRule.value)) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						}
 						break;
 					case "Subtypes":
 						if (currentRule.operator === "Includes:") {
 							if (!currentCard.subtypes.includesCaseInsensitive(currentRule.value)) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "Doesn't include:") {
 							if (currentCard.subtypes.includesCaseInsensitive(currentRule.value)) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						}
 						break;
@@ -201,76 +212,76 @@ const templateConvert = function(template, globalCardList) {
 						if (currentRule.operator === "Matches:") {
 							let regex = new RegExp(replacedValue);
 							if (!regex.test(currentCard.rulesText)) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "Does not match:") {
 							let regex = new RegExp(replacedValue);
 							if (regex.test(currentCard.rulesText)) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "Contains:") {
 							if (!currentCard.rulesText.toLowerCase().includes(replacedValue.toLowerCase())) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "Does not contain:") {
 							if (currentCard.rulesText.toLowerCase().includes(replacedValue.toLowerCase())) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						}
 						break;
 					case "Keywords":
 						if (currentRule.operator === "Includes:") {
 							if (!currentCard.keywords.includesCaseInsensitive(currentRule.value)) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "Doesn't include:") {
 							if (currentCard.keywords.includesCaseInsensitive(currentRule.value)) {
-								currentCardValid = false;
+								currentRuleSatiesfied = false;
 							}
 						}
 						break;
 					case "Power":
 						if (currentRule.operator === "=") {
 							if (currentCard.power !== currentRule.value) {
-								 currentCardValid = false;
+								 currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === ">") {
 							if (!(currentCard.power > Number(currentRule.value))) {
-								 currentCardValid = false;
+								 currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "<") {
 							if (!(currentCard.power < Number(currentRule.value))) {
-								 currentCardValid = false;
+								 currentRuleSatiesfied = false;
 							}
 						}
 						break;
 					case "Toughness":
 						if (currentRule.operator === "=") {
 							if (currentCard.toughness !== currentRule.value) {
-								 currentCardValid = false;
+								 currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === ">") {
 							if (!(currentCard.toughness > Number(currentRule.value))) {
-								 currentCardValid = false;
+								 currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "<") {
 							if (!(currentCard.toughness < Number(currentRule.value))) {
-								 currentCardValid = false;
+								 currentRuleSatiesfied = false;
 							}
 						}
 						break;
 					case "Loyalty":
 						if (currentRule.operator === "=") {
 							if (currentCard.loyalty !== currentRule.value) {
-								 currentCardValid = false;
+								 currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === ">") {
 							if (!(currentCard.loyalty > Number(currentRule.value))) {
-								 currentCardValid = false;
+								 currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "<") {
 							if (!(currentCard.loyalty < Number(currentRule.value))) {
-								 currentCardValid = false;
+								 currentRuleSatiesfied = false;
 							}
 						}
 						break;
@@ -278,18 +289,32 @@ const templateConvert = function(template, globalCardList) {
 						const fieldOption = currentRule.fieldOption.toLowerCase();
 						if (currentRule.operator === "=") {
 							if (currentCard[fieldOption].length !== Number(currentRule.value)) {
-								 currentCardValid = false;
+								 currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === ">") {
 							if (!(currentCard[fieldOption].length > Number(currentRule.value))) {
-								 currentCardValid = false;
+								 currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "<") {
 							if (!(currentCard[fieldOption].length < Number(currentRule.value))) {
-								 currentCardValid = false;
+								 currentRuleSatiesfied = false;
 							}
 						}
 						break;
+				}
+				if (currentRule.orGroup === null) {//If it's not in a group, the rule being false invalidates the card.
+					if (!currentRuleSatiesfied) {
+						currentCardValid = false;
+					}
+				} else {//If it is in a group, then we just mark whether any rule in that group has been satisfied.
+					if (currentRuleSatiesfied) {
+						orGroupsSatisfied[currentRule.orGroup] = true;
+					}
+				}
+			}
+			for (let orGroup in orGroupsSatisfied) {
+				if (orGroupsSatisfied[orGroup] === false) {
+					currentCardValid = false;
 				}
 			}
 			return currentCardValid;

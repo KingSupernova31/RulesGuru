@@ -211,8 +211,9 @@ const addCardGenerator = function() {
 		document.getElementById("cardGeneratorgreyout").style.display = "block";
 		document.getElementById("templateScrollContainer").style.display = "block";
 		document.querySelector("#templateDiv h3").textContent = `Add rules to template ${templateNum + 1}`;
+		document.getElementById("addORGroupButton").textContent = "Add OR group";
 		for (let i in questionObj.cardTemplates[templateNum]) {
-			addTemplateRule(questionObj.cardTemplates[templateNum][i].field, questionObj.cardTemplates[templateNum][i].operator, questionObj.cardTemplates[templateNum][i].value);
+			addTemplateRule(questionObj.cardTemplates[templateNum][i].field, questionObj.cardTemplates[templateNum][i].operator, questionObj.cardTemplates[templateNum][i].value, questionObj.cardTemplates[templateNum][i].fieldOption, questionObj.cardTemplates[templateNum][i].orGroup);
 		}
 		oldTemplateValue = createTemplate();
 		if (previewWindow) {
@@ -304,14 +305,16 @@ const createTemplate = function() {
 			rule = {
 				"field": rules[i].childNodes[1].textContent,
 				"operator": rules[i].childNodes[2].value,
-				"value": rules[i].childNodes[3].value
+				"value": rules[i].childNodes[3].value,
+				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
 			}
 		} else if (rules[i].childNodes.length === 5) {
 			rule = {
 				"field": rules[i].childNodes[1].textContent,
 				"fieldOption": rules[i].childNodes[2].value,
 				"operator": rules[i].childNodes[3].value,
-				"value": rules[i].childNodes[4].value
+				"value": rules[i].childNodes[4].value,
+				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
 			}
 		}
 		template.push(rule);
@@ -400,7 +403,7 @@ const switchModes = function(generatorId) {
 }
 
 let datalistNum = 0;
-const addTemplateRule = function(field, operator, value, fieldOption) {
+const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 	let deleteButton = document.createElement("img");
 	deleteButton.setAttribute("src", "/globalResources/icons/red-x.png");
 	deleteButton.setAttribute("class", "templateRuleDeleteButton");
@@ -410,7 +413,13 @@ const addTemplateRule = function(field, operator, value, fieldOption) {
 	});
 	let rule = document.createElement("div");
 	rule.setAttribute("class", "templateRule");
+	if (orGroup !== undefined) {
+		rule.dataset.orgroup = orGroup;
+	} else {
+		rule.dataset.orgroup = "null";
+	}
 	let label = document.createElement("p");
+	label.addEventListener("click", labelListener);
 	label.textContent = field;
 	let operatorSelect = document.createElement("select");
 	let operators = [];
@@ -481,7 +490,6 @@ const addTemplateRule = function(field, operator, value, fieldOption) {
 			break;
 	}
 
-
 	if (fieldOptions.length > 0) {
 		var fieldOptionsSelect = document.createElement("select");
 		for (let i in fieldOptions) {
@@ -548,7 +556,7 @@ const addTemplateRule = function(field, operator, value, fieldOption) {
 		label.setAttribute("tooltip", tooltip.replace(/"/, "&quot"));
 	}
 	valueInput.setAttribute("class", "templateInput");
-	//Converts ssingle right quotes to apostrophes in template fields.
+	//Converts single right quotes to apostrophes in template fields.
 	valueInput.addEventListener("input", function(event) {
 		setTimeout(function(srcElement) {
 			srcElement.value = srcElement.value.replace(/’/g, "'");
@@ -573,6 +581,43 @@ const addTemplateRule = function(field, operator, value, fieldOption) {
 	document.getElementById("templateRules").appendChild(rule);
 }
 
+const addOrGroup = function() {
+	const rules = document.getElementsByClassName("templateRule");
+	let allOrGroupsInUse = [];
+	for (let rule of rules) {
+		if (rule.dataset.orgroup && rule.dataset.orgroup !== "null") {
+			allOrGroupsInUse.push(isNaN(Number(rule.dataset.orgroup)) ? null : Number(rule.dataset.orgroup));
+		}
+	}
+	for (let i = 0 ; i < 5 ; i++) {
+		if (!allOrGroupsInUse.includes(i)) {
+			currentORGroup = i;
+			break;
+		}
+	}
+
+	if (document.getElementById("addORGroupButton").textContent === "Add OR group") {
+		document.getElementById("addORGroupButton").textContent = "Done";
+		selectingORGroup = true;
+	} else {
+		document.getElementById("addORGroupButton").textContent = "Add OR group";
+		selectingORGroup = false;
+	}
+}
+
+let currentORGroup;
+let selectingORGroup = false;
+const labelListener = function() {
+	if (!selectingORGroup) {
+		return;
+	}
+	if (this.parentNode.dataset.orgroup === "null") {
+		this.parentNode.dataset.orgroup = currentORGroup;
+	} else if (this.parentNode.dataset.orgroup === currentORGroup.toString()) {
+		this.parentNode.dataset.orgroup = "null";
+	}
+}
+
 //Close the template box and add the template to the questionObj.
 const processTemplateBox = function() {
 	let template = createTemplate();
@@ -585,6 +630,7 @@ const processTemplateBox = function() {
 	} else {
 		alert(validatedTemplate.templateErrors.join("\n"));
 	}
+	selectingORGroup = false;
 }
 
 const closeTemplateBox = function() {
@@ -595,6 +641,7 @@ const closeTemplateBox = function() {
 		previewWindow.parentData.currentGeneratorOpen = false;
 		previewWindow.parentData.currentGeneratorStatusChanged = true;
 	}
+	selectingORGroup = false;
 }
 
 const createQuestionObj = function() {
@@ -967,7 +1014,7 @@ const populateFields = function(question) {
 		} else {
 			document.querySelector("#templateDiv h3").textContent = `Add rules to template ${i - - 1}`;
 			for (let j in question.cardGenerators[i]) {
-				addTemplateRule(question.cardGenerators[i][j].field, question.cardGenerators[i][j].operator, question.cardGenerators[i][j].value);
+				addTemplateRule(question.cardGenerators[i][j].field, question.cardGenerators[i][j].operator, question.cardGenerators[i][j].value, question.cardGenerators[i][j].fieldOption, question.cardGenerators[i][j].orGroup);
 			}
 			processTemplateBox();
 			switchModes(`cardGenerator${i + 1}`);
