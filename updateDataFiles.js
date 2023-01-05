@@ -258,7 +258,7 @@ const updateAllCards = function() {
 			//let iteratible = [...isolatedSubtypeLists[i].matchAll(/(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g)];
 			//Needed because matchAll is not supported:
 			let iteratible = [];
-			let regex = /(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g;
+			let regex = /(and )?([a-zA-Z-'’]+)( \(.+?\))?(, |\.)/g;
 			let lastIndexes = {};
 			let match;
 			lastIndexes[regex.lastIndex] = true;
