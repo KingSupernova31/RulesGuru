@@ -255,7 +255,7 @@ const subtypeRules = ["205.3g", "205.3h", "205.3i", "205.3j", "205.3k", "205.3m"
 const isolatedSubtypeLists = [];
 const allSubtypes = [];
 for (let i in subtypeRules) {
-	isolatedSubtypeLists.push(allRules[subtypeRules[i]].ruleText.match(/The \w+ types are ((and )?([a-zA-Z-']+)( \(.+?\))?(, |\.))+/)[0]);
+	isolatedSubtypeLists.push(allRules[subtypeRules[i]].ruleText.match(/The \w+ types are ((and )?([a-zA-Z-'’]+)( \(.+?\))?(, |\.))+/)[0]);
 }
 for (let i in isolatedSubtypeLists) {
 	//let iteratible = [...isolatedSubtypeLists[i].matchAll(/(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g)];

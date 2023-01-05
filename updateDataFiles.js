@@ -253,7 +253,7 @@ const updateAllCards = function() {
 		const allRules = JSON.parse(fs.readFileSync("data_files/finalAllRules.json"));
 		const isolatedSubtypeLists = [];
 		const allCreatureTypes = [];
-		isolatedSubtypeLists.push(allRules["205.3m"].ruleText.match(/The \w+ types are ((and )?([a-zA-Z-']+)( \(.+?\))?(, |\.))+/)[0]);
+		isolatedSubtypeLists.push(allRules["205.3m"].ruleText.match(/The \w+ types are ((and )?([a-zA-Z-'’]+)( \(.+?\))?(, |\.))+/)[0]);
 		for (let i in isolatedSubtypeLists) {
 			//let iteratible = [...isolatedSubtypeLists[i].matchAll(/(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g)];
 			//Needed because matchAll is not supported:
