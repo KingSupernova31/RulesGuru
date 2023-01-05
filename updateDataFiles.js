@@ -107,12 +107,6 @@ const updateAllCards = function() {
 			}
 		}
 
-		//Change cmc to mana value.
-		for (let i in allCards) {
-			allCards[i].manaValue = allCards[i].convertedManaCost;
-			allCards[i].faceManaValue = allCards[i].faceConvertedManaCost;
-		}
-
 		//Remove redundant layouts and fix incorrect layouts. Left over afterwards: "normal", "split (half)", "split (full)", "flip", "transforming double-faced", "modal double-faced" "meld", "adventurer", "other".
 		for (let i in allCards) {
 			if (["leveler", "saga", "class"].includes(allCards[i].layout)) {
@@ -234,7 +228,7 @@ const updateAllCards = function() {
 			}
 		}
 
-		//Add a rulesText field without reminder text or ability words.
+		//Add a rulesText field without reminder text or ability words or flavor words.
 		const abilityWords = JSON.parse(fs.readFileSync("data_files/finalAllKeywords.json", "utf8")).abilityWords;
 		const abilityWordRegex = new RegExp("(" + abilityWords.join("|") + ") — ", "g");
 		const flavorWords = ["Acid Breath", "Animate Walking Statue", "Anitmagic Cone", "Archery", "Bardic Inspiration", "Beacon of Hope", "Bear Form", "Befriend Them", "Bewitching Whispers", "Binding Contract", "Brave the Stench", "Break Their Chains", "Charge Them", "Clever Conjurer", "Climb Over", "Combat Inspiration", "Cold Breath", "Cone of Cold", "Cunning Action", "Cure Wounds", "Dispel Magic", "Displacement", "Dissolve", "Distract the Guard", "Divine Intervention", "Dominate Monster", "Drag Below", "Engulf", "Fear Ray", "Fend Them Off", "Fight the Current", "Find a Crossing", "Flurry of Blows", "Foil Their Scheme", "Form a Party", "Gentle Repose", "Grant an Advantage", "Hide", "Interrogate Them", "Intimidate Them", "Journey On", "Keen Senses", "Learn Their Secrets", "Life Drain", "Lift the Curse", "Lightning Breath", "Magical Tinkering", "Make a Retreat", "Make Camp", "Poison Breath", "Pry It Open", "Psionic Spells", "Rappel Down", "Rejuvenation", "Rouse the Party", "Search the Body", "Search the Room", "Set Off Traps", "Siege Monster", "Smash It", "Smash the Chest", "Song of Rest", "Split", "Stand and Fight", "Start a Brawl", "Steal Its Eyes", "Stunning Strike", "Tail Spikes", "Teleport", "Tie Up", "Tragic Backstory", "Trapped!", "Two-Weapon Fighting", "Whirlwind", "Whispers of the Grave", "Wild Magic Surge"];
@@ -252,6 +246,38 @@ const updateAllCards = function() {
 			allCards[i].rulesText = allCards[i].rulesText.replace(flavorWordRegex, function(match) {
 				return "";
 			});
+		}
+
+		//Fix subtype CDAs. (MTGJSON gets all the color CDAs and color indicators correct.)
+		//Create a list of all subtypes.
+		const allRules = JSON.parse(fs.readFileSync("data_files/finalAllRules.json"));
+		const isolatedSubtypeLists = [];
+		const allCreatureTypes = [];
+		isolatedSubtypeLists.push(allRules["205.3m"].ruleText.match(/The \w+ types are ((and )?([a-zA-Z-']+)( \(.+?\))?(, |\.))+/)[0]);
+		for (let i in isolatedSubtypeLists) {
+			//let iteratible = [...isolatedSubtypeLists[i].matchAll(/(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g)];
+			//Needed because matchAll is not supported:
+			let iteratible = [];
+			let regex = /(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g;
+			let lastIndexes = {};
+			let match;
+			lastIndexes[regex.lastIndex] = true;
+			while (match = regex.exec(isolatedSubtypeLists[i])) {
+				lastIndexes[regex.lastIndex] = true;
+				iteratible.push(match);
+			}
+			for (let j in iteratible) {
+				allCreatureTypes.push(iteratible[j][2]);
+			}
+		}
+
+		for (let i in allCards) {
+			if (allCards[i].rulesText.startsWith(`${allCards[i].name} is every creature type.`) || allCards[i].keywords.includes("Changeling")) {
+				allCards[i].subtypes = Array.from(new Set (allCards[i].subtypes.concat(allCreatureTypes))); //We need to not overwrite noncreature subtypes.
+			}
+			if (allCards[i].rulesText.startsWith(`${allCards[i].name} is also a Cleric, Rogue, Warrior, and Wizard.`)) {
+				allCards[i].subtypes = Array.from(new Set (allCards[i].subtypes.concat(["Cleric", "Rogue", "Warrior", "Wizard"]))); //We need to not overwrite their printed creature subtypes.
+			}
 		}
 
 		//Add in playability field.
@@ -307,6 +333,8 @@ const updateAllCards = function() {
 				}
 			}
 		}
+
+		delete allCards["undefined"]; //Unquenchable Fury is the name of a real card and also a card from the Theros minotaur challenge thing, which broke everything, so we just remove the broken entry.
 
 		if (Object.keys(allCards).length > 15000) {
 			fs.writeFileSync("data_files/finalAllCards.json", JSON.stringify(allCards));
