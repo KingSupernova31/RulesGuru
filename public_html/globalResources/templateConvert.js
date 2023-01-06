@@ -27,6 +27,9 @@ const templateConvert = function(template, globalCardList) {
 					continue;
 				}
 				let currentRule = template[i];
+				if (!currentRule.hasOwnProperty("orGroup")) {//Add in .orGroup for rules that don't have that property at all.
+					currentRule.orGroup = null;
+				}
 				if (currentRule.orGroup !== null && !orGroupsSatisfied[currentRule.orGroup]) {
 					orGroupsSatisfied[currentRule.orGroup] = false;
 				}
