@@ -15,4 +15,3 @@ Certain files in this repository contain placeholder data as detailed below:
 * `questionDatabase.db`, `public_html/globalResources/searchLinkMappings.js`, `public_html/searchLinkCardNamesDiff.js`, and `public_html/globalResources/allTags.js` are frequently and automatically updated on the live RulesGuru site. As such, the files in this repository are outdated versions of the live files. This may occasionally result in errors due to data mismatches when run locally. If this happens, let me know and I'll upload a newer version of them.
 * The API that RulesGuru uses to fetch metagame data is private, so for development purposes we host a mirror of that data ourselves at the URLs in `mostPlayedApiUrls.json`. Please do not use this data for any other purpose.
 * `logs/` and `backups/` are also (obviously) not up-to-date.
-* `savedAnnouncements.js` has a placeholder announcement.

@@ -33,7 +33,6 @@
 		<script defer src="/globalResources/allKeywords.js"></script>
 		<script defer src="/globalResources/templateConvert.js"></script>
 		<script defer src="validateQuestion.js"></script>
-		<script defer src="savedAnnouncements.js"></script>
 		<script defer src="question-editor.js"></script>
 
 		<style id="cursorStyle"></style>
@@ -53,7 +52,6 @@
 				<div id="hideWhenQuestionsListOpen">
 					<button class="specialButtonBlack" id="showTagEditorButton">Show Tag Editor</button>
 					<button class="specialButtonBlack" id="showAdminEditorButton">Show Admin Editor</button>
-					<button class="specialButtonBlack" id="showInformationEditorButton">Show Information</button>
 					<button class="specialButtonBlack" id="setToPendingButton">Set to Pending</button>
 					<label id="ignoreValidationLabel">Ignore question validation <input type="checkbox" id="ignoreValidationCheckbox"></label>
 				</div>
@@ -185,15 +183,6 @@
 				<div id="adminEditorBottomDiv">
 					<button class="specialButtonBlack" id="adminEditorConfirmButton" onclick="performAdminEdit();">Confirm</button>
 					<button class="specialButtonBlack" id="adminEditorCancelButton">Cancel</button>
-				</div>
-			</div>
-			<div id="informationEditor" class="roundedCorners">
-				<h3>Information Editor</h3>
-				<select id="informationEditorSelect"></select>
-				<textarea id="informationEditorText"></textarea>
-				<div id="informationEditorBottomDiv">
-					<button class="specialButtonBlack" id="informationEditorConfirmButton">Save</button>
-					<button class="specialButtonBlack" id="informationEditorCancelButton">Cancel</button>
 				</div>
 			</div>
 			<button class="specialButtonBlack" id="previewButton">Preview</button>
