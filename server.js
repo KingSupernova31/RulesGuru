@@ -617,7 +617,7 @@ app.get("/api/questions", function(req, res) {
 		requestSettings = JSON.parse(decodeURIComponent(req.query.json));
 		const defaults = {
 						"count": 1,
-						"level": ["1", "2"],
+						"level": ["0", "1", "2"],
 						"complexity": ["Simple", "Intermediate"],
 						"legality": "Modern",
 						"expansions": [],

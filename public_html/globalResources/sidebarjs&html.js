@@ -6,7 +6,8 @@ document.querySelector("body").insertAdjacentHTML("beforeend", `
 	<div id="sidebar" class="doNotCloseSidebarOnClick">
 		<br>
 		<div id="sidebarLevel">
-			<h4 tooltip="The amount and specificity of rules knowledge that's required.<br><br><b>1:</b> Questions about common interactions that could often occur in a tournament.<br><br><b>2:</b> Slightly rarer interactions that could still reasonably occur in tournament games.<br><br><b>3:</b> Significantly rarer interaction that rarely, if ever, come up in real games.<br><br><b>Corner Case:</b> Only the most knowledgeable rules gurus will know the answers to these questions.<br><br>An easy way to understand the difference between &quotlevel&quot and &quotcomplexity&quot is that &quotlevel&quot is the difficulty of finding an answer to the question, while &quotcomplexity&quot is the difficulty of understanding what's being asked in the first place.">Level:</h4>
+			<h4 tooltip="The amount and specificity of rules knowledge that's required.<br><br><b>0:</b> Intro-level questions that any long-time Magic player will probably know the answer to.<br><br><b>1:</b> Questions about common interactions that could often occur in a tournament.<br><br><b>2:</b> Slightly rarer interactions that could still reasonably occur in tournament games.<br><br><b>3:</b> Significantly rarer interaction that rarely, if ever, come up in real games.<br><br><b>Corner Case:</b> Only the most knowledgeable rules gurus will know the answers to these questions.<br><br>An easy way to understand the difference between &quotlevel&quot and &quotcomplexity&quot is that &quotlevel&quot is the difficulty of finding an answer to the question, while &quotcomplexity&quot is the difficulty of understanding what's being asked in the first place.">Level:</h4>
+			<label><input type="checkbox">0</label>
 			<label><input type="checkbox">1</label>
 			<label><input type="checkbox">2</label>
 			<label><input type="checkbox">3</label>
@@ -169,7 +170,7 @@ const baseConvert = function(string, inputAlphabet, outputAlphabet) {
 let	sidebarOpen = false,
 		oldSettings = JSON.parse(localStorage.getItem("sidebarSettings")),
 		defaultSettings = {
-			"level": ["1", "2"],
+			"level": ["0", "1", "2"],
 			"complexity": ["Simple", "Intermediate"],
 			"legality": "Modern",
 			"expansions": [],
