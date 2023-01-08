@@ -35,6 +35,7 @@ const updateAllCards = function() {
 		for (let i of cardsThatAreAwful) {
 			delete notFlatAllCards[i];
 		}
+		notFlatAllCards["Unquenchable Fury"].splice(1);//This is also the name of one the weird Theros cards.
 
 		//Flatten subarrays from multipart cards and change both names and object keys to be individual.
 		const allCards = {};
@@ -334,12 +335,10 @@ const updateAllCards = function() {
 			}
 		}
 
-		delete allCards["undefined"]; //Unquenchable Fury is the name of a real card and also a card from the Theros minotaur challenge thing, which broke everything, so we just remove the broken entry.
-
-		if (Object.keys(allCards).length > 15000) {
+		if (allCardsProbablyValid(allCards) === true) {
 			fs.writeFileSync("data_files/finalAllCards.json", JSON.stringify(allCards));
 		} else {
-			handleError(new Error("allCardsUpdate allCards too short"));
+			handleError(new Error(`allCards probably not valid. Issue: ${allCardsProbablyValid(allCards)}`));
 		}
 	} catch (err) {
 		handleError(err);
@@ -360,9 +359,9 @@ const writeCardList = function(allCards, path, properties, format) {
 			newAllCards[allCards[i].name][properties[j]] = allCards[i][properties[j]];
 		}
 	}
-	//remove Un-cards, 1996 World Champ, vanguards, conspiracies, etc. Arena-only cards are allowed.
+	//remove Un-cards, 1996 World Champ, vanguards, conspiracies, Arena-only cards, mystery booster, etc.
 	for (let i in newAllCards) {
-		if (!allCards[i].legalities || Object.keys(allCards[i].legalities).length === 0 || allCards[i].types.includes("Conspiracy")) {
+		if (!newAllCards[i].legalities || Object.keys(newAllCards[i].legalities).length === 0 || newAllCards[i].types.includes("Conspiracy")) {
 			delete newAllCards[i];
 		}
 	}
@@ -464,135 +463,197 @@ if (!fs.existsSync("data_files")) {
 	});
 }
 
-let finishedDownloads = 0;
-downloadFile("data_files/rawAllKeywords.json", "https://api.academyruins.com/keywords", function() {
-	try {
-		console.log("rawAllKeywords downloaded");
-		const allKeywords = JSON.parse(fs.readFileSync("data_files/rawAllKeywords.json", "utf8"));
-		if (Object.keys(allKeywords).length === 3 && allKeywords.keywordAbilities.length > 30) {
-			for (let i in allKeywords.abilityWords) {
-				allKeywords.abilityWords[i] = allKeywords.abilityWords[i][0].toUpperCase() + allKeywords.abilityWords[i].slice(1);
-			}
-			fs.writeFileSync("data_files/finalAllKeywords.json", JSON.stringify(allKeywords));
-			finishedDownloads++;
-			if (finishedDownloads === 7) {
-				updateAllCards();
-			}
-		} else {
-			handleError(new Error("allKeywordsUpdate keywordAbilities too short"));
-		}
-	} catch (err) {
-		handleError(err);
-	}
-});
+const downloadAllFiles = function() {
 
-downloadFile("data_files/rawAllCards.json", "https://mtgjson.com/api/v5/AtomicCards.json", function() {
-	console.log("rawAllCards downloaded");
-	finishedDownloads++;
-	if (finishedDownloads === 7) {
-		updateAllCards();
-	}
-});
-
-const apiUrls = JSON.parse(fs.readFileSync("mostPlayedApiUrls.json", "utf8")); //URLs need to be hidden as the API is private.
-
-downloadFile("data_files/mostPlayedStandard.json", apiUrls.standard, function() {
-	console.log("mostPlayedStandard downloaded");
-	finishedDownloads++;
-	if (finishedDownloads === 7) {
-		updateAllCards();
-	}
-});
-
-downloadFile("data_files/mostPlayedPioneer.json", apiUrls.pioneer, function() {
-	console.log("mostPlayedPioneer downloaded");
-	finishedDownloads++;
-	if (finishedDownloads === 7) {
-		updateAllCards();
-	}
-});
-
-downloadFile("data_files/mostPlayedModern.json", apiUrls.modern, function() {
-	console.log("mostPlayedModern downloaded");
-	finishedDownloads++;
-	if (finishedDownloads === 7) {
-		updateAllCards();
-	}
-});
-
-downloadFile("data_files/rawAllSets.json", "https://mtgjson.com/api/v5/AllPrintings.json", function() {
-	console.log("rawAllSets downloaded");
-	try {
-		const rawAllSets = JSON.parse(fs.readFileSync("data_files/rawAllSets.json")).data;
-
-		//Each set is an object with name, code, and releaseDate.
-		const finalAllSets = [];
-		const properties = ["code", "name", "releaseDate"];
-
-		for (let i in rawAllSets) {
-			const newSet = {};
-
-			for (let j in properties) {
-				newSet[properties[j]] = rawAllSets[i][properties[j]];
-			}
-
-			//Happy Holidays and Celebration cards don't have a normal first printing, so we have to let their promotional printing be valid. We set the printing date to the far future so that they're always last chronologically. HarperPrism book promos were distributed over the course of only 5 months, so they're left in the chronological position of the first one to come out.
-			if (rawAllSets[i].name === "Happy Holidays" || rawAllSets[i].name === "Celebration") {
-				newSet.releaseDate = "9999-99-99";
-			}
-
-			finalAllSets.push(newSet);
-		}
-
-		//Sort the sets chronologically by release date.
-		finalAllSets.sort(function(a,b) {
-			if (a.releaseDate && !b.releaseDate) {
-				return 1;
-			} else if (!a.releaseDate && b.releaseDate) {
-				return -1;
-			} else if (!a.releaseDate && !b.releaseDate) {
-				return 0;
+	let finishedDownloads = 0;
+	downloadFile("data_files/rawAllKeywords.json", "https://api.academyruins.com/keywords", function() {
+		try {
+			console.log("rawAllKeywords downloaded");
+			const allKeywords = JSON.parse(fs.readFileSync("data_files/rawAllKeywords.json", "utf8"));
+			if (Object.keys(allKeywords).length === 3 && allKeywords.keywordAbilities.length > 30) {
+				for (let i in allKeywords.abilityWords) {
+					allKeywords.abilityWords[i] = allKeywords.abilityWords[i][0].toUpperCase() + allKeywords.abilityWords[i].slice(1);
+				}
+				fs.writeFileSync("data_files/finalAllKeywords.json", JSON.stringify(allKeywords));
+				finishedDownloads++;
+				if (finishedDownloads === 7) {
+					updateAllCards();
+				}
 			} else {
-				if (a.releaseDate.slice(0,4) !== b.releaseDate.slice(0,4)) {
-					return a.releaseDate.slice(0,4) - b.releaseDate.slice(0,4);
-				}
-				if (a.releaseDate.slice(5,7) !== b.releaseDate.slice(5,7)) {
-					return a.releaseDate.slice(5,7) - b.releaseDate.slice(5,7);
-				}
-				if (a.releaseDate.slice(8,10) !== b.releaseDate.slice(8,10)) {
-					return a.releaseDate.slice(8,10) - b.releaseDate.slice(8,10);
-				}
+				handleError(new Error("allKeywordsUpdate keywordAbilities too short"));
 			}
-		});
-
-		if (finalAllSets.length > 400) {
-			fs.writeFileSync("data_files/finalAllSets.json", JSON.stringify(finalAllSets));
-			finishedDownloads++;
-			if (finishedDownloads === 7) {
-				updateAllCards();
-			}
-		} else {
-			handleError(new Error("allSetsUpdate array too short"));
+		} catch (err) {
+			handleError(err);
 		}
-	} catch (err) {
-		handleError(err);
-	}
-});
+	});
 
-downloadFile("data_files/rawAllRules.json", "https://api.academyruins.com/allrules", function() {
-	console.log("rawAllRules downloaded");
-	try {
-		const rawAllRules = fs.readFileSync("data_files/rawAllRules.json", "utf8");
-		if (Object.keys(JSON.parse(rawAllRules)).length > 1000) {
-			fs.writeFileSync("data_files/finalAllRules.json", rawAllRules);
-			finishedDownloads++;
-			if (finishedDownloads === 7) {
-				updateAllCards();
-			}
-		} else {
-			handleError(new Error("allRulesUpdate rules too short"));
+	downloadFile("data_files/rawAllCards.json", "https://mtgjson.com/api/v5/AtomicCards.json", function() {
+		console.log("rawAllCards downloaded");
+		finishedDownloads++;
+		if (finishedDownloads === 7) {
+			updateAllCards();
 		}
-	} catch (err) {
-		handleError(err);
+	});
+
+	const apiUrls = JSON.parse(fs.readFileSync("mostPlayedApiUrls.json", "utf8")); //URLs need to be hidden as the API is private.
+
+	downloadFile("data_files/mostPlayedStandard.json", apiUrls.standard, function() {
+		console.log("mostPlayedStandard downloaded");
+		finishedDownloads++;
+		if (finishedDownloads === 7) {
+			updateAllCards();
+		}
+	});
+
+	downloadFile("data_files/mostPlayedPioneer.json", apiUrls.pioneer, function() {
+		console.log("mostPlayedPioneer downloaded");
+		finishedDownloads++;
+		if (finishedDownloads === 7) {
+			updateAllCards();
+		}
+	});
+
+	downloadFile("data_files/mostPlayedModern.json", apiUrls.modern, function() {
+		console.log("mostPlayedModern downloaded");
+		finishedDownloads++;
+		if (finishedDownloads === 7) {
+			updateAllCards();
+		}
+	});
+
+	downloadFile("data_files/rawAllSets.json", "https://mtgjson.com/api/v5/AllPrintings.json", function() {
+		console.log("rawAllSets downloaded");
+		try {
+			const rawAllSets = JSON.parse(fs.readFileSync("data_files/rawAllSets.json")).data;
+
+			//Each set is an object with name, code, and releaseDate.
+			const finalAllSets = [];
+			const properties = ["code", "name", "releaseDate"];
+
+			for (let i in rawAllSets) {
+				const newSet = {};
+
+				for (let j in properties) {
+					newSet[properties[j]] = rawAllSets[i][properties[j]];
+				}
+
+				//Happy Holidays and Celebration cards don't have a normal first printing, so we have to let their promotional printing be valid. We set the printing date to the far future so that they're always last chronologically. HarperPrism book promos were distributed over the course of only 5 months, so they're left in the chronological position of the first one to come out.
+				if (rawAllSets[i].name === "Happy Holidays" || rawAllSets[i].name === "Celebration") {
+					newSet.releaseDate = "9999-99-99";
+				}
+
+				finalAllSets.push(newSet);
+			}
+
+			//Sort the sets chronologically by release date.
+			finalAllSets.sort(function(a,b) {
+				if (a.releaseDate && !b.releaseDate) {
+					return 1;
+				} else if (!a.releaseDate && b.releaseDate) {
+					return -1;
+				} else if (!a.releaseDate && !b.releaseDate) {
+					return 0;
+				} else {
+					if (a.releaseDate.slice(0,4) !== b.releaseDate.slice(0,4)) {
+						return a.releaseDate.slice(0,4) - b.releaseDate.slice(0,4);
+					}
+					if (a.releaseDate.slice(5,7) !== b.releaseDate.slice(5,7)) {
+						return a.releaseDate.slice(5,7) - b.releaseDate.slice(5,7);
+					}
+					if (a.releaseDate.slice(8,10) !== b.releaseDate.slice(8,10)) {
+						return a.releaseDate.slice(8,10) - b.releaseDate.slice(8,10);
+					}
+				}
+			});
+
+			if (finalAllSets.length > 400) {
+				fs.writeFileSync("data_files/finalAllSets.json", JSON.stringify(finalAllSets));
+				finishedDownloads++;
+				if (finishedDownloads === 7) {
+					updateAllCards();
+				}
+			} else {
+				handleError(new Error("allSetsUpdate array too short"));
+			}
+		} catch (err) {
+			handleError(err);
+		}
+	});
+
+	downloadFile("data_files/rawAllRules.json", "https://api.academyruins.com/allrules", function() {
+		console.log("rawAllRules downloaded");
+		try {
+			const rawAllRules = fs.readFileSync("data_files/rawAllRules.json", "utf8");
+			if (Object.keys(JSON.parse(rawAllRules)).length > 1000) {
+				fs.writeFileSync("data_files/finalAllRules.json", rawAllRules);
+				finishedDownloads++;
+				if (finishedDownloads === 7) {
+					updateAllCards();
+				}
+			} else {
+				handleError(new Error("allRulesUpdate rules too short"));
+			}
+		} catch (err) {
+			handleError(err);
+		}
+	});
+}
+
+downloadAllFiles();
+
+const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to break things, so we perform some checks on the data to try and prevent these errors from making it into RulesGuru data.
+
+
+	const allCardNames = Object.keys(allCards);
+	const testCardData = JSON.parse(fs.readFileSync("testCardData.json", "utf8"));
+	const cardsThatShouldNotExist = ["Chaos Orb", "Goblin Game", "Target Minotaur", "B.F.M. (Big Furry Monster)", "Knight of the Kitchen Sink", "Smelt // Herd // Saw", "Extremely Slow Zombie", "Arlinn Kord Emblem", "Angel", "Saproling", "Imprision this Insolent Witch", "Intervention of Keranos", "Plot that spans Centuries", "Eight-and-a-Half-Tails Avatar", "Ashnod", "Ashling the Pilgrim Avatar", "Phoebe, Head of S.N.E.A.K.", "Rules Lawyer", "Angel of Unity", "Academy at Tolaria West", "All in Good Time", "Behold My Grandeur", "Reality Shaping", "Robot Chicken", "Metagamer", "Nerf War", "Sword of Dungeons & Dragons", "Dragon", "Richard Garfield, Ph.D.", "Proposal", "Phoenix Heart", "The Legend of Arena", "Fabled Path of Searo Point", "Only the Best", "Rarity", "1996 World Champion", "Shichifukujin Dragon", "Hymn of the Wilds"];
+
+	for (let cardName in cardsThatShouldNotExist) {
+		if (allCardNames.includes(cardName)) {
+			return `${cardName} exists. It should not.`;
+		}
 	}
-});
+
+	if (allCardNames.length < 20000) {return `Too few cards; only ${allCardNames.length}`;}
+
+	const duplicatedCards = allCardNames.filter(function(item, index) {return allCardNames.indexOf(item) != index});
+	if (duplicatedCards.length > 0) {return `${duplicatedCards[0]} (and ${duplicatedCards.length - 1} others) are duplicated.`;}
+
+	for (let testCard in testCardData) {
+		if (!allCardNames.includes(testCardData[testCard].name)) {return `${testCardData[testCard].name} doesn't exist.`;}
+
+		if (testCard !== testCardData[testCard].name) {return `A card is entered under "${testCard}" but has name "${testCardData[testCard].name}".`;}
+
+		const props = Object.keys(testCardData[testCard]);
+		for (let prop of props) {
+			if (!["printingsName", "printingsCode"].includes(prop)) {//These three can change with future releases. (So can all the others, but errata/bans/new formats is much rarer than a reprint.)
+				if (JSON.stringify(testCardData[testCard][prop]) !== JSON.stringify(allCards[testCard][prop])) {
+					return `${testCard}'s ${prop} property does not match.`;
+				}
+			} else if (["printingsName", "printingsCode"].includes(prop)) {//For these we check that the old printings are a subset of the new ones.
+				for (let set of testCardData[testCard][prop]) {
+					if (!allCards[testCard][prop].includes(set)) {
+						return `"${set}" has dissapeared from ${testCard}'s ${prop} list.`
+					}
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+
+
+//To regenerate test card data:
+/*
+const testCards = ["Lightning Bolt", "Sylvan Library", "Selesnya Guildgate", "Curiosity", "Mogis's Warhound", "Phantom Carriage", "Wildsong Howler", "Aberrant Researcher", "Fire // Ice", "Illusion", "Breya, Etherium Shaper", "Accorder's Shield", "+2 Mace", "Erayo, Soratami Ascendant", "Kenzo the Hardhearted", "Shahrazad", "Brisela, Voice of Nightmares", "Graf Rats", "Bonecrusher Giant", "Treats to Share", "Mistform Ultimus", "Dungeon of the Mad Mage", "Dangerous", "Nameless Race", "Dryad Arbor", "Tamiyo, Compleated Sage", "Memory", "Progenitus", "Transguild Courier", "Bear Cub", "Branchloft Pathway", "Grist, the Hunger Tide", "Emeria, Shattered Skyclave", "Space Beleren", "Void Beckoner", "Ajani's Pridemate", "Unquenchable Fury", "Helm of Kaldra", "Herald of Anafenza", "Thunderheads", "Jiang Yanggu", "Teferi's Response", "Sol Ring", "Command Tower", "Forest", "Ranar the Ever-Watchful", "Hanweir Battlements", "Commander's Plate", "Black Knight", "Deathmist Raptor", "Absorb Vis", "Yidris, Maelstrom Wielder", "Pack Rat", "Dredge", "Conflux", "Tajuru Paragon", "Ghostfire", "Abstruse Interference", "Prossh, Skyraider of Kher", "Avenger of Zendikar", "Start // Finish", "Arlinn Kord", "Tamiyo's Journal", "Gruul Guildgate", "Black Dragon", "Smelt", "Erase", "Unholy Heat"];
+
+	const testCardData = {};
+	for (let card in allCards) {
+		if (testCards.includes(allCards[card].name)) {
+			testCardData[card] = allCards[card];
+		}
+	}
+	fs.writeFileSync("testCardData.json", JSON.stringify(testCardData));
+	*/
