@@ -252,14 +252,14 @@ document.addEventListener("DOMContentLoaded", function() {
 	document.getElementById("FOUCOverlay").style.display = "none";
 });
 
-//Secret go to admin page.
+//Secret go to editor.
 let keysPressed = "";
 document.addEventListener("keypress", function(event) {
 	if (document.activeElement.tagName !== "TEXTAREA" && document.activeElement.tagName !== "INPUT") {
 		keysPressed += event.key;
-		if (keysPressed.slice(-5).toLowerCase() === "admin") {
-			if (typeof currentQuestion === "object" && currentQuestion) {
-				window.location = "/question-editor/?" + currentQuestion.id;
+		if (keysPressed.slice(-4).toLowerCase() === "edit") {
+			if (typeof loadedQuestions.currentQuestion === "object" && loadedQuestions.currentQuestion) {
+				window.location = "/question-editor/?" + loadedQuestions.currentQuestion.id;
 			} else {
 				window.location = "/question-editor";
 			}

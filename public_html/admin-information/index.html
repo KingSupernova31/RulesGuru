@@ -17,37 +17,37 @@
 		<link rel="stylesheet" href="/globalResources/infoPageCss.css">
 		<script defer src="/globalResources/globaljs&html.js"></script>
 
-		<link rel="stylesheet" href="admin-information.css">
+		<link rel="stylesheet" href="styles.css">
 		<link rel="stylesheet" href="/globalResources/mana.min.css">
 		<link rel="preload" as="image" href="editor-hover.png">
-		<script defer src="admin-information.js"></script>
+		<script defer src="scripts.js"></script>
 	</head>
 	<body>
 		<a href="/question-editor" id="editorLink">
 			<img src="editor.png" class="bannerImage">
 			<p>Question Editor</p>
 		</a>
-		<h1>Admin Information</h1>
+		<h1>Content Generation Team Documentation</h1>
 		<br>
 		<div>
 			<h3 id="GeneralInformation">General Information</h3>
 			<h4 class="header" id="Introduction">Introduction</h4>
-			<p class="content">Welcome! This page should contain all of the information that you need in order to verify and approve questions as a RulesGuru admin. If anything is missing or unclear, please let me know so I can answer your question and update this page. If you'd like a visual walkthough of the editor via Discord, let me know and I'm happy to schedule a time for that.
+			<p class="content">Welcome! This page should contain all of the information that you need in order to verify and approve questions as a member of the RulesGuru content generation team. If anything is missing or unclear, please let me know so I can answer your question and update this page. If you'd like a visual walkthough of the editor via Discord, let me know and I'm happy to schedule a time for that.
 			<br><br>
 			If you aren't familiar with RulesGuru from the user perspective, I'd recommend heading over to <a href="/">the home page</a> and playing around with the filtering options and other features to get an idea of how the site works before continuing to read this page.</p>
 			<h4 class="header" id="Website">Website Structure</h4>
-			<p class="content">RulesGuru maintains a database of questions that have status "pending", "awaiting verification", or "finished". Questions that are submitted by most users on the <a href="../submit">public submission page</a> begin with the pending status and are not visible to nonadmins. Once a question has been formatted by an editor, it can be approved, which sets it to await verification. Once each type of guru has looked it over and confirmed everything looks correct, they again click "approve" and the question's status changes to "finished" and is visible to everyone. Questions that are submitted by an admin on the <a href="../question-editor">question editor</a> are immediately set to await verification and do not go through the pending stage.
-			<h4 class="header" id="Admin">Editor Responsibilities</h4>
+			<p class="content">RulesGuru maintains a database of questions that have status "pending", "awaiting verification", or "finished". Questions that are submitted by most users on the <a href="../submit">public submission page</a> begin with the pending status and are not visible to the public. Once a question has been formatted by an editor, it can be approved, which sets it to await verification. Once each type of guru has looked it over and confirmed everything looks correct, they again click "approve" and the question's status changes to "finished" and is visible to everyone. Questions that are submitted by an editor on the <a href="../question-editor">question editor</a> are immediately set to await verification and do not go through the pending stage.
+			<h4 class="header">Editor Responsibilities</h4>
 			<p class="content">Your primary job is to add an accurate answer and explanation to pending questions, update the formatting to match the site specifications, and then approve them.
 			<br><br>
 			To view an unfinished question, log in to the question editor and click the "Get Unfinished Question" button. I can also have RulesGuru send you emails notifying you of questions that need your attention at regular intervals such as once a day or once a week. If you'd like to receive those emails, let me know.
 			<br><br>
-			If you prefer to write questions from scratch rather than format other peoples' questions, you can do that too. Go to the question editor and type your question in the blank fields, then press "submit as new question". You can also take note of interesting rules questions that you see at events or elsewhere and add them to the site. You don't need to fully format them right away if you're busy at the time; you can simply use the <a href="../submit">public submission page</a> to submit a quick description of the question and then you or another admin can finish formatting and approving them later. Questions involving cards in the most recent set and other Standard-legal sets are especially helpful.
+			If you prefer to write questions from scratch rather than format other peoples' questions, you can do that too. Go to the question editor and type your question in the blank fields, then press "submit as new question". You can also take note of interesting rules questions that you see at events or elsewhere and add them to the site. You don't need to fully format them right away if you're busy at the time; you can simply use the <a href="../submit">public submission page</a> to submit a quick description of the question and then you or another editor can finish formatting and approving them later. Questions involving cards in the most recent set and other Standard-legal sets are especially helpful.
 			<br><br>
-			If you're unsure of the correct answer to a question, the RulesGuru Discord server is a great resource to help out. (The #question-help channel in particular.) You're always welcome to leave an unfinished question pending and you or another admin can finish it later.
+			If you're unsure of the correct answer to a question, the <a href="https://discord.gg/Mwknxg3drr">RulesGuru Discord server</a> is a great resource to help out. (The #question-help channel in particular.) You're always welcome to leave an unfinished question pending and you or another editor can finish it later.
 			<br><br>
 			Lastly, please keep an eye out for anything that could be improved. If there's a feature that could make your workflow easier, I'd like to know about it so that I can implement it.</p>
-			<h4 class="header" id="Admin">Guru Responsibilities</h4>
+			<h4 class="header">Guru Responsibilities</h4>
 			<div class="content"><p>Your primary job is to look over questions that are awaiting verification, make sure all the fields within your purview are correct, fix anything that isn't, and write a quick description of anything you had to change in the prompt that pops up when you approve the question. This feedback will be sent to the editor of that question, so they can avoid those mistakes in the future.</p>
 			<br><br>
 			<ul class="styleTypeNone">
@@ -68,7 +68,7 @@
 		<br><br><br><br>
 
 		<div>
-			<h3 id="AdminPageElements">Question Editor Elements</h3>
+			<h3 id="EditorElements">Question Editor Elements</h3>
 			<h4 class="header">General</h4>
 			<p class="content">The question editor has many different elements, so I've tried to explain each of them in detail below. For particulaly complex features, you can also hover your mouse over a button or line of text on the question editor and it'll display a tooltip that tells you more about it.</p></p>
 			<h4 class="header" id="Question">Question Loading</h4>
@@ -462,9 +462,9 @@
 			<br><br>
 			If you're a rules guru and see a question about unreleased rules in the verification queue, please leave it there. Template gurus and grammar gurus can sign off on it as normal.</p>
 			<h4 class="header">Final Notes</h4>
-			<p class="content">Thank you so much for volunteering to help out with RulesGuru. As judging gets more and more professionalized, receiving payment for work starts to becomes an expectation. While for large organizations this may be feasible, smaller projects like RulesGuru tend to fall by the wayside. I'm thankful that you find RulesGuru to be worth your time. Every new set release, I'll be picking a few admins who went above and beyond that quarter to receive a public recognition (similar to how the exemplar program used to work). The chosen admins will also receive a custom RulesGuru art <a href="http://www.vyseri.com/judgebunny.html">Judge Bunny</a> in the mail with their recognition on the back, along with some judge foils.
+			<p class="content">Thank you so much for volunteering to help out with RulesGuru. As judging gets more and more professionalized, receiving payment for work starts to becomes an expectation. While for large organizations this may be feasible, smaller projects like RulesGuru tend to fall by the wayside. I'm thankful that you find RulesGuru to be worth your time.
 			<br><br>
-			I want RulesGuru to be the best possible resource for judges and for players. If you ever notice anything that could be improved or optimized, including on the admin side of things, please let me know. If you have questions about this information or any other part of RulesGuru, please don't hesitate to ask the admin Facebook chat.
+			I want RulesGuru to be the best possible resource for judges and for players. If you ever notice anything that could be improved or optimized, including on the content generation side of things, please let me know. If you have questions about this information or any other part of RulesGuru, please don't hesitate to ask in the <a href="https://discord.gg/Mwknxg3drr">RulesGuru Discord server</a>.
 			<br><br>
 			All content that is submitted to or edited on RulesGuru is the intellectual property of Isaac King.</p>
 		</div>
