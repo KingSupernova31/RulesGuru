@@ -1085,13 +1085,30 @@ app.post("/changeQuestionStatus", async function(req, res) {
 let addQuestionRunning = false;
 const addQuestion = async function(question, isAdmin, adminId) {
 	if (addQuestionRunning) {
-		await new Promise(r => setTimeout(r, 20)); //sleep for 20 milliseconds
+		await new Promise(r => setTimeout(r, 50)); //sleep for 50 milliseconds
 		return await addQuestion(question, isAdmin, adminId);
 	} else {
 		addQuestionRunning = true;
 		try {
-			const result = await dbAll(`SELECT MAX("id") FROM questions`);
-			const newId = (result[0]['MAX("id")'] || 0) + 1;
+			let existingIds = await dbAll(`SELECT id FROM questions`);
+			existingIds = existingIds.map(entry => entry.id);
+			existingIds.sort((a, b) => a - b);
+			if (existingIds.length !== Array.from(new Set(existingIds)).length) {
+				handleError(new Error("Duplicate IDs in array."));
+				return;
+			}
+			const validNewIds = [];
+			let count = 1;
+			while (validNewIds.length < 1000) {
+				if (existingIds[0] === count) {
+					existingIds.shift();
+				} else {
+					validNewIds.push(count);
+				}
+				count++;
+			}
+			const newId = validNewIds[Math.floor(Math.random() * 1000)];
+
 			question.id = newId;
 			let verificationJson,
 					newStatus;
