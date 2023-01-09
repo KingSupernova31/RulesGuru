@@ -35,7 +35,7 @@ const updateAllCards = function() {
 		for (let i of cardsThatAreAwful) {
 			delete notFlatAllCards[i];
 		}
-		notFlatAllCards["Unquenchable Fury"].splice(1);//This is also the name of one the weird Theros cards.
+		notFlatAllCards["Unquenchable Fury"].shift(0);//This is also the name of one the weird Theros cards.
 
 		//Flatten subarrays from multipart cards and change both names and object keys to be individual.
 		const allCards = {};
@@ -87,6 +87,32 @@ const updateAllCards = function() {
 		//Remove tokens and emblems.
 		for (let i in allCards) {
 			if (allCards[i].layout === "token" || allCards[i].layout === "double_faced_token" || allCards[i].layout === "emblem") {
+				delete allCards[i];
+			}
+		}
+
+		//Remove Arena-only cards.
+		for (let i in allCards) {
+			if (allCards[i].name.startsWith("A-")) {
+				delete allCards[i];
+				continue;
+			}
+			if (allCards[i].legalities.alchemy && !allCards[i].legalities.vintage) {
+				delete allCards[i];
+			}
+		}
+
+		//remove Un-cards, 1996 World Champ, vanguards, conspiracies, mystery booster, etc.
+		for (let i in allCards) {
+			if (!allCards[i].legalities || Object.keys(allCards[i].legalities).length === 0 || allCards[i].types.includes("Conspiracy")) {
+				delete allCards[i];
+			}
+		}
+
+		//Remove cards that rulesguru doesn't allow.
+		const disallowedCards = ["Chaos Orb", "Falling Star", "Goblin Game"];
+		for (let i in allCards) {
+			if (disallowedCards.includes(allCards[i].name)) {
 				delete allCards[i];
 			}
 		}
@@ -337,14 +363,14 @@ const updateAllCards = function() {
 
 		if (allCardsProbablyValid(allCards) === true) {
 			fs.writeFileSync("data_files/finalAllCards.json", JSON.stringify(allCards));
+			console.log("Finished updating all cards.");
+			disperseFiles();
 		} else {
 			handleError(new Error(`allCards probably not valid. Issue: ${allCardsProbablyValid(allCards)}`));
 		}
 	} catch (err) {
 		handleError(err);
 	}
-	console.log("Finished updating all cards.");
-	disperseFiles();
 };
 
 //Write the card list to file, with only the specified properties. Format can be "js" or "json".
@@ -357,19 +383,6 @@ const writeCardList = function(allCards, path, properties, format) {
 				newAllCards[allCards[i].name] = {};
 			}
 			newAllCards[allCards[i].name][properties[j]] = allCards[i][properties[j]];
-		}
-	}
-	//remove Un-cards, 1996 World Champ, vanguards, conspiracies, Arena-only cards, mystery booster, etc.
-	for (let i in newAllCards) {
-		if (!newAllCards[i].legalities || Object.keys(newAllCards[i].legalities).length === 0 || newAllCards[i].types.includes("Conspiracy")) {
-			delete newAllCards[i];
-		}
-	}
-	//Remove cards that rulesguru doesn't allow.
-	const disallowedCards = ["Chaos Orb", "Falling Star", "Goblin Game"];
-	for (let i in newAllCards) {
-		if (disallowedCards.includes(newAllCards[i].name)) {
-			delete newAllCards[i];
 		}
 	}
 
@@ -602,13 +615,11 @@ const downloadAllFiles = function() {
 downloadAllFiles();
 
 const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to break things, so we perform some checks on the data to try and prevent these errors from making it into RulesGuru data.
-
-
 	const allCardNames = Object.keys(allCards);
 	const testCardData = JSON.parse(fs.readFileSync("testCardData.json", "utf8"));
-	const cardsThatShouldNotExist = ["Chaos Orb", "Goblin Game", "Target Minotaur", "B.F.M. (Big Furry Monster)", "Knight of the Kitchen Sink", "Smelt // Herd // Saw", "Extremely Slow Zombie", "Arlinn Kord Emblem", "Angel", "Saproling", "Imprision this Insolent Witch", "Intervention of Keranos", "Plot that spans Centuries", "Eight-and-a-Half-Tails Avatar", "Ashnod", "Ashling the Pilgrim Avatar", "Phoebe, Head of S.N.E.A.K.", "Rules Lawyer", "Angel of Unity", "Academy at Tolaria West", "All in Good Time", "Behold My Grandeur", "Reality Shaping", "Robot Chicken", "Metagamer", "Nerf War", "Sword of Dungeons & Dragons", "Dragon", "Richard Garfield, Ph.D.", "Proposal", "Phoenix Heart", "The Legend of Arena", "Fabled Path of Searo Point", "Only the Best", "Rarity", "1996 World Champion", "Shichifukujin Dragon", "Hymn of the Wilds"];
+	const cardsThatShouldNotExist = ["Chaos Orb", "Goblin Game", "Target Minotaur", "B.F.M. (Big Furry Monster)", "Knight of the Kitchen Sink", "Smelt // Herd // Saw", "Extremely Slow Zombie", "Arlinn Kord Emblem", "Angel", "Saproling", "Imprision this Insolent Witch", "Intervention of Keranos", "Plot that spans Centuries", "Eight-and-a-Half-Tails Avatar", "Ashnod", "Ashling the Pilgrim Avatar", "Phoebe, Head of S.N.E.A.K.", "Rules Lawyer", "Angel of Unity", "Academy at Tolaria West", "All in Good Time", "Behold My Grandeur", "Reality Shaping", "Robot Chicken", "Metagamer", "Nerf War", "Sword of Dungeons & Dragons", "Dragon", "Richard Garfield, Ph.D.", "Proposal", "Phoenix Heart", "The Legend of Arena", "Fabled Path of Searo Point", "Only the Best", "Rarity", "1996 World Champion", "Shichifukujin Dragon", "Hymn of the Wilds", "A-Armory Veteran"];
 
-	for (let cardName in cardsThatShouldNotExist) {
+	for (let cardName of cardsThatShouldNotExist) {
 		if (allCardNames.includes(cardName)) {
 			return `${cardName} exists. It should not.`;
 		}
@@ -626,9 +637,9 @@ const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to br
 
 		const props = Object.keys(testCardData[testCard]);
 		for (let prop of props) {
-			if (!["printingsName", "printingsCode"].includes(prop)) {//These three can change with future releases. (So can all the others, but errata/bans/new formats is much rarer than a reprint.)
+			if (!["printingsName", "printingsCode", "playability"].includes(prop)) {//These three can change with future releases. (So can all the others, but errata/bans/new formats is much rarer than a reprint.)
 				if (JSON.stringify(testCardData[testCard][prop]) !== JSON.stringify(allCards[testCard][prop])) {
-					return `${testCard}'s ${prop} property does not match.`;
+					return `${testCard}'s ${prop} property does not match. (New prop is ${JSON.stringify(allCards[testCard][prop]).slice(0,100)})`;
 				}
 			} else if (["printingsName", "printingsCode"].includes(prop)) {//For these we check that the old printings are a subset of the new ones.
 				for (let set of testCardData[testCard][prop]) {
