@@ -12,12 +12,14 @@ const createCardDisplay = function(cardData, defaultDisplayType) {
 
 	//Display pictures correctly for various layouts.
 	if (["transforming double-faced", "modal double-faced"].includes(cardData.layout) && cardData.side === "b") {
-		imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=medium&fuzzy=${cardData.name}&face=back`);
+		imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.name}&face=back`);
 	} else if (cardData.layout === "flip" && cardData.side === "b") {
-		imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=medium&fuzzy=${cardData.name}`);
+		imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.name}`);
 		imageElement.style.transform = "rotate(180deg)";
+	} else if (cardData.layout === "split (half)") {
+		imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.names[0] + " // " + cardData.names[1]}`);
 	} else {
-		imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=medium&fuzzy=${cardData.name}`);
+		imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.name}`);
 	}
 
 	imageElement.setAttribute("class", "cardImage");
