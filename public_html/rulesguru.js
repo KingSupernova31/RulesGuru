@@ -952,8 +952,9 @@ document.addEventListener("keydown", function(event) {
 			moveToNextQuestion();
 		} else if (event.key === "ArrowLeft") {
 			history.back();
-		} else if (["ArrowUp", "ArrowDown"].includes(event.key)) {
+		} else if (["ArrowUp", "ArrowDown", " "].includes(event.key)) {
 			toggleAnswer();
+			event.preventDefault();
 		} else if (boothActive) {
 			if (event.key === "=") {
 				handleTestQuestionCorrect();
