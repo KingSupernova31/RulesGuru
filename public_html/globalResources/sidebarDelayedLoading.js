@@ -48,7 +48,7 @@ if (typeof allCards === "undefined") {
 allCardNames.sort();
 let cardOptions = "";
 for (let i in allCardNames) {
-	cardOptions += "<option value=\"" + allCardNames[i] + "\" />";
+	cardOptions += `<option value="${allCardNames[i].replace(/"/g, `&quot;`)}" />`
 }
 const cardsDatalist = document.createElement("datalist");
 cardsDatalist.setAttribute("id", "allCardsDatalist");
