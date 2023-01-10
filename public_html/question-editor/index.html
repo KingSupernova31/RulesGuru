@@ -201,7 +201,8 @@
 				<button class="specialButtonBlack" id="getQuestionButton" onclick="getQuestionId(Number(document.getElementById('getQuestionIdInput').value))">Get Question # </button>
 				<input id="getQuestionIdInput" onclick="this.select();" maxlength="4" autocomplete="off" type="number" min="1" max="9999">
 				<p id="questionInfo">Currently editing question #<span id="currentID"></span>. (<span id="status"></span>)</p>
-				<p id="questionSubmitterNameField">Submitted by <input id="submitterName"></input></p>
+				<p id="questionSubmitterNameFieldOwner">Submitted by <input id="submitterName"></input></p>
+				<p id="questionSubmitterNameFieldEditor">Submitted by</p>
 			</div>
 
 			<div class="fakeTooltip" id="expressionTooltip">

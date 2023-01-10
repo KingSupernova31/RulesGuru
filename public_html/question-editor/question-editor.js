@@ -873,7 +873,12 @@ const submit = function() {
 					} else {
 						turnOffQuestionStuffObserver();
 						if (!currentQuestionData.id) {
-							document.getElementById("questionSubmitterNameField").style.display = "block";
+							if (currentLoggedInAdmin.roles.owner) {
+								document.getElementById("questionSubmitterNameFieldOwner").style.display = "block";
+							} else {
+								document.getElementById("questionSubmitterNameFieldEditor").style.display = "block";
+								document.getElementById("questionSubmitterNameFieldEditor").textContent = "Submitted by " + currentLoggedInAdmin.name || "";
+							}
 							document.getElementById("submitterName").value = currentLoggedInAdmin.name;
 						}
 						currentQuestionData.id = response.id;
@@ -918,7 +923,8 @@ const clearFields = function() {
 	document.getElementById("question").value = "";
 	document.getElementById("answer").value = "";
 	document.getElementById("cardGenerators").innerHTML = "";
-	document.getElementById("questionSubmitterNameField").style.display = "none";
+	document.getElementById("questionSubmitterNameFieldOwner").style.display = "none";
+	document.getElementById("questionSubmitterNameFieldEditor").style.display = "none";
 	document.getElementById("submitterName").value = "";
 	document.getElementById("getQuestionIdInput").value = "";
 	currentQuestionData = {};
@@ -1017,10 +1023,17 @@ const populateFields = function(question) {
 		}
 	}
 
-	if (question.id) {
-		document.getElementById("questionSubmitterNameField").style.display = "block";
-	}
 	document.getElementById("submitterName").value = question.submitterName || "";
+	if (currentLoggedInAdmin.roles.owner) {
+		if (question.id) {
+			document.getElementById("questionSubmitterNameFieldOwner").style.display = "block";
+		}
+	} else {
+		if (question.id && question.submitterName) {
+			document.getElementById("questionSubmitterNameFieldEditor").style.display = "block";
+			document.getElementById("questionSubmitterNameFieldEditor").textContent = "Submitted by " + question.submitterName || "";
+		}
+	}
 
 	currentQuestionData = {
 		"status": question.status,
@@ -1620,7 +1633,11 @@ const login = function() {
 						document.getElementById("ownerOnly").style.display = "block";
 					}
 					if (document.getElementById("questionInfo").style.display === "block") {
-						document.getElementById("questionSubmitterNameField").style.display = "block";
+						if (currentLoggedInAdmin.roles.owner) {
+							document.getElementById("questionSubmitterNameFieldOwner").style.display = "block";
+						} else {
+							document.getElementById("questionSubmitterNameFieldEditor").style.display = "block";
+						}
 					}
 					if (thereIsAUrlQuestion) {
 						document.getElementById("getQuestionIdInput").value = thereIsAUrlQuestion;
@@ -2595,6 +2612,7 @@ const updateAndForceStatus = function(newStatus, newId) {
 	setTimeout(function() {//This forces the cursor to update immediately since it waits for all synchronous code to finish.
 		const questionData = createQuestionObj();
 		questionData.id = newId || currentQuestionData.id
+		questionData.submitterName = document.getElementById("submitterName").value.trim();
 		const requestObj = {
 			"password": document.getElementById("password").value,
 			"newStatus": newStatus,

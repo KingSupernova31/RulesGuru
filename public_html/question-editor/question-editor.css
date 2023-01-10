@@ -367,7 +367,7 @@ textarea.templateInput, input.templateInput {
 	font-weight: bold;
 }
 
-#questionSubmitterNameField {
+#questionSubmitterNameFieldOwner, #questionSubmitterNameFieldEditor {
 	display: none;
 	font-weight: bold;
 }
