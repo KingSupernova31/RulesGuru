@@ -50,10 +50,11 @@ window.addEventListener("popstate", function(event) {
 			loadedQuestions.currentQuestion = loadedQuestions.pastQuestions[questionNum];
 			displayCurrentQuestion();
 		} else {
+			document.getElementById("questionPage").style.transform = "scale(0)";
+		  document.getElementById("startPage").style.transform = "scale(0)";
 			goToQuestion(questionNum);
 		}
 	} else {
-		document.getElementById("startPage").style.display = "block";
-		document.getElementById("questionPage").style.display = "none";
+		returnToHome(true);
 	}
 });

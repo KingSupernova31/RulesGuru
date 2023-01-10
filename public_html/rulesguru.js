@@ -41,7 +41,7 @@ let getQuestionError = null;
 const loadedQuestions = {
 	"futureQuestions": [],
 	"currentQuestion": null,
-	"pastQuestions": {}
+	"pastQuestions": {} //This is all questions that have ever been displayed, so it includes the current question.
 };
 
 //Make a request for a new random question that fits the current parameters.
@@ -105,20 +105,18 @@ const getRandomQuestion = function(callback) {
 };
 
 let goToQuestionPendingRequest = null;
-let goToQuestion = function(question, callback) {
+let goToQuestion = function(questionId, callback) {
+	document.querySelector("title").textContent = "RulesGuru #" + questionId;
 	if (goToQuestionPendingRequest) {
 		goToQuestionPendingRequest.abort();
 	}
 	toggleAnimation("start", "moveForQuestionsList");
 	document.getElementById("startPage").style.transform = "scale(0)";
-	goToQuestionPendingRequest = getSpecificQuestion(question, function(response) {
+	goToQuestionPendingRequest = getSpecificQuestion(questionId, function(response) {
 		goToQuestionPendingRequest = null;
 		if (!getQuestionError) {
 			if (sidebarOpen) {
 				closeSidebar();
-			}
-			if (loadedQuestions.currentQuestion) {
-				loadedQuestions.pastQuestions[loadedQuestions.currentQuestion.id] = loadedQuestions.currentQuestion;
 			}
 			loadedQuestions.currentQuestion = response;
 			mostRecentQuestionId = loadedQuestions.currentQuestion.id;
@@ -171,7 +169,6 @@ const getSpecificQuestion = function(questionId, callback) {
 		if (httpRequest.status === 200) {
 			if (httpRequest.response) {
 				response = JSON.parse(httpRequest.response);
-				console.log(response);
 				if (response.error) {
 					getQuestionError = response.error;
 				} else {
@@ -468,8 +465,8 @@ const displayCurrentQuestion = function() {
 		changePictureDisplayMode(sidebarSettings.cardDisplayFormat);
 	}
 
-	//Change the url to point to this question.
-	history.pushState({}, "", `./?${loadedQuestions.currentQuestion.id}`);
+	loadedQuestions.pastQuestions[loadedQuestions.currentQuestion.id] = loadedQuestions.currentQuestion;
+
 };
 
 //Add card picture and oracle text displays.
@@ -673,11 +670,11 @@ setInterval(function() {
 
 	if (awaitingQuestion) {
 		if (loadedQuestions.futureQuestions.length > 0) {
-			if (loadedQuestions.currentQuestion) {
-				loadedQuestions.pastQuestions[loadedQuestions.currentQuestion.id] = loadedQuestions.currentQuestion;
-			}
 			loadedQuestions.currentQuestion = loadedQuestions.futureQuestions[0];
 			loadedQuestions.futureQuestions.splice(0, 1);
+			history.pushState({}, ""); //Add the current page url to the history.
+			history.replaceState({}, "", "?" + loadedQuestions.currentQuestion.id);//Set the current url to the new question, replacing old state that we didn't want to get added twice.
+			document.querySelector("title").textContent = "RulesGuru #" + loadedQuestions.currentQuestion.id;//This needs to happen after history is edited.
 			displayCurrentQuestion();
 			awaitingQuestion = false;
 		} else if (getQuestionError) {
@@ -705,6 +702,21 @@ const doSomethingOnSidebarSettingsUpdate = function() {
 	getQuestionsList(displayQuestionsList);
 }
 
+//Move to next question in forward history if there is one, otherwise get a new random question.
+const moveToNextQuestion = function() {
+	history.forward();
+	let popstateHappened = false;
+	window.addEventListener("popstate", function(event) {
+		popstateHappened = true;
+	});
+	setTimeout(function() {
+		if (!popstateHappened) {
+			console.log("Getting a random question");
+			displayNextRandomQuestion();
+		}
+	}, 10);
+}
+
 //Function to display the next random question.
 const displayNextRandomQuestion = function() {
 	document.getElementById("questionPageBackgroundBox").style.height = "";
@@ -714,11 +726,11 @@ const displayNextRandomQuestion = function() {
 	}
 
 	if (loadedQuestions.futureQuestions.length > 0) {
-		if (loadedQuestions.currentQuestion) {
-			loadedQuestions.pastQuestions[loadedQuestions.currentQuestion.id] = loadedQuestions.currentQuestion;
-		}
 		loadedQuestions.currentQuestion = loadedQuestions.futureQuestions[0];
 		loadedQuestions.futureQuestions.splice(0, 1);
+		history.pushState({}, ""); //Add the current page url to the history.
+		history.replaceState({}, "", "?" + loadedQuestions.currentQuestion.id);//Set the current url to the new question, replacing old state that we didn't want to get added twice.
+		document.querySelector("title").textContent = "RulesGuru #" + loadedQuestions.currentQuestion.id;//This needs to happen after history is edited.
 		displayCurrentQuestion();
 		if (sidebarOpen) {
 			closeSidebar();
@@ -737,12 +749,16 @@ const displayNextRandomQuestion = function() {
 	}
 }
 
-const returnToHome = function() {
+const returnToHome = function(noChangeHistory) {
 	document.getElementById("questionPage").style.display = "none";
 	document.getElementById("startPage").style.display = "block";
 	document.getElementById("startPage").style.transform = "scale(1)";
 	document.getElementById("startPage").style.transition = "none";
-	history.replaceState({}, "", ".");
+	if (!noChangeHistory) {
+		history.pushState({}, ""); //Add the current page url to the history.
+		history.replaceState({}, "", "");//Set the current url to the homepge, replacing old state that we didn't want to get added twice.
+	}
+	document.querySelector("title").textContent = "RulesGuru";//This needs to happen after history is edited.
 
 	setTimeout(function() {
 		document.getElementById("startPage").style.transition = "transform 0.5s";
@@ -847,10 +863,14 @@ const displayQuestionsList = function(questionsList) {
 document.getElementById("questionsListDisplay").addEventListener("mouseup", function(event) {
  if (event.offsetX < this.clientWidth){ // Ignore a click on scrollbar
 	  const lineNum = this.value.substr(0, this.selectionStart).split("\n").length;
-	  if (!isNaN(parseInt(this.value.split("\n")[lineNum - 1]))) {
+		const questionIdToNavigateTo = parseInt(this.value.split("\n")[lineNum - 1]);
+	  if (!isNaN(questionIdToNavigateTo)) {
 		  document.getElementById("questionPage").style.transform = "scale(0)";
 		  document.getElementById("startPage").style.transform = "scale(0)";
-		  goToQuestion(parseInt(this.value.split("\n")[lineNum - 1]));
+			history.pushState({}, ""); //Add the current page url to the history.
+			history.replaceState({}, "", "?" + questionIdToNavigateTo);//Set the current url to the new question, replacing old state that we didn't want to get added twice.
+			document.querySelector("title").textContent = "RulesGuru #" + loadedQuestions.currentQuestion.id;//This needs to happen after history is edited.
+		  goToQuestion(questionIdToNavigateTo);
 	  }
  }
 });
@@ -929,7 +949,9 @@ document.getElementById("testQuestionIncorrect").addEventListener("click", handl
 document.addEventListener("keydown", function(event) {
 	if (document.activeElement.tagName !== "TEXTAREA" && document.activeElement.tagName !== "INPUT") {
 		if (event.key === "ArrowRight") {
-			displayNextRandomQuestion();
+			moveToNextQuestion();
+		} else if (event.key === "ArrowLeft") {
+			history.back();
 		} else if (["ArrowUp", "ArrowDown"].includes(event.key)) {
 			toggleAnswer();
 		} else if (boothActive) {
