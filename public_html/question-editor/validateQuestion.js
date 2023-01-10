@@ -47,7 +47,7 @@ const validateQuestion = function(questionObj, templateEmptyness) {
 	//Check for incorrectly formatted strings inside brackets.
 	if (questionObj.question.match(/\[.*?\]/g)) {
 		questionObj.question.match(/\[.*?\]/g).some(function(element) {
-			if (!/^\[(((AP|NAP)[ab123]?( (o|s|pp|pa|[a-zA-Z']+\|[a-zA-Z']+))?)|(\d{3}(\.\d{1,3}([a-z])?)?)|(card \d+)|([+-]?\d\d?))\]$/.test(element)) {
+			if (!/^\[(((AP[ab]?|NAP[ab123]?)( (o|s|pp|pa|[a-zA-Z']+\|[a-zA-Z']+))?)|(\d{3}(\.\d{1,3}([a-z])?)?)|(card \d+)|([+-]?\d\d?))\]$/.test(element)) {
 				if (!allCardNames.includes(element.slice(1, element.length - 1))) {
 					errors.push(`"${element}" is not formatted correctly.`);
 					return true;
@@ -57,7 +57,7 @@ const validateQuestion = function(questionObj, templateEmptyness) {
 	}
 	if (questionObj.answer.match(/\[.*?\]/g)) {
 		questionObj.answer.match(/\[.*?\]/g).some(function(element) {
-			if (!/^\[(((AP|NAP)[ab123]?( (o|s|pp|pa|[a-zA-Z']+\|[a-zA-Z']+))?)|(\d{3}(\.\d{1,3}([a-z])?)?)|(card \d+)|([+-]?\d\d?))\]$/.test(element)) {
+			if (!/^\[(((AP[ab]?|NAP[ab123]?)( (o|s|pp|pa|[a-zA-Z']+\|[a-zA-Z']+))?)|(\d{3}(\.\d{1,3}([a-z])?)?)|(card \d+)|([+-]?\d\d?))\]$/.test(element)) {
 				if (!allCardNames.includes(element.slice(1, element.length - 1))) {
 					errors.push(`"${element}" is not formatted correctly.`);
 					return true;
@@ -79,7 +79,7 @@ const validateQuestion = function(questionObj, templateEmptyness) {
 			openBracket = false;
 		}
 	}
-	if (/(((AP|NAP)([ab123]? (o|s|pp|pa|[a-zA-Z]+\|[a-zA-Z]+)?)?)|(\d{3}(\.\d{1,3}([a-z])?)?)|(card \d+))/.test(unbracketedString)) {
+	if (/(((AP[ab]?|NAP[ab123]?)( (o|s|pp|pa|[a-zA-Z]+\|[a-zA-Z]+)?)?)|(\d{3}(\.\d{1,3}([a-z])?)?)|(card \d+))/.test(unbracketedString)) {
 		warnings.push("There may be an unbracketed expression in the question.");
 	}
 	openBracket = false, unbracketedString = "";
@@ -94,7 +94,7 @@ const validateQuestion = function(questionObj, templateEmptyness) {
 			openBracket = false;
 		}
 	}
-	if (/[^[](((AP|NAP)([ab123]? (o|s|pp|pa|[a-zA-Z]+\|[a-zA-Z]+)?)?)|(\d{3}(\.\d{1,3}([a-z])?)?)|(card \d+))[^\]]/.test(unbracketedString)) {
+	if (/[^[](((AP[ab]?|NAP[ab123]?)( (o|s|pp|pa|[a-zA-Z]+\|[a-zA-Z]+)?)?)|(\d{3}(\.\d{1,3}([a-z])?)?)|(card \d+))[^\]]/.test(unbracketedString)) {
 		warnings.push("There may be an unbracketed expression in the answer.");
 	}
 	//Check for naked card names.
@@ -179,7 +179,7 @@ const validateQuestion = function(questionObj, templateEmptyness) {
 		errors.push("Please capitalize your sentences in the answer.");
 	}
 	//Check for pronouns with no matching nouns.
-	const pronounExpressionRegex = /\[(AP|NAP)[ab123]? (o|s|pp|pa)\]/g;
+	const pronounExpressionRegex = /\[(AP[ab]?|NAP[ab123]?) (o|s|pp|pa)\]/g;
 	let foundPronounExpressions = questionObj.question.match(pronounExpressionRegex);
 	if (foundPronounExpressions !== null) {
 		foundPronounExpressions.forEach(function(element) {
@@ -197,7 +197,7 @@ const validateQuestion = function(questionObj, templateEmptyness) {
 		});
 	}
 	//Check for no players mentioned at all.
-	const playerNameExpressionRegex = /\[(AP|NAP)[ab123]?\]/;
+	const playerNameExpressionRegex = /\[(AP[ab]?|NAP[ab123]?)\]/;
 	if (!playerNameExpressionRegex.test(questionObj.question)) {
 		warnings.push("You haven't included any players in this question.");
 	}
