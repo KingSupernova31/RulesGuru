@@ -52,8 +52,10 @@
 				<div id="hideWhenQuestionsListOpen">
 					<button class="specialButtonBlack" id="showTagEditorButton">Show Tag Editor</button>
 					<button class="specialButtonBlack" id="showAdminEditorButton">Show Admin Editor</button>
-					<button class="specialButtonBlack" id="setToPendingButton">Set to Pending</button>
-					<label id="ignoreValidationLabel">Ignore question validation <input type="checkbox" id="ignoreValidationCheckbox"></label>
+					<button class="specialButtonBlack" id="forceUpdateButton">Update and Force to:</button>
+					<label>Pending <input type="radio" name="forceStatus" id="forceStatusPending"></label>
+					<label>Finished <input type="radio" name="forceStatus" id="forceStatusFinished" checked></label>
+					<label id="newIdLabel">New ID: <input id="forceStatusNewId" onclick="this.select();" maxlength="4" autocomplete="off" type="number" min="1" max="9999"></label>
 				</div>
 			</div>
 			<div id="tagEditor" class="roundedCorners">

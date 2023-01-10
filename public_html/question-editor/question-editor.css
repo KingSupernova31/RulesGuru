@@ -655,3 +655,22 @@ div[data-orgroup="3"] {
 div[data-orgroup="4"] {
 	background-color: #ffff2b;
 }
+
+#forceStatusNewId {
+	width: 6rem;
+}
+
+#hideWhenQuestionsListOpen label {
+	display: inline;
+}
+
+#newIdLabel {
+	display: block !important;
+	margin-top: 0.3rem;
+}
+
+#ownerOnly {
+	padding: 0.5rem;
+	background-color: #ff8585;
+	border-radius: 0.5rem;
+}

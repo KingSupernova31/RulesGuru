@@ -787,11 +787,9 @@ const update = function() {
 			"password": document.getElementById("password").value
 		}
 		if (currentQuestionData.status === "finished") {
-			if (!document.getElementById("ignoreValidationCheckbox").checked) {
-				if (!askUserToValidateQuestion(validateSync(requestObj.questionObj))) {
-					document.getElementById("cursorStyle").innerHTML = "";
-					return;
-				}
+			if (!askUserToValidateQuestion(validateSync(requestObj.questionObj))) {
+				document.getElementById("cursorStyle").innerHTML = "";
+				return;
 			}
 		}
 		requestObj.questionObj.id = currentQuestionData.id;
@@ -843,11 +841,9 @@ const submit = function() {
 			"questionObj": createQuestionObj(),
 			"password": document.getElementById("password").value
 		}
-		if (!document.getElementById("ignoreValidationCheckbox").checked) {
-			if (!askUserToValidateQuestion(validateSync(requestObj.questionObj))) {
-				document.getElementById("cursorStyle").innerHTML = "";
-				return;
-			}
+		if (!askUserToValidateQuestion(validateSync(requestObj.questionObj))) {
+			document.getElementById("cursorStyle").innerHTML = "";
+			return;
 		}
 		if (!currentQuestionData.id) {
 			requestObj.questionObj.submitterName = currentLoggedInAdmin.name;
@@ -1034,6 +1030,8 @@ const populateFields = function(question) {
 	updateQuestionInfoFields();
 	updateButtonsAndUnsavedChanges(false);
 	document.getElementById("cursorStyle").innerHTML = "";
+
+	document.getElementById("forceStatusNewId").value = "";
 }
 
 let activeGetQuestionIdRequest = null;
@@ -1674,11 +1672,9 @@ const changeStatusUpwards = function() {
 			"statusChange": "increase",
 			"changes": null
 		}
-		if (!document.getElementById("ignoreValidationCheckbox").checked) {
-			if (!askUserToValidateQuestion(validateSync(requestObj.questionObj))) {
-				document.getElementById("cursorStyle").innerHTML = "";
-				return;
-			}
+		if (!askUserToValidateQuestion(validateSync(requestObj.questionObj))) {
+			document.getElementById("cursorStyle").innerHTML = "";
+			return;
 		}
 		if (currentQuestionData.status === "awaiting verification" && questionHasUnsavedChanges) {
 			const userInput = prompt("Please enter a description of the changes you made to this question. This will be sent to this question's editor so that they can better avoid these sorts of issues next time.");
@@ -2168,20 +2164,6 @@ bindButtonAction(document.getElementById("adminEditorCancelButton"), function() 
 	clearAdminEditorFields();
 });
 
-document.getElementById("ignoreValidationCheckbox").addEventListener("change", function() {
-	if (document.getElementById("ignoreValidationCheckbox").checked) {
-		document.getElementById("changeStatusUpwards").style.border = "red solid 0.2rem";
-		document.getElementById("changeStatusDownwards").style.border = "red solid 0.2rem";
-		document.getElementById("updateButton").style.border = "red solid 0.1rem";
-		document.getElementById("submitButton").style.border = "red solid 0.1rem";
-	} else {
-		document.getElementById("changeStatusUpwards").style.border = "";
-		document.getElementById("changeStatusDownwards").style.border = "";
-		document.getElementById("updateButton").style.border = "";
-		document.getElementById("submitButton").style.border = "";
-	}
-});
-
 const switchTabs = function(event) {
 	const tagEditorTabs = document.getElementsByClassName("tagEditorTab");
 	for (let i = 0 ; i < tagEditorTabs.length ; i++) {
@@ -2604,17 +2586,21 @@ setInterval(function() {
 	}
 }, 500);
 
-const setQuestionStatusByOwner = function() {
+const updateAndForceStatus = function(newStatus, newId) {
 	if (!currentQuestionData.id) {
 		alert("There is no question loaded.");
 		return;
 	}
 	document.getElementById("cursorStyle").innerHTML = "* {cursor: wait !important;}";
 	setTimeout(function() {//This forces the cursor to update immediately since it waits for all synchronous code to finish.
+		const questionData = createQuestionObj();
+		questionData.id = newId || currentQuestionData.id
 		const requestObj = {
 			"password": document.getElementById("password").value,
-			"newStatus": "pending",
-			"id": currentQuestionData.id
+			"newStatus": newStatus,
+			"id": currentQuestionData.id,
+			"newId": newId,
+			"questionData": questionData
 		}
 		//Send the request.
 		const httpRequest = new XMLHttpRequest();
@@ -2640,6 +2626,9 @@ const setQuestionStatusByOwner = function() {
 						turnOffQuestionStuffObserver();
 						currentQuestionData.status = response.newStatus;
 						currentQuestionData.verification = response.newVerification;
+						if (response.newId) {
+							currentQuestionData.id = response.newId;
+						}
 						updateQuestionInfoFields();
 						updateButtonsAndUnsavedChanges(false);
 						alert(response.message);
@@ -2654,10 +2643,27 @@ const setQuestionStatusByOwner = function() {
 				alert(`There was an error setting the question status. (Server returned status code ${httpRequest.status}.) Please check your internet connection and try again. If the problem persists, please report the issue.`)
 			}
 		}
-		httpRequest.open("POST", "/changeQuestionStatusByOwner", true);
+		httpRequest.open("POST", "/updateAndForceStatus", true);
 		httpRequest.setRequestHeader("Content-Type", "application/json");
 		httpRequest.send(JSON.stringify(requestObj));
 	}, 0);
 };
 
-bindButtonAction(document.getElementById("setToPendingButton"), setQuestionStatusByOwner);
+bindButtonAction(document.getElementById("forceUpdateButton"), function() {
+	let newStatus;
+	if (document.getElementById("forceStatusPending").checked) {
+		newStatus = "pending";
+	} else if (document.getElementById("forceStatusFinished").checked) {
+		newStatus = "finished";
+	}
+	if (document.getElementById("forceStatusNewId").value.trim() === "") {
+		updateAndForceStatus(newStatus);
+	} else {
+		const newId = Number(document.getElementById("forceStatusNewId").value.trim());
+		if (newId < 1 || newId > 9999 || isNaN(newId)) {
+			alert("Invalid new ID");
+			return;
+		}
+		updateAndForceStatus(newStatus, newId);
+	}
+});

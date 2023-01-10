@@ -579,7 +579,7 @@ Question Editor:
 /getAdminData: Admin data
 /updateAdminData: update admin data
 /updateSavedAnnouncements: Update saved announcement text blurbs
-/changeQuestionStatusByOwner: Handle the owner-only options to force a question into a particular status.
+/updateAndForceStatus: Handle the owner-only options to force a question into a particular status.
 
 
 General:
@@ -1345,7 +1345,7 @@ app.post("/updateSavedAnnouncements", function(req, res) {
 	}
 });
 
-app.post("/changeQuestionStatusByOwner", async function(req, res) {
+app.post("/updateAndForceStatus", async function(req, res) {
 	const validateAdminResult = validateAdmin(req.body.password);
 	if (typeof validateAdminResult === "string") {
 		res.json({
@@ -1366,9 +1366,24 @@ app.post("/changeQuestionStatusByOwner", async function(req, res) {
 			});
 			return;
 		}
-
+		if (req.body.newId !== undefined && (req.body.newId < 1 || req.body.newId > 9999)) {
+			res.json({
+				"error": true,
+				"message": `${req.body.newId} is not a valid new ID.`
+			});
+			return;
+		}
+		if (req.body.newId) {
+			const questionAtTargetId = await dbGet(`SELECT * FROM questions WHERE id = ${req.body.newId}`);
+			if (questionAtTargetId) {
+				res.json({
+					"error": true,
+					"message": `There is already a question at ID #${req.body.newId}.`
+				});
+				return;
+			}
+		}
 		const oldQuestion = await dbGet(`SELECT * FROM questions WHERE id = ${req.body.id}`);
-
 		if (!oldQuestion) {
 			res.json({
 				"error": true,
@@ -1383,26 +1398,50 @@ app.post("/changeQuestionStatusByOwner", async function(req, res) {
 			"templateGuru": null,
 			"rulesGuru":  null
 		};
-		const newStatus = "pending";
 
-		await dbRun(`UPDATE questions SET status = '${newStatus}', verification = '${JSON.stringify(newVerificationObject).replace(/'/g,"''")}' WHERE id = ${req.body.id}`);
+		if (req.body.newStatus === "finished") {
+			newVerificationObject.editor = currentAdmin.id;
+			newVerificationObject.grammarGuru = currentAdmin.id;
+			newVerificationObject.templateGuru = currentAdmin.id;
+			newVerificationObject.rulesGuru = currentAdmin.id;
+		}
+
+		await dbRun(`UPDATE questions SET status = '${req.body.newStatus}', verification = '${JSON.stringify(newVerificationObject).replace(/'/g,"''")}', json = '${JSON.stringify(req.body.questionData).replace(/'/g,"''")}', id = '${req.body.newId || req.body.id}' WHERE id = ${req.body.id}`);
+
+		//Update the reference question array
+		for (let i in referenceQuestionArray) {
+			if (referenceQuestionArray[i].id === req.body.id) {
+				referenceQuestionArray.splice(i, 1);
+				break;
+			}
+		}
+		if (req.body.newStatus === "finished") {
+			let newQuestion = req.body.questionData;
+			const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
+			newQuestion = convertAllTemplates(newQuestion, allCards);
+
+			//Check for a template that generated 0 cards.
+			let emptyTemplate = false;
+			for (let j = 0 ; j < newQuestion.cardLists.length ; j++) {
+				if (newQuestion.cardLists[j].length === 0) {
+					emptyTemplate = true;
+				}
+			}
+			if (emptyTemplate) {
+				sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${newQuestion.id}`);
+			}
+			referenceQuestionArray.push(newQuestion);
+		}
+
+		updateIndexQuestionCount();
 
 		res.json({
 			"error": false,
-			"message": `Question #${req.body.id} reset successfully.`,
-			"newStatus": newStatus,
-			"newVerification": newVerificationObject
+			"message": `Question #${req.body.id} modified successfully.${req.body.newId ? ` (New ID #${req.body.newId})` : ""}`,
+			"newStatus": req.body.newStatus,
+			"newVerification": newVerificationObject,
+			"newId": req.body.newId
 		});
-
-		//Update the reference question array
-		if (newStatus === "pending") {
-			for (let i in referenceQuestionArray) {
-				if (referenceQuestionArray[i].id === req.body.id) {
-					referenceQuestionArray.splice(i, 1);
-				}
-			}
-			updateIndexQuestionCount();
-		}
 	}
 });
 
