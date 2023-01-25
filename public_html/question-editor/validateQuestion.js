@@ -1,3 +1,5 @@
+const cardNamesToIgnore = ["Turn", "Response", "Never", "Find", "Take", "Death", "Down", "Reason", "Give", "Order", "Granted", "Life", "Ends", "Well", "Status", "Entering", "Chance", "Fight", "Leave", "Regeneration", "Remove", "Charge", "Opportunity", "Return", "Away", "Two-Headed Giant"].concat(allKeywords.keywordAbilities).concat(allKeywords.keywordActions);
+
 const validateQuestion = function(questionObj, templateEmptyness) {
 	const errors = [],
 				warnings = [];
@@ -98,7 +100,6 @@ const validateQuestion = function(questionObj, templateEmptyness) {
 		warnings.push("There may be an unbracketed expression in the answer.");
 	}
 	//Check for naked card names.
-	const cardNamesToIgnore = ["Turn", "Response", "Never", "Find", "Take", "Death", "Down", "Reason", "Give", "Order", "Granted", "Life", "Ends", "Well", "Status", "Entering", "Chance", "Fight", "Leave", "Regeneration", "Remove", "Charge", "Opportunity", "Return", "Away", "Two-Headed Giant"].concat(allKeywords.keywordAbilities).concat(allKeywords.keywordActions);
 	const cardNamesToCheck = Object.keys(allCards).filter(function(element) {
 		for (let i in cardNamesToIgnore) {
 			if (cardNamesToIgnore[i].toLowerCase() === element.toLowerCase()) {
@@ -135,15 +136,15 @@ const validateQuestion = function(questionObj, templateEmptyness) {
 			warnings.push(`It looks like the subtype "${subtypesToCheck[i].toLowerCase()}" in the answer is not capitalized.`);
 		}
 	}
-	//Check for naked pronouns.
-	const pronouns = ["he", "she", "him", "her", "his", "hers", "theirs", "their"];//They and them are not included because they usually refer to cards.
+	//Check for gendered pronouns.
+	const pronouns = ["he", "she", "him", "her", "his", "hers"];
 	for (let i in pronouns) {
 		let regex = new RegExp(" " + pronouns[i] + "[\.\? ]")
 		if (regex.test(questionObj.question.toLowerCase())) {
-			warnings.push(`There may be an unbracketed pronoun ("${pronouns[i]}") in the question.`);
+			warnings.push(`There may be a gendered pronoun ("${pronouns[i]}") in the question. (All players should be referred to gender-neutrally.)`);
 		}
 		if (regex.test(questionObj.answer.toLowerCase())) {
-			warnings.push(`There may be an unbracketed pronoun ("${pronouns[i]}") in the answer.`);
+			warnings.push(`There may be a gendered pronoun ("${pronouns[i]}") in the answer. (All players should be referred to gender-neutrally.)`);
 		}
 	}
 	//Check for non-technical terms.

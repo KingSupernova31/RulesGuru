@@ -869,7 +869,7 @@ document.getElementById("questionsListDisplay").addEventListener("mouseup", func
 		  document.getElementById("startPage").style.transform = "scale(0)";
 			history.pushState({}, ""); //Add the current page url to the history.
 			history.replaceState({}, "", "?" + questionIdToNavigateTo);//Set the current url to the new question, replacing old state that we didn't want to get added twice.
-			document.querySelector("title").textContent = "RulesGuru #" + loadedQuestions.currentQuestion.id;//This needs to happen after history is edited.
+			document.querySelector("title").textContent = "RulesGuru #" + questionIdToNavigateTo;//This needs to happen after history is edited.
 		  goToQuestion(questionIdToNavigateTo);
 	  }
  }

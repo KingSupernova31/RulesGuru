@@ -683,6 +683,7 @@ app.get("/api/questions", function(req, res) {
 			}
 		}
 	} catch (error) {
+		console.log(error)
 		res.json({"status": 400, "error":"Incorrectly formatted json."});
 	}
 });
@@ -1205,7 +1206,6 @@ app.post("/getSpecificAdminQuestion", function(req, res) {
 					if (result) {
 						const questionToSend = JSON.parse(result.json);
 						questionToSend.status = result.status;
-						console.log(result.verification)
 						questionToSend.verification = JSON.parse(result.verification);
 
 						res.send(questionToSend);
@@ -1442,6 +1442,12 @@ app.post("/updateAndForceStatus", async function(req, res) {
 			"newVerification": newVerificationObject,
 			"newId": req.body.newId
 		});
+
+		if (req.body.newId) {
+
+			const date = Date();
+			sendEmailToOwners(`RulesGuru question ID change`, `${currentAdmin.name} has moved question #${req.body.id} to ID #${req.body.newId}.\n\nTime: ${date}`);
+		}
 	}
 });
 

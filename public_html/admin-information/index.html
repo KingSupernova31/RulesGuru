@@ -51,7 +51,7 @@
 			<div class="content"><p>Your primary job is to look over questions that are awaiting verification, make sure all the fields within your purview are correct, fix anything that isn't, and write a quick description of anything you had to change in the prompt that pops up when you approve the question. This feedback will be sent to the editor of that question, so they can avoid those mistakes in the future.</p>
 			<br><br>
 			<ul class="styleTypeNone">
-				<li><b>Grammar Guru:</b> You're in charge of checking the grammar, spelling, and general phrasing of questions and answers. Make sure that all <a href="#pronouns">pronouns</a> and <a href="#verbs">verbs</a> show up correctly for each possible gender of the players. (The <a href="#preview">preview</a> is a great help for this.) Some more guidelines that should be followed are <a href="#Phrasing">here</a>.</li>
+				<li><b>Grammar Guru:</b> You're in charge of checking the grammar, spelling, and general phrasing of questions and answers. (The <a href="#preview">preview</a> is a great help for this.) Some more guidelines that should be followed are <a href="#Phrasing">here</a>.</li>
 				<li><b>Template Guru:</b> You're in charge of looking over the card generators for the question. Look them over, expand or restrict them if necessary, and hit approve. Always check the <a href="#preview">preview</a> for each generator and ensure nothing slipped through, as that is one of the most common problems. More information about card generators is <a href="#CardGenerators">here</a>.</li>
 				<li><b>Rules Guru:</b> Your most important job is to make sure the answer is correct. In addition to that, check the wording to make sure it's going to be easily understandable by anyone, regardless of how much prior rules knowledge they have. Make sure that all relevant rules are cited in the answer. (More information about rule citations is <a href="#RuleCitations">here</a>.) Lastly, look at the question's level, complexity, and tags, and ensure they all look correct. (Missing tags are one of the most common problems.) Also check that AP is indeed the active player, and NAP isn't casting a sorcery illegally. (Also a common problem.) Some additional guidelines to follow are <a href="#Phrasing">here</a>.</li>
 			</ul>
@@ -159,7 +159,11 @@
 		<div>
 			<h3 id="SpecialFormatting">Special Formatting</h3>
 			<h4 class="header">General</h4>
-			<p class="content">RulesGuru uses several <a href="https://xkcd.com/1341/">non-literal</a> formatting types (referred to here as "expressions"), which are are either replaced with randomly-generated content (player names and cards) or with special formatting (pronouns, verbs, rule citations, and symbols). All expressions should be enclosed in brackets, except for symbols, which use braces.</p>
+			<div class="content">
+				<p>RulesGuru uses several <a href="https://xkcd.com/1341/">non-literal</a> formatting types (referred to here as "expressions"), which are either replaced with randomly-generated content (player names and cards) or with special formatting (rule citations and symbols). All expressions should be enclosed in brackets, except for some symbols, which use braces.</p>
+				<br>
+				<p>In most cases you won't need to type the brackets or braces yourself; RulesGuru will add them automatically as you type. Capitalization is also fixed for you.</p>
+			</div>
 			<h4 class="header" id="Player">Player Names</h4>
 			<div class="content">
 				<p>Player names are randomly generated. Simply type the type of player and RulesGuru will replace that with an actual name when the question is displayed on the main page.</p>
@@ -171,25 +175,6 @@
 				</div>
 				<br>
 				<p>AP is the active player and NAP is the non-active player. Multiplayer NAP names are in turn order; NAP1 is the player after AP, NAP2 is next, etc.</p>
-			</div>
-			<h4 class="header" id="pronouns">Player Pronouns</h4>
-			<div class="content">
-				<p>RulesGuru can match pronouns of the appropriate gender to the player name they're referring to. Names can be one of three genders: "male", "female", or "neutral". Type the player name followed by a space and the pronoun type.</p>
-				<br>
-				<div class="indent">
-					<p><b>Subjective:</b> he/she/they</p>
-					<p><b>Objective:</b> him/her/them</p>
-					<p><b>Possessive Pronoun:</b> his/hers/theirs</p>
-					<p><b>Possessive Adjective:</b> his/her/their</p>
-				</div>
-				<br>
-				<p>You can use "s", "o", "pp", and "pa" for short rather than typing out the full pronoun type.</p>
-			</div>
-			<h4 class="header" id="verbs">Verb Conjugation</h4>
-			<div class="content">
-				<p>Neutral names require different verb conjugation ("She has" but "They have"). In most cases, the site can do this automatically. In some cases you'll need to do it manually, in which case you put the player name followed by a space and the two possible words separated by the pipe character "|", singular (he/she) first. For example:</p>
-				<br>
-				<p>[AP casts|cast]</p>
 			</div>
 			<h4 class="header" id="CardGenerators2">Card Generators</h4>
 			<p class="content">Card generators are enclosed in single brackets: "[card 1]", "[card 2]", etc. You can also enter individual card names in brackets and they'll be converted into lists automatically. More information on card generators is <a href="#CardGenerators">here</a>.</p>
@@ -256,6 +241,8 @@
 					<div>{2/B} <i class='ms ms-2b ms-split ms-cost'></i></div>
 					<div>{2/R} <i class='ms ms-2r ms-split ms-cost'></i></div>
 					<div>{2/G} <i class='ms ms-2g ms-split ms-cost'></i></div>
+					<div>{W/U} <i class='ms ms-wu ms-split ms-cost'></i></div>
+					<div>{W/B} <i class='ms ms-wb ms-split ms-cost'></i></div>
 					<div>{U/B} <i class='ms ms-ub ms-split ms-cost'></i></div>
 					<div>{U/R} <i class='ms ms-ur ms-split ms-cost'></i></div>
 					<div>{B/R} <i class='ms ms-br ms-split ms-cost'></i></div>
@@ -323,13 +310,14 @@
 			</div>
 			<h4 class="header" id="Example">Example</h4>
 			<div class="content">
-				<p><b>You Type:</b></p>
-				<p>[AP] taps [card 1] for {G}. [AP s] [AP casts|cast] a spell during [AP pa] main phase.</p>
+				<p><b>You type:</b></p>
+				<p>ap taps stomping ground for g. they cast lightning bolt during their main phase.</p>
 				<br>
-				<p><b>You See:</b></p>
-				<p>Adena taps Mosswort Bridge for <i class='ms ms-g ms-cost'></i>. She casts a spell during her main phase.</p>
-				<p id="center"><b>Or</b></p>
-				<p>Alex taps Stomping Ground for <i class='ms ms-g ms-cost'></i>. They cast a spell during their main phase.</p>
+				<p><b>RulesGuru changes this into:</b></p>
+				<p>[AP] taps [card 1] for {G}. They cast [card 2] during their main phase.</p>
+				<br>
+				<p><b>The preview renders:</b></p>
+				<p>Adena taps Stomping Ground for <i class='ms ms-g ms-cost'></i>. They cast Lightning Bolt during their main phase.</p>
 			</div>
 		</div>
 
@@ -339,8 +327,8 @@
 		<div class="grid">
 			<p class="gridLeft noBorder">A user submits a well thought-out and clearly written question.</p>
 			<p class="noBorder">"lighnting bolt goyf, what do?!?!?!"</p>
-			<p class="gridLeft bold">You update the question's wording to be more clear and have player and card expressions.</p>
-			<p>"[NAP] controls [card 1] and has a creature and sorcery in [NAP pa] graveyard. [AP] casts [card 2] targeting [card 1]. Does it die?"</p>
+			<p class="gridLeft bold">You update the question's wording to be more explicit and have player and card expressions.</p>
+			<p>"[NAP] controls [card 1] and has a creature and sorcery in their graveyard. [AP] casts [card 2] targeting [card 1]. Does it die?"</p>
 			<p class="gridLeft">You convert the cards to expressions and their associated generators. [card 1] requires a fairly unique card so it should be a card list containing only Tarmogoyf. (You can simply type <span class="nowrap">"[Tarmogoyf]"</span> in the question and it'll be converted into a card list automatically.) [card 2] can be any instant that deals 3 damage to a creature and doesn't have some replacement effect that could make it do something unintended, so you convert it to a template with those rules.</p>
 			<div id="templateExampleBackground">
 				<img id="templateExample" src="template-example.png">

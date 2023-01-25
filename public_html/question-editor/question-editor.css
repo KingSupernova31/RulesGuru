@@ -354,6 +354,11 @@ textarea.templateInput, input.templateInput {
 	justify-self: end;
 }
 
+#clearFields * {
+	display: block;
+	margin-top: 0.2rem;
+}
+
 #settingsButton {
 	display: none;
 }
@@ -381,12 +386,13 @@ textarea.templateInput, input.templateInput {
 }
 
 #approveOrUnapprove, #updateButton {
-	display: none;
+	display: none !important;
 }
 
 #questionEditButtons button {
 	width: 13rem;
 	margin-bottom: 0.4rem;
+	display: block;
 }
 
 #tagEditor {

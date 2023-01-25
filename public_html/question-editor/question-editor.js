@@ -1163,18 +1163,22 @@ const closeMultiEntry = function() {
 const convertTypingRealTime = function(element) {
 	let newValue = element.value,
 			cursorPos = element.selectionStart;
-
+	if (element.selectionStart !== element.selectionEnd) {
+		return;
+	}
 	//General text changes:
 
-/*	//Remove double spaces.
-	while (newValue.includes("  ")) {
-		if (cursorPos === newValue.indexOf("  ") + 1) {
-			newValue = newValue.replace("  ", " ");
+	//Remove double spaces.
+	newValue = newValue.replace(/ {2,}/g, function(match, offset) {
+		if (offset < cursorPos && cursorPos < offset + match.length) {//Do nothing if the cursor is within the spaces.
+			return match;
 		} else {
-			newValue = newValue.replace("  ", " ");
-			cursorPos -= 1;
+			if (offset < cursorPos) {
+				cursorPos = cursorPos - (match.length - 1);
+			}
+			return " ";
 		}
-	}*/ //IF THIS IS REENABLED IT BREAKS CURSORPOS SINCE IT CHANGES THE NUMBER OF CHARS
+	});
 
 	//Replace quotes with better quotes.
 	newValue = newValue.replace(/’/g, "'");
@@ -1182,36 +1186,86 @@ const convertTypingRealTime = function(element) {
 	newValue = newValue.replace(/”/g, "\"");
 
 	//Capitalize the first letter at the beginning of a sentence after a parenthetical statement.
-	newValue = newValue.replace(/\. \([^()]+?\) ([a-z])/g, function(match, capt1) {
+	newValue = newValue.replace(/\. \([^()]+?\) ([a-z])/g, function(match, capt1, index) {
+		const letterToReplace = index + match.length;
+		if (letterToReplace === cursorPos || letterToReplace === cursorPos + 1) {
+			return match;
+		}
 		return match.slice(0, -1) + capt1[0].toUpperCase() + capt1.substring(1);
 	});
 	//Capitalize the first letter at the beginning of a sentence after another sentance.
-	newValue = newValue.replace(/\. ([a-z])/g, function(match, capt1) {
+	newValue = newValue.replace(/\. ([a-z])/g, function(match, capt1, index) {
+		const letterToReplace = index + match.length;
+		if (letterToReplace === cursorPos || letterToReplace === cursorPos + 1) {
+			return match;
+		}
 		return match.slice(0, -1) + capt1[0].toUpperCase() + capt1.substring(1);
 	});
 	//Capitalize the first letter of the first sentence.
 	if (newValue[0]) {
-		newValue = newValue[0].toUpperCase() + newValue.substring(1);
+		if (![0, 1].includes(cursorPos)) {
+			newValue = newValue[0].toUpperCase() + newValue.substring(1);
+		}
 	}
 
-	//Expression changes:
-	let valueBeforeExpressionChanges = newValue;
+	//Turn unbracketed expressions into bracketed ones.
+	let stringsToExpresify = ["card 1", "card 2", "card 3", "card 4", "card 5", "card 6", "card 7", "card 8", "card 9", "card 10", "card 11", "card 12", "card 13", "card 14", "card 15", "AP", "NAP", "NAP1", "NAP2", "NAP3", "APa", "APb", "NAPa", "NAPb", "0", "+1", "+2", "+3", "+4", "+5", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "-9", "-10", "-11", "-12", "-13", "-14", "-15"];//Also rule citations, and card names
+	const stringsToSymbolfy = ["W", "U", "B", "R", "G", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "X", "Y", "C", "S", "P", "W/P", "U/P", "B/P", "R/P", "G/P", "2/W", "2/U", "2/B", "2/R", "2/G", "W/U", "W/B", "U/B", "U/R", "B/R", "B/G", "R/W", "R/G", "G/W", "G/U", "W/U/P", "W/B/P", "U/B/P", "U/R/P", "B/R/P", "B/G/P", "R/W/P", "R/G/P", "G/W/P", "G/U/P", "E", "T", "Q", "CHAOS"];
+
+	const allCardNamesMinusWords = JSON.parse(JSON.stringify(allCardNames)).filter(name => !cardNamesToIgnore.includes(name));
+	stringsToExpresify = stringsToExpresify.concat(allCardNamesMinusWords);
+
+	const expressionRegex = new RegExp("(^|\\s)(" + stringsToExpresify.join("|").replace(/\+/g, "\\+") + ")($|\\s|[.,;:])", "gi");
+	newValue = newValue.replace(expressionRegex, function(match, capt1, capt2, capt3, offset) {
+		if (offset + capt1.length <= cursorPos && cursorPos <= offset + capt1.length + capt2.length) {//Do nothing if the cursor is within the symbol or the adjacent characters.
+			return match;
+		} else {
+			if (offset < cursorPos) {
+				cursorPos += 2;
+			}
+			return capt1 + "[" + capt2 + "]" + capt3;
+		}
+	})
+
+	const symbolRegex = new RegExp("(^|\\s)(" + stringsToSymbolfy.join("|").replace(/\+/g, "\\+") + ")($|\\s|[.,;:])", "gi");
+	newValue = newValue.replace(symbolRegex, function(match, capt1, capt2, capt3, offset) {
+		if (offset + capt1.length <= cursorPos && cursorPos <= offset + capt1.length + capt2.length) {//Do nothing if the cursor is within the symbol or the adjacent characters.
+			return match;
+		} else {
+			if (offset < cursorPos) {
+				cursorPos += 2;
+			}
+			return capt1 + "{" + capt2 + "}" + capt3;
+		}
+	})
+
+	const ruleCitationRegex = /(^|\s|\(|\/)(\d{3}(?:\.\d\d?[a-z]?)?)($|\s|[;:\)\/])/g;
+	newValue = newValue.replace(ruleCitationRegex, function(match, capt1, capt2, capt3, offset) {
+		if (offset + capt1.length <= cursorPos && cursorPos <= offset + capt1.length + capt2.length) {//Do nothing if the cursor is within the symbol or the adjacent characters.
+			return match;
+		} else {
+			if (offset < cursorPos) {
+				cursorPos += 2;
+			}
+			return capt1 + "[" + capt2 + "]" + capt3;
+		}
+	})
 
 	//Set card generator expressions to lowercase.
 	newValue = newValue.replace(/\[card \d+\]/gi, function(match) {
 		return match.toLowerCase();
 	});
 
-	//Convert card name expressions.
+	//Convert card name expressions to "card 1" etc expressions.
 	const assignedCards = {};
-	newValue = newValue.replace(/\[.+?\]/g, function(value) {
-		let cardName = value.slice(1, value.length - 1);
+	newValue = newValue.replace(/\[.+?\]/g, function(match, offset) {
+		let cardName = match.slice(1, match.length - 1);
 		if (/card \d+/.test(cardName)) {
 			if (questionObj.cardLists[Number(cardName.match(/card (\d+)/)[1]) - 1]) {
-				return value;
+				return match;
 			} else {
 				addCardGenerator();
-				return value;
+				return match;
 			}
 		} else if (allCardNamesLowerCase.includes(cardName.toLowerCase())) {
 			for (let i in allCardNames) {
@@ -1237,15 +1291,25 @@ const convertTypingRealTime = function(element) {
 					newListInput.dispatchEvent(event);
 				}
 			}
+			if (cursorPos >= offset + match.length) {//If the cursor was after the expression, move it by the change distance.
+				cursorPos += (assignedCards[cardName].length - 2) - cardName.length;
+			} else if (offset < cursorPos && cursorPos < offset + match.length) {//If the cursor was inside the expression, move it to right afterwards.
+				cursorPos = offset + assignedCards[cardName].length;
+			}
 			return assignedCards[cardName];
 		} else {
-			return value;
+			return match;
 		}
 	});
 
 	//Set card generator expressions with a too-high number to the proper number.
 	newValue = newValue.replace(/\[card (\d+)(?=\])/gi, function(match, capt1) {
 		if (Number(capt1) > questionObj.cardLists.length) {
+			if (capt1.length !== String(questionObj.cardLists.length)) {
+				console.log(capt1)
+				console.log(String(questionObj.cardLists.length))
+				cursorPos -= capt1.length - String(questionObj.cardLists.length).length;
+			}
 			return "[card " + String(questionObj.cardLists.length);
 		} else {
 			return "[card " + capt1;
@@ -1278,188 +1342,11 @@ const convertTypingRealTime = function(element) {
 	}
 
 	//Capitalize mana symbols.
-	const manaSymbols = ["W", "U", "B", "R", "G", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "X", "Y", "W/P", "U/P", "B/P", "R/P", "G/P", "S", "C", "E", "T", "Q", "W/U", "W/B", "U/B", "U/R", "B/R", "B/G", "R/W", "R/G", "G/W", "G/U", "2/W", "2/U", "2/B", "2/R", "2/G"];
-	for (let i = 0 ; i < manaSymbols.length ; i++) {
-		newValue = newValue.replace(new RegExp("\\{" + manaSymbols[i] + "\\}", "ig"), "{" + manaSymbols[i] + "}");
+	for (let i = 0 ; i < stringsToSymbolfy.length ; i++) {
+		newValue = newValue.replace(new RegExp("\\{" + stringsToSymbolfy[i] + "\\}", "ig"), "{" + stringsToSymbolfy[i] + "}");
 	}
-
-	//Add in verb conjugations. Temporarily deisabled because it's awful.
-	const conjugations = [/*
-		["discards", "discard"],
-		["activates", "activate"],
-		["attacks", "attack"],
-		["casts", "cast"],
-		["wants", "want"],
-		["plays", "play"],
-		["targets", "target"],
-		["declares", "declare"],
-		["reveals", "reveal"],
-		["resolves", "resolve"],
-		["chooses", "choose"],
-		["makes", "make"],
-		["moves", "move"],
-		["pays", "pay"],
-		["begins", "begin"],
-		["taps", "tap"],
-		["hasn't", "haven't"],
-		["draws", "draw"],
-		["takes", "take"],
-		["loses", "lose"],
-		["puts", "put"],
-		["finds", "find"],
-		["uses", "use"],
-		["leaves", "leave"],
-		["splices", "splice"],
-		["restarts", "restart"],
-		["isn't", "aren't"],
-		["controls", "control"],
-		["self", "selves"],
-		["turns", "turn"],
-		["adds", "add"],
-		["exiles", "exile"],
-		["doesn't", "don't"],
-		["passes", "pass"],
-		["enchants", "enchant"],
-		["animates", "animate"],
-		["randomizes", "randomize"],
-		["places", "place"],
-		["attempts", "attempt"],
-		["plans", "plan"],
-		["repeats", "repeat"],
-		["deals", "deal"],
-		["crews", "crew"],
-		["manifests", "manifest"],
-		["spends", "spend"],
-		["decides", "decide"],
-		["sacrifices", "sacrifice"],
-		["cycles", "cycle"],
-		["mutates", "mutate"],
-		["names", "name"],
-		["causes", "cause"],
-		["copies", "copy"],
-		["equips", "equip"],
-		["unmorphes", "unmorph"],
-		["mills", "mill"],
-		["blocks", "block"],
-		["gains", "gain"]
-	*/];
-	let allConjugationsMashedTogether = "";
-	for (let conjugation of conjugations) {
-		for (let word of conjugation) {
-			allConjugationsMashedTogether += word + "|";
-		}
-	}
-	allConjugationsMashedTogether = allConjugationsMashedTogether.slice(0, allConjugationsMashedTogether.length - 1); //Remove trailing "|".
-
-	const isBeginningOfPronounExpression = function(string) {
-		if (string[0] !== "[") {
-			return false;
-		}
-		let expression = "";
-		let position = 0;
-		while (position < string.length) {
-			expression += string[position];
-			if (string[position] === "]") {
-				break;
-			}
-			position++;
-		}
-		if (!expression[expression.length - 1] === "]") {
-			return false;
-		}
-		const pronounPlayers = ["NAP1", "NAP2", "NAP3", "APa", "APb", "NAPa", "NAPb", "AP", "NAP"];
-		const pronounTypes = ["s", "o", "pp", "pa"];
-		const allPossiblePronouns = [];
-		for (let player of pronounPlayers) {
-			for (let type of pronounTypes) {
-				allPossiblePronouns.push(player + " " + type);
-			}
-		}
-		for (let possiblePronoun of allPossiblePronouns) {
-			if (expression === `[${possiblePronoun}]`) {
-				return expression;
-			}
-		}
-		return false;
-	}
-	const isBeginningOfNounExpression = function(string) {
-		if (string[0] !== "[") {
-			return false;
-		}
-		let expression = "";
-		let position = 0;
-		while (position < string.length) {
-			expression += string[position];
-			if (string[position] === "]") {
-				break;
-			}
-			position++;
-		}
-		if (!expression[expression.length - 1] === "]") {
-			return false;
-		}
-		const players = ["NAP1", "NAP2", "NAP3", "APa", "APb", "NAPa", "NAPb", "AP", "NAP"];
-		for (let player of players) {
-			if (expression === `[${player}]`) {
-				return expression;
-			}
-		}
-		return false;
-	}
-	let listOfVerbConjugated = [];
-	newValue = newValue.replace(new RegExp("(?<= )(?:" + allConjugationsMashedTogether + ")(?= |\\.|$)", "g"), function(match, offset) {
-		while (offset >= 0) {//Search backwards through the string.
-			if (newValue[offset] === ".") {//We only look at pronouns in the same sentence as the verb.
-				return match;
-			}
-			if (isBeginningOfNounExpression(newValue.slice(offset))) {//If the player expression before the match is a noun, we don't want to replace the match.
-				return match;
-			}
-			const pronounExpression = isBeginningOfPronounExpression(newValue.slice(offset));
-			if (pronounExpression) {
-				const playerReferredToByPronounExpression = pronounExpression.match(/\[([NAPap123]+)/)[1];
-				for (let conjugation of conjugations) {
-					for (let word of conjugation) {
-						if (match === word) {
-							listOfVerbConjugated.push({"offset": offset, "word": word})
-							return `[${playerReferredToByPronounExpression} ${conjugation[0]}|${conjugation[1]}]`;
-						}
-					}
-				}
-			}
-			offset--;
-		}
-		return match; //If no pronoun or noun expressions are found, don't change the string.
-	});
-
-	//Perform the replacement and put the cursor where it should be.
-	for (let verb of listOfVerbConjugated) { //Add brackets around any conjugated verbs in the old text so that the cursor positioning knows to take them into account.
-		element.value = element.value.replace(new RegExp(`.{${verb.offset}}` + verb.word), "[" + verb.word + "]");
-	}
-
-	if (newValue !== element.value) {
-		if (valueBeforeExpressionChanges !== newValue) {
-			const expressionStartPos = Math.max(element.value.slice(0, cursorPos).lastIndexOf("["), element.value.slice(0, cursorPos).lastIndexOf("{"));
-
-			element.value = newValue;
-
-			const bracketPos = element.value.slice(expressionStartPos).indexOf("]");
-			const bracePos = element.value.slice(expressionStartPos).indexOf("}");
-			let tagEndPos;
-			if (bracketPos === -1) {
-				tagEndPos = bracePos;
-			} else if (bracePos === -1) {
-				tagEndPos = bracketPos;
-			} else {
-				tagEndPos = Math.min(bracketPos, bracePos);
-			}
-			const newCursorPos = tagEndPos + expressionStartPos + 1;
-			element.setSelectionRange(newCursorPos, newCursorPos);
-		} else {
-			element.value = newValue;
-			element.setSelectionRange(cursorPos, cursorPos);
-		}
-	}
+	element.value = newValue;
+	element.setSelectionRange(cursorPos, cursorPos);
 }
 
 document.getElementById("question").addEventListener("input", function() {
@@ -1469,6 +1356,12 @@ document.getElementById("question").addEventListener("input", function() {
 });
 document.getElementById("answer").addEventListener("input", function() {
 	setTimeout(function() {
+		convertTypingRealTime(document.getElementById("answer"));
+	}, 0)
+});
+document.addEventListener("selectionchange", function() {
+	setTimeout(function() {
+		convertTypingRealTime(document.getElementById("question"));
 		convertTypingRealTime(document.getElementById("answer"));
 	}, 0)
 });
@@ -2550,40 +2443,6 @@ const getCursorXY = (input, selectionPoint) => {
   }
 }
 
-const showExpressionTooltip = function(element) {
-	const cursorPos = element.selectionStart,
-			text = element.value;
-
-	let bracketFoundToLeft = -1;
-	let i = cursorPos;
-	while (i > 0) {
-		i--;
-		if (text[i] === "[") {
-			bracketFoundToLeft = i;
-			break;
-		} else if (text[i] === "]") {
-			break;
-		}
-	}
-	if (bracketFoundToLeft > -1) {
-		const expressionStart = getCursorXY(element, bracketFoundToLeft);
-		document.getElementById("expressionTooltip").style.display = "block";
-		const height = document.getElementById("expressionTooltip").offsetHeight;
-		document.getElementById("expressionTooltip").style.left = /*expressionStart.x*/0 + "px";
-		document.getElementById("expressionTooltip").style.top = /*expressionStart.y - height*/0 + "px";
-	} else {
-		document.getElementById("expressionTooltip").style.display = "none";
-	}
-}
-
-setInterval(function() {
-	if (["question", "answer"].includes(document.activeElement.id)) {
-		showExpressionTooltip(document.activeElement);
-	} else {
-		document.getElementById("expressionTooltip").style.display = "none";
-	}
-}, 100);
-
 //Persist question data.
 setInterval(function() {
 	if (questionHasUnsavedChanges) {
@@ -2647,6 +2506,7 @@ const updateAndForceStatus = function(newStatus, newId) {
 						if (response.newId) {
 							currentQuestionData.id = response.newId;
 						}
+						document.getElementById("forceStatusNewId").value = "";
 						updateQuestionInfoFields();
 						updateButtonsAndUnsavedChanges(false);
 						alert(response.message);
