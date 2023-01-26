@@ -37,7 +37,7 @@
 					<p>level</p>
 					<p>Array of strings (order-agnostic)</p>
 					<p>Length 1 to 5, contains any combination of acceptable levels. Options are "0", "1", "2", "3", and "Corner Case".</p>
-					<p>["1", "2"]</p>
+					<p>["0", "1", "2"]</p>
 					<p>complexity</p>
 					<p>Array of strings (order-agnostic)</p>
 					<p>Length 1 to 3, contains any combination acceptable complexities. Options are "Simple", "Intermediate", and "Complicated".</p>
@@ -57,7 +57,7 @@
 					<p>tags</p>
 					<p>Array of strings (order-agnostic)</p>
 					<p>A list of tags. Refer to the dropdown menu in the sidebar on the home page for a list of all available tags.</p>
-					<p>[]</p>
+					<p>["Unsupported answers"]</p>
 					<p>rules</p>
 					<p>Array of strings (order-agnostic)</p>
 					<p>A list of rules. Refer to the dropdown menu in the sidebar on the home page for a list of all available rules. Or, you know, the CR.</p>
@@ -69,7 +69,7 @@
 					<p>tagsConjunc</p>
 					<p>String</p>
 					<p>The logical conjunction to be used upon the list of tags. Can be "AND", "OR", or "NOT".</p>
-					<p>"OR"</p>
+					<p>"NOT"</p>
 					<p>rulesConjunc</p>
 					<p>String</p>
 					<p>The logical conjunction to be used upon the list of rules. Can be "AND", "OR", or "NOT".</p>
@@ -80,8 +80,8 @@
 					<p>"OR"</p>
 					<p>id</p>
 					<p>Number</p>
-					<p>The ID of a specific question you want to return. If this property is specified, only that question is returned, and most other fields are ignored. Legality, expansions, playableOnly, cards, and cardsConjunc will still be followed for that question if possible.</p>
-					<p>NaN</p>
+					<p>The ID of a specific question you want to return. If this property is specified, only that question is returned, and most other fields are ignored. Legality, expansions, playableOnly, cards, and cardsConjunc will still be followed if possible.</p>
+					<p>undefined</p>
 				</div>
 				<br><br>
 				<p>Here is an example JSON string:</p>
@@ -95,8 +95,8 @@
 							&nbsp;&nbsp;&nbsp;"legality": "Modern",<br>
 							&nbsp;&nbsp;&nbsp;"expansions": [],<br>
 							&nbsp;&nbsp;&nbsp;"playableOnly": false,<br>
-							&nbsp;&nbsp;&nbsp;"tags": [],<br>
-							&nbsp;&nbsp;&nbsp;"tagsConjunc": "OR",<br>
+							&nbsp;&nbsp;&nbsp;"tags": ["Unsupported answers"],<br>
+							&nbsp;&nbsp;&nbsp;"tagsConjunc": "NOT",<br>
 							&nbsp;&nbsp;&nbsp;"rules": [],<br>
 							&nbsp;&nbsp;&nbsp;"rulesConjunc": "OR",<br>
 							&nbsp;&nbsp;&nbsp;"cards": [],<br>
@@ -107,7 +107,7 @@
 				<br><br>
 				<p>After minifying and percent-encoding it, here is the resulting query:</p>
 				<br>
-				<a href="/api/questions/?json=%7B%22count%22%3A1%2C%22level%22%3A%5B%220%22%2C%221%22%2C%222%22%5D%2C%22complexity%22%3A%5B%22Simple%22%2C%22Intermediate%22%5D%2C%22legality%22%3A%22Modern%22%2C%22expansions%22%3A%5B%5D%2C%22playableOnly%22%3Afalse%2C%22tags%22%3A%5B%5D%2C%22tagsConjunc%22%3A%22OR%22%2C%22rules%22%3A%5B%5D%2C%22rulesConjunc%22%3A%22OR%22%2C%22cards%22%3A%5B%5D%2C%22cardsConjunc%22%3A%22OR%22%7D">https://rulesguru.net/api/questions/<span id="nowrap">?j</span>son=%7B%22count%22%3A1%2C%22level%22%3A%5B%220%22%2C%221%22%2C%222%22%5D%2C%22complexity%22%3A%5B%22Simple%22%2C%22Intermediate%22%5D%2C%22legality%22%3A%22Modern%22%2C%22expansions%22%3A%5B%5D%2C%22playableOnly%22%3Afalse%2C%22tags%22%3A%5B%5D%2C%22tagsConjunc%22%3A%22OR%22%2C%22rules%22%3A%5B%5D%2C%22rulesConjunc%22%3A%22OR%22%2C%22cards%22%3A%5B%5D%2C%22cardsConjunc%22%3A%22OR%22%7D</a>
+				<a href="/api/questions/?json=%7B%22count%22%3A1%2C%22level%22%3A%5B%220%22%2C%221%22%2C%222%22%5D%2C%22complexity%22%3A%5B%22Simple%22%2C%22Intermediate%22%5D%2C%22legality%22%3A%22Modern%22%2C%22expansions%22%3A%5B%5D%2C%22playableOnly%22%3Afalse%2C%22tags%22%3A%5B%22Unsupported+answers%22%5D%2C%22tagsConjunc%22%3A%22NOT%22%2C%22rules%22%3A%5B%5D%2C%22rulesConjunc%22%3A%22OR%22%2C%22cards%22%3A%5B%5D%2C%22cardsConjunc%22%3A%22OR%22%7D">https://rulesguru.net/api/questions/<span id="nowrap">?j</span>son=%7B%22count%22%3A1%2C%22level%22%3A%5B%220%22%2C%221%22%2C%222%22%5D%2C%22complexity%22%3A%5B%22Simple%22%2C%22Intermediate%22%5D%2C%22legality%22%3A%22Modern%22%2C%22expansions%22%3A%5B%5D%2C%22playableOnly%22%3Afalse%2C%22tags%22%3A%5B%22Unsupported+answers%22%5D%2C%22tagsConjunc%22%3A%22NOT%22%2C%22rules%22%3A%5B%5D%2C%22rulesConjunc%22%3A%22OR%22%2C%22cards%22%3A%5B%5D%2C%22cardsConjunc%22%3A%22OR%22%7D</a>
 
 				<br>
 				<div class="line"></div>
@@ -134,15 +134,18 @@
 					<p>question</p>
 					<p>String</p>
 					<p>The text of the question, human-readable.</p>
-					<p>answer</p>
-					<p>String</p>
-					<p>The answer to the question, human-readable.</p>
 					<p>questionRaw</p>
 					<p>String</p>
 					<p>The text of the question, with expressions left in for parsing.</p>
+					<p>answer</p>
+					<p>String</p>
+					<p>The answer to the question, human-readable.</p>
 					<p>answerRaw</p>
 					<p>String</p>
 					<p>The answer to the question, with expressions left in for parsing.</p>
+					<p>answerSimple</p>
+					<p>String</p>
+					<p>The answer to the question, human-readable, with rule citations removed.</p>
 					<p>submitterName</p>
 					<p>String</p>
 					<p>The person who submitted the question, or the empty string if no name was given.</p>
@@ -154,10 +157,8 @@
 					<p>A list of rules mentioned in the question or answer, in the order mentioned. Object formatting is from the <a href="https://github.com/lunakv/academyruins-api">Academy Ruins API</a>.</p>
 				</div>
 				<br><br>
-				<p>If your request string is malformed or you request more questions than are contained in the database, you'll get an error.</p>
+				<p>Finding questions that match the given parameters is computationally expensive, so requests are rate-limited to one every 2 seconds. If you need multiple questions of the same settings, submit a single request with the appropriate "count" variable rather than submitting that many individual requests.</p>
 				<br><br>
-				<p>The RulesGuru server has to perform a large number of computations in order to find questions that match some parameters. In order to not overload the server, please limit requests to one at a time, with a minimum delay of 100 milliseconds in between each request. In other words, do not submit multiple concurrent requests; wait for one to return, then wait 100 milliseconds, then submit another request. If you need multiple questions all of the same settings, submit a single request with the appropriate "count" variable; do not submit that many individual requests.</p>
-				<br>
 				<p>This API is a work in progress, meaning features and syntax may change. If you have any feature requests or bug reports, please let us know via our <button class="inline" id="questionIssueButton">contact form</button> or on <a href="https://github.com/KingSupernova31/RulesGuru">Github</a>.</p>
 		</div>
 

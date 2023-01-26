@@ -12,6 +12,8 @@ const express = require("express"),
 			nodemailer = require("nodemailer"),
 			transporter = nodemailer.createTransport(JSON.parse(fs.readFileSync("emailCredentials.json", "utf8")));
 
+app.set('trust proxy', true);
+
 const templateConvert = require("./public_html/globalResources/templateConvert.js"),
 			aVsAn = require("./AvsAn-simple.js"),
 			playerNames = JSON.parse(fs.readFileSync("playerNames.json", "utf8"));
@@ -545,6 +547,7 @@ const sendAPIQuestions = function(questions, res, allCards) {
 		questionToSend.answerRaw = questionToSend.answer;
 		questionToSend.question = replaceExpressions(questionToSend.question, playerNamesMap, questionToSend.includedCards);
 		questionToSend.answer = replaceExpressions(questionToSend.answer, playerNamesMap, questionToSend.includedCards);
+		questionToSend.answerSimple = questionToSend.answer.replace(/ \(((\d{3}\.?\d{0,2}[a-z]?)(, |\/)?)+\)/g, "");
 
 		//Add citedRules
 		const allRules = JSON.parse(fs.readFileSync("allRules.json"));
@@ -596,15 +599,26 @@ API:
 
 Development:
 
-mostPlayedStandard: Mirror since the origin API is private.
-mostPlayedPioneer: Mirror since the origin API is private.
-mostPlayedModern: Mirror since the origin API is private.
+/mostPlayedStandard: Mirror since the origin API is private.
+/mostPlayedPioneer: Mirror since the origin API is private.
+/mostPlayedModern: Mirror since the origin API is private.
 
 */
 
+let recentIPs = [];
 app.get("/api/questions", function(req, res) {
+	//When a request is received, update recentIPs to include only ones from within the last 2 seconds.
+	recentIPs = recentIPs.filter(ip => Date.now() - ip.date < 2000);
+	if (recentIPs.filter(ip => ip.ip).length > 0) {
+		res.json({"status": 429, "error":"Please don't send more than one request every 2 seconds."});
+		recentIPs.push({"ip": req.ip, "date": Date.now()});
+		return;
+	} else {
+		recentIPs.push({"ip": req.ip, "date": Date.now()});
+	}
+
 	let apiLog = JSON.parse(fs.readFileSync("logs/apiLog.json", "utf8"));
-	apiLog.push({"date": Date.now(), "request": req.query});
+	apiLog.push({"date": Date.now(), "request": req.query, "ip": req.ip});
 	fs.writeFileSync("logs/apiLog.json", JSON.stringify(apiLog));
 
 	const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
@@ -635,49 +649,49 @@ app.get("/api/questions", function(req, res) {
 				}
 			}
 	} catch (error) {
-		handleError(err);
+		handleError(error);
 		res.json({"status": 400, "error":"Incorrectly formatted query string."});
 		return;
 	}
 
 	try {
-
-		if (requestSettings.id > 0) {
+		if (requestSettings.id !== undefined) {
+			if (typeof requestSettings.id !== "number" || requestSettings.id < 1) {
+				res.json({"status": 400, "error":"Invalid ID provided."});
+				return;
+			}
 			let questionToReturn;
 			for (let i = 0 ; i < questionArray.length ; i++) {
-				if (questionArray[i].id = requestSettings.id) {
-					questionToReturn
-				}
-
-				const result = questionMatchesSettings(questionArray[i], requestSettings, allCards);
-				if (result) {
-					questionsToReturn.push(result);
-					if (questionsToReturn.length === requestSettings.count) {
-						break;
-					}
+				if (questionArray[i].id === requestSettings.id) {
+					questionToReturn = questionArray[i];
+					break;
 				}
 			}
-			if (questionsToReturn.length === requestSettings.count) {
-				sendAPIQuestions(questionsToReturn, res, allCards);
-			} else {
-				res.json({"status": 204, "error":"There are not enough questions that fit your parameters."});
+			if (!questionToReturn) {
+				res.json({"status": 404, "error":"A question with that ID does not exist."});
+				return;
 			}
-
+			const result = questionMatchesSettings(questionToReturn, requestSettings, allCards);
+			if (!result) {
+				res.json({"status": 400, "error":`Question ${requestSettings.id} cannot match the chosen settings.`});
+				return;
+			}
+			sendAPIQuestions([result], res, allCards);
 		} else {
 			const questionsToReturn = [];
 			for (let i = 0 ; i < questionArray.length ; i++) {
+				if (questionsToReturn.length === requestSettings.count) {
+					break;
+				}
 				const result = questionMatchesSettings(questionArray[i], requestSettings, allCards);
 				if (result) {
 					questionsToReturn.push(result);
-					if (questionsToReturn.length === requestSettings.count) {
-						break;
-					}
 				}
 			}
 			if (questionsToReturn.length === requestSettings.count) {
 				sendAPIQuestions(questionsToReturn, res, allCards);
 			} else {
-				res.json({"status": 204, "error":"There are not enough questions that fit your parameters."});
+				res.json({"status": 404, "error":"There are not enough questions that fit your parameters."});
 			}
 		}
 	} catch (error) {
@@ -685,6 +699,11 @@ app.get("/api/questions", function(req, res) {
 		res.json({"status": 400, "error":"Incorrectly formatted json."});
 	}
 });
+
+app.get("/api", function(req, res) {
+	res.send("You're probably looking for <a href=\"https://rulesguru.net/api/documentation/\">https://rulesguru.net/api/documentation/</a>");
+});
+
 
 app.post("/submitContactForm", function(req, res) {
 	if (req.body.message !== undefined) {

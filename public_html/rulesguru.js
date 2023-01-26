@@ -26,8 +26,8 @@ setInterval(function() {
 	httpRequest.onload = function() {
 		if (httpRequest.status === 200) {
 			if (httpRequest.response) {
-				document.getElementById("questionCount").innerHTML = JSON.parse(httpRequest.response).questions;
-				document.getElementById("questionCountMobile").innerHTML = JSON.parse(httpRequest.response).questions;
+				document.getElementById("questionCount").innerHTML = JSON.parse(httpRequest.response).finished;
+				document.getElementById("questionCountMobile").innerHTML = JSON.parse(httpRequest.response).finished;
 			}
 		}
 	};
