@@ -812,6 +812,7 @@ const update = function() {
 			document.getElementById("cursorStyle").innerHTML = "";
 			if (httpRequest.status === 200) {
 				if (httpRequest.response) {
+					getQuestionCount();
 					const response = JSON.parse(httpRequest.response);
 					if (response.message === "Incorrect password." || response.message === "That question doesn't exist.") {
 					} else {
@@ -867,6 +868,7 @@ const submit = function() {
 			document.getElementById("cursorStyle").innerHTML = "";
 			if (httpRequest.status === 200) {
 				if (httpRequest.response) {
+					getQuestionCount();
 					const response = JSON.parse(httpRequest.response);
 					if (response.error) {
 						alert(response.message);
@@ -1536,6 +1538,7 @@ const login = function() {
 						document.getElementById("getQuestionIdInput").value = thereIsAUrlQuestion;
 						document.getElementById("getQuestionButton").click();
 					}
+					getQuestionCount();
 				} catch (e) {
 					alert(httpRequest.response);
 				}
@@ -1617,6 +1620,7 @@ const changeStatusUpwards = function() {
 				alert("There was an error approving the question. (Request timed out.) Please check your internet connection and try again. If the problem persists, please report the issue.");
 		}
 		httpRequest.onload = function() {
+			getQuestionCount();
 			document.getElementById("cursorStyle").innerHTML = "";
 			if (httpRequest.status === 200) {
 				if (httpRequest.response) {
@@ -1672,6 +1676,7 @@ const changeStatusDownwards = function() {
 				alert("There was an error unapproving the question. (Request timed out.) Please check your internet connection and try again. If the problem persists, please report the issue.");
 		}
 		httpRequest.onload = function() {
+			getQuestionCount();
 			document.getElementById("cursorStyle").innerHTML = "";
 			if (httpRequest.status === 200) {
 				if (httpRequest.response) {
@@ -2495,6 +2500,7 @@ const updateAndForceStatus = function(newStatus, newId) {
 				alert("There was an error setting the question status. (Request timed out.) Please check your internet connection and try again. If the problem persists, please report the issue.");
 		}
 		httpRequest.onload = function() {
+			getQuestionCount();
 			document.getElementById("cursorStyle").innerHTML = "";
 			if (httpRequest.status === 200) {
 				if (httpRequest.response) {
@@ -2545,3 +2551,62 @@ bindButtonAction(document.getElementById("forceUpdateButton"), function() {
 		updateAndForceStatus(newStatus, newId);
 	}
 });
+
+const getQuestionCount = async function() {
+	console.log("Request sent")
+	const httpRequest = new XMLHttpRequest();
+	httpRequest.onload = function() {
+		console.log("Request loaded")
+		if (httpRequest.status === 200) {
+			if (httpRequest.response) {
+				const questionCount = JSON.parse(httpRequest.response);
+
+				const descriptionMapping = {
+					"pending": "pending questions",
+					"awaitingVerificationGrammar": "questions awaiting grammar verification",
+					"awaitingVerificationTemplates": "questions awaiting template verification",
+					"awaitingVerificationRules": "questions awaiting rules verification",
+				}
+
+				const roleMapping = {
+					"editor": "pending",
+					"templateGuru": "awaitingVerificationTemplates",
+					"grammarGuru": "awaitingVerificationGrammar",
+					"rulesGuru": "awaitingVerificationRules",
+				}
+
+				let roles = [];
+				Object.entries(currentLoggedInAdmin.roles).forEach(function(role) {
+					if (role[1] && role[0] !== "owner") {
+						roles.push(role[0]);
+					}
+				});
+
+				roles = roles.map(role => roleMapping[role]);
+
+				let descriptionString = "";
+
+				if (roles.length === 1) {
+					descriptionString = `There are ${questionCount[roles[0]]} ${descriptionMapping[roles[0]]}.`;
+				} else if (roles.length === 2) {
+					descriptionString = `There are ${questionCount[roles[0]]} ${descriptionMapping[roles[0]]} and ${questionCount[roles[1]]} ${descriptionMapping[roles[1]]}.`;
+				} else {
+					while (roles.length > 0) {
+						const role = roles.shift();
+						if (roles.length === 0) {
+							descriptionString += `and ${questionCount[role]} ${descriptionMapping[role]}`;
+						} else {
+							descriptionString += `${questionCount[role]} ${descriptionMapping[role]}, `;
+						}
+					}
+				}
+
+				document.getElementById("count").textContent = descriptionString;
+			}
+		}
+	};
+	httpRequest.open("GET", "/getQuestionCount", true);
+	httpRequest.setRequestHeader("Content-Type", "application/json");
+	httpRequest.send();
+}
+setInterval(getQuestionCount, 30000);

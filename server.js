@@ -578,16 +578,14 @@ Question Editor:
 /getTagData: Returns an object that lists tag names and counts.
 /getAdminData: Admin data
 /updateAdminData: update admin data
-/updateSavedAnnouncements: Update saved announcement text blurbs
 /updateAndForceStatus: Handle the owner-only options to force a question into a particular status.
-
 
 General:
 
 /submitContactForm: Contact form.
 /getSpecificQuestion: Requests from the main page for a question by ID.
 /getRandomQuestion: Requests from the main page for a random question matching parameters.
-/getQuestionCount: Requests from the main page for the number of finished questions.
+/getQuestionCount: Requests from the main page for the number of finished questions. Also requests from the editor for unfinished questions.
 /submitQuestion: Requests from the submit page to submit an unfinished question.
 /logSearchLinkData: Logs followed searchLinks.
 
@@ -787,8 +785,25 @@ app.post("/getRandomQuestion", function(req, res) {
 	fs.writeFileSync("logs/questionRequestLog.json", JSON.stringify(questionLog));
 });
 
-app.get("/getQuestionCount", function(req, res) {
-	res.json({"questions": referenceQuestionArray.length});
+app.get("/getQuestionCount", async function(req, res) {
+
+	const allData = await dbAll(`SELECT * FROM questions`);
+
+	if (referenceQuestionArray.length !== allData.filter(question => question.status === "finished").length) {
+		handleError(`Reference question length does not match database. (${referenceQuestionArray.length} vs. ${allData.filter(question => question.status === "finished").length})`);
+	}
+
+	allData.forEach(function(question) {
+		question.verification = JSON.parse(question.verification);
+	});
+
+	res.json({
+		"finished": referenceQuestionArray.length,
+		"pending": allData.filter(question => question.status === "pending").length,
+		"awaitingVerificationGrammar": allData.filter(question => question.status === "awaiting verification" && question.verification.grammarGuru === null).length,
+		"awaitingVerificationTemplates": allData.filter(question => question.status === "awaiting verification" && question.verification.templateGuru === null).length,
+		"awaitingVerificationRules": allData.filter(question => question.status === "awaiting verification" && question.verification.rulesGuru === null).length,
+	});
 
 	let countLog = JSON.parse(fs.readFileSync("logs/questionCountLog.json", "utf8"));
 	countLog.push(Date.now());
@@ -1114,6 +1129,8 @@ const addQuestion = async function(question, isAdmin, adminId) {
 			let verificationJson,
 					newStatus;
 
+			question.submissionDate = Date.now();
+
 			if (isAdmin) {
 				const allAdmins = JSON.parse(fs.readFileSync("admins.json", "utf8"));
 				const currentAdmin = allAdmins[adminId];
@@ -1329,16 +1346,6 @@ app.post("/updateAdminData", function(req, res) {
 	const validateAdminResult = validateAdmin(req.body.password);
 	if (typeof validateAdminResult === "object" && validateAdminResult.roles.owner) {
 		fs.writeFileSync("admins.json", req.body.adminData);
-		res.send("Updated");
-	} else {
-		res.send("Unauthorized");
-	}
-});
-
-app.post("/updateSavedAnnouncements", function(req, res) {
-	const validateAdminResult = validateAdmin(req.body.password);
-	if (typeof validateAdminResult === "object" && validateAdminResult.roles.owner) {
-		fs.writeFileSync("public_html/question-editor/savedAnnouncements.js", "let savedAnnouncements = " + JSON.stringify(req.body.data));
 		res.send("Updated");
 	} else {
 		res.send("Unauthorized");
