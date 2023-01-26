@@ -1308,8 +1308,6 @@ const convertTypingRealTime = function(element) {
 	newValue = newValue.replace(/\[card (\d+)(?=\])/gi, function(match, capt1) {
 		if (Number(capt1) > questionObj.cardLists.length) {
 			if (capt1.length !== String(questionObj.cardLists.length)) {
-				console.log(capt1)
-				console.log(String(questionObj.cardLists.length))
 				cursorPos -= capt1.length - String(questionObj.cardLists.length).length;
 			}
 			return "[card " + String(questionObj.cardLists.length);
@@ -2553,10 +2551,8 @@ bindButtonAction(document.getElementById("forceUpdateButton"), function() {
 });
 
 const getQuestionCount = async function() {
-	console.log("Request sent")
 	const httpRequest = new XMLHttpRequest();
 	httpRequest.onload = function() {
-		console.log("Request loaded")
 		if (httpRequest.status === 200) {
 			if (httpRequest.response) {
 				const questionCount = JSON.parse(httpRequest.response);
@@ -2609,4 +2605,4 @@ const getQuestionCount = async function() {
 	httpRequest.setRequestHeader("Content-Type", "application/json");
 	httpRequest.send();
 }
-setInterval(getQuestionCount, 30000);
+setInterval(getQuestionCount, 60000);
