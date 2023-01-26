@@ -1211,8 +1211,8 @@ const convertTypingRealTime = function(element) {
 	}
 
 	//Turn unbracketed expressions into bracketed ones.
-	let stringsToExpresify = ["card 1", "card 2", "card 3", "card 4", "card 5", "card 6", "card 7", "card 8", "card 9", "card 10", "card 11", "card 12", "card 13", "card 14", "card 15", "AP", "NAP", "NAP1", "NAP2", "NAP3", "APa", "APb", "NAPa", "NAPb", "0", "+1", "+2", "+3", "+4", "+5", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "-9", "-10", "-11", "-12", "-13", "-14", "-15"];//Also rule citations, and card names
-	const stringsToSymbolfy = ["W", "U", "B", "R", "G", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "X", "Y", "C", "S", "P", "W/P", "U/P", "B/P", "R/P", "G/P", "2/W", "2/U", "2/B", "2/R", "2/G", "W/U", "W/B", "U/B", "U/R", "B/R", "B/G", "R/W", "R/G", "G/W", "G/U", "W/U/P", "W/B/P", "U/B/P", "U/R/P", "B/R/P", "B/G/P", "R/W/P", "R/G/P", "G/W/P", "G/U/P", "E", "T", "Q", "CHAOS"];
+	let stringsToExpresify = ["card 1", "card 2", "card 3", "card 4", "card 5", "card 6", "card 7", "card 8", "card 9", "card 10", "card 11", "card 12", "card 13", "card 14", "card 15", "AP", "NAP", "NAP1", "NAP2", "NAP3", "APa", "APb", "NAPa", "NAPb", "+1", "+2", "+3", "+4", "+5", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "-9", "-10", "-11", "-12", "-13", "-14", "-15"];//Also rule citations, and card names
+	const stringsToSymbolfy = ["W", "U", "B", "R", "G", "C", "S", "P", "W/P", "U/P", "B/P", "R/P", "G/P", "2/W", "2/U", "2/B", "2/R", "2/G", "W/U", "W/B", "U/B", "U/R", "B/R", "B/G", "R/W", "R/G", "G/W", "G/U", "W/U/P", "W/B/P", "U/B/P", "U/R/P", "B/R/P", "B/G/P", "R/W/P", "R/G/P", "G/W/P", "G/U/P", "E", "T", "Q", "CHAOS"];
 
 	const allCardNamesMinusWords = JSON.parse(JSON.stringify(allCardNames)).filter(name => !cardNamesToIgnore.includes(name));
 	stringsToExpresify = stringsToExpresify.concat(allCardNamesMinusWords);
