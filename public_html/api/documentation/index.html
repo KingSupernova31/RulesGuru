@@ -80,7 +80,7 @@
 					<p>"OR"</p>
 					<p>id</p>
 					<p>Number</p>
-					<p>The ID of a specific question you want to return. If this property is specified, only that question is returned, and most other fields are ignored. Legality, expansions, playableOnly, cards, and cardsConjunc will still be followed if possible.</p>
+					<p>The ID of a specific question you want to return. If this property is specified, only that question is returned, and most other fields are ignored. Legality, expansions, playableOnly, cards, and cardsConjunc will still be followed if possible. If not specified, the defaults will be set to the most permissive option rather than the ones listed in this table.</p>
 					<p>undefined</p>
 				</div>
 				<br><br>
@@ -151,7 +151,7 @@
 					<p>The person who submitted the question, or the empty string if no name was given.</p>
 					<p>includedCards</p>
 					<p>Array of objects</p>
-					<p>A list of cards mentioned in the question or answer, in the order mentioned. Object formatting is from MTGJSON. (Some unnecessary properties removed.)</p>
+					<p>A list of cards mentioned in the question or answer, in the order mentioned. Object formatting is from <a href="https://mtgjson.com/data-models/card-atomic/">MTGJSON</a>. (Some unnecessary properties removed.)</p>
 					<p>citedRules</p>
 					<p>Array of objects</p>
 					<p>A list of rules mentioned in the question or answer, in the order mentioned. Object formatting is from the <a href="https://github.com/lunakv/academyruins-api">Academy Ruins API</a>.</p>

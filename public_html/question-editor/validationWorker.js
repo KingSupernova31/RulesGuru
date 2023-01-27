@@ -7,5 +7,5 @@ let allSubtypes = [];
 
 onmessage = function(message) {
 	allSubtypes = message.data.allSubtypes;
-	postMessage(validateQuestion(message.data.question, message.data.templateEmptyness));
+	postMessage(validateQuestion(message.data.question, message.data.templateEmptyness, message.data.convertedTemplateStorage));
 }

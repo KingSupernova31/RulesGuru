@@ -476,6 +476,73 @@ const replaceExpressions = function(string, playerNamesMap, oracle) {
 		return oracle[capt1 - 1].name;
 	});
 
+	//Replace composite expressions (other side).
+	if (oracle.length > 0) {
+		try {
+			string = string.replace(/\[card (\d+):other side\]/g, function(match, capt1) {
+				if (oracle[capt1 - 1]) {
+					if (oracle[capt1 - 1].names[0] === oracle[capt1 - 1].name) {
+						return oracle[capt1 - 1].names[1];
+					} else {
+						return oracle[capt1 - 1].names[0];
+					}
+				} else {
+					return match;
+				}
+			});
+		} catch (e) {
+			handleError(e);
+		}
+	}
+
+	//Replace composite expressions (characteristic).
+	const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
+	if (oracle.length > 0) {
+		const characteristicMapping = {
+			"colors": "colors",
+			"mana cost": "manaCost",
+			"mana value": "manaValue",
+			"supertypes": "supertypes",
+			"types": "types",
+			"subtypes": "subtypes",
+			"power": "power",
+			"toughness": "toughness",
+			"loyalty": "loyalty",
+		}
+		try {
+			string = string.replace(/\[card (\d+)(:other side)?(:[a-z ]+)(:simple)?\]/g, function(match, capt1, capt2, capt3, capt4) {
+				if (oracle[capt1 - 1]) {
+					let cardName = oracle[capt1 - 1].name;
+					if (capt2) {
+						if (oracle[capt1 - 1].names[0] === oracle[capt1 - 1].name) {
+							cardName =  oracle[capt1 - 1].names[1];
+						} else {
+							cardName =  oracle[capt1 - 1].names[0];
+						}
+					}
+					const result = allCards[cardName][characteristicMapping[capt3.slice(1)]];
+					if (result !== undefined) {
+						if (typeof result === "object") {
+							if (capt4) {
+								return result.join(" ");
+							} else {
+								return combineStrings(result);
+							}
+						} else {
+							return result;
+						}
+					} else {
+						return match;
+					}
+				} else {
+					return match;
+				}
+			});
+		} catch (e) {
+			handleError(e);
+		}
+	}
+
 	//Replace player names and pronouns.
 	string = string.replace(/\[((?:AP|NAP)[ab123]?)(?: (o|s|pp|pa|[a-zA-Z']+\|[a-zA-Z']+))?\]/g, function(match, capt1, capt2, offset) {
 		if (capt2) {
@@ -514,12 +581,16 @@ const sendAPIQuestions = function(questions, res, allCards) {
 	};
 	for (let question of questions) {
 		const questionToSend = JSON.parse(JSON.stringify(question));
-		questionToSend.includedCards = [];
-		let chosenCards = [];
-		if (questionToSend.cardLists.length > 0) {
 
+		let cardExpressions = Array.from((questionToSend.question + " " + questionToSend.answer).matchAll(/\[(card \d+(?::other side)?)(?::(?:colors|mana cost|mana value|supertypes|types|subtypes|power|toughness|loyalty))?(?::simple)?\]/g));
+		cardExpressions = cardExpressions.map(result => result[1]);//Use just the capture group.
+		cardExpressions = cardExpressions.filter(function(item, pos, self) {//Remove duplicates while preserving order of first instance.
+			return self.indexOf(item) == pos;
+		});
+
+		if (questionToSend.cardLists.length > 0) {
+			let chosenCards = [];
 			//Randomly pick cards for the question.
-			let chosenCards;
 			for (let i = 0 ; i < 100000 ; i++) {
 				chosenCards = [];
 				for (let j = 0 ; j < questionToSend.cardLists.length ; j++) {
@@ -534,8 +605,21 @@ const sendAPIQuestions = function(questions, res, allCards) {
 				return;
 			}
 
-			for (let i = 0 ; i < chosenCards.length ; i++) {
-				questionToSend.includedCards.push(allCards[chosenCards[i]]);
+			questionToSend.includedCards = [];
+			for (let i = 0 ; i < cardExpressions.length ; i++) {
+				const cardNum = Number(cardExpressions[i].match(/(?<=card )\d+/));
+				const isOtherSide = /card \d+:other side/.test(cardExpressions[i]);
+
+				let matchedCard = allCards[chosenCards[cardNum - 1]];
+				if (isOtherSide) {
+					if (matchedCard.side === "a") {
+						matchedCard = allCards[matchedCard.names[1]];
+					} else {
+						matchedCard = allCards[matchedCard.names[0]];
+					}
+				}
+
+				questionToSend.includedCards.push(matchedCard);
 			}
 		}
 		//Don't send the cardLists since they're not needed.
@@ -627,21 +711,40 @@ app.get("/api/questions", function(req, res) {
 	let requestSettings;
 	try {
 		requestSettings = JSON.parse(decodeURIComponent(req.query.json));
-		const defaults = {
-						"count": 1,
-						"level": ["0", "1", "2"],
-						"complexity": ["Simple", "Intermediate"],
-						"legality": "Modern",
-						"expansions": [],
-						"playableOnly": false,
-						"tags": ["Unsupported answers"],
-						"tagsConjunc": "NOT",
-						"rules": [],
-						"rulesConjunc": "OR",
-						"cards": [],
-						"cardsConjunc": "OR",
-						"id": NaN
-					};
+		let defaults;
+		if (requestSettings.id === undefined) {
+			defaults = {
+				"count": 1,
+				"level": ["0", "1", "2"],
+				"complexity": ["Simple", "Intermediate"],
+				"legality": "Modern",
+				"expansions": [],
+				"playableOnly": false,
+				"tags": ["Unsupported answers"],
+				"tagsConjunc": "NOT",
+				"rules": [],
+				"rulesConjunc": "OR",
+				"cards": [],
+				"cardsConjunc": "OR",
+				"id": undefined
+			};
+			} else {
+				defaults = {
+					"count": 1,
+					"level": ["0", "1", "2", "3", "Corner Case"],
+					"complexity": ["Simple", "Intermediate", "Complicated"],
+					"legality": "All of Magic",
+					"expansions": [],
+					"playableOnly": false,
+					"tags": [],
+					"tagsConjunc": "OR",
+					"rules": [],
+					"rulesConjunc": "OR",
+					"cards": [],
+					"cardsConjunc": "OR",
+					"id": undefined
+				};
+			}
 
 			for (let prop in defaults) {
 				if (!requestSettings.hasOwnProperty(prop)) {
@@ -699,11 +802,6 @@ app.get("/api/questions", function(req, res) {
 		res.json({"status": 400, "error":"Incorrectly formatted json."});
 	}
 });
-
-app.get("/api", function(req, res) {
-	res.send("You're probably looking for <a href=\"https://rulesguru.net/api/documentation/\">https://rulesguru.net/api/documentation/</a>");
-});
-
 
 app.post("/submitContactForm", function(req, res) {
 	if (req.body.message !== undefined) {

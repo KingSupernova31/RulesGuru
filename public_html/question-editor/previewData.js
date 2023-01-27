@@ -38,6 +38,24 @@ let currentQuestion = null,
 	isPendingRequest = false,
 	getQuestionError = null;
 
+const combineStrings = function(strings) {
+	if (strings.length === 1) {
+		return strings[0];
+	}
+	if (strings.length === 2) {
+		return strings[0] + " and " + strings[1];
+	}
+	let result = "";
+	for (let i = 0 ; i < strings.length ; i++) {
+		if (i === strings.length - 1) {
+			result += "and " + strings[i];
+		} else {
+			result += strings[i] + ", ";
+		}
+	}
+	return result;
+}
+
 //Replace textual symbols with pictures.
 const symbolFixer = function(inputString) {
 	const symbolMap = {
@@ -229,6 +247,75 @@ const replaceExpressions = function(string, playerNamesMap, oracle) {
 		});
 	}
 
+	//Replace composite expressions (other side).
+	if (oracle.length > 0) {
+		try {
+			string = string.replace(/\[card (\d+):other side\]/g, function(match, capt1) {
+				if (oracle[capt1 - 1]) {
+					if (oracle[capt1 - 1].names[0] === oracle[capt1 - 1].name) {
+						return oracle[capt1 - 1].names[1];
+					} else {
+						return oracle[capt1 - 1].names[0];
+					}
+				} else {
+					return match;
+				}
+			});
+		} catch (e) {
+			console.log("This error should be displayed in the validation errors, but if not, here:");
+			console.error(e);
+		}
+	}
+
+	//Replace composite expressions (characteristic).
+	if (oracle.length > 0) {
+		const characteristicMapping = {
+			"colors": "colors",
+			"mana cost": "manaCost",
+			"mana value": "manaValue",
+			"supertypes": "supertypes",
+			"types": "types",
+			"subtypes": "subtypes",
+			"power": "power",
+			"toughness": "toughness",
+			"loyalty": "loyalty",
+		}
+		try {
+			string = string.replace(/\[card (\d+)(:other side)?(:[a-z ]+)(:simple)?\]/g, function(match, capt1, capt2, capt3, capt4) {
+				if (oracle[capt1 - 1]) {
+					let cardName = oracle[capt1 - 1].name;
+					if (capt2) {
+						if (oracle[capt1 - 1].names[0] === oracle[capt1 - 1].name) {
+							cardName =  oracle[capt1 - 1].names[1];
+						} else {
+							cardName =  oracle[capt1 - 1].names[0];
+						}
+					}
+					const result = window.parentData.allCards[cardName][characteristicMapping[capt3.slice(1)]];
+					if (result !== undefined) {
+						if (typeof result === "object") {
+							if (capt4) {
+								return result.join(" ");
+							} else {
+								return combineStrings(result);
+							}
+						} else {
+							return result;
+						}
+					} else {
+						return match;
+					}
+				} else {
+					return match;
+				}
+			});
+		} catch (e) {
+			console.log("This error should be displayed in the validation errors, but if not, here:");
+			console.error(e);
+		}
+	}
+
+
 	//Replace player names and pronouns.
 	string = string.replace(/\[((?:AP[ab]?|NAP[ab123]?))(?: (o|s|pp|pa|[a-zA-Z']+\|[a-zA-Z']+))?\]/g, function(match, capt1, capt2, offset) {
 		if (capt2) {
@@ -339,20 +426,44 @@ let mappingArray = [],
 const displayNewCardsAndText = function() {
 
 	//Sort the oracle array to the order they appear in the question text in order to display the pictures/text in that order.
-	mappingArray = window.parentData.questionObj.question.match(/\[card \d+\]/g);
+	mappingArray = window.parentData.questionObj.question.match(/\[card \d+(?::other side)?\]/g);
 	mappingArray = Array.from(new Set(mappingArray));
 	for (let i in mappingArray) {
-		mappingArray[i] = currentPreviewCards[Number(mappingArray[i].slice(6, -1)) - 1];
+		let card;
+		if (mappingArray[i].includes(":other side")) {
+			card = currentPreviewCards[Number(mappingArray[i].slice(6, -12)) - 1];
+			if (card.side === "a") {
+				mappingArray[i] = window.parentData.allCards[card.names[1]];
+			} else {
+				mappingArray[i] = window.parentData.allCards[card.names[0]];
+			}
+		} else {
+			card = currentPreviewCards[Number(mappingArray[i].slice(6, -1)) - 1];
+			mappingArray[i] = card;
+		}
 	}
 
 	//Handle a question that uses a card generator in the answer only.
 	answerMappingArray = [];
 	if (currentPreviewCards.length > mappingArray.length) {
-	 	answerMappingArray = window.parentData.questionObj.answer.match(/\[card \d+\]/g);
+	 	answerMappingArray = window.parentData.questionObj.answer.match(/\[card \d+(?::other side)?\]/g);
 		answerMappingArray = Array.from(new Set(answerMappingArray));
+
 		for (let i in answerMappingArray) {
-			answerMappingArray[i] = currentPreviewCards[Number(answerMappingArray[i].slice(6, -1)) - 1];
+			let card;
+			if (answerMappingArray[i].includes(":other side")) {
+				card = currentPreviewCards[Number(answerMappingArray[i].slice(6, -12)) - 1];
+				if (card.side === "a") {
+					answerMappingArray[i] = window.parentData.allCards[card.names[1]];
+				} else {
+					answerMappingArray[i] = window.parentData.allCards[card.names[0]];
+				}
+			} else {
+				card = currentPreviewCards[Number(answerMappingArray[i].slice(6, -1)) - 1];
+				answerMappingArray[i] = card;
+			}
 		}
+
 		answerMappingArray = answerMappingArray.filter(function(element) {
 			return !mappingArray.includes(element);
 		})

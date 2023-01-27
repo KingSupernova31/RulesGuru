@@ -1790,7 +1790,8 @@ const validateWithWorker = function() {
 	previewValidationWorker.postMessage({
 		"allSubtypes": allSubtypes,
 		"question": createQuestionObj(),
-		"templateEmptyness": templateEmptyness
+		"templateEmptyness": templateEmptyness,
+		"convertedTemplateStorage": convertedTemplateStorage,
 	});
 	oldWorker = previewValidationWorker;
 }
@@ -2603,24 +2604,27 @@ const getQuestionCount = async function() {
 
 				roles = roles.map(role => roleMapping[role]);
 
-				let descriptionString = "";
-
-				if (roles.length === 1) {
-					descriptionString = `There are ${questionCount[roles[0]]} ${descriptionMapping[roles[0]]}.`;
-				} else if (roles.length === 2) {
-					descriptionString = `There are ${questionCount[roles[0]]} ${descriptionMapping[roles[0]]} and ${questionCount[roles[1]]} ${descriptionMapping[roles[1]]}.`;
-				} else {
-					while (roles.length > 0) {
-						const role = roles.shift();
-						if (roles.length === 0) {
-							descriptionString += `and ${questionCount[role]} ${descriptionMapping[role]}`;
+				const combineStrings = function(strings) {
+					if (strings.length === 1) {
+						return strings[0];
+					}
+					if (strings.length === 2) {
+						return strings[0] + " and " + strings[1];
+					}
+					let result = "";
+					for (let i = 0 ; i < strings.length ; i++) {
+						if (i === strings.length - 1) {
+							result += "and " + strings[i];
 						} else {
-							descriptionString += `${questionCount[role]} ${descriptionMapping[role]}, `;
+							result += strings[i] + ", ";
 						}
 					}
+					return result;
 				}
 
-				document.getElementById("count").textContent = descriptionString;
+				const roleStrings = roles.map(role => questionCount[role] + " " + descriptionMapping[role]);
+
+				document.getElementById("count").textContent = "There are " + combineStrings(roleStrings) + ".";
 			}
 		}
 	};
@@ -2629,3 +2633,16 @@ const getQuestionCount = async function() {
 	httpRequest.send();
 }
 setInterval(getQuestionCount, 60000);
+
+let lastTimeRun = 0;
+const updateEverythingBecauseICantFigureOutMyStupidCode = function() {
+	if (Date.now() - lastTimeRun < 5000) {
+		setTimeout(updateEverythingBecauseICantFigureOutMyStupidCode, 1000);
+	} else {
+		lastTimeRun = Date.now();
+		if (previewWindow) {
+			changePreviewAll()
+		}
+	}
+}
+document.getElementById("question").addEventListener("change", updateEverythingBecauseICantFigureOutMyStupidCode);
