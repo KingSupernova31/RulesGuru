@@ -1,4 +1,4 @@
-const cardNamesToIgnore = ["Turn", "Response", "Never", "Find", "Take", "Death", "Down", "Reason", "Give", "Order", "Granted", "Life", "Ends", "Well", "Status", "Entering", "Chance", "Fight", "Leave", "Regeneration", "Remove", "Charge", "Opportunity", "Return", "Away", "Two-Headed Giant"].concat(allKeywords.keywordAbilities).concat(allKeywords.keywordActions);
+const cardNamesToIgnore = ["Turn", "Response", "Never", "Find", "Take", "Death", "Down", "Reason", "Give", "Order", "Granted", "Life", "Ends", "Well", "Status", "Entering", "Chance", "Fight", "Leave", "Regeneration", "Remove", "Charge", "Opportunity", "Return", "Away", "Two-Headed Giant", "Wish"].concat(allKeywords.keywordAbilities).concat(allKeywords.keywordActions);
 
 const validateQuestion = function(questionObj, templateEmptyness) {
 	const errors = [],

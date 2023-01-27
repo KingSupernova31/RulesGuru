@@ -337,6 +337,29 @@ const validateTemplate = function(inputTemplate) {
 				thisRuleErrored = true;
 			}
 		}
+		//Invalid subtypes
+		if (template[i].field === "Subtypes") {
+			if (!allSubtypes.includes(template[i].value)) {
+				templateErrors.push(`"${template[i].value}" is not a valid subtype.`);
+				thisRuleErrored = true;
+			}
+		}
+		//Invalid mana cost
+		if (template[i].field === "Mana cost") {
+			const allowedSymbols = ["{W}", "{U}", "{B}", "{R}", "{G}", "{C}", "{S}", "{P}", "{W/P}", "{U/P}", "{B/P}", "{R/P}", "{G/P}", "{2/W}", "{2/U}", "{2/B}", "{2/R}", "{2/G}", "{W/U}", "{W/B}", "{U/B}", "{U/R}", "{B/R}", "{B/G}", "{R/W}", "{R/G}", "{G/W}", "{G/U}", "{W/U/P}", "{W/B/P}", "{U/B/P}", "{U/R/P}", "{B/R/P}", "{B/G/P}", "{R/W/P}", "{R/G/P}", "{G/W/P}", "{G/U/P}", "::white::", "::blue::", "::black::", "::red::", "::green::", "::hybrid::", "::generic::", "::phyrexian::"];
+			let workingSymbolString = template[i].value;
+			outerloop: while (workingSymbolString.length > 0) {
+				for (let symbol of allowedSymbols) {
+					if (workingSymbolString.startsWith(symbol)) {
+						workingSymbolString = workingSymbolString.slice(symbol.length);
+						continue outerloop;
+					}
+				}
+				templateErrors.push(`Cannot parse "${workingSymbolString}" as one or more valid mana symbols.`)
+				thisRuleErrored = true;
+				break;
+			}
+		}
 		//Regexes
 		if (template[i].field === "Rules text") {
 			if (template[i].operator === "Matches:" || template[i].operator === "Does not match:") {
