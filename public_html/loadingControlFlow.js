@@ -55,6 +55,6 @@ window.addEventListener("popstate", function(event) {
 			goToQuestion(questionNum);
 		}
 	} else {
-		returnToHome(true);
+		returnToHome(false);
 	}
 });

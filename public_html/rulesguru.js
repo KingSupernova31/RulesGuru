@@ -80,7 +80,6 @@ const getRandomQuestion = function(callback) {
 	};
 
 	const settings = JSON.parse(JSON.stringify(sidebarSettings));
-	console.log(mostRecentQuestionId)
 	settings.previousId = mostRecentQuestionId;
 	settings.from = "homePage";
 	settings.avoidRateLimiting = true;//If you find this and use it to get around my rate limiting, go ahead, you deserve it. But I'll be fixing it eventually.
@@ -122,11 +121,11 @@ let goToQuestion = function(questionId, callback) {
 			toggleAnimation("stop");
 			document.getElementById("startPage").style.transform = "";
 			if (getQuestionError === "That question doesn't exist.") {
-				returnToHome();
+				returnToHome(false);
 			}
 			alert(getQuestionError);
 			getQuestionError = null;
-			returnToHome();
+			returnToHome(false);
 			clearTimeout(getQuestionTimeoutId);
 			if (callback) {
 				callback();
@@ -493,7 +492,7 @@ setInterval(function() {
 			document.getElementById("questionPage").style.transform = "";
 			alert(getQuestionError);
 			getQuestionError = null;
-			returnToHome();
+			returnToHome(false);
 		}
 	}
 }, 500);
@@ -559,15 +558,16 @@ const displayNextRandomQuestion = function() {
 	}
 }
 
-const returnToHome = function(noChangeHistory) {
+const returnToHome = function(addToHistory) {
+	console.log(addToHistory)
 	document.getElementById("questionPage").style.display = "none";
 	document.getElementById("startPage").style.display = "block";
 	document.getElementById("startPage").style.transform = "scale(1)";
 	document.getElementById("startPage").style.transition = "none";
-	if (!noChangeHistory) {
+	if (addToHistory) {
 		history.pushState({}, ""); //Add the current page url to the history.
-		history.replaceState({}, "", "");//Set the current url to the homepge, replacing old state that we didn't want to get added twice.
 	}
+	history.replaceState({}, "", "/");//Set the current url in the history to the homepage, replacing old state that we didn't want to get added twice.
 	document.querySelector("title").textContent = "RulesGuru";//This needs to happen after history is edited.
 
 	setTimeout(function() {
