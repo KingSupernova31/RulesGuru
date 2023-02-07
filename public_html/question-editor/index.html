@@ -31,9 +31,11 @@
 		<script defer src="/globalResources/searchLinks.js"></script>
 		<script defer src="/globalResources/sidebarDelayedLoading.js"></script>
 		<script defer src="/globalResources/allKeywords.js"></script>
+		<script defer src="/globalResources/replaceExpressions.js"></script>
 		<script defer src="/globalResources/templateConvert.js"></script>
 		<script defer src="validateQuestion.js"></script>
 		<script defer src="question-editor.js"></script>
+
 
 		<style id="cursorStyle"></style>
 	</head>
@@ -272,20 +274,22 @@
 					<p>Add any number of rules to this template. A set of cards that follows all rules will be dynamically generated for the question.</p>
 					<br>
 					<select id="templateRuleList">
-						<option>Layout</option>
-						<option>Multi-part side</option>
 						<option>Colors</option>
+						<option>Color identity</option>
+						<option>Color indicator</option>
+						<option>Keywords</option>
+						<option>Layout</option>
+						<option>Loyalty</option>
 						<option>Mana cost</option>
 						<option>Mana value</option>
-						<option>Supertypes</option>
-						<option>Types</option>
-						<option>Subtypes</option>
-						<option>Rules text</option>
-						<option>Keywords</option>
-						<option>Power</option>
-						<option>Toughness</option>
-						<option>Loyalty</option>
+						<option>Multi-part side</option>
 						<option>Number of</option>
+						<option>Power</option>
+						<option>Rules text</option>
+						<option>Subtypes</option>
+						<option>Supertypes</option>
+						<option>Toughness</option>
+						<option>Types</option>
 					</select>
 					<button class="specialButtonBlack" id="addTemplateRuleButton" onclick="addTemplateRule(document.getElementById('templateRuleList').value)">Add rule</button>
 					<br>

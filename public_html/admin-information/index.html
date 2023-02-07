@@ -177,16 +177,21 @@
 				<p>AP is the active player and NAP is the non-active player. Multiplayer NAP names are in turn order; NAP1 is the player after AP, NAP2 is next, etc.</p>
 			</div>
 			<h4 class="header" id="CardGenerators2">Card Generators</h4>
-			<p class="content">Card generators are enclosed in single brackets: "[card 1]", "[card 2]", etc. You can also enter individual card names in brackets and they'll be converted into lists automatically. More information on card generators is <a href="#CardGenerators">here</a>.</p>
+			<div class="content">
+				<p>Card generators are enclosed in single brackets: "[card 1]", "[card 2]", etc. You can also enter individual card names in brackets and they'll be converted into lists automatically. More information on card generators is <a href="#CardGenerators">here</a>.</p>
+				<p>An "a" or "an" proceeding a card name will be automatically changed based on what name is generated, so you can safely use either. Similarly, if you pluralize a card name like "three [card 1]s", the extra s will be removed if a card name that ends with "s" is generated.</p>
+			</div>
 			<h4 class="header" id="CompositeExpressions">Composite Expressions</h4>
 			<div class="content">
 				<p>If you need to refer to the other side of a multi part card (double-faced cards, flip cards, split cards, etc.), you can do this with a colon and "other side", as in "[card 1:other side]". (Note that this won't work for the melded face of meld cards, since there are two "other sides".)</p>
 				<br>
-				<p>If you want to refer to a specific characteristic of a card, you can also do that by typing the name of the characteristic after a colon, such as in "[card 1:power]". You can reference colors, mana cost, mana value, supertypes, types, subtypes, power, toughness, and loyalty.</p>
+				<p>If you want to refer to a specific characteristic of a card, you can also do that by typing the name of the characteristic after a colon, such as in "[card 1:power]". You can reference colors, color identity, mana cost, mana value, color indicator, supertypes, types, subtypes, power, toughness, and loyalty.</p>
 				<br>
-				<p>And you can combine these to refer to characteristics of the other side, as in "[card 1:other side:mana cost]".</p>
+				<p>For characteristics like colors and subtypes that can contain multiple values, they're returned as a normal English list, such as "Human and Wolf" or "Human, Wolf, and Werewolf". If you want the separators removed so that it displays as "Human Wolf Werewolf" like it would on the type line of a card, add on ":simple" to the end, as in "[card 1:subtypes:simple]". (Not necessary for mana cost, that will always display as the plain symbols.)</p>
 				<br>
-				<p>For characteristics like colors and subtypes that can contain multiple values, they're returned as a normal English list, such as "Human and Wolf" or "Human, Wolf, and Werewolf". If you want the separators removed so that it displays as "Human Wolf Werewolf" like it would on the type line of a card, add on ":simple" to the end, as in "[card 1:subtypes:simple]".</p>
+				<p>You can combine these to refer to characteristics of the other side, as in "[card 1:other side:mana value]".</p>
+				<br>
+				<p>You can also perform basic math operations on any that return a number. For example you can type [card 1:power + 1] or [card 1:mana value + card 2:mana value]. The legal operators are "+", "-", and "*", with a space on each side. If you use more than one, such as in [card 1:power + card 2:power - card 3:toughness], they're evaluated in order, left to right.</p>
 			</div>
 			<h4 class="header" id="RuleCitations">Rule Citations</h4>
 			<div class="content">
@@ -409,7 +414,13 @@
 			</div>
 
 			<h4 class="header" id="Validation">Validation</h4>
-			<p class="content">RulesGuru will automatically try to identify problems in the question text. It breaks these down into two categories, "errors" and "warnings". Errors are serious issues that must be fixed before the question can be approved. They appear in red at the top of the preview window. Warnings are minor issues that should be looked at, but can be ignored for a good reason. Warnings appear in yellow at the top of the preview window. If you attempt to submit a question while there are remaining warnings, the page will prompt you to fix them first, but you can choose to skip that step.</p>
+			<div class="content">
+				<p>RulesGuru will automatically try to identify problems in the question data. It breaks these down into two categories, "errors" and "warnings". Errors are serious issues that must be fixed before the question can be approved. They appear in red at the top of the preview window. (Or grey while recalculating.)</p>
+
+				<p>Warnings are minor issues that should be looked at, but can be left unfixed if there's a good reason. Warnings appear in yellow at the top of the preview window. If you attempt to submit a question while there are remaining warnings, the page will prompt you to fix them first, but you can choose to skip that step.</p>
+
+				<p>Whenever you encounter an error or warning that you believe isn't actually a problem for the question you're editing, please notify me so that I can refine the algorithm. Similarly, if you notice a problem in a question that RulesGuru did not catch automatically, and you think it might be possible to catch such errors automatically, please let me know abuot that as well.</p>
+			</div>
 
 			<h4 class="header" id="Rules">Rules & Oracle Changes</h4>
 			<p class="content">Rules and oracle text change sometimes and questions must be updated in order to remain correct. If you see a question that is no longer correct, please fix it or notify me of the issue. You don't need to spend excessive time going through questions after a rules change, I will take responsibility for updating questions that have become out-of-date.

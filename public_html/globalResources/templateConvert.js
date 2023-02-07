@@ -71,6 +71,28 @@ const templateConvert = function(template, globalCardList) {
 							}
 						}
 						break;
+					case "Color indicator":
+						if (currentRule.operator === "Includes:") {
+							if (!currentCard.colorIndicator.includes(currentRule.value)) {
+								currentRuleSatiesfied = false;
+							}
+						} else if (currentRule.operator === "Doesn't include:") {
+							if (currentCard.colorIndicator.includes(currentRule.value)) {
+								currentRuleSatiesfied = false;
+							}
+						}
+						break;
+					case "Color identity":
+						if (currentRule.operator === "Includes:") {
+							if (!currentCard.colorIdentity.includes(currentRule.value)) {
+								currentRuleSatiesfied = false;
+							}
+						} else if (currentRule.operator === "Doesn't include:") {
+							if (currentCard.colorIdentity.includes(currentRule.value)) {
+								currentRuleSatiesfied = false;
+							}
+						}
+						break;
 					case "Mana cost":
 						const cardManaCostArray = currentCard.manaCost ? currentCard.manaCost.replace(" // ", "").split(/(?={)/) : [],
 									templateSymbols = currentRule.value.match(/{[A-Z0-9/]{0,3}}/g) || [],
@@ -289,7 +311,12 @@ const templateConvert = function(template, globalCardList) {
 						}
 						break;
 					case "Number of":
-						const fieldOption = currentRule.fieldOption.toLowerCase();
+						const toCamelCase = function(string) {
+							return string.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
+								return index === 0 ? word.toLowerCase() : word.toUpperCase();
+							}).replace(/\s+/g, '');
+						}
+						const fieldOption = toCamelCase(currentRule.fieldOption);
 						if (currentRule.operator === "=") {
 							if (currentCard[fieldOption].length !== Number(currentRule.value)) {
 								 currentRuleSatiesfied = false;

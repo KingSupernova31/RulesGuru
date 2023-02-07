@@ -1,8 +1,12 @@
-const cardNamesToIgnore = ["Turn", "Response", "Never", "Find", "Take", "Death", "Down", "Reason", "Give", "Order", "Granted", "Life", "Ends", "Well", "Status", "Entering", "Chance", "Fight", "Leave", "Regeneration", "Remove", "Charge", "Opportunity", "Return", "Away", "Two-Headed Giant", "Wish"].concat(allKeywords.keywordAbilities).concat(allKeywords.keywordActions);
+const cardNamesToIgnore = ["Turn", "Response", "Never", "Find", "Take", "Death", "Down", "Reason", "Give", "Order", "Granted", "Life", "Ends", "Well", "Status", "Entering", "Chance", "Fight", "Leave", "Regeneration", "Remove", "Charge", "Opportunity", "Return", "Away", "Two-Headed Giant", "Wish", "Redirect", "Done", "Rust", "Gone", "Cut", "Finish", "Ready", "Start", "Memory", "Simple"].concat(allKeywords.keywordAbilities).concat(allKeywords.keywordActions);
+
+const fakePlayerNamesMap = {"AP":{"name":"Amara","gender":"female"},"NAP1":{"name":"Bruno","gender":"male"},"NAP2":{"name":"Carol","gender":"neutral"},"NAP3":{"name":"Danica","gender":"female"},"NAP":{"name":"Nikolai","gender":"male"},"APa":{"name":"Addison","gender":"neutral"},"APb":{"name":"Ayden","gender":"male"},"NAPa":{"name":"Nylah","gender":"female"},"NAPb":{"name":"Nico","gender":"neutral"}};
 
 const validateQuestion = function(questionObj, templateEmptyness, convertedTemplateStorage) {
 	const errors = [],
 				warnings = [];
+
+	const combinedText = questionObj.question + " " + questionObj.answer;
 
 	try {//We enclose the whole thing in a try-catch block to catch any stray errors.
 		//Check to make sure each field is filled out.
@@ -49,7 +53,7 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 			errors.push("There are unmatched brackets in the answer.");
 		}
 		//Check for incorrectly formatted strings inside brackets.
-		const allValidExpressionsRegex = /^\[(((AP[ab]?|NAP[ab123]?)( (o|s|pp|pa|[a-zA-Z']+\|[a-zA-Z']+))?)|(\d{3}(\.\d{1,3}([a-z])?)?)|(card \d+)(:other side)?(:(colors|mana cost|mana value|supertypes|types|subtypes|power|toughness|loyalty)(:simple)?)?|([+-]?\d\d?))\]$/;
+		const allValidExpressionsRegex = /^\[(((AP[ab]?|NAP[ab123]?))|(\d{3}(\.\d{1,3}([a-z])?)?)|((card \d+)(:other side)?(:(colors|color identity|color indicator|mana cost|mana value|supertypes|types|subtypes|power|toughness|loyalty)(:simple)?)?|\d+| [+\-*] )+|([+-]?\d\d?))\]$/;
 		if (questionObj.question.match(/\[.*?\]/g)) {
 			questionObj.question.match(/\[.*?\]/g).some(function(element) {
 				if (!allValidExpressionsRegex.test(element)) {
@@ -71,95 +75,44 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 			})
 		}
 		//Check for :other side on a generator that doesn't have other sides or has too many.
-		const doThisStuff = function(inputString) {
-			if (inputString.match(/\[card (\d+):other side/g)) {
-				inputString.match(/\[card \d+:other side/g).some(function(element) {
-					const cardNum = element.match(/^\[card (\d+):other side$/)[1];
-					if (typeof questionObj.cardGenerators[cardNum - 1][0] === "string") {//Lists
-						for (let cardName of questionObj.cardGenerators[cardNum - 1]) {
-							if (!allCards[cardName].names) {
-								errors.push(`"${cardName}" does not have an other side.`);
-								console.log(errors)
-								break;
-							}
-							if (allCards[cardName].names.length > 2 && allCards[cardName].side === "b") {
-								errors.push(`"${cardName}" is the back face of a meld card.`);
-								break;
-							}
-						}
-					} else {//Templates
-						let layoutField = false;
-						for (let template of questionObj.cardGenerators[cardNum - 1]) {
-							if (template.field === "Layout") {
-								layoutField = true;
-							}
-						}
-						if (!layoutField) {
-							errors.push(`Please ensure that the template for card ${cardNum} specifies a layout that has an other side.`);
-						} else {//If the question has at least one layout field, we check the generated cards to see if anything slipped through.
-							for (let cardName of convertedTemplateStorage[cardNum - 1]) {
-								if (!allCards[cardName].names) {
-									errors.push(`"${cardName}" does not have an other side.`);
-									break;
-								}
-								if (allCards[cardName].names.length > 2 && allCards[cardName].side === "b") {
-									errors.push(`"${cardName}" is the back face of a meld card.`);
-									break;
-								}
-							}
+		if (combinedText.match(/\[card (\d+):other side/g)) {
+			combinedText.match(/\[card \d+:other side/g).some(function(element) {
+				const cardNum = element.match(/^\[card (\d+):other side$/)[1];
+				if (typeof questionObj.cardGenerators[cardNum - 1][0] === "object") {//Check if it's a template
+					let layoutField = false;
+					for (let template of questionObj.cardGenerators[cardNum - 1]) {
+						if (template.field === "Layout") {
+							layoutField = true;
 						}
 					}
-				})
-			}
-		}
-		doThisStuff(questionObj.question);
-		doThisStuff(questionObj.answer);
-
-		//Check for a :characteristic that doesn't exist on some generated card.
-		const doMoreStuff = function(inputString) {
-			const characteristicMapping = {
-				"colors": "colors",
-				"mana cost": "manaCost",
-				"mana value": "manaValue",
-				"supertypes": "supertypes",
-				"types": "types",
-				"subtypes": "subtypes",
-				"power": "power",
-				"toughness": "toughness",
-				"loyalty": "loyalty",
-			}
-			//We use .replace rather than .matchAll in order to support older versions of Safari. It just returns the match regardless.
-			const matches = inputString.replace(/\[card (\d+)(:other side)?(:(?:colors|mana cost|mana value|supertypes|types|subtypes|power|toughness|loyalty))(:simple)?\]/g, function(match, capt1, capt2, capt3, capt4) {
-				const cardNum = Number(capt1);
-				let cardsToCheck;
-				if (typeof questionObj.cardGenerators[cardNum - 1][0] === "string") {//Lists
-					cardsToCheck = questionObj.cardGenerators[cardNum - 1]
-				} else {//Templates
-					cardsToCheck = convertedTemplateStorage[cardNum - 1];
-				}
-
-				for (let cardName of cardsToCheck) {
-					let nameToCheck = cardName;
-					if (capt2) {
-						if (allCards[cardName].names[0] === allCards[cardName].name) {
-							nameToCheck = allCards[cardName].names[1];
-						} else {
-							nameToCheck = allCards[cardName].names[0];
-						}
-					}
-					const cardToCheck = allCards[nameToCheck];
-					const characteristic = cardToCheck[capt3.slice(1)];
-					if (characteristic === undefined) {
-
-						errors.push(`${nameToCheck} does not have a ${capt3.slice(1)}`);
-						break;
+					if (!layoutField) {
+						errors.push(`Please ensure that the template for card ${cardNum} specifies a layout that has an other side.`);
 					}
 				}
-				return match;
-			});
+			})
 		}
-		doMoreStuff(questionObj.question);
-		doMoreStuff(questionObj.answer);
+
+		//Run replaceExpressions to catch expression errors
+		const allText = questionObj.question + " " + questionObj.answer;
+		const expressions = Array.from(allText.match(/\[card \d+.*?\]/g) || []);
+		for (let expression of expressions) {
+			const cardNum = expression.match(/\[card (\d+)/)[1];
+
+			let cardsToCheck;
+			if (typeof questionObj.cardGenerators[cardNum - 1][0] === "string") {//Lists
+				cardsToCheck = questionObj.cardGenerators[cardNum - 1]
+			} else {//Templates
+				cardsToCheck = convertedTemplateStorage[cardNum - 1];
+			}
+
+			for (let cardName of cardsToCheck) {
+				const result = replaceExpressions(expression, fakePlayerNamesMap, new Array(30).fill(allCards[cardName]), allCards, allRules);
+				if (result.errors.length > 0) {
+					errors.push(result.errors[0]);
+				}
+			}
+		}
+
 		//Check for omitted brackets.
 		openBracket = false;
 		let unbracketedString = "";
@@ -272,24 +225,6 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 		if (/(\. |\? |^|\n|\.\) )\(?[a-z]/.test(questionObj.answer)) {
 			errors.push("Please capitalize your sentences in the answer.");
 		}
-		//Check for pronouns with no matching nouns.
-		const pronounExpressionRegex = /\[(AP[ab]?|NAP[ab123]?) (o|s|pp|pa)\]/g;
-		let foundPronounExpressions = questionObj.question.match(pronounExpressionRegex);
-		if (foundPronounExpressions !== null) {
-			foundPronounExpressions.forEach(function(element) {
-				if (!questionObj.question.includes(`[${element.slice(1, element.indexOf(" "))}]`)) {
-					errors.push(`The pronoun expression "${element}" in the question doesn't refer to any player.`);
-				}
-			});
-		}
-		foundPronounExpressions = questionObj.answer.match(pronounExpressionRegex);
-		if (foundPronounExpressions !== null) {
-			foundPronounExpressions.forEach(function(element) {
-				if (!questionObj.question.includes(`[${element.slice(1, element.indexOf(" "))}]`) && !questionObj.answer.includes(`[${element.slice(1, element.indexOf(" "))}]`)) {
-					errors.push(`The pronoun expression "${element}" in the answer doesn't refer to any player.`);
-				}
-			});
-		}
 		//Check for no players mentioned at all.
 		const playerNameExpressionRegex = /\[(AP[ab]?|NAP[ab123]?)\]/;
 		if (!playerNameExpressionRegex.test(questionObj.question)) {
@@ -297,8 +232,8 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 		}
 		//Check for forgotten or improper generator asignment.
 		let generators = [];
-		generators = generators.concat(questionObj.question.match(/\[card \d+?\]/g) || []);
-		generators = generators.concat(questionObj.answer.match(/\[card \d+?\]/g) || []);
+		generators = generators.concat(questionObj.question.match(/\[card \d+?/g) || []);
+		generators = generators.concat(questionObj.answer.match(/\[card \d+?/g) || []);
 		for (var i in generators) {
 			generators[i] = parseInt(generators[i].slice(6));
 		}
@@ -387,7 +322,7 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 			errors.push("Please use proper punctuation in the answer.");
 		}
 	} catch (err) {
-		errors.push("Alright I don't know what you've done, but you broke something. If you figure out what it was, let me know so that I can make this error message more specific.");
+		errors.push(`Alright I don't know what you've done, but you broke *something*. Please let me know what happened so that I can either fix it or make this error message more specific.`);
 		console.error(err);
 	}
 

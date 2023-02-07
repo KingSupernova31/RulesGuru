@@ -15,7 +15,7 @@ const express = require("express"),
 app.set('trust proxy', true);
 
 const templateConvert = require("./public_html/globalResources/templateConvert.js"),
-			aVsAn = require("./AvsAn-simple.js"),
+			replaceExpressions = require("./public_html/globalResources/replaceExpressions.js"),
 			playerNames = JSON.parse(fs.readFileSync("playerNames.json", "utf8"));
 
 
@@ -435,144 +435,6 @@ const getPlayerNamesMap = function() {
 	return playerNamesMap;
 }
 
-//Accepts a string containing various [expressions] and returns the untagged HTML version.
-const replaceExpressions = function(string, playerNamesMap, oracle) {
-	let pronouns = {
-		"male": {
-			"s": "he",
-			"o": "him",
-			"pp": "his",
-			"pa": "his"
-		},
-		"female": {
-			"s": "she",
-			"o": "her",
-			"pp": "hers",
-			"pa": "her"
-		},
-		"neutral": {
-			"s": "they",
-			"o": "them",
-			"pp": "theirs",
-			"pa": "their"
-		}
-	};
-
-	//Determine the correct article ("a" or "an") in front of card names.
-	string = string.replace(/\b(a|A|an|An) \[(card (\d+))\]/g, function(match, capt1, capt2, capt3) {
-		let article = aVsAn.query(oracle[capt3 - 1].name);
-		if (capt1 === "A" || capt1 === "An") {
-			return `${article.charAt(0).toUpperCase() + article.slice(1)} [${capt2}]`;
-		} else {
-			return `${article} [${capt2}]`;
-		}
-	});
-
-	//Replace rules citations
-	string = string.replace(/\[(\d{3}(\.\d{1,3}([a-z])?)?)\]/g, "$1");
-
-	//Replace card names.
-	string = string.replace(/\[card (\d+)\]/g, function(match, capt1) {
-		return oracle[capt1 - 1].name;
-	});
-
-	//Replace composite expressions (other side).
-	if (oracle.length > 0) {
-		try {
-			string = string.replace(/\[card (\d+):other side\]/g, function(match, capt1) {
-				if (oracle[capt1 - 1]) {
-					if (oracle[capt1 - 1].names[0] === oracle[capt1 - 1].name) {
-						return oracle[capt1 - 1].names[1];
-					} else {
-						return oracle[capt1 - 1].names[0];
-					}
-				} else {
-					return match;
-				}
-			});
-		} catch (e) {
-			handleError(e);
-		}
-	}
-
-	//Replace composite expressions (characteristic).
-	const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
-	if (oracle.length > 0) {
-		const characteristicMapping = {
-			"colors": "colors",
-			"mana cost": "manaCost",
-			"mana value": "manaValue",
-			"supertypes": "supertypes",
-			"types": "types",
-			"subtypes": "subtypes",
-			"power": "power",
-			"toughness": "toughness",
-			"loyalty": "loyalty",
-		}
-		try {
-			string = string.replace(/\[card (\d+)(:other side)?(:[a-z ]+)(:simple)?\]/g, function(match, capt1, capt2, capt3, capt4) {
-				if (oracle[capt1 - 1]) {
-					let cardName = oracle[capt1 - 1].name;
-					if (capt2) {
-						if (oracle[capt1 - 1].names[0] === oracle[capt1 - 1].name) {
-							cardName =  oracle[capt1 - 1].names[1];
-						} else {
-							cardName =  oracle[capt1 - 1].names[0];
-						}
-					}
-					const result = allCards[cardName][characteristicMapping[capt3.slice(1)]];
-					if (result !== undefined) {
-						if (typeof result === "object") {
-							if (capt4) {
-								return result.join(" ");
-							} else {
-								return combineStrings(result);
-							}
-						} else {
-							return result;
-						}
-					} else {
-						return match;
-					}
-				} else {
-					return match;
-				}
-			});
-		} catch (e) {
-			handleError(e);
-		}
-	}
-
-	//Replace player names and pronouns.
-	string = string.replace(/\[((?:AP|NAP)[ab123]?)(?: (o|s|pp|pa|[a-zA-Z']+\|[a-zA-Z']+))?\]/g, function(match, capt1, capt2, offset) {
-		if (capt2) {
-			if (capt2.includes("|")) {
-				return (playerNamesMap[capt1].gender === "male" || playerNamesMap[capt1].gender === "female") ? capt2.split("|")[0] : capt2.split("|")[1];
-			} else {
-				let pronoun = pronouns[playerNamesMap[capt1].gender][capt2];
-				return pronoun;
-			}
-		} else {
-			return playerNamesMap[capt1].name;
-		}
-	});
-
-	//Capitalize the first letter at the beginning of a sentence after a parenthetical statement.
-	string = string.replace(/\. \([^()]+?\) ([a-z])/g, function(match, capt1) {
-		return match.slice(0, -1) + capt1[0].toUpperCase() + capt1.substring(1);
-	});
-
-	//Capitalize the first letter at the beginning of a sentence after another sentance.
-	string = string.replace(/\. ([a-z])/g, function(match, capt1) {
-		return match.slice(0, -1) + capt1[0].toUpperCase() + capt1.substring(1);
-	});
-
-	//Capitalize the first letter of the first sentence.
-	string = string[0].toUpperCase() + string.substring(1);
-
-	return string;
-};
-
 //Format a question to be sent to the browser and send it.
 const sendAPIQuestions = function(questions, res, allCards) {
 	const allQuestionsToSend = {
@@ -626,16 +488,15 @@ const sendAPIQuestions = function(questions, res, allCards) {
 		delete questionToSend.cardLists;
 
 		//Handle formatting.
+		const allRules = JSON.parse(fs.readFileSync("allRules.json"));
 		const playerNamesMap = getPlayerNamesMap();
-		questionToSend.questionRaw = questionToSend.question;
-		questionToSend.answerRaw = questionToSend.answer;
-		questionToSend.question = replaceExpressions(questionToSend.question, playerNamesMap, questionToSend.includedCards);
-		questionToSend.answer = replaceExpressions(questionToSend.answer, playerNamesMap, questionToSend.includedCards);
-		questionToSend.answerSimple = questionToSend.answer.replace(/ \(((\d{3}\.?\d{0,2}[a-z]?)(, |\/)?)+\)/g, "");
+		questionToSend.questionSimple = replaceExpressions(questionToSend.question, playerNamesMap, questionToSend.includedCards, allCards, allRules).plaintext;
+		questionToSend.answerSimple = replaceExpressions(questionToSend.answer, playerNamesMap, questionToSend.includedCards, allCards, allRules).plaintext;
+		questionToSend.questionHTML = replaceExpressions(questionToSend.question, playerNamesMap, questionToSend.includedCards, allCards, allRules).html;
+		questionToSend.answerHTML = replaceExpressions(questionToSend.answer, playerNamesMap, questionToSend.includedCards, allCards, allRules).html;
 
 		//Add citedRules
-		const allRules = JSON.parse(fs.readFileSync("allRules.json"));
-		const allNeededRuleNumbers = (questionToSend.questionRaw + questionToSend.answerRaw).match(/(?<=\[)(\d{3}(\.\d{1,3}([a-z])?)?)(?=\])/g) || [];
+		const allNeededRuleNumbers = (questionToSend.question + questionToSend.answer).match(/(?<=\[)(\d{3}(\.\d{1,3}([a-z])?)?)(?=\])/g) || [];
 		const allNeededRules = Object.values(allRules).filter(function(rule) {
 			return allNeededRuleNumbers.includes(rule.ruleNumber);
 		});
@@ -644,6 +505,11 @@ const sendAPIQuestions = function(questions, res, allCards) {
 			questionToSend.citedRules[rule.ruleNumber] = rule;
 		}
 
+		//Remove old raw properties.
+		delete questionToSend.question;
+		delete questionToSend.answer;
+
+		//Add this question to the array of all questions to send to the client.
 		allQuestionsToSend.questions.push(questionToSend);
 	}
 
@@ -670,12 +536,9 @@ Question Editor:
 General:
 
 /submitContactForm: Contact form.
-/getSpecificQuestion: Requests from the main page for a question by ID.
-/getRandomQuestion: Requests from the main page for a random question matching parameters.
 /getQuestionCount: Requests from the main page for the number of finished questions. Also requests from the editor for unfinished questions.
 /submitQuestion: Requests from the submit page to submit an unfinished question.
 /logSearchLinkData: Logs followed searchLinks.
-
 
 API:
 
@@ -691,9 +554,18 @@ Development:
 
 let recentIPs = [];
 app.get("/api/questions", function(req, res) {
+	let requestSettings;
+	try {
+		requestSettings = JSON.parse(decodeURIComponent(req.query.json));
+	} catch (error) {
+		handleError(error);
+		res.json({"status": 400, "error":"json parameter is not valid JSON."});
+		return;
+	}
+
 	//When a request is received, update recentIPs to include only ones from within the last 2 seconds.
 	recentIPs = recentIPs.filter(ip => Date.now() - ip.date < 2000);
-	if (recentIPs.filter(ip => ip.ip).length > 0) {
+	if (recentIPs.filter(ip => ip.ip).length > 0 && !requestSettings.avoidRateLimiting) {//If you find this and use it to get around my rate limiting, go ahead, you deserve it. But I'll be fixing this eventally.
 		res.json({"status": 429, "error":"Please don't send more than one request every 2 seconds."});
 		recentIPs.push({"ip": req.ip, "date": Date.now()});
 		return;
@@ -707,10 +579,7 @@ app.get("/api/questions", function(req, res) {
 
 	const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
 	let questionArray = JSON.parse(JSON.stringify(referenceQuestionArray));
-	shuffle(questionArray);
-	let requestSettings;
 	try {
-		requestSettings = JSON.parse(decodeURIComponent(req.query.json));
 		let defaults;
 		if (requestSettings.id === undefined) {
 			defaults = {
@@ -726,7 +595,8 @@ app.get("/api/questions", function(req, res) {
 				"rulesConjunc": "OR",
 				"cards": [],
 				"cardsConjunc": "OR",
-				"id": undefined
+				"previousId": undefined,
+				"id": undefined,
 			};
 			} else {
 				defaults = {
@@ -742,7 +612,8 @@ app.get("/api/questions", function(req, res) {
 					"rulesConjunc": "OR",
 					"cards": [],
 					"cardsConjunc": "OR",
-					"id": undefined
+					"previousId": undefined,
+					"id": undefined,
 				};
 			}
 
@@ -781,20 +652,42 @@ app.get("/api/questions", function(req, res) {
 			}
 			sendAPIQuestions([result], res, allCards);
 		} else {
-			const questionsToReturn = [];
-			for (let i = 0 ; i < questionArray.length ; i++) {
-				if (questionsToReturn.length === requestSettings.count) {
-					break;
+			let locationToStartSearch;
+			if (requestSettings.previousId !== undefined) {
+				questionArray.sort((a, b) => a.id - b.id);
+				for (let i = 0 ; i < questionArray.length ; i++) {
+					if (questionArray[i].id > requestSettings.previousId) {
+						locationToStartSearch = i;
+						break;
+					}
 				}
-				const result = questionMatchesSettings(questionArray[i], requestSettings, allCards);
+				if (locationToStartSearch === undefined) {
+					locationToStartSearch = 1;
+				}
+			} else {
+				locationToStartSearch = 1;
+				shuffle(questionArray);
+			}
+
+			const questionsToReturn = [];
+			let currentSearchLocation = locationToStartSearch;
+			while (true) {
+				const result = questionMatchesSettings(questionArray[currentSearchLocation], requestSettings, allCards);
 				if (result) {
 					questionsToReturn.push(result);
 				}
-			}
-			if (questionsToReturn.length === requestSettings.count) {
-				sendAPIQuestions(questionsToReturn, res, allCards);
-			} else {
-				res.json({"status": 404, "error":"There are not enough questions that fit your parameters."});
+				if (questionsToReturn.length === requestSettings.count) {
+					sendAPIQuestions(questionsToReturn, res, allCards);
+					break;
+				}
+				currentSearchLocation++;
+				if (currentSearchLocation === questionArray.length) {
+					currentSearchLocation = 1;
+				}
+				if (currentSearchLocation === locationToStartSearch) {
+					res.json({"status": 404, "error":"There are not enough questions that fit your parameters."});
+					break;
+				}
 			}
 		}
 	} catch (error) {
@@ -829,77 +722,6 @@ app.post("/submitContactForm", function(req, res) {
 	} else {
 		res.send("req.body.message was undefined.");
 	}
-});
-
-app.post("/getSpecificQuestion", function(req, res) {
-	const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
-	let selectedQuestion;
-	for (let i = 0 ; i < referenceQuestionArray.length ; i++) {
-		if (referenceQuestionArray[i].id === req.body.id) {
-			selectedQuestion = JSON.parse(JSON.stringify(referenceQuestionArray[i]));
-		}
-	}
-
-	if (selectedQuestion) {
-	  let settings = req.body.settings;
-	  // Ignore settings that are impossible to follow for a specific question
-	  settings.level = selectedQuestion.level;
-	  settings.complexity= selectedQuestion.complexity;
-	  settings.tags = [];
-	  settings.rules = [];
-	  settings.tagsConjunc= 'OR';
-	  settings.rulesConjunc= 'OR';
-
-	  let matchingCriteria = questionMatchesSettings(
-	      JSON.parse(JSON.stringify(selectedQuestion)), settings, allCards);
-	  if (matchingCriteria){
-	    sendQuestion(matchingCriteria, res, allCards);
-    } else {
-		  sendQuestion(selectedQuestion, res, allCards);
-	  }
-	} else {
-		res.json({"error":"That question doesn't exist or is pending approval."});
-	}
-
-	let questionLog = JSON.parse(fs.readFileSync("logs/questionRequestLog.json", "utf8"));
-	questionLog.push({"date": Date.now(), "request": req.body});
-	fs.writeFileSync("logs/questionRequestLog.json", JSON.stringify(questionLog));
-});
-
-app.post("/getRandomQuestion", function(req, res) {
-	let selectedQuestion = false;
-	const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
-	let questionArray = JSON.parse(JSON.stringify(referenceQuestionArray));
-
-	const length = questionArray.length;
-	let startingQuestionIndex = 0;
-	if (req.body.mostRecentQuestionId === null) {
-		startingQuestionIndex = Math.floor(Math.random() * length);
-	} else {
-		for (let questionIndex = 0 ; questionIndex < referenceQuestionArray.length ; questionIndex++) {
-			if (referenceQuestionArray[questionIndex].id === req.body.mostRecentQuestionId) {
-				startingQuestionIndex = questionIndex + 1;
-				break;
-			}
-		}
-	};
-	for (let i = 0 ; i < length ; i++) {
-		const result = questionMatchesSettings(questionArray[(i + startingQuestionIndex) % length], req.body.settings, allCards);
-		if (result) {
-			selectedQuestion = result;
-			break;
-		}
-	}
-
-	if (selectedQuestion) {
-		sendQuestion(selectedQuestion, res, allCards);
-	} else {
-		res.json({"error":"There are no questions that fit your parameters. Please change your settings and try again.\n\Have a question that would fit those parameters? Submit it!"});
-	}
-
-	let questionLog = JSON.parse(fs.readFileSync("logs/questionRequestLog.json", "utf8"));
-	questionLog.push({"date": Date.now(), "request": req.body});
-	fs.writeFileSync("logs/questionRequestLog.json", JSON.stringify(questionLog));
 });
 
 app.get("/getQuestionCount", async function(req, res) {
@@ -941,6 +763,27 @@ app.post("/submitAdminQuestion", async function(req, res) {
 		const addQuestionResult = await addQuestion(req.body.questionObj, true, currentAdmin.id);
 
 		if (!addQuestionResult.error) {
+
+			//Update the reference question array
+			if (addQuestionResult.newStatus === "finished") {
+				let newQuestion = req.body.questionObj;
+				const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
+				newQuestion = convertAllTemplates(newQuestion, allCards);
+
+				//Check for a template that generated 0 cards.
+				let emptyTemplate = false;
+				for (let j = 0 ; j < newQuestion.cardLists.length ; j++) {
+					if (newQuestion.cardLists[j].length === 0) {
+						emptyTemplate = true;
+					}
+				}
+				if (emptyTemplate) {
+					sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${newQuestion.id}`);
+				}
+				referenceQuestionArray.push(newQuestion);
+				updateIndexQuestionCount();
+			}
+
 			res.json({
 				"error": false,
 				"message": `Question #${addQuestionResult.newId} submitted successfully.`,

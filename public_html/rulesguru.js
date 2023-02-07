@@ -1,22 +1,5 @@
 "use strict";
 
-//Array radomizer. Shuffles in place.
-const shuffle = function(array) {
-  var currentIndex = array.length, temporaryValue, randomIndex;
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
-
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    // And swap it with the current element.
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-}
-
 let mostRecentQuestionId = null;
 
 /*
@@ -86,7 +69,7 @@ const getRandomQuestion = function(callback) {
 				callback(response, httpRequest);
 			}
 		} else {
-			getQuestionError = `There was an error loading the question (server retrurned status code ${httpRequest.status}). Please wait a few minutes and try again. If the problem persists, please report the issue using the contact form in the upper right.`;
+			getQuestionError = `There was an error loading the question (server returned status code ${httpRequest.status}). Please wait a few minutes and try again. If the problem persists, please report the issue using the contact form in the upper right.`;
 			if (!timeout) {
 				getQuestionTimeoutId = setTimeout(getRandomQuestion, callback);
 			}
@@ -95,12 +78,18 @@ const getRandomQuestion = function(callback) {
 			}
 		}
 	};
-	httpRequest.open("POST", "/getRandomQuestion", true);
+
+	const settings = JSON.parse(JSON.stringify(sidebarSettings));
+	console.log(mostRecentQuestionId)
+	settings.previousId = mostRecentQuestionId;
+	settings.from = "homePage";
+	settings.avoidRateLimiting = true;//If you find this and use it to get around my rate limiting, go ahead, you deserve it. But I'll be fixing it eventually.
+
+	const queryString = encodeURIComponent(JSON.stringify(settings));
+
+	httpRequest.open("GET", `/api/questions/?json=${queryString}`, true);
 	httpRequest.setRequestHeader("Content-Type", "application/json");
-	httpRequest.send(JSON.stringify({
-		"settings": sidebarSettings,
-		"mostRecentQuestionId": mostRecentQuestionId
-	}));
+	httpRequest.send();
 	return httpRequest;
 };
 
@@ -118,7 +107,7 @@ let goToQuestion = function(questionId, callback) {
 			if (sidebarOpen) {
 				closeSidebar();
 			}
-			loadedQuestions.currentQuestion = response;
+			loadedQuestions.currentQuestion = response.questions[0];
 			mostRecentQuestionId = loadedQuestions.currentQuestion.id;
 			if (pendingRequest) {
 				pendingRequest.abort();
@@ -146,13 +135,12 @@ let goToQuestion = function(questionId, callback) {
 	});
 };
 
-//Get the specified question.
 const getSpecificQuestion = function(questionId, callback) {
 	let response;
 	clearTimeout(getQuestionTimeoutId);
 
 	const httpRequest = new XMLHttpRequest();
-	httpRequest.timeout = 15000;
+	httpRequest.timeout = 10000;
 	httpRequest.onerror = function() {
 		getQuestionError = "There was an unknown error. Please check your internet connection and try again. If the problem persists, please report the issue using the contact form in the upper right.";
 		if (callback) {
@@ -181,114 +169,23 @@ const getSpecificQuestion = function(questionId, callback) {
 				callback(response);
 			}
 		} else {
-			getQuestionError = `There was an error loading the question (server retrurned status code ${httpRequest.status}). Please wait a few minutes and try again. If the problem persists, please report the issue using the contact form in the upper right.`;
+			getQuestionError = `There was an error loading the question (server returned status code ${httpRequest.status}). Please wait a few minutes and try again. If the problem persists, please report the issue using the contact form in the upper right.`;
 			if (callback) {
 				callback(response);
 			}
 		}
 	};
-	httpRequest.open("POST", "/getSpecificQuestion", true);
-	httpRequest.setRequestHeader("Content-Type", "application/json");
-	httpRequest.send(JSON.stringify({"id": questionId,
-	                                 "settings": sidebarSettings}));
+
+	const queryString = encodeURIComponent(JSON.stringify({
+		"id": questionId,
+		"settings": sidebarSettings,
+		"from": "homePage",
+	}));
+
+	httpRequest.open("GET", `/api/questions/?json=${queryString}`, true);
+	httpRequest.send();
 	return httpRequest;
 }
-
-//Replace textual symbols with pictures.
-const symbolFixer = function(inputString) {
-	const symbolMap = {
-		"{W}": "<i class='ms ms-w ms-cost'></i>",
-		"{U}": "<i class='ms ms-u ms-cost'></i>",
-		"{B}": "<i class='ms ms-b ms-cost'></i>",
-		"{R}": "<i class='ms ms-r ms-cost'></i>",
-		"{G}": "<i class='ms ms-g ms-cost'></i>",
-		"{0}": "<i class='ms ms-0 ms-cost'></i>",
-		"{1}": "<i class='ms ms-1 ms-cost'></i>",
-		"{2}": "<i class='ms ms-2 ms-cost'></i>",
-		"{3}": "<i class='ms ms-3 ms-cost'></i>",
-		"{4}": "<i class='ms ms-4 ms-cost'></i>",
-		"{5}": "<i class='ms ms-5 ms-cost'></i>",
-		"{6}": "<i class='ms ms-6 ms-cost'></i>",
-		"{7}": "<i class='ms ms-7 ms-cost'></i>",
-		"{8}": "<i class='ms ms-8 ms-cost'></i>",
-		"{9}": "<i class='ms ms-9 ms-cost'></i>",
-		"{10}": "<i class='ms ms-10 ms-cost'></i>",
-		"{11}": "<i class='ms ms-11 ms-cost'></i>",
-		"{12}": "<i class='ms ms-12 ms-cost'></i>",
-		"{13}": "<i class='ms ms-13 ms-cost'></i>",
-		"{14}": "<i class='ms ms-14 ms-cost'></i>",
-		"{15}": "<i class='ms ms-15 ms-cost'></i>",
-		"{16}": "<i class='ms ms-16 ms-cost'></i>",
-		"{17}": "<i class='ms ms-17 ms-cost'></i>",
-		"{18}": "<i class='ms ms-18 ms-cost'></i>",
-		"{19}": "<i class='ms ms-19 ms-cost'></i>",
-		"{20}": "<i class='ms ms-20 ms-cost'></i>",
-		"{X}": "<i class='ms ms-x ms-cost'></i>",
-		"{Y}": "<i class='ms ms-y ms-cost'></i>",
-		"{W/P}": "<i class='ms ms-wp ms-cost'></i>",
-		"{U/P}": "<i class='ms ms-up ms-cost'></i>",
-		"{B/P}": "<i class='ms ms-bp ms-cost'></i>",
-		"{R/P}": "<i class='ms ms-rp ms-cost'></i>",
-		"{G/P}": "<i class='ms ms-gp ms-cost'></i>",
-		"{S}": "<i class='ms ms-s ms-cost'></i>",
-		"{C}": "<i class='ms ms-c ms-cost'></i>",
-		"{E}": "<i class='ms ms-e ms-cost'></i>",
-		"{T}": "<i class='ms ms-tap ms-cost'></i>",
-		"{Q}": "<i class='ms ms-untap ms-cost'></i>",
-		"{W/U}": "<i class='ms ms-wu ms-split ms-cost'></i>",
-		"{W/B}": "<i class='ms ms-wb ms-split ms-cost'></i>",
-		"{U/B}": "<i class='ms ms-ub ms-split ms-cost'></i>",
-		"{U/R}": "<i class='ms ms-ur ms-split ms-cost'></i>",
-		"{B/R}": "<i class='ms ms-br ms-split ms-cost'></i>",
-		"{B/G}": "<i class='ms ms-bg ms-split ms-cost'></i>",
-		"{R/W}": "<i class='ms ms-rw ms-split ms-cost'></i>",
-		"{R/G}": "<i class='ms ms-rg ms-split ms-cost'></i>",
-		"{G/W}": "<i class='ms ms-gw ms-split ms-cost'></i>",
-		"{G/U}": "<i class='ms ms-gu ms-split ms-cost'></i>",
-		"{2/W}": "<i class='ms ms-2w ms-split ms-cost'></i>",
-		"{2/U}": "<i class='ms ms-2u ms-split ms-cost'></i>",
-		"{2/B}": "<i class='ms ms-2b ms-split ms-cost'></i>",
-		"{2/R}": "<i class='ms ms-2r ms-split ms-cost'></i>",
-		"{2/G}": "<i class='ms ms-2g ms-split ms-cost'></i>",
-		"{CHAOS}": "<i class='ms ms-chaos'></i>",
-		"{W/U/P}": "<i class='ms ms-wup ms-cost'></i>",
-		"{W/B/P}": "<i class='ms ms-wbp ms-cost'></i>",
-		"{U/B/P}": "<i class='ms ms-ubp ms-cost'></i>",
-		"{U/R/P}": "<i class='ms ms-urp ms-cost'></i>",
-		"{B/R/P}": "<i class='ms ms-brp ms-cost'></i>",
-		"{B/G/P}": "<i class='ms ms-bgp ms-cost'></i>",
-		"{R/W/P}": "<i class='ms ms-rwp ms-cost'></i>",
-		"{R/G/P}": "<i class='ms ms-rgp ms-cost'></i>",
-		"{G/W/P}": "<i class='ms ms-gwp ms-cost'></i>",
-		"{G/U/P}": "<i class='ms ms-gup ms-cost'></i>",
-		"{P}": "<i class='ms ms-p'></i>",
-		"[0]": "<i class='ms ms-loyalty-zero ms-loyalty-0 ms-2x'></i>",
-		"[+1]": "<i class='ms ms-loyalty-up ms-loyalty-1 ms-2x'></i>",
-		"[+2]": "<i class='ms ms-loyalty-up ms-loyalty-2 ms-2x'></i>",
-		"[+3]": "<i class='ms ms-loyalty-up ms-loyalty-3 ms-2x'></i>",
-		"[+4]": "<i class='ms ms-loyalty-up ms-loyalty-4 ms-2x'></i>",
-		"[+5]": "<i class='ms ms-loyalty-up ms-loyalty-5 ms-2x'></i>",
-		"[-1]": "<i class='ms ms-loyalty-down ms-loyalty-1 ms-2x'></i>",
-		"[-2]": "<i class='ms ms-loyalty-down ms-loyalty-2 ms-2x'></i>",
-		"[-3]": "<i class='ms ms-loyalty-down ms-loyalty-3 ms-2x'></i>",
-		"[-4]": "<i class='ms ms-loyalty-down ms-loyalty-4 ms-2x'></i>",
-		"[-5]": "<i class='ms ms-loyalty-down ms-loyalty-5 ms-2x'></i>",
-		"[-6]": "<i class='ms ms-loyalty-down ms-loyalty-6 ms-2x'></i>",
-		"[-7]": "<i class='ms ms-loyalty-down ms-loyalty-7 ms-2x'></i>",
-		"[-8]": "<i class='ms ms-loyalty-down ms-loyalty-8 ms-2x'></i>",
-		"[-9]": "<i class='ms ms-loyalty-down ms-loyalty-9 ms-2x'></i>",
-		"[-10]": "<i class='ms ms-loyalty-down ms-loyalty-10 ms-2x'></i>",
-		"[-11]": "<i class='ms ms-loyalty-down ms-loyalty-11 ms-2x'></i>",
-		"[-12]": "<i class='ms ms-loyalty-down ms-loyalty-12 ms-2x'></i>",
-		"[-13]": "<i class='ms ms-loyalty-down ms-loyalty-13 ms-2x'></i>",
-		"[-14]": "<i class='ms ms-loyalty-down ms-loyalty-14 ms-2x'></i>",
-		"[-15]": "<i class='ms ms-loyalty-down ms-loyalty-15 ms-2x'></i>",
-	};
-	let outputString = inputString.replace(/[{\[][A-Z0-9/+-]{1,5}[}\]]/g, function(match) {
-		return symbolMap[match] || match;
-	});
-	return outputString;
-};
 
 //Returns a random map of player names and genders for each possible player tag.
 const getPlayerNamesMap = function() {
@@ -332,81 +229,6 @@ const getPlayerNamesMap = function() {
 	return playerNamesMap;
 }
 
-//Accepts a string containing various [expressions] and returns the untagged HTML version.
-const replaceExpressions = function(string, playerNamesMap, oracle, citedRules) {
-
-	let pronouns = {
-		"male": {
-			"s": "he",
-			"o": "him",
-			"pp": "his",
-			"pa": "his"
-		},
-		"female": {
-			"s": "she",
-			"o": "her",
-			"pp": "hers",
-			"pa": "her"
-		},
-		"neutral": {
-			"s": "they",
-			"o": "them",
-			"pp": "theirs",
-			"pa": "their"
-		}
-	};
-
-	//Determine the correct article ("a" or "an") in front of card names.
-	string = string.replace(/\b(a|A|an|An) \[(card (\d+))\]/g, function(match, capt1, capt2, capt3) {
-		let article = AvsAnSimple.query(oracle[capt3 - 1].name);
-		if (capt1 === "A" || capt1 === "An") {
-			return `${article.charAt(0).toUpperCase() + article.slice(1)} [${capt2}]`;
-		} else {
-			return `${article} [${capt2}]`;
-		}
-	});
-
-	string = string.replace(/\[(\d{3}(\.\d{1,3}([a-z])?)?)\]/g, function(match, capt1) {
-		return `<a href="https://yawgatog.com/resources/magic-rules/#R${capt1.replace('.', '')}" target="_blank" tooltip="${citedRules[capt1] ? citedRules[capt1].ruleText.replace(/"/g, "&quot") : "This rule doesn't appear to exist. Please report this issue using the contact form in the upper right."}">${capt1}</a>`;
-	});
-
-	//Replace card names.
-	string = string.replace(/\[card (\d+)\]/g, function(match, capt1) {
-		return oracle[capt1 - 1].name;
-	});
-
-	//Replace player names and pronouns.
-	string = string.replace(/\[((?:AP|NAP)[ab123]?)(?: (o|s|pp|pa|[a-zA-Z']+\|[a-zA-Z']+))?\]/g, function(match, capt1, capt2, offset) {
-		if (capt2) {
-			if (capt2.includes("|")) {
-				return (playerNamesMap[capt1].gender === "male" || playerNamesMap[capt1].gender === "female") ? capt2.split("|")[0] : capt2.split("|")[1];
-			} else {
-				let pronoun = pronouns[playerNamesMap[capt1].gender][capt2];
-				return pronoun;
-			}
-		} else {
-			return playerNamesMap[capt1].name;
-		}
-	});
-
-	//Capitalize the first letter at the beginning of a sentence after a parenthetical statement.
-	string = string.replace(/\. \([^()]+?\) ([a-z])/g, function(match, capt1) {
-		return match.slice(0, -1) + capt1[0].toUpperCase() + capt1.substring(1);
-	});
-
-	//Capitalize the first letter at the beginning of a sentence after another sentance.
-	string = string.replace(/\. ([a-z])/g, function(match, capt1) {
-		return match.slice(0, -1) + capt1[0].toUpperCase() + capt1.substring(1);
-	});
-
-	//Capitalize the first letter of the first sentence.
-	string = string[0].toUpperCase() + string.substring(1);
-
-	return string;
-};
-
-let mappingArray = [],
-		answerMappingArray = [];
 const displayCurrentQuestion = function() {
 	toggleAnimation("stop");
 	setTimeout(function() {
@@ -432,34 +254,13 @@ const displayCurrentQuestion = function() {
 	}
 
 	//Display the question.
-	document.getElementById("question").innerHTML = symbolFixer(replaceExpressions(loadedQuestions.currentQuestion.question, playerNamesMap, loadedQuestions.currentQuestion.oracle, loadedQuestions.currentQuestion.citedRules)).replace(/\n/g, "<br>");
+	document.getElementById("question").innerHTML = loadedQuestions.currentQuestion.questionHTML;
 
 	//Display answer.
-	document.getElementById("answer").innerHTML = symbolFixer(replaceExpressions(loadedQuestions.currentQuestion.answer, playerNamesMap, loadedQuestions.currentQuestion.oracle, loadedQuestions.currentQuestion.citedRules)).replace(/\n/g, "<br>");
-
-	//Sort the oracle array to the order they appear in the question text in order to display the pictures/text in that order.
-	mappingArray = [];
-	mappingArray = loadedQuestions.currentQuestion.question.match(/\[card \d+\]/g);
-	mappingArray = Array.from(new Set(mappingArray));
-	for (let i in mappingArray) {
-		mappingArray[i] = loadedQuestions.currentQuestion.oracle[Number(mappingArray[i].slice(6, -1)) - 1];
-	}
-	//Handle a question that uses a card generator in the answer only.
-	answerMappingArray = [];
-	if (loadedQuestions.currentQuestion.oracle.length > mappingArray.length) {
-	 	answerMappingArray = loadedQuestions.currentQuestion.answer.match(/\[card \d+\]/g);
-		answerMappingArray = Array.from(new Set(answerMappingArray));
-		for (let i in answerMappingArray) {
-			answerMappingArray[i] = loadedQuestions.currentQuestion.oracle[Number(answerMappingArray[i].slice(6, -1)) - 1];
-		}
-
-		answerMappingArray = answerMappingArray.filter(function(element) {
-			return !mappingArray.includes(element);
-		});
-	}
+	document.getElementById("answer").innerHTML = loadedQuestions.currentQuestion.answerHTML;
 
 	document.getElementById("pictureRows").style.display = ""; //Needs to exist in order for size calculations to work properly, gets hidden later if mode is none.
-	populateCardDisplayArea(mappingArray);
+	populateCardDisplayArea(loadedQuestions.currentQuestion.includedCards);
 	setCardDisplaySize();
 	if (sidebarSettings.cardDisplayFormat === "None") {
 		changePictureDisplayMode(sidebarSettings.cardDisplayFormat);
@@ -476,11 +277,16 @@ const populateCardDisplayArea = function(oracle) {
 
 	const defaultDisplayType = document.getElementById("cardDisplayFormat").value.toLowerCase();
 
-	for (let i in oracle) {
+	const answerOnlyCards = loadedQuestions.currentQuestion.includedCards.filter(card => !loadedQuestions.currentQuestion.questionSimple.includes(card.name) && loadedQuestions.currentQuestion.answerSimple.includes(card.name));
+
+	for (let card of oracle) {
+		if (answerOnlyCards.includes(card)) {
+			continue;
+		}
 		if (defaultDisplayType !== "none") {
-			document.getElementById("picturesUnsorted").appendChild(createCardDisplay(oracle[i], defaultDisplayType));
+			document.getElementById("picturesUnsorted").appendChild(createCardDisplay(card, defaultDisplayType));
 		} else {
-			document.getElementById("picturesUnsorted").appendChild(createCardDisplay(oracle[i], "image"));
+			document.getElementById("picturesUnsorted").appendChild(createCardDisplay(card, "image"));
 		}
 	}
 }
@@ -580,6 +386,9 @@ const toggleAnswer = function() {
 	}
 	answerBeingToggled = true;
 	const scrollPos = document.getElementById("scrollContainer").scrollTop;
+
+	const answerOnlyCards = loadedQuestions.currentQuestion.includedCards.filter(card => !loadedQuestions.currentQuestion.questionSimple.includes(card.name) && loadedQuestions.currentQuestion.answerSimple.includes(card.name));
+
 	if (document.getElementById("answer").style.display === "none") {
 		const currentBoxHeight = parseInt(window.getComputedStyle(document.getElementById("questionPageBackgroundBox"), null).getPropertyValue("height"));
 		document.getElementById("questionPageBackgroundBox").style.height = currentBoxHeight + "px";
@@ -607,8 +416,9 @@ const toggleAnswer = function() {
 		}, 20);
 
 		document.getElementById("showAnswer").textContent = "Hide Answer";
-		for (let i in answerMappingArray) {
-			document.getElementById("pictureRows").lastChild.appendChild(createCardDisplay(answerMappingArray[i], document.getElementById("cardDisplayFormat").value.toLowerCase()));
+
+		for (let card of answerOnlyCards) {
+			document.getElementById("pictureRows").lastChild.appendChild(createCardDisplay(card, document.getElementById("cardDisplayFormat").value.toLowerCase()));
 		}
 		setCardDisplaySize();
 	} else {
@@ -630,7 +440,7 @@ const toggleAnswer = function() {
 			}
 			document.getElementById("pictureRows").children[0].remove();
 		}
-		for (let i in answerMappingArray) {
+		for (let card of answerOnlyCards) {
 			document.getElementById("picturesUnsorted").removeChild(document.getElementById("picturesUnsorted").lastChild);
 		}
 		setCardDisplaySize();
@@ -645,8 +455,8 @@ setInterval(function() {
 	if (loadedQuestions.futureQuestions.length < 2 && !pendingRequest && !getQuestionError) {
 		pendingRequest = getRandomQuestion(function(response, request) {
 			if (response && !response.error) {
-				loadedQuestions.futureQuestions.push(response);
-				mostRecentQuestionId = response.id;
+				loadedQuestions.futureQuestions.push(response.questions[0]);
+				mostRecentQuestionId = response.questions[0].id;
 				/*for (let card of response.oracle) {
 					if (["transforming double-faced", "modal double-faced"].includes(card.layout) && card.side === "b") {
 						const image = new Image();
@@ -659,7 +469,7 @@ setInterval(function() {
 					}
 				}*/
 				getQuestionError = null;
-			} else if (response) {
+			} else if (response && response.status !== 429) {
 				getQuestionError = response.error;
 			} else {
 				getQuestionError = "There was an unknown error. Please check your internet connection and try again. If the problem persists, please report the issue using the contact form in the upper right.";
@@ -686,7 +496,7 @@ setInterval(function() {
 			returnToHome();
 		}
 	}
-}, 200);
+}, 500);
 
 let currentPendingQuestionsListRequest = null;
 const doSomethingOnSidebarSettingsUpdate = function() {

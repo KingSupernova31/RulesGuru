@@ -1,4 +1,5 @@
 importScripts("/globalResources/allKeywords.js");
+importScripts("/globalResources/replaceExpressions.js");
 importScripts("allCards.js");
 importScripts("allRules.js");
 importScripts("validateQuestion.js");

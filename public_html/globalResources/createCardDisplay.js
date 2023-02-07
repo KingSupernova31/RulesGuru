@@ -68,19 +68,26 @@ const createCardDisplay = function(cardData, defaultDisplayType) {
 			const convertedBreakPos = nthIndex(manaCost, "}", breakPos) + 1;
 			manaCost = manaCost.substr(0, convertedBreakPos) + "<br>" + manaCost.substr(convertedBreakPos);
 		}
-		cost.innerHTML = symbolFixer(manaCost);
+		cost.innerHTML = symbolsToHtml(manaCost);
 	}
-	if (cardData.colorIndicator) {
+	if (cardData.colorIndicator.length > 0) {
+		const map = {
+			"White": "W",
+			"Blue": "U",
+			"Black": "B",
+			"Red": "R",
+			"Green": "G",
+		}
 		cardData.colorIndicator.sort(function(a, b) {
-			return ["W", "U", "B", "R", "G"].indexOf(a) - ["W", "U", "B", "R", "G"].indexOf(b);
-		})
-		colorIndicator.setAttribute("src", `/globalResources/colorIndicatorImages/${cardData.colorIndicator.join("")}.svg`);
+			return ["White", "Blue", "Black", "Red", "Green"].indexOf(a) - ["White", "Blue", "Black", "Red", "Green"].indexOf(b);
+		});
+		colorIndicator.setAttribute("src", `/globalResources/colorIndicatorImages/${cardData.colorIndicator.map(color => map[color]).join("")}.svg`);
 		typeLine.appendChild(colorIndicator);
 	}
 	typeText.textContent = cardData.type;
 	typeLine.appendChild(typeText);
 	if (cardData.rulesText) {
-		text.innerHTML = symbolFixer(cardData.rulesText.replace(/\n/g, "<br><br>"));
+		text.innerHTML = symbolsToHtml(cardData.rulesText.replace(/\n/g, "<br><br>"));
 	}
 	if (cardData.loyalty) {
 		stats.textContent = cardData.loyalty;

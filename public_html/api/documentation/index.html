@@ -78,9 +78,13 @@
 					<p>String</p>
 					<p>The logical conjunction to be used upon the list of cards. Can be "AND", "OR", or "NOT".</p>
 					<p>"OR"</p>
+					<p>previousId</p>
+					<p>Number</p>
+					<p>If this is specified, the returned questions will not be random. Instead they'll be the next X questions that match the given settings that come after the given id. (Wrapping back around to 1 one the end is reached.)</p>
+					<p>undefined</p>
 					<p>id</p>
 					<p>Number</p>
-					<p>The ID of a specific question you want to return. If this property is specified, only that question is returned, and most other fields are ignored. Legality, expansions, playableOnly, cards, and cardsConjunc will still be followed if possible. If not specified, the defaults will be set to the most permissive option rather than the ones listed in this table.</p>
+					<p>The ID of a specific question you want to return. If this property is specified, only that question is returned, and most other fields are ignored. Legality, expansions, playableOnly, cards, and cardsConjunc will still be followed if possible. If any of those fields are left undefined, the defaults will be set to the most permissive option rather than the ones listed in this table.</p>
 					<p>undefined</p>
 				</div>
 				<br><br>
@@ -131,27 +135,24 @@
 					<p>tags</p>
 					<p>Array of strings</p>
 					<p>The tags that the question has.</p>
-					<p>question</p>
+					<p>questionSimple</p>
 					<p>String</p>
 					<p>The text of the question, human-readable.</p>
-					<p>questionRaw</p>
+					<p>questionHTML</p>
 					<p>String</p>
-					<p>The text of the question, with expressions left in for parsing.</p>
-					<p>answer</p>
-					<p>String</p>
-					<p>The answer to the question, human-readable.</p>
-					<p>answerRaw</p>
-					<p>String</p>
-					<p>The answer to the question, with expressions left in for parsing.</p>
+					<p>The text of the question, in HTML.</p>
 					<p>answerSimple</p>
 					<p>String</p>
 					<p>The answer to the question, human-readable, with rule citations removed.</p>
+					<p>answerHTML</p>
+					<p>String</p>
+					<p>The answer to the question, in HTML.</p>
 					<p>submitterName</p>
 					<p>String</p>
 					<p>The person who submitted the question, or the empty string if no name was given.</p>
 					<p>includedCards</p>
 					<p>Array of objects</p>
-					<p>A list of cards mentioned in the question or answer, in the order mentioned. Object formatting is from <a href="https://mtgjson.com/data-models/card-atomic/">MTGJSON</a>. (Some unnecessary properties removed.)</p>
+					<p>A list of cards mentioned in the question or answer, in the order mentioned. Object formatting is from <a href="https://mtgjson.com/data-models/card-atomic/">MTGJSON</a>, with the errors fixed and a few properties added, removed, or tweaked. For a full list of the differences, you can see the code <a href="https://github.com/KingSupernova31/RulesGuru/blob/main/updateDataFiles.js">here</a>.</p>
 					<p>citedRules</p>
 					<p>Array of objects</p>
 					<p>A list of rules mentioned in the question or answer, in the order mentioned. Object formatting is from the <a href="https://github.com/lunakv/academyruins-api">Academy Ruins API</a>.</p>

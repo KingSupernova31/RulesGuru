@@ -66,7 +66,7 @@ const updateAllCards = function() {
 		}
 
 		//Add in missing values.
-		let missingArrays = ["colors", "colorIdentity", "types", "subtypes", "keywords", "playability"];
+		let missingArrays = ["colors", "colorIdentity", "types", "subtypes", "keywords", "playability", "colorIndicator"];
 		for (let i in allCards) {
 			missingArrays.forEach(function(element) {
 				if (!allCards[i].hasOwnProperty(element)) {
@@ -117,7 +117,7 @@ const updateAllCards = function() {
 			}
 		}
 
-		//Change colors from letter to color names.
+		//Change colors from letters to color names.
 		const colorMappings = {
 			"W": "White",
 			"U": "Blue",
@@ -131,6 +131,9 @@ const updateAllCards = function() {
 			}
 			for (let j in allCards[i].colorIdentity) {
 				allCards[i].colorIdentity[j] = colorMappings[allCards[i].colorIdentity[j]];
+			}
+			for (let j in allCards[i].colorIndicator) {
+				allCards[i].colorIndicator[j] = colorMappings[allCards[i].colorIndicator[j]];
 			}
 		}
 
@@ -456,8 +459,8 @@ const disperseFiles = function() {
 
 		//Update cards.
 		const allCards = JSON.parse(fs.readFileSync("data_files/finalAllCards.json", "utf8"));
-		writeCardList(allCards, "allCards.json", ["name", "names", "manaCost", "type", "rulesText", "power", "toughness", "loyalty", "layout", "legalities", "printingsName", "types", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "keywords", "playability"], "json");
-		writeCardList(allCards, "public_html/question-editor/allCards.js", ["name", "names", "rulesText", "power", "toughness", "loyalty", "layout", "types", "type", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "manaCost", "keywords"], "js");
+		writeCardList(allCards, "allCards.json", ["name", "names", "manaCost", "type", "rulesText", "power", "toughness", "loyalty", "layout", "legalities", "printingsName", "types", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "keywords", "playability", "colorIdentity"], "json");
+		writeCardList(allCards, "public_html/question-editor/allCards.js", ["name", "names", "rulesText", "power", "toughness", "loyalty", "layout", "types", "type", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "manaCost", "keywords", "colorIdentity"], "js");
 
 		//SearchLink mappings.
 		updateSearchLinkMappings();

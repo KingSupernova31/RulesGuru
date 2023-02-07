@@ -346,7 +346,7 @@ const validateTemplate = function(inputTemplate) {
 		}
 		//Invalid mana cost
 		if (template[i].field === "Mana cost") {
-			const allowedSymbols = ["{W}", "{U}", "{B}", "{R}", "{G}", "{C}", "{S}", "{P}", "{W/P}", "{U/P}", "{B/P}", "{R/P}", "{G/P}", "{2/W}", "{2/U}", "{2/B}", "{2/R}", "{2/G}", "{W/U}", "{W/B}", "{U/B}", "{U/R}", "{B/R}", "{B/G}", "{R/W}", "{R/G}", "{G/W}", "{G/U}", "{W/U/P}", "{W/B/P}", "{U/B/P}", "{U/R/P}", "{B/R/P}", "{B/G/P}", "{R/W/P}", "{R/G/P}", "{G/W/P}", "{G/U/P}", "::white::", "::blue::", "::black::", "::red::", "::green::", "::hybrid::", "::generic::", "::phyrexian::"];
+			const allowedSymbols = ["{W}", "{U}", "{B}", "{R}", "{G}", "{X}", "{Y}", "{C}", "{S}", "{P}", "{W/P}", "{U/P}", "{B/P}", "{R/P}", "{G/P}", "{2/W}", "{2/U}", "{2/B}", "{2/R}", "{2/G}", "{W/U}", "{W/B}", "{U/B}", "{U/R}", "{B/R}", "{B/G}", "{R/W}", "{R/G}", "{G/W}", "{G/U}", "{W/U/P}", "{W/B/P}", "{U/B/P}", "{U/R/P}", "{B/R/P}", "{B/G/P}", "{R/W/P}", "{R/G/P}", "{G/W/P}", "{G/U/P}", "::white::", "::blue::", "::black::", "::red::", "::green::", "::hybrid::", "::generic::", "::phyrexian::"];
 			let workingSymbolString = template[i].value;
 			outerloop: while (workingSymbolString.length > 0) {
 				for (let symbol of allowedSymbols) {
@@ -468,6 +468,14 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 			operators = ["Includes:", "Doesn't include:"];
 			values = ["White", "Blue", "Black", "Red", "Green"];
 			break;
+		case "Color indicator":
+			operators = ["Includes:", "Doesn't include:"];
+			values = ["White", "Blue", "Black", "Red", "Green"];
+			break;
+		case "Color identity":
+			operators = ["Includes:", "Doesn't include:"];
+			values = ["White", "Blue", "Black", "Red", "Green"];
+			break;
 		case "Mana cost":
 			operators = ["Includes:", "Doesn't include:", "Exactly:"];
 			tooltip = `The order of the symbols doesn't matter. You can use ::generic::, ::phyrexian::, ::hybrid::, and ::[color]:: to match multiple symbols.<br><br>If "Doesn't include" is selected, only cards that don't have <b>all</b> of those symbols are returned. If "don't have <b>any</b>" is the desired query, use multiple "Doesn't include" rules.`;
@@ -508,7 +516,7 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 			tooltip = `Non-numerical loyalties such as "X" are supported. The ">" and "<" operators will not return cards with non-numerical loyalties.`;
 			break;
 		case "Number of":
-			fieldOptions = ["Colors", "Supertypes", "Types", "Subtypes", "Keywords"];
+			fieldOptions = ["Colors", "Color identity", "Color indicator", "Keywords", "Subtypes", "Supertypes", "Types"];
 			operators = ["=", ">", "<"];
 			break;
 	}
@@ -1240,7 +1248,7 @@ const convertTypingRealTime = function(element) {
 	const allCardNamesMinusWords = JSON.parse(JSON.stringify(allCardNames)).filter(name => !cardNamesToIgnore.includes(name));
 	stringsToExpresify = stringsToExpresify.concat(allCardNamesMinusWords);
 
-	const expressionRegex = new RegExp("(^|\\s)(" + stringsToExpresify.join("|").replace(/\+/g, "\\+") + ")($|\\s|[.,;:])", "gi");
+	const expressionRegex = new RegExp("(^|\\s)(" + stringsToExpresify.join("|").replace(/\+/g, "\\+") + ")($|\\s|[.,;])", "gi");
 	newValue = newValue.replace(expressionRegex, function(match, capt1, capt2, capt3, offset) {
 		if (offset + capt1.length <= cursorPos && cursorPos <= offset + capt1.length + capt2.length) {//Do nothing if the cursor is within the symbol or the adjacent characters.
 			return match;
@@ -1252,7 +1260,7 @@ const convertTypingRealTime = function(element) {
 		}
 	})
 
-	const symbolRegex = new RegExp("(^|\\s)(" + stringsToSymbolfy.join("|").replace(/\+/g, "\\+") + ")($|\\s|[.,;:])", "gi");
+	const symbolRegex = new RegExp("(^|\\s)(" + stringsToSymbolfy.join("|").replace(/\+/g, "\\+") + ")($|\\s|[.,;])", "gi");
 	newValue = newValue.replace(symbolRegex, function(match, capt1, capt2, capt3, offset) {
 		if (offset + capt1.length <= cursorPos && cursorPos <= offset + capt1.length + capt2.length) {//Do nothing if the cursor is within the symbol or the adjacent characters.
 			return match;
@@ -1339,29 +1347,10 @@ const convertTypingRealTime = function(element) {
 		}
 	});
 
-	//Convert pronoun expressions.
-	const pronounMap = {
-		"subjective": "s",
-		"objective": "o",
-		"possessive pronoun": "pp",
-		"possessive adjective": "pa"
-	}
-	for (let i in pronounMap) {
-		newValue = newValue.replace(new RegExp(i + "\\]", "ig"), pronounMap[i] + "]");
-	}
-
 	//Capitalize player name expressions.
 	const playerNames = ["NAP1", "NAP2", "NAP3", "APa", "APb", "NAPa", "NAPb", "AP", "NAP"];
 	for (let i = 0 ; i < playerNames.length ; i++) {
 		newValue = newValue.replace(new RegExp("\\[" + playerNames[i] + "\\]", "ig"), "[" + playerNames[i] + "]");
-	}
-	//Name with pronoun
-	for (let i = 0 ; i < playerNames.length ; i++) {
-		newValue = newValue.replace(new RegExp("\\[" + playerNames[i] + " (s|o|pp|pa)\\]", "ig"), "[" + playerNames[i] + " $1]");
-	}
-	//Name with verb
-	for (let i = 0 ; i < playerNames.length ; i++) {
-		newValue = newValue.replace(new RegExp("\\[" + playerNames[i] + " ([a-zA-Z']+\\|[a-zA-Z']+)\\]", "ig"), "[" + playerNames[i] + " $1]");
 	}
 
 	//Capitalize mana symbols.
@@ -1778,8 +1767,10 @@ const validateWithWorker = function() {
 	if (typeof oldWorker === "object") {
 		oldWorker.terminate();
 	}
+	previewWindow.parentData.greyoutValidation = true;
 	const previewValidationWorker = new Worker("validationWorker.js");
 	previewValidationWorker.onmessage = function(message) {
+		previewWindow.parentData.greyoutValidation = false;
 		previewWindow.parentData.questionValidation = message.data;
 		previewWindow.parentData.updateText = true;
 	}
@@ -1801,7 +1792,7 @@ const validateSync = function(question) {
 	for (let i = 0 ; i < questionObj.cardLists.length ; i++) {
 		templateEmptyness.push(document.querySelector(`#cardGenerator${i + 1} > .modeSwitchButton`).textContent === "Switch to List" && document.querySelector(`#cardGenerator${i + 1} .subCardGeneratorTemplate`).childNodes.length === 0);
 	}
-	return validateQuestion(question, templateEmptyness)
+	return validateQuestion(question, templateEmptyness, null, allCards, allRules);
 }
 
 //Handle preview window.
@@ -1827,7 +1818,7 @@ const openPreview = function() {
 		"updateText": true,
 		"updateAll": true,
 		"allRules": allRules,
-		"allCards": allCards
+		"allCards": allCards,
 	};
 	previewWindow.parentData.questionValidation = {
 		"errors": [],
