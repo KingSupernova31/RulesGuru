@@ -482,7 +482,7 @@ if (!fs.existsSync("data_files")) {
 const downloadAllFiles = function() {
 
 	let finishedDownloads = 0;
-	downloadFile("data_files/rawAllKeywords.json", "https://api.academyruins.com/keywords", function() {
+	downloadFile("data_files/rawAllKeywords.json", "https://api.academyruins.com/cr/keywords", function() {
 		try {
 			console.log("rawAllKeywords downloaded");
 			const allKeywords = JSON.parse(fs.readFileSync("data_files/rawAllKeywords.json", "utf8"));
@@ -596,7 +596,7 @@ const downloadAllFiles = function() {
 		}
 	});
 
-	downloadFile("data_files/rawAllRules.json", "https://api.academyruins.com/allrules", function() {
+	downloadFile("data_files/rawAllRules.json", "https://api.academyruins.com/cr/", function() {
 		console.log("rawAllRules downloaded");
 		try {
 			const rawAllRules = fs.readFileSync("data_files/rawAllRules.json", "utf8");
