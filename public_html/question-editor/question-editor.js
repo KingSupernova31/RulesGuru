@@ -516,8 +516,9 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 			tooltip = `Non-numerical loyalties such as "X" are supported. The ">" and "<" operators will not return cards with non-numerical loyalties.`;
 			break;
 		case "Number of":
-			fieldOptions = ["Colors", "Color identity", "Color indicator", "Keywords", "Subtypes", "Supertypes", "Types"];
+			fieldOptions = ["Colors", "Color identity", "Color indicator", "Keywords", "Mana cost", "Subtypes", "Supertypes", "Types"];
 			operators = ["=", ">", "<"];
+			tooltip = `The number of instances of the chosen attribute that the card has. If "Color identity" or "Color indicator" is selected, it refers to the number of colors that that attribute has. If "Mana cost" is selected, it refers to the number of mana symbols in that cost.`;
 			break;
 	}
 

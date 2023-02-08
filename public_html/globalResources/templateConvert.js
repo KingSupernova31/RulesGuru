@@ -317,16 +317,22 @@ const templateConvert = function(template, globalCardList) {
 							}).replace(/\s+/g, '');
 						}
 						const fieldOption = toCamelCase(currentRule.fieldOption);
+						let currentCardAttributeNumber;
+						if (fieldOption === "manaCost") {
+							currentCardAttributeNumber = currentCard.manaCost ? currentCard.manaCost.match(/{/g).length : 0;
+						} else {
+							currentCardAttributeNumber = currentCard[fieldOption].length;
+						}
 						if (currentRule.operator === "=") {
-							if (currentCard[fieldOption].length !== Number(currentRule.value)) {
+							if (currentCardAttributeNumber !== Number(currentRule.value)) {
 								 currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === ">") {
-							if (!(currentCard[fieldOption].length > Number(currentRule.value))) {
+							if (!(currentCardAttributeNumber > Number(currentRule.value))) {
 								 currentRuleSatiesfied = false;
 							}
 						} else if (currentRule.operator === "<") {
-							if (!(currentCard[fieldOption].length < Number(currentRule.value))) {
+							if (!(currentCardAttributeNumber < Number(currentRule.value))) {
 								 currentRuleSatiesfied = false;
 							}
 						}
