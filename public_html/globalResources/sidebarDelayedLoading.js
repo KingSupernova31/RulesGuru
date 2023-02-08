@@ -90,6 +90,9 @@ Array.from(document.querySelectorAll("#sidebarComplexity input")).forEach(functi
 	}
 });
 document.getElementById("sidebarLegalityDropdown").value = sidebarSettings.legality;
+if (sidebarSettings.legality === "Choose Expansions") {
+	toggleSidebarExpansionList();
+}
 document.getElementById("sidebarPlayability").checked = sidebarSettings.playableOnly;
 document.getElementById("cardDisplayFormat").value = sidebarSettings.cardDisplayFormat;
 Array.from(document.querySelectorAll("input[name='tagsConjunc']")).forEach(function(element,index,array){

@@ -1,6 +1,6 @@
 "use strict";
 
-let mostRecentQuestionId = null;
+let mostRecentQuestionId;
 
 /*
 //Live update the question count.
@@ -175,11 +175,12 @@ const getSpecificQuestion = function(questionId, callback) {
 		}
 	};
 
-	const queryString = encodeURIComponent(JSON.stringify({
-		"id": questionId,
-		"settings": sidebarSettings,
-		"from": "homePage",
-	}));
+	const settings = JSON.parse(JSON.stringify(sidebarSettings));
+	settings.id = questionId;
+	settings.from = "homePage";
+	settings.avoidRateLimiting = true;//If you find this and use it to get around my rate limiting, go ahead, you deserve it. But I'll be fixing it eventually.
+
+	const queryString = encodeURIComponent(JSON.stringify(settings));
 
 	httpRequest.open("GET", `/api/questions/?json=${queryString}`, true);
 	httpRequest.send();

@@ -656,6 +656,11 @@ app.get("/api/questions", function(req, res) {
 		} else {
 			let locationToStartSearch;
 			if (requestSettings.previousId !== undefined) {
+				if (typeof requestSettings.previousId !== "number" || !Number.isInteger(requestSettings.previousId) || requestSettings.previousId < 1) {
+					res.json({"status": 400, "error":`${requestSettings.previousId} is not a valid previous ID.`});
+					return;
+				}
+
 				questionArray.sort((a, b) => a.id - b.id);
 				for (let i = 0 ; i < questionArray.length ; i++) {
 					if (questionArray[i].id > requestSettings.previousId) {
@@ -664,16 +669,22 @@ app.get("/api/questions", function(req, res) {
 					}
 				}
 				if (locationToStartSearch === undefined) {
-					locationToStartSearch = 1;
+					locationToStartSearch = 0;
 				}
 			} else {
-				locationToStartSearch = 1;
+				locationToStartSearch = 0;
 				shuffle(questionArray);
 			}
 
 			const questionsToReturn = [];
 			let currentSearchLocation = locationToStartSearch;
+			let loopCounter = 0;
 			while (true) {
+				loopCounter++;
+				if (loopCounter > 9999) {
+					handleError(`While loop not terminating.`)
+					break;
+				}
 				const result = questionMatchesSettings(questionArray[currentSearchLocation], requestSettings, allCards);
 				if (result) {
 					questionsToReturn.push(result);
@@ -684,7 +695,7 @@ app.get("/api/questions", function(req, res) {
 				}
 				currentSearchLocation++;
 				if (currentSearchLocation === questionArray.length) {
-					currentSearchLocation = 1;
+					currentSearchLocation = 0;
 				}
 				if (currentSearchLocation === locationToStartSearch) {
 					res.json({"status": 404, "error":"There are not enough questions that fit your parameters."});

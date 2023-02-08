@@ -255,13 +255,13 @@ const subtypeRules = ["205.3g", "205.3h", "205.3i", "205.3j", "205.3k", "205.3m"
 const isolatedSubtypeLists = [];
 const allSubtypes = [];
 for (let i in subtypeRules) {
-	isolatedSubtypeLists.push(allRules[subtypeRules[i]].ruleText.match(/The \w+ types are ((and )?([a-zA-Z-'’]+)( \(.+?\))?(, |\.))+/)[0]);
+	isolatedSubtypeLists.push(allRules[subtypeRules[i]].ruleText.match(/The \w+ types are ((and )?([a-zA-Z-']+)( \(.+?\))?(, |\.))+/)[0]);
 }
 for (let i in isolatedSubtypeLists) {
 	//let iteratible = [...isolatedSubtypeLists[i].matchAll(/(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g)];
 	//Needed because matchAll is not supported:
 	let iteratible = [];
-	let regex = /(and )?([a-zA-Z-'’]+)( \(.+?\))?(, |\.)/g;
+	let regex = /(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g;
 	let lastIndexes = {};
 	let match;
 	lastIndexes[regex.lastIndex] = true;
@@ -591,7 +591,7 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 	//Converts single right quotes to apostrophes in template fields.
 	valueInput.addEventListener("input", function(event) {
 		setTimeout(function(srcElement) {
-			srcElement.value = srcElement.value.replace(/’/g, "'");
+			srcElement.value = replaceDoppelgangerChars(srcElement.value);
 		}, 0, event.srcElement)
 	});
 
@@ -1214,10 +1214,8 @@ const convertTypingRealTime = function(element) {
 		}
 	});
 
-	//Replace quotes with better quotes.
-	newValue = newValue.replace(/’/g, "'");
-	newValue = newValue.replace(/“/g, "\"");
-	newValue = newValue.replace(/”/g, "\"");
+	//Fix lookalike characters.
+	newValue = replaceDoppelgangerChars(newValue);
 
 	//Capitalize the first letter at the beginning of a sentence after a parenthetical statement.
 	newValue = newValue.replace(/\. \([^()]+?\) ([a-z])/g, function(match, capt1, index) {
@@ -1228,7 +1226,7 @@ const convertTypingRealTime = function(element) {
 		return match.slice(0, -1) + capt1[0].toUpperCase() + capt1.substring(1);
 	});
 	//Capitalize the first letter at the beginning of a sentence after another sentance.
-	newValue = newValue.replace(/\. ([a-z])/g, function(match, capt1, index) {
+	newValue = newValue.replace(/[.?] ([a-z])/g, function(match, capt1, index) {
 		const letterToReplace = index + match.length;
 		if (letterToReplace === cursorPos || letterToReplace === cursorPos + 1) {
 			return match;
@@ -2638,3 +2636,14 @@ const updateEverythingBecauseICantFigureOutMyStupidCode = function() {
 	}
 }
 document.getElementById("question").addEventListener("change", updateEverythingBecauseICantFigureOutMyStupidCode);
+
+const replaceDoppelgangerChars = function(string) {
+	const map = {
+		"’": "'",
+		"“": "\"",
+		"”": "\"",
+		"−": "-",
+	}
+	const regex = new RegExp("[" + Object.keys(map).join("") + "]", "g");
+	return string.replace(regex, match => map[match]);
+}

@@ -232,8 +232,8 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 		}
 		//Check for forgotten or improper generator asignment.
 		let generators = [];
-		generators = generators.concat(questionObj.question.match(/\[card \d+?/g) || []);
-		generators = generators.concat(questionObj.answer.match(/\[card \d+?/g) || []);
+		generators = generators.concat(questionObj.question.match(/\[card \d+/g) || []);
+		generators = generators.concat(questionObj.answer.match(/\[card \d+/g) || []);
 		for (var i in generators) {
 			generators[i] = parseInt(generators[i].slice(6));
 		}

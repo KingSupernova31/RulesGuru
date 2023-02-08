@@ -22,13 +22,24 @@ const downloadFile = function(dest, source, callback) {
 	});
 };
 
+const replaceDoppelgangerChars = function(string) {
+	const map = {
+		"’": `\'`,
+		"“": `\\"`,
+		"”": `\\"`,
+		"−": `-`,
+	}
+	const regex = new RegExp("[" + Object.keys(map).join("") + "]", "g");
+	return string.replace(regex, match => map[match]);
+}
+
 const manualMeldCards = [{"colorIdentity":["W"],"colors":[],"convertedManaCost":11,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Brisela, Voice of Nightmares","names":["Bruna, the Fading Light","Gisela, the Broken Blade","Brisela, Voice of Nightmares"],"power":"9","printings":["EMN","PEMN","V17"],"side":"b","subtypes":["Eldrazi","Angel"],"supertypes":["Legendary"],"text":"Flying, first strike, vigilance, lifelink\nYour opponents can't cast spells with mana value 3 or less.","toughness":"10","type":"Legendary Creature — Eldrazi Angel","types":["Creature"]},{"colorIdentity":["W"],"colors":["W"],"convertedManaCost":7,"layout":"meld","leadershipSkills":{"brawl":false,"commander":true,"oathbreaker":false},"legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","penny":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{5}{W}{W}","name":"Bruna, the Fading Light","names":["Bruna, the Fading Light","Gisela, the Broken Blade","Brisela, Voice of Nightmares"],"power":"5","printings":["EMN","PEMN","V17"],"side":"a","subtypes":["Angel","Horror"],"supertypes":["Legendary"],"text":"When you cast this spell, you may return target Angel or Human creature card from your graveyard to the battlefield.\nFlying, vigilance\n(Melds with Gisela, the Broken Blade.)","toughness":"7","type":"Legendary Creature — Angel Horror","types":["Creature"]},{"colorIdentity":["B"],"colors":[],"convertedManaCost":7,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pauper":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Chittering Host","names":["Midnight Scavengers","Graf Rats","Chittering Host"],"power":"5","printings":["EMN"],"side":"b","subtypes":["Eldrazi","Horror"],"supertypes":[],"text":"Haste\nMenace (This creature can't be blocked except by two or more creatures.)\nWhen Chittering Host enters the battlefield, other creatures you control get +1/+0 and gain menace until end of turn.","toughness":"6","type":"Creature — Eldrazi Horror","types":["Creature"]},{"colorIdentity":["W"],"colors":["W"],"convertedManaCost":4,"layout":"meld","leadershipSkills":{"brawl":false,"commander":true,"oathbreaker":false},"legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{2}{W}{W}","name":"Gisela, the Broken Blade","names":["Bruna, the Fading Light","Gisela, the Broken Blade","Brisela, Voice of Nightmares"],"power":"4","printings":["EMN","PEMN","V17"],"side":"a","subtypes":["Angel","Horror"],"supertypes":["Legendary"],"text":"Flying, first strike, lifelink\nAt the beginning of your end step, if you both own and control Gisela, the Broken Blade and a creature named Bruna, the Fading Light, exile them, then meld them into Brisela, Voice of Nightmares.","toughness":"3","type":"Legendary Creature — Angel Horror","types":["Creature"]},{"colorIdentity":["B"],"colors":["B"],"convertedManaCost":2,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pauper":"Legal","penny":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{1}{B}","name":"Graf Rats","names":["Midnight Scavengers","Graf Rats","Chittering Host"],"power":"2","printings":["EMN"],"side":"a","subtypes":["Rat"],"supertypes":[],"text":"At the beginning of combat on your turn, if you both own and control Graf Rats and a creature named Midnight Scavengers, exile them, then meld them into Chittering Host.","toughness":"1","type":"Creature — Rat","types":["Creature"]},{"colorIdentity":["R"],"colors":[],"convertedManaCost":0,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Hanweir Battlements","names":["Hanweir Battlements","Hanweir Garrison","Hanweir, the Writhing Township"],"printings":["EMN","PEMN"],"side":"a","subtypes":[],"supertypes":[],"text":"{T}: Add {C}.\n{R}, {T}: Target creature gains haste until end of turn.\n{3}{R}{R}, {T}: If you both own and control Hanweir Battlements and a creature named Hanweir Garrison, exile them, then meld them into Hanweir, the Writhing Township.","type":"Land","types":["Land"]},{"colorIdentity":["R"],"colors":["R"],"convertedManaCost":3,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{2}{R}","name":"Hanweir Garrison","names":["Hanweir Battlements","Hanweir Garrison","Hanweir, the Writhing Township"],"power":"2","printings":["EMN","PEMN"],"side":"a","subtypes":["Human","Soldier"],"supertypes":[],"text":"Whenever Hanweir Garrison attacks, create two 1/1 red Human creature tokens that are tapped and attacking.\n(Melds with Hanweir Battlements.)","toughness":"3","type":"Creature — Human Soldier","types":["Creature"]},{"colorIdentity":["R"],"colors":[],"convertedManaCost":3,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Hanweir, the Writhing Township","names":["Hanweir Battlements","Hanweir Garrison","Hanweir, the Writhing Township"],"power":"7","printings":["EMN","PEMN"],"side":"b","subtypes":["Eldrazi","Ooze"],"supertypes":["Legendary"],"text":"Trample, haste\nWhenever Hanweir, the Writhing Township attacks, create two 3/2 colorless Eldrazi Horror creature tokens that are tapped and attacking.","toughness":"4","type":"Legendary Creature — Eldrazi Ooze","types":["Creature"]},{"colorIdentity":["B"],"colors":["B"],"convertedManaCost":5,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pauper":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{4}{B}","name":"Midnight Scavengers","names":["Midnight Scavengers","Graf Rats","Chittering Host"],"power":"3","printings":["EMN"],"side":"a","subtypes":["Human","Rogue"],"supertypes":[],"text":"When Midnight Scavengers enters the battlefield, you may return target creature card with mana value 3 or less from your graveyard to your hand.\n(Melds with Graf Rats.)","toughness":"3","type":"Creature — Human Rogue","types":["Creature"]}];
 
 const manualDungeons = [{"printings":["AFR"],"colorIdentity":[],"colors":[],"keywords":["Scry"],"layout":"dungeon","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Dungeon of the Mad Mage","setCode":"TAFR","subtypes":[],"supertypes":[],"text":"Yawning Portal — You gain 1 life. (Leads to: Dungeon Level)\nDungeon Level — Scry 1. (Leads to: Goblin Bazaar, Twisted Caverns)\nGoblin Bazaar — Create a Treasure token. (Leads to: Lost Level)\nTwisted Caverns — Target creature can't attack until your next turn. (Leads to: Lost Level)\nLost Level — Scry 2. (Leads to: Runestone Caverns, Muiral's Graveyard)\nRunestone Caverns — Exile the top two cards of your library. You may play them. (Leads to: Deep Mines)\nMuiral's Graveyard — Create two 1/1 black Skeleton creature tokens. (Leads to: Deep Mines)\nDeep Mines — Scry 3. (Leads to: Mad Wizard's Lair)\nMad Wizard's Lair — Draw three cards and reveal them. You may cast one of them without paying its mana cost.","type":"Dungeon","types":["Dungeon"]},{"printings":["AFR"],"colorIdentity":[],"colors":[],"keywords":["Scry"],"layout":"dungeon","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Lost Mine of Phandelver","setCode":"TAFR","subtypes":[],"supertypes":[],"text":"Cave Entrance — Scry 1. (Leads to: Goblin Lair, Mine Tunnels)\nGoblin Lair — Create a 1/1 red Goblin creature token. (Leads to: Storeroom, Dark Pool)\nMine Tunnels — Create a Treasure token. (Leads to: Dark Pool, Fungi Cavern)\nStoreroom — Put a +1/+1 counter on target creature. (Leads to: Temple of Dumathoin)\nDark Pool — Each opponent loses 1 life and you gain 1 life. (Leads to: Temple of Dumathoin)\nFungi Cavern — Target creature gets -4/-0 until your next turn. (Leads to: Temple of Dumathoin)\nTemple of Dumathoin — Draw a card.","type":"Dungeon","types":["Dungeon"]},{"printings":["AFR"],"colorIdentity":[],"colors":[],"layout":"dungeon","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Tomb of Annihilation","setCode":"TAFR","subtypes":[],"supertypes":[],"text":"Trapped Entry — Each player loses 1 life. (Leads to: Veils of Fear, Oubliette)\nVeils of Fear — Each player loses 2 life unless they discard a card. (Leads to: Sandfall Cell)\nSandfall Cell — Each player loses 2 life unless they sacrifice a creature, artifact, or land. (Leads to: Cradle of the Death God)\nOubliette — Discard a card and sacrifice a creature, an artifact, and a land. (Leads to: Cradle of the Death God)\nCradle of the Death God — Create The Atropal, a legendary 4/4 black God Horror creature token with deathtouch.","type":"Dungeon","types":["Dungeon"]}];
 
 const updateAllCards = function() {
 	try {
-		const notFlatAllCards = JSON.parse(fs.readFileSync("data_files/rawAllCards.json", "utf8")).data;
+		const notFlatAllCards = JSON.parse(replaceDoppelgangerChars(fs.readFileSync("data_files/rawAllCards.json", "utf8"))).data;
 
 		//I hate Unstable and mystery booster.
 		const cardsThatAreAwful = ["Target Minotaur", "Secret Base", "Novellamental", "Extremely Slow Zombie", "Beast in Show", "Amateur Auteur", "Garbage Elemental", "Target Minotaur", "Sly Spy", "Knight of the Kitchen Sink", "Everythingamajig", "Ineffable Blessing", "Very Cryptic Command", "Start // Fire", "B.F.M. (Big Furry Monster)", "Smelt // Herd // Saw"];
@@ -283,12 +294,12 @@ const updateAllCards = function() {
 		const allRules = JSON.parse(fs.readFileSync("data_files/finalAllRules.json"));
 		const isolatedSubtypeLists = [];
 		const allCreatureTypes = [];
-		isolatedSubtypeLists.push(allRules["205.3m"].ruleText.match(/The \w+ types are ((and )?([a-zA-Z-'’]+)( \(.+?\))?(, |\.))+/)[0]);
+		isolatedSubtypeLists.push(allRules["205.3m"].ruleText.match(/The \w+ types are ((and )?([a-zA-Z-']+)( \(.+?\))?(, |\.))+/)[0]);
 		for (let i in isolatedSubtypeLists) {
 			//let iteratible = [...isolatedSubtypeLists[i].matchAll(/(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g)];
 			//Needed because matchAll is not supported:
 			let iteratible = [];
-			let regex = /(and )?([a-zA-Z-'’]+)( \(.+?\))?(, |\.)/g;
+			let regex = /(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g;
 			let lastIndexes = {};
 			let match;
 			lastIndexes[regex.lastIndex] = true;
@@ -485,7 +496,7 @@ const downloadAllFiles = function() {
 	downloadFile("data_files/rawAllKeywords.json", "https://api.academyruins.com/cr/keywords", function() {
 		try {
 			console.log("rawAllKeywords downloaded");
-			const allKeywords = JSON.parse(fs.readFileSync("data_files/rawAllKeywords.json", "utf8"));
+			const allKeywords = JSON.parse(replaceDoppelgangerChars(fs.readFileSync("data_files/rawAllKeywords.json", "utf8")));
 			if (Object.keys(allKeywords).length === 3 && allKeywords.keywordAbilities.length > 30) {
 				for (let i in allKeywords.abilityWords) {
 					allKeywords.abilityWords[i] = allKeywords.abilityWords[i][0].toUpperCase() + allKeywords.abilityWords[i].slice(1);
@@ -540,7 +551,7 @@ const downloadAllFiles = function() {
 	downloadFile("data_files/rawAllSets.json", "https://mtgjson.com/api/v5/AllPrintings.json", function() {
 		console.log("rawAllSets downloaded");
 		try {
-			const rawAllSets = JSON.parse(fs.readFileSync("data_files/rawAllSets.json")).data;
+			const rawAllSets = JSON.parse(replaceDoppelgangerChars(fs.readFileSync("data_files/rawAllSets.json", "utf8"))).data;
 
 			//Each set is an object with name, code, and releaseDate.
 			const finalAllSets = [];
@@ -599,7 +610,7 @@ const downloadAllFiles = function() {
 	downloadFile("data_files/rawAllRules.json", "https://api.academyruins.com/cr/", function() {
 		console.log("rawAllRules downloaded");
 		try {
-			const rawAllRules = fs.readFileSync("data_files/rawAllRules.json", "utf8");
+			const rawAllRules = replaceDoppelgangerChars(fs.readFileSync("data_files/rawAllRules.json", "utf8"));
 			if (Object.keys(JSON.parse(rawAllRules)).length > 1000) {
 				fs.writeFileSync("data_files/finalAllRules.json", rawAllRules);
 				finishedDownloads++;
