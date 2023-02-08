@@ -1793,7 +1793,7 @@ const validateSync = function(question) {
 	for (let i = 0 ; i < questionObj.cardLists.length ; i++) {
 		templateEmptyness.push(document.querySelector(`#cardGenerator${i + 1} > .modeSwitchButton`).textContent === "Switch to List" && document.querySelector(`#cardGenerator${i + 1} .subCardGeneratorTemplate`).childNodes.length === 0);
 	}
-	return validateQuestion(question, templateEmptyness, null, allCards, allRules);
+	return validateQuestion(question, templateEmptyness, convertedTemplateStorage, allCards, allRules);
 }
 
 //Handle preview window.
