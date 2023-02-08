@@ -18,7 +18,6 @@ const templateConvert = require("./public_html/globalResources/templateConvert.j
 			replaceExpressions = require("./public_html/globalResources/replaceExpressions.js"),
 			playerNames = JSON.parse(fs.readFileSync("playerNames.json", "utf8"));
 
-
 let referenceQuestionArray;
 
 //Array randomizer. Shuffles in place.
@@ -450,19 +449,18 @@ const sendAPIQuestions = function(questions, res, allCards) {
 			return self.indexOf(item) == pos;
 		});
 
+		const chosenCardNames = [];
 		if (questionToSend.cardLists.length > 0) {
-			let chosenCards = [];
 			//Randomly pick cards for the question.
 			for (let i = 0 ; i < 100000 ; i++) {
-				chosenCards = [];
 				for (let j = 0 ; j < questionToSend.cardLists.length ; j++) {
-					chosenCards.push(questionToSend.cardLists[j][Math.floor(Math.random()*questionToSend.cardLists[j].length)]);
+					chosenCardNames.push(questionToSend.cardLists[j][Math.floor(Math.random()*questionToSend.cardLists[j].length)]);
 				}
-				if (Array.from(new Set(chosenCards)).length === chosenCards.length) {
+				if (Array.from(new Set(chosenCardNames)).length === chosenCardNames.length) {
 					break;
 				}
 			}
-			if (Array.from(new Set(chosenCards)).length !== chosenCards.length) {
+			if (Array.from(new Set(chosenCardNames)).length !== chosenCardNames.length) {
 				res.json({"error":"There are no questions that fit your parameters. Please change your settings and try again.\n\Have a question that would fit those parameters? Submit it!"});
 				return;
 			}
@@ -472,7 +470,7 @@ const sendAPIQuestions = function(questions, res, allCards) {
 				const cardNum = Number(cardExpressions[i].match(/(?<=card )\d+/));
 				const isOtherSide = /card \d+:other side/.test(cardExpressions[i]);
 
-				let matchedCard = allCards[chosenCards[cardNum - 1]];
+				let matchedCard = allCards[chosenCardNames[cardNum - 1]];
 				if (isOtherSide) {
 					if (matchedCard.side === "a") {
 						matchedCard = allCards[matchedCard.names[1]];
@@ -490,10 +488,14 @@ const sendAPIQuestions = function(questions, res, allCards) {
 		//Handle formatting.
 		const allRules = JSON.parse(fs.readFileSync("allRules.json"));
 		const playerNamesMap = getPlayerNamesMap();
-		questionToSend.questionSimple = replaceExpressions(questionToSend.question, playerNamesMap, questionToSend.includedCards, allCards, allRules).plaintext;
-		questionToSend.answerSimple = replaceExpressions(questionToSend.answer, playerNamesMap, questionToSend.includedCards, allCards, allRules).plaintext;
-		questionToSend.questionHTML = replaceExpressions(questionToSend.question, playerNamesMap, questionToSend.includedCards, allCards, allRules).html;
-		questionToSend.answerHTML = replaceExpressions(questionToSend.answer, playerNamesMap, questionToSend.includedCards, allCards, allRules).html;
+
+		const chosenCards = chosenCardNames.map(cardName => allCards[cardName]);//We need to provide the cards to replaceExpressions in card generator order, not in text order like they are in includedCards.
+
+
+		questionToSend.questionSimple = replaceExpressions(questionToSend.question, playerNamesMap, chosenCards, allCards, allRules).plaintext;
+		questionToSend.answerSimple = replaceExpressions(questionToSend.answer, playerNamesMap, chosenCards, allCards, allRules).plaintext;
+		questionToSend.questionHTML = replaceExpressions(questionToSend.question, playerNamesMap, chosenCards, allCards, allRules).html;
+		questionToSend.answerHTML = replaceExpressions(questionToSend.answer, playerNamesMap, chosenCards, allCards, allRules).html;
 
 		//Add citedRules
 		const allNeededRuleNumbers = (questionToSend.question + questionToSend.answer).match(/(?<=\[)(\d{3}(\.\d{1,3}([a-z])?)?)(?=\])/g) || [];

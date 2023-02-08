@@ -371,7 +371,7 @@ const changePictureDisplayMode = function(mode) {
 }
 
 window.addEventListener("resize", function() {
-	if (loadedQuestions.currentQuestion && loadedQuestions.currentQuestion.oracle.length > 0) {
+	if (loadedQuestions.currentQuestion && loadedQuestions.currentQuestion.includedCards.length > 0) {
 		setCardDisplaySize();
 	}
 });
