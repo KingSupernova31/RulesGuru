@@ -208,6 +208,18 @@ const updateReferenceObjects = function(startServer) {
 				}
 			}
 			console.log("Reference question array generation complete");
+
+
+			let total = 0;
+			for (let question of referenceQuestionArray) {
+				let totalVariations = 1;
+				for (let list of question.cardLists) {
+					totalVariations *= list.length;
+				}
+				total += totalVariations;
+			}
+			console.log(total)
+
 			updateIndexQuestionCount();
 			if (startServer) {
 				server = app.listen(8080, function () {
@@ -1088,7 +1100,13 @@ const addQuestion = async function(question, isAdmin, adminId) {
 			}
 			const validNewIds = [];
 			let count = 1;
+			let loopCounter = 0;
 			while (validNewIds.length < 1000) {
+				loopCounter++;
+					if (loopCounter > 9999) {
+						handleError(`While loop not terminating.`)
+						break;
+					}
 				if (existingIds[0] === count) {
 					existingIds.shift();
 				} else {

@@ -375,12 +375,15 @@ const updateAllCards = function() {
 			}
 		}
 
-		if (allCardsProbablyValid(allCards) === true) {
-			fs.writeFileSync("data_files/finalAllCards.json", JSON.stringify(allCards));
-			console.log("Finished updating all cards.");
+		fs.writeFileSync("data_files/finalAllCards.json", JSON.stringify(allCards));
+		console.log("Finished updating all cards.");
+
+		const validity = allCardsProbablyValid(allCards)
+
+		if (validity === true) {
 			disperseFiles();
 		} else {
-			handleError(new Error(`allCards probably not valid. Issue: ${allCardsProbablyValid(allCards)}`));
+			handleError(new Error(`allCards probably not valid. Issue: ${validity}`));
 		}
 	} catch (err) {
 		handleError(err);
@@ -607,10 +610,11 @@ const downloadAllFiles = function() {
 		}
 	});
 
-	downloadFile("data_files/rawAllRules.json", "https://api.academyruins.com/cr/", function() {
+	downloadFile("data_files/rawAllRules.json", "https://api.academyruins.com/cr", function() {
 		console.log("rawAllRules downloaded");
 		try {
 			const rawAllRules = replaceDoppelgangerChars(fs.readFileSync("data_files/rawAllRules.json", "utf8"));
+
 			if (Object.keys(JSON.parse(rawAllRules)).length > 1000) {
 				fs.writeFileSync("data_files/finalAllRules.json", rawAllRules);
 				finishedDownloads++;
@@ -630,6 +634,8 @@ downloadAllFiles();
 
 const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to break things, so we perform some checks on the data to try and prevent these errors from making it into RulesGuru data.
 	const allCardNames = Object.keys(allCards);
+	console.log("foo")
+	console.log(allCards["Unquenchable Fury"])
 	const testCardData = JSON.parse(fs.readFileSync("testCardData.json", "utf8"));
 	const cardsThatShouldNotExist = ["Chaos Orb", "Goblin Game", "Target Minotaur", "B.F.M. (Big Furry Monster)", "Knight of the Kitchen Sink", "Smelt // Herd // Saw", "Extremely Slow Zombie", "Arlinn Kord Emblem", "Angel", "Saproling", "Imprision this Insolent Witch", "Intervention of Keranos", "Plot that spans Centuries", "Eight-and-a-Half-Tails Avatar", "Ashnod", "Ashling the Pilgrim Avatar", "Phoebe, Head of S.N.E.A.K.", "Rules Lawyer", "Angel of Unity", "Academy at Tolaria West", "All in Good Time", "Behold My Grandeur", "Reality Shaping", "Robot Chicken", "Metagamer", "Nerf War", "Sword of Dungeons & Dragons", "Dragon", "Richard Garfield, Ph.D.", "Proposal", "Phoenix Heart", "The Legend of Arena", "Fabled Path of Searo Point", "Only the Best", "Rarity", "1996 World Champion", "Shichifukujin Dragon", "Hymn of the Wilds", "A-Armory Veteran"];
 
@@ -645,13 +651,14 @@ const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to br
 	if (duplicatedCards.length > 0) {return `${duplicatedCards[0]} (and ${duplicatedCards.length - 1} others) are duplicated.`;}
 
 	for (let testCard in testCardData) {
+
 		if (!allCardNames.includes(testCardData[testCard].name)) {return `${testCardData[testCard].name} doesn't exist.`;}
 
 		if (testCard !== testCardData[testCard].name) {return `A card is entered under "${testCard}" but has name "${testCardData[testCard].name}".`;}
 
 		const props = Object.keys(testCardData[testCard]);
 		for (let prop of props) {
-			if (!["printingsName", "printingsCode", "playability"].includes(prop)) {//These three can change with future releases. (So can all the others, but errata/bans/new formats is much rarer than a reprint.)
+			if (!["printingsName", "printingsCode", "playability", "legalities"].includes(prop)) {//These three can change with future releases. (So can all the others, but errata/bans/new formats is much rarer than a reprint.)
 				if (JSON.stringify(testCardData[testCard][prop]) !== JSON.stringify(allCards[testCard][prop])) {
 					return `${testCard}'s ${prop} property does not match. (New prop is ${JSON.stringify(allCards[testCard][prop]).slice(0,100)})`;
 				}

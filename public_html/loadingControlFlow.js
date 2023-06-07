@@ -12,6 +12,7 @@ if (!/^https?:\/\/(?:localhost:8080|rulesguru\.net)\/\?(?:\d*(RG.+GG)?)$/.test(w
 let goToSearchLink = false,
 		searchLink;
 if (window.location.href.match("/\?(\d*)RG")) {
+	alert("SearchLinks have been temporarily disabled due to a bug. Apologies for the inconvenience.")
 	searchLink = window.location.href.slice(window.location.href.indexOf("RG") + 2, window.location.href.length - 2);
 	let numbermatch = window.location.href.match(/\?(\d)+/); // Case where there is a specific question and a searchlink
 	if (numbermatch === null) {
@@ -19,7 +20,7 @@ if (window.location.href.match("/\?(\d*)RG")) {
 	} else {
 		history.replaceState({}, "", `./${numbermatch[0]}`);
 	}
-	goToSearchLink = true;
+	//goToSearchLink = true;
 }
 
 //Check for question id.

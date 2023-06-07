@@ -80,7 +80,7 @@ const getRandomQuestion = function(callback) {
 	};
 
 	const settings = JSON.parse(JSON.stringify(sidebarSettings));
-	settings.previousId = mostRecentQuestionId;
+	settings.previousId = mostRecentQuestionId || undefined;
 	settings.from = "homePage";
 	settings.avoidRateLimiting = true;//If you find this and use it to get around my rate limiting, go ahead, you deserve it. But I'll be fixing it eventually.
 

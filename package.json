@@ -9,11 +9,13 @@
     "https": "^1.0.0",
     "jest": "^26.6.3",
     "node-cron": "^2.0.3",
+    "node-fetch": "^3.3.0",
     "nodemailer": "^6.4.17",
     "pm2": "^4.5.4",
     "request": "^2.88.2",
     "rewire": "^5.0.0",
     "sqlite3": "^5.0.1",
+    "twit": "^2.2.11",
     "util": "^0.12.3"
   },
   "scripts": {
