@@ -46,7 +46,7 @@ const updateAllCards = function() {
 		for (let i of cardsThatAreAwful) {
 			delete notFlatAllCards[i];
 		}
-		notFlatAllCards["Unquenchable Fury"].shift(0);//This is also the name of one the weird Theros cards.
+		notFlatAllCards["Unquenchable Fury"] = notFlatAllCards["Unquenchable Fury"].filter(card => !card.printings.includes("TBTH"));//This is also the name of one the weird Theros chalenge deck cards.
 
 		//Flatten subarrays from multipart cards and change both names and object keys to be individual.
 		const allCards = {};
@@ -92,6 +92,9 @@ const updateAllCards = function() {
 			}
 			if (!allCards[i].hasOwnProperty("text")) {
 				allCards[i].text = "";
+			}
+			if (!allCards[i].hasOwnProperty("manaCost")) {
+				allCards[i].manaCost = "";
 			}
 		}
 
@@ -238,19 +241,19 @@ const updateAllCards = function() {
 
 		//Add layout = prototype, and create a second card object for each one.
 		for (let i in allCards) {
-			if (allCards[i].layout === "normal" && allCards[i].text.includes("Prototype {") {
+			if (allCards[i].layout === "normal" && allCards[i].text.includes("Prototype {")) {
 				allCards[i].layout = "prototype";
 				allCards[i].side = "a";
 
 				const copy = Object.assign({}, allCards[i]);
 				copy.side = "b";
-				copy.manaCost = copy.text.match(/Prototype (.+) — \d+\/\d+)/)[1];
-				copy.power = copy.text.match(/Prototype .* — (\d+)\/\d+)/)[1];
-				copy.toughness = copy.text.match(/Prototype .* — \d+\/(\d+))/)[1];
+				copy.manaCost = copy.text.match(/Prototype (.+) — \d+\/\d+/)[1];
+				copy.power = copy.text.match(/Prototype .* — (\d+)\/\d+/)[1];
+				copy.toughness = copy.text.match(/Prototype .* — \d+\/(\d+)/)[1];
 				copy.colors = getCharacteristicsFromManaCost(copy.manaCost).colors;
 				copy.manaValue = getCharacteristicsFromManaCost(copy.manaCost).manaValue;
+				allCards[copy.name + " (prototyped)"] = copy;
 			}
-			allCards.push(copy);
 		}
 
 		//Change "printings" to "printingsCode" and add "printingsName".
@@ -637,7 +640,6 @@ downloadAllFiles();
 
 const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to break things, so we perform some checks on the data to try and prevent these errors from making it into RulesGuru data.
 	const allCardNames = Object.keys(allCards);
-	console.log(allCards["Unquenchable Fury"])
 	const testCardData = JSON.parse(fs.readFileSync("testCardData.json", "utf8"));
 	const cardsThatShouldNotExist = ["Chaos Orb", "Goblin Game", "Target Minotaur", "B.F.M. (Big Furry Monster)", "Knight of the Kitchen Sink", "Smelt // Herd // Saw", "Extremely Slow Zombie", "Arlinn Kord Emblem", "Angel", "Saproling", "Imprision this Insolent Witch", "Intervention of Keranos", "Plot that spans Centuries", "Eight-and-a-Half-Tails Avatar", "Ashnod", "Ashling the Pilgrim Avatar", "Phoebe, Head of S.N.E.A.K.", "Rules Lawyer", "Angel of Unity", "Academy at Tolaria West", "All in Good Time", "Behold My Grandeur", "Reality Shaping", "Robot Chicken", "Metagamer", "Nerf War", "Sword of Dungeons & Dragons", "Dragon", "Richard Garfield, Ph.D.", "Proposal", "Phoenix Heart", "The Legend of Arena", "Fabled Path of Searo Point", "Only the Best", "Rarity", "1996 World Champion", "Shichifukujin Dragon", "Hymn of the Wilds", "A-Armory Veteran"];
 
@@ -695,7 +697,7 @@ const testCards = ["Lightning Bolt", "Sylvan Library", "Selesnya Guildgate", "Cu
 const getCharacteristicsFromManaCost = function(manaCost) {
 	let manaValue = 0;
 	let colors = [];
-	const manaCostSymbols = allCards[i].manaCost.match(/{[A-Z0-9/]}/g);
+	const manaCostSymbols = manaCost.match(/{[A-Z0-9/]}/g) || [];
 	for (let symbol of manaCostSymbols) {
 		manaValue += parseInt(symbol.slice(1)) || 0;
 
