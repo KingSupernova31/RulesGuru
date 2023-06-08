@@ -200,6 +200,12 @@ if (!oldSettings || Object.keys(oldSettings).length !== Object.keys(defaultSetti
 let sidebarSettings;
 if (oldSettingsValid) {
 	sidebarSettings = oldSettings;
+	//To handle a single setting that got corrupted somehow. Keeps happening with cardDisplayFormat and legality being set to the empty string, not sure why.
+	for (let setting in sidebarSettings) {
+		if (typeof sidebarSettings[setting] !== typeof defaultSettings[setting] || sidebarSettings[setting] === null || sidebarSettings[setting] === "") {
+			sidebarSettings[setting] = defaultSettings[setting];
+		}
+	}
 } else {
 	sidebarSettings = defaultSettings;
 }
