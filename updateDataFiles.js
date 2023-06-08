@@ -148,7 +148,7 @@ const updateAllCards = function() {
 			}
 		}
 
-		//Remove redundant layouts and fix incorrect layouts. Left over afterwards: "normal", "split (half)", "split (full)", "flip", "transforming double-faced", "modal double-faced" "meld", "adventurer", "other".
+		//Remove redundant layouts and fix incorrect layouts. Left over afterwards: "normal", "split (half)", "split (full)", "flip", "transforming double-faced", "modal double-faced" "meld", "adventurer", "prototype", "other".
 		for (let i in allCards) {
 			if (["leveler", "saga", "class"].includes(allCards[i].layout)) {
 				allCards[i].layout = "normal";
@@ -191,24 +191,10 @@ const updateAllCards = function() {
 			}
 		}
 
-		//Fix mdfc mana value. Assumes no hybrid.
+		//Fix mdfc mana value.
 		for (let i in allCards) {
 			if (allCards[i].layout === "modal double-faced" && allCards[i].side === "b") {
-				if (allCards[i].manaCost) {
-					const manaCostSymbols = allCards[i].manaCost.match(/{[A-Z0-9]}/g);
-					let manaValue = 0;
-					for (let symbol of manaCostSymbols) {
-						const result = parseInt(symbol.slice(1));
-						if (isNaN(result)) {
-							manaValue++;
-						} else {
-							manaValue += result;
-						}
-					}
-					allCards[i].manaValue = manaValue;
-				} else {
-					allCards[i].manaValue = 0;
-				}
+				allCards[i].manaValue = getCharacteristicsFromManaCost(allCards[i].manaCost).manaValue;
 			}
 		}
 
@@ -248,6 +234,23 @@ const updateAllCards = function() {
 			if (allCards[i].layout === "split") {
 				allCards[i].layout = "split (half)";
 			}
+		}
+
+		//Add layout = prototype, and create a second card object for each one.
+		for (let i in allCards) {
+			if (allCards[i].layout === "normal" && allCards[i].text.includes("Prototype {") {
+				allCards[i].layout = "prototype";
+				allCards[i].side = "a";
+
+				const copy = Object.assign({}, allCards[i]);
+				copy.side = "b";
+				copy.manaCost = copy.text.match(/Prototype (.+) — \d+\/\d+)/)[1];
+				copy.power = copy.text.match(/Prototype .* — (\d+)\/\d+)/)[1];
+				copy.toughness = copy.text.match(/Prototype .* — \d+\/(\d+))/)[1];
+				copy.colors = getCharacteristicsFromManaCost(copy.manaCost).colors;
+				copy.manaValue = getCharacteristicsFromManaCost(copy.manaCost).manaValue;
+			}
+			allCards.push(copy);
 		}
 
 		//Change "printings" to "printingsCode" and add "printingsName".
@@ -634,7 +637,6 @@ downloadAllFiles();
 
 const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to break things, so we perform some checks on the data to try and prevent these errors from making it into RulesGuru data.
 	const allCardNames = Object.keys(allCards);
-	console.log("foo")
 	console.log(allCards["Unquenchable Fury"])
 	const testCardData = JSON.parse(fs.readFileSync("testCardData.json", "utf8"));
 	const cardsThatShouldNotExist = ["Chaos Orb", "Goblin Game", "Target Minotaur", "B.F.M. (Big Furry Monster)", "Knight of the Kitchen Sink", "Smelt // Herd // Saw", "Extremely Slow Zombie", "Arlinn Kord Emblem", "Angel", "Saproling", "Imprision this Insolent Witch", "Intervention of Keranos", "Plot that spans Centuries", "Eight-and-a-Half-Tails Avatar", "Ashnod", "Ashling the Pilgrim Avatar", "Phoebe, Head of S.N.E.A.K.", "Rules Lawyer", "Angel of Unity", "Academy at Tolaria West", "All in Good Time", "Behold My Grandeur", "Reality Shaping", "Robot Chicken", "Metagamer", "Nerf War", "Sword of Dungeons & Dragons", "Dragon", "Richard Garfield, Ph.D.", "Proposal", "Phoenix Heart", "The Legend of Arena", "Fabled Path of Searo Point", "Only the Best", "Rarity", "1996 World Champion", "Shichifukujin Dragon", "Hymn of the Wilds", "A-Armory Veteran"];
@@ -689,3 +691,22 @@ const testCards = ["Lightning Bolt", "Sylvan Library", "Selesnya Guildgate", "Cu
 	}
 	fs.writeFileSync("testCardData.json", JSON.stringify(testCardData));
 	*/
+
+const getCharacteristicsFromManaCost = function(manaCost) {
+	let manaValue = 0;
+	let colors = [];
+	const manaCostSymbols = allCards[i].manaCost.match(/{[A-Z0-9/]}/g);
+	for (let symbol of manaCostSymbols) {
+		manaValue += parseInt(symbol.slice(1)) || 0;
+
+		for (let color of ["W", "U", "B", "R", "G"]) {
+			if (symbol.includes(color)) {
+				colors.push(color);
+			}
+		}
+	}
+	return {
+		"manaValue": manaValue,
+		"colors": colors
+	};
+}
