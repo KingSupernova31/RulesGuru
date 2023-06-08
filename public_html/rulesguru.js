@@ -276,7 +276,6 @@ const populateCardDisplayArea = function(oracle) {
 	document.getElementById("pictureRows").innerHTML = "";
 
 	const defaultDisplayType = document.getElementById("cardDisplayFormat").value.toLowerCase();
-
 	const answerOnlyCards = loadedQuestions.currentQuestion.includedCards.filter(card => !loadedQuestions.currentQuestion.questionSimple.includes(card.name) && loadedQuestions.currentQuestion.answerSimple.includes(card.name));
 
 	for (let card of oracle) {

@@ -462,6 +462,7 @@ const sendAPIQuestions = function(questions, res, allCards) {
 		});
 
 		const chosenCardNames = [];
+		questionToSend.includedCards = [];
 		if (questionToSend.cardLists.length > 0) {
 			//Randomly pick cards for the question.
 			for (let i = 0 ; i < 100000 ; i++) {
@@ -477,7 +478,6 @@ const sendAPIQuestions = function(questions, res, allCards) {
 				return;
 			}
 
-			questionToSend.includedCards = [];
 			for (let i = 0 ; i < cardExpressions.length ; i++) {
 				const cardNum = Number(cardExpressions[i].match(/(?<=card )\d+/));
 				const isOtherSide = /card \d+:other side/.test(cardExpressions[i]);
