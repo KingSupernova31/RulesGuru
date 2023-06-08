@@ -270,10 +270,18 @@ if (typeof goToSearchLink === "undefined") {
 }
 if (goToSearchLink) {
 	const newSidebarSettings = convertSearchLinkToSettings(searchLink);
-	console.log(searchLink, newSidebarSettings)
 	for (let i in newSidebarSettings) {
 		sidebarSettings[i] = newSidebarSettings[i];
 	}
+
+	//Log this request so we know how often people are using searchLinks.
+	const dataToLog = JSON.parse(JSON.stringify(sidebarSettings));
+	dataToLog.goToQuestionNum = goToQuestionNum;
+	const httpRequest = new XMLHttpRequest();
+	httpRequest.open("POST", "/logSearchLinkData", true);
+	httpRequest.setRequestHeader("Content-Type", "application/json");
+	httpRequest.send(JSON.stringify(dataToLog));
+
   if ((typeof goToQuestionNum === "number")){ // Search link + specific question
     document.getElementById("FOUCOverlay").style.display = "none";
 	  document.getElementById("startPage").style.display = "none";
@@ -281,10 +289,6 @@ if (goToSearchLink) {
 		  toggleAnimation("stop");
 	  });
 	} else {
-	  const httpRequest = new XMLHttpRequest();
-	  httpRequest.open("POST", "/logSearchLinkData", true);
-	  httpRequest.setRequestHeader("Content-Type", "application/json");
-	  httpRequest.send(JSON.stringify(sidebarSettings));
 	  if (typeof doSomethingOnSidebarSettingsUpdate !== "undefined") {
 		  doSomethingOnSidebarSettingsUpdate();
 	  }
