@@ -346,7 +346,7 @@ const validateTemplate = function(inputTemplate) {
 		}
 		//Invalid mana cost
 		if (template[i].field === "Mana cost") {
-			const allowedSymbols = ["{W}", "{U}", "{B}", "{R}", "{G}", "{X}", "{Y}", "{C}", "{S}", "{P}", "{W/P}", "{U/P}", "{B/P}", "{R/P}", "{G/P}", "{2/W}", "{2/U}", "{2/B}", "{2/R}", "{2/G}", "{W/U}", "{W/B}", "{U/B}", "{U/R}", "{B/R}", "{B/G}", "{R/W}", "{R/G}", "{G/W}", "{G/U}", "{W/U/P}", "{W/B/P}", "{U/B/P}", "{U/R/P}", "{B/R/P}", "{B/G/P}", "{R/W/P}", "{R/G/P}", "{G/W/P}", "{G/U/P}", "::white::", "::blue::", "::black::", "::red::", "::green::", "::hybrid::", "::generic::", "::phyrexian::"];
+			const allowedSymbols = ["{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}", "{7}", "{8}", "{9}", "{10}", "{11}", "{12}", "{13}", "{14}", "{15}", "{16}", "{17}", "{18}", "{19}", "{20}", "{W}", "{U}", "{B}", "{R}", "{G}", "{X}", "{Y}", "{C}", "{S}", "{P}", "{W/P}", "{U/P}", "{B/P}", "{R/P}", "{G/P}", "{2/W}", "{2/U}", "{2/B}", "{2/R}", "{2/G}", "{W/U}", "{W/B}", "{U/B}", "{U/R}", "{B/R}", "{B/G}", "{R/W}", "{R/G}", "{G/W}", "{G/U}", "{W/U/P}", "{W/B/P}", "{U/B/P}", "{U/R/P}", "{B/R/P}", "{B/G/P}", "{R/W/P}", "{R/G/P}", "{G/W/P}", "{G/U/P}", "::white::", "::blue::", "::black::", "::red::", "::green::", "::hybrid::", "::generic::", "::phyrexian::"];
 			let workingSymbolString = template[i].value;
 			outerloop: while (workingSymbolString.length > 0) {
 				for (let symbol of allowedSymbols) {
