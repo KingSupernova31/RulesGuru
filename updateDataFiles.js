@@ -252,7 +252,8 @@ const updateAllCards = function() {
 				copy.toughness = copy.text.match(/Prototype .* — \d+\/(\d+)/)[1];
 				copy.colors = getCharacteristicsFromManaCost(copy.manaCost).colors;
 				copy.manaValue = getCharacteristicsFromManaCost(copy.manaCost).manaValue;
-				allCards[copy.name + " (prototyped)"] = copy;
+				copy.name = copy.name + " (prototyped)";
+				allCards[copy.name] = copy;
 			}
 		}
 
@@ -276,10 +277,9 @@ const updateAllCards = function() {
 		}
 
 		//Add a rulesText field without reminder text or ability words or flavor words.
-		const abilityWords = JSON.parse(fs.readFileSync("data_files/finalAllKeywords.json", "utf8")).abilityWords;
-		const abilityWordRegex = new RegExp("(" + abilityWords.join("|") + ") — ", "g");
-		const flavorWords = ["Acid Breath", "Animate Walking Statue", "Anitmagic Cone", "Archery", "Bardic Inspiration", "Beacon of Hope", "Bear Form", "Befriend Them", "Bewitching Whispers", "Binding Contract", "Brave the Stench", "Break Their Chains", "Charge Them", "Clever Conjurer", "Climb Over", "Combat Inspiration", "Cold Breath", "Cone of Cold", "Cunning Action", "Cure Wounds", "Dispel Magic", "Displacement", "Dissolve", "Distract the Guard", "Divine Intervention", "Dominate Monster", "Drag Below", "Engulf", "Fear Ray", "Fend Them Off", "Fight the Current", "Find a Crossing", "Flurry of Blows", "Foil Their Scheme", "Form a Party", "Gentle Repose", "Grant an Advantage", "Hide", "Interrogate Them", "Intimidate Them", "Journey On", "Keen Senses", "Learn Their Secrets", "Life Drain", "Lift the Curse", "Lightning Breath", "Magical Tinkering", "Make a Retreat", "Make Camp", "Poison Breath", "Pry It Open", "Psionic Spells", "Rappel Down", "Rejuvenation", "Rouse the Party", "Search the Body", "Search the Room", "Set Off Traps", "Siege Monster", "Smash It", "Smash the Chest", "Song of Rest", "Split", "Stand and Fight", "Start a Brawl", "Steal Its Eyes", "Stunning Strike", "Tail Spikes", "Teleport", "Tie Up", "Tragic Backstory", "Trapped!", "Two-Weapon Fighting", "Whirlwind", "Whispers of the Grave", "Wild Magic Surge"];
-		const flavorWordRegex = new RegExp("(" + flavorWords.join("|") + ") — ", "g");
+		const allKeywords = JSON.parse(fs.readFileSync("data_files/finalAllKeywords.json", "utf8"));
+		const abilityWordRegex = new RegExp("(" + allKeywords.abilityWords.join("|") + ") — ", "g");
+		const flavorWordRegex = new RegExp("(" + allKeywords.flavorWords.join("|") + ") — ", "g");
 		for (let i in allCards) {
 			allCards[i].rulesText = allCards[i].text.replace(/ ?\(.+?\)/g, function(match) {
 				return "";
@@ -381,13 +381,20 @@ const updateAllCards = function() {
 			}
 		}
 
+		//Remove MTGJSON's hallucinatory keywords.
+		for (let i in allCards) {
+			allCards[i].keywords = allCards[i].keywords.filter(keyword => allKeywords.keywordAbilities.includes(keyword) || allKeywords.keywordActions.includes(keyword));
+		}
+
 		fs.writeFileSync("data_files/finalAllCards.json", JSON.stringify(allCards));
+
 		console.log("Finished updating all cards.");
 
 		const validity = allCardsProbablyValid(allCards)
 
 		if (validity === true) {
 			disperseFiles();
+			console.log("Files dispersed");
 		} else {
 			handleError(new Error(`allCards probably not valid. Issue: ${validity}`));
 		}
@@ -510,6 +517,15 @@ const downloadAllFiles = function() {
 				for (let i in allKeywords.abilityWords) {
 					allKeywords.abilityWords[i] = allKeywords.abilityWords[i][0].toUpperCase() + allKeywords.abilityWords[i].slice(1);
 				}
+				for (let i in allKeywords.keywordAbilities) {
+					allKeywords.keywordAbilities[i] = allKeywords.keywordAbilities[i].toLowerCase();
+					allKeywords.keywordAbilities[i] = allKeywords.keywordAbilities[i][0].toUpperCase() + allKeywords.keywordAbilities[i].slice(1);
+				}
+				allKeywords.flavorWords = ["Acid Breath", "Animate Walking Statue", "Anitmagic Cone", "Archery", "Bardic Inspiration", "Beacon of Hope", "Bear Form", "Befriend Them", "Bewitching Whispers", "Binding Contract", "Brave the Stench", "Break Their Chains", "Charge Them", "Clever Conjurer", "Climb Over", "Combat Inspiration", "Cold Breath", "Cone of Cold", "Cunning Action", "Cure Wounds", "Dispel Magic", "Displacement", "Dissolve", "Distract the Guard", "Divine Intervention", "Dominate Monster", "Drag Below", "Engulf", "Fear Ray", "Fend Them Off", "Fight the Current", "Find a Crossing", "Flurry of Blows", "Foil Their Scheme", "Form a Party", "Gentle Repose", "Grant an Advantage", "Hide", "Interrogate Them", "Intimidate Them", "Journey On", "Keen Senses", "Learn Their Secrets", "Life Drain", "Lift the Curse", "Lightning Breath", "Magical Tinkering", "Make a Retreat", "Make Camp", "Poison Breath", "Pry It Open", "Psionic Spells", "Rappel Down", "Rejuvenation", "Rouse the Party", "Search the Body", "Search the Room", "Set Off Traps", "Siege Monster", "Smash It", "Smash the Chest", "Song of Rest", "Split", "Stand and Fight", "Start a Brawl", "Steal Its Eyes", "Stunning Strike", "Tail Spikes", "Teleport", "Tie Up", "Tragic Backstory", "Trapped!", "Two-Weapon Fighting", "Whirlwind", "Whispers of the Grave", "Wild Magic Surge"];
+				allKeywords.keywordActions.push("Tap");
+				allKeywords.keywordActions.push("Untap");
+				allKeywords.keywordAbilities.push("Daybound");
+				allKeywords.keywordAbilities.push("Nightbound");
 				fs.writeFileSync("data_files/finalAllKeywords.json", JSON.stringify(allKeywords));
 				finishedDownloads++;
 				if (finishedDownloads === 7) {
@@ -636,8 +652,6 @@ const downloadAllFiles = function() {
 	});
 }
 
-downloadAllFiles();
-
 const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to break things, so we perform some checks on the data to try and prevent these errors from making it into RulesGuru data.
 	const allCardNames = Object.keys(allCards);
 	const testCardData = JSON.parse(fs.readFileSync("testCardData.json", "utf8"));
@@ -683,7 +697,7 @@ const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to br
 
 //To regenerate test card data:
 /*
-const testCards = ["Lightning Bolt", "Sylvan Library", "Selesnya Guildgate", "Curiosity", "Mogis's Warhound", "Phantom Carriage", "Wildsong Howler", "Aberrant Researcher", "Fire // Ice", "Illusion", "Breya, Etherium Shaper", "Accorder's Shield", "+2 Mace", "Erayo, Soratami Ascendant", "Kenzo the Hardhearted", "Shahrazad", "Brisela, Voice of Nightmares", "Graf Rats", "Bonecrusher Giant", "Treats to Share", "Mistform Ultimus", "Dungeon of the Mad Mage", "Dangerous", "Nameless Race", "Dryad Arbor", "Tamiyo, Compleated Sage", "Memory", "Progenitus", "Transguild Courier", "Bear Cub", "Branchloft Pathway", "Grist, the Hunger Tide", "Emeria, Shattered Skyclave", "Space Beleren", "Void Beckoner", "Ajani's Pridemate", "Unquenchable Fury", "Helm of Kaldra", "Herald of Anafenza", "Thunderheads", "Jiang Yanggu", "Teferi's Response", "Sol Ring", "Command Tower", "Forest", "Ranar the Ever-Watchful", "Hanweir Battlements", "Commander's Plate", "Black Knight", "Deathmist Raptor", "Absorb Vis", "Yidris, Maelstrom Wielder", "Pack Rat", "Dredge", "Conflux", "Tajuru Paragon", "Ghostfire", "Abstruse Interference", "Prossh, Skyraider of Kher", "Avenger of Zendikar", "Start // Finish", "Arlinn Kord", "Tamiyo's Journal", "Gruul Guildgate", "Black Dragon", "Smelt", "Erase", "Unholy Heat"];
+const testCards = ["Lightning Bolt", "Sylvan Library", "Selesnya Guildgate", "Curiosity", "Mogis's Warhound", "Phantom Carriage", "Wildsong Howler", "Aberrant Researcher", "Fire // Ice", "Illusion", "Breya, Etherium Shaper", "Accorder's Shield", "+2 Mace", "Erayo, Soratami Ascendant", "Kenzo the Hardhearted", "Shahrazad", "Brisela, Voice of Nightmares", "Graf Rats", "Bonecrusher Giant", "Treats to Share", "Mistform Ultimus", "Dungeon of the Mad Mage", "Dangerous", "Nameless Race", "Dryad Arbor", "Tamiyo, Compleated Sage", "Memory", "Progenitus", "Transguild Courier", "Bear Cub", "Branchloft Pathway", "Grist, the Hunger Tide", "Emeria, Shattered Skyclave", "Space Beleren", "Void Beckoner", "Ajani's Pridemate", "Unquenchable Fury", "Helm of Kaldra", "Herald of Anafenza", "Thunderheads", "Jiang Yanggu", "Teferi's Response", "Sol Ring", "Command Tower", "Forest", "Ranar the Ever-Watchful", "Hanweir Battlements", "Commander's Plate", "Black Knight", "Deathmist Raptor", "Absorb Vis", "Yidris, Maelstrom Wielder", "Pack Rat", "Dredge", "Conflux", "Tajuru Paragon", "Ghostfire", "Abstruse Interference", "Prossh, Skyraider of Kher", "Avenger of Zendikar", "Start // Finish", "Arlinn Kord", "Tamiyo's Journal", "Gruul Guildgate", "Black Dragon", "Smelt", "Erase", "Unholy Heat", "Arcane Proxy (prototyped)", "Arcane Proxy"];
 
 	const testCardData = {};
 	for (let card in allCards) {
@@ -712,3 +726,5 @@ const getCharacteristicsFromManaCost = function(manaCost) {
 		"colors": colors
 	};
 }
+
+downloadAllFiles();
