@@ -105,6 +105,13 @@ const updateAllCards = function() {
 			}
 		}
 
+		//Remove sticker sheets.
+		for (let i in allCards) {
+			if (allCards[i].types.includes("Stickers")) {
+				delete allCards[i];
+			}
+		}
+
 		//Remove Arena-only cards.
 		for (let i in allCards) {
 			if (allCards[i].name.startsWith("A-")) {
@@ -394,7 +401,6 @@ const updateAllCards = function() {
 
 		if (validity === true) {
 			disperseFiles();
-			console.log("Files dispersed");
 		} else {
 			handleError(new Error(`allCards probably not valid. Issue: ${validity}`));
 		}
@@ -687,6 +693,14 @@ const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to br
 					}
 				}
 			}
+		}
+	}
+
+	//Check for cards with types that shouldn't exist.
+	const validTypes = ["Artifact", "Creature", "Land", "Enchantment", "Planeswalker", "Battle", "Instant", "Sorcery", "Dungeon", "Tribal"];
+	for (let card in allCards) {
+		if (allCards[card].types.filter(type => !validTypes.includes(type)).length > 0) {
+			return `${allCards[card].name} has an invalid type. Types: ${allCards[card].types}`;
 		}
 	}
 
