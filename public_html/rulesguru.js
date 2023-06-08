@@ -559,7 +559,7 @@ const displayNextRandomQuestion = function() {
 }
 
 const returnToHome = function(addToHistory) {
-	console.log(addToHistory)
+	toggleAnimation("stop");
 	document.getElementById("questionPage").style.display = "none";
 	document.getElementById("startPage").style.display = "block";
 	document.getElementById("startPage").style.transform = "scale(1)";

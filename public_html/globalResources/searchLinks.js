@@ -50,6 +50,9 @@ const convertSearchLinkToSettings = function(searchLink) {
 	}
 
 	//Remove leading 1.
+	if (binarySubString[0] === "0") {
+		return false;
+	}
 	binarySubString = binarySubString.slice(1);
 	//Level.
 	const levelOptions = ["1", "2", "3", "Corner Case"];
@@ -70,6 +73,9 @@ const convertSearchLinkToSettings = function(searchLink) {
 	//Legality.
 	const legalityOptions = ["Standard", "Pioneer", "Modern", "All of Magic", "Choose Expansions"];
 	const legalityBinary = binarySubString.slice(0,3);
+	if (parseInt(legalityBinary, 2) > 4) {
+		return false;
+	}
 	newSidebarSettings.legality = legalityOptions[parseInt(legalityBinary, 2)];
 	binarySubString = binarySubString.slice(3);
 	//Playable Only.
@@ -88,6 +94,9 @@ const convertSearchLinkToSettings = function(searchLink) {
 	binarySubString = binarySubString.slice(2);
 	newSidebarSettings.cardsConjunc = conjuncMapping[binarySubString.slice(0,2)];
 	binarySubString = binarySubString.slice(2);
+	if (newSidebarSettings.tagsConjunc === undefined || newSidebarSettings.rulesConjunc === undefined || newSidebarSettings.cardsConjunc === undefined) {
+		return false;
+	}
 	//
 	//Expansions. Skipped if legality isn't "choose Expansions".
 	if (binarySubString.length > 0) {
@@ -98,7 +107,11 @@ const convertSearchLinkToSettings = function(searchLink) {
 		}
 		newSidebarSettings.expansions = [];
 		for (let i in binarySetArray) {
-			newSidebarSettings.expansions.push(searchLinkMappings.expansions[parseInt(binarySetArray[i], 2)]);
+			const expansion = searchLinkMappings.expansions[parseInt(binarySetArray[i], 2)];
+			newSidebarSettings.expansions.push(expansion);
+			if (expansion === undefined) {
+				return false;
+			}
 		}
 	}
 	//Remaining settings.
@@ -107,6 +120,9 @@ const convertSearchLinkToSettings = function(searchLink) {
 		for (let i in remainingBinarySubStrings) {
 			remainingBinarySubStrings[i] = baseConvert(remainingBinarySubStrings[i], base59alphabet, "01");
 			//Remove leading "1".
+			if (remainingBinarySubStrings[0] === "0") {
+				return false;
+			}
 			remainingBinarySubStrings[i] = remainingBinarySubStrings[i].slice(1, remainingBinarySubStrings[i].length)
 		}
 
@@ -118,6 +134,9 @@ const convertSearchLinkToSettings = function(searchLink) {
 		}
 		newSidebarSettings.tags = [];
 		for (let i in binaryTagsArray) {
+			if (searchLinkMappings.tags[parseInt(binaryTagsArray[i], 2)] === undefined) {
+				return false;
+			}
 			newSidebarSettings.tags.push(searchLinkMappings.tags[parseInt(binaryTagsArray[i], 2)]);
 		}
 
@@ -129,6 +148,9 @@ const convertSearchLinkToSettings = function(searchLink) {
 		}
 		newSidebarSettings.rules = [];
 		for (let i in binaryRulesArray) {
+			if (searchLinkMappings.rules[parseInt(binaryRule, 2)] === undefined) {
+				return false;
+			}
 			const binaryRule = binaryRulesArray[i].slice(0, 12);
 			const isStrict = binaryRulesArray[i].slice(12) === "1";
 			let rule = searchLinkMappings.rules[parseInt(binaryRule, 2)];
@@ -146,6 +168,9 @@ const convertSearchLinkToSettings = function(searchLink) {
 		}
 		newSidebarSettings.cards = [];
 		for (let i in binaryCardsArray) {
+			if (searchLinkMappings.cards[parseInt(binaryCardsArray[i], 2)] === undefined) {
+				return false;
+			}
 			newSidebarSettings.cards.push(searchLinkMappings.cards[parseInt(binaryCardsArray[i], 2)]);
 		}
 	}
@@ -269,41 +294,47 @@ if (typeof goToSearchLink === "undefined") {
 	goToSearchLink = false;
 }
 if (goToSearchLink) {
-	const newSidebarSettings = convertSearchLinkToSettings(searchLink);
-	for (let i in newSidebarSettings) {
-		sidebarSettings[i] = newSidebarSettings[i];
-	}
-
-	//Log this request so we know how often people are using searchLinks.
-	const dataToLog = JSON.parse(JSON.stringify(sidebarSettings));
-	dataToLog.goToQuestionNum = goToQuestionNum;
-	const httpRequest = new XMLHttpRequest();
-	httpRequest.open("POST", "/logSearchLinkData", true);
-	httpRequest.setRequestHeader("Content-Type", "application/json");
-	httpRequest.send(JSON.stringify(dataToLog));
-
-  if ((typeof goToQuestionNum === "number")){ // Search link + specific question
-    document.getElementById("FOUCOverlay").style.display = "none";
-	  document.getElementById("startPage").style.display = "none";
-	  goToQuestion(goToQuestionNum, function() {
-		  toggleAnimation("stop");
-	  });
+	const result = convertSearchLinkToSettings(searchLink);
+	if (result === false) {
+		alert("The link you've followed is invalid. You'll be taken to the homepage.");
+		returnToHome(false);
 	} else {
-	  if (typeof doSomethingOnSidebarSettingsUpdate !== "undefined") {
-		  doSomethingOnSidebarSettingsUpdate();
-	  }
-	  displayNextRandomQuestion();
-	  let intervalID = {"intervalID": 0};
-	  intervalID.intervalID = setInterval(function(intervalID) {
-		  if (nextQuestion) {
-			  setTimeout(function() {
-				  toggleAnimation("stop");
-				  setTimeout(function() {
-					  alert(`You've been linked to a specific set of search criteria. You'll be shown a random question that matches those criteria, and can click "next question" to see more matching questions. To view or change your search criteria, click the settings button in the upper left.`);
-				  }, 20);
-			  }, 0)
-			  clearInterval(intervalID.intervalID);
+		const newSidebarSettings = result;
+		for (let i in newSidebarSettings) {
+			sidebarSettings[i] = newSidebarSettings[i];
+		}
+
+		//Log this request so we know how often people are using searchLinks.
+		const dataToLog = JSON.parse(JSON.stringify(sidebarSettings));
+		dataToLog.goToQuestionNum = goToQuestionNum;
+		const httpRequest = new XMLHttpRequest();
+		httpRequest.open("POST", "/logSearchLinkData", true);
+		httpRequest.setRequestHeader("Content-Type", "application/json");
+		httpRequest.send(JSON.stringify(dataToLog));
+
+	  if ((typeof goToQuestionNum === "number")){ // Search link + specific question
+	    document.getElementById("FOUCOverlay").style.display = "none";
+		  document.getElementById("startPage").style.display = "none";
+		  goToQuestion(goToQuestionNum, function() {
+			  toggleAnimation("stop");
+		  });
+		} else {
+		  if (typeof doSomethingOnSidebarSettingsUpdate !== "undefined") {
+			  doSomethingOnSidebarSettingsUpdate();
 		  }
-	  }, 100, intervalID);
-  }
+		  displayNextRandomQuestion();
+		  let intervalID = {"intervalID": 0};
+		  intervalID.intervalID = setInterval(function(intervalID) {
+			  if (nextQuestion) {
+				  setTimeout(function() {
+					  toggleAnimation("stop");
+					  setTimeout(function() {
+						  alert(`You've been linked to a specific set of search criteria. You'll be shown a random question that matches those criteria, and can click "next question" to see more matching questions. To view or change your search criteria, click the settings button in the upper left.`);
+					  }, 20);
+				  }, 0)
+				  clearInterval(intervalID.intervalID);
+			  }
+		  }, 100, intervalID);
+	  }
+	}
 }
