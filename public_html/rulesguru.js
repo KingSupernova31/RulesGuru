@@ -30,6 +30,8 @@ const loadedQuestions = {
 //Make a request for a new random question that fits the current parameters.
 let getQuestionTimeoutId = 0;
 const getRandomQuestion = function(callback) {
+	console.log("Logging for issue #104 on Github. (Section 4)")
+	console.log(JSON.stringify(sidebarSettings))
 	let response;
 	clearTimeout(getQuestionTimeoutId);
 
@@ -53,6 +55,8 @@ const getRandomQuestion = function(callback) {
 	httpRequest.onload = function() {
 		if (httpRequest.status === 200) {
 			if (httpRequest.response) {
+				console.log("Logging for issue #104 on Github. (Section 5)")
+				console.log(httpRequest.response)
 				response = JSON.parse(httpRequest.response);
 				if (response.error) {
 					getQuestionError = response.error;
@@ -529,6 +533,9 @@ const moveToNextQuestion = function() {
 
 //Function to display the next random question.
 const displayNextRandomQuestion = function() {
+	console.log("Logging for issue #104 on Github. (Section 3)")
+	console.log(JSON.stringify(sidebarSettings))
+	console.log(JSON.stringify(loadedQuestions))
 	document.getElementById("questionPageBackgroundBox").style.height = "";
 	if (sidebarOpen) {
 		updateSidebarSettingsOnClose();

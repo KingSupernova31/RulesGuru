@@ -294,6 +294,9 @@ if (typeof goToSearchLink === "undefined") {
 }
 if (goToSearchLink) {
 	const result = convertSearchLinkToSettings(searchLink);
+	console.log("Logging for issue #104 on Github. (Section 1)")
+	console.log(searchLink)
+	console.log(result)
 	if (result === false) {
 		alert("The link you've followed is invalid. You'll be taken to the homepage.");
 		returnToHome(false);
@@ -318,6 +321,8 @@ if (goToSearchLink) {
 			for (let i in newSidebarSettings) {
 				sidebarSettings[i] = newSidebarSettings[i];
 			}
+			console.log("Logging for issue #104 on Github. (Section 2)")
+			console.log(JSON.stringify(sidebarSettings))
 		  if (typeof doSomethingOnSidebarSettingsUpdate !== "undefined") {
 			  doSomethingOnSidebarSettingsUpdate();
 		  }

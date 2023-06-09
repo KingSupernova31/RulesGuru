@@ -1247,7 +1247,7 @@ const convertTypingRealTime = function(element) {
 	const allCardNamesMinusWords = JSON.parse(JSON.stringify(allCardNames)).filter(name => !cardNamesToIgnore.includes(name));
 	stringsToExpresify = stringsToExpresify.concat(allCardNamesMinusWords);
 
-	const expressionRegex = new RegExp("(^|\\s)(" + stringsToExpresify.join("|").replace(/\+/g, "\\+") + ")($|\\s|[.,;'])", "gi");
+	const expressionRegex = new RegExp("(^|\\s)(" + stringsToExpresify.join("|").replace(/[+()]/g, "\\$&") + ")($|\\s|[.,;'])", "gi");
 	newValue = newValue.replace(expressionRegex, function(match, capt1, capt2, capt3, offset) {
 		if (offset + capt1.length <= cursorPos && cursorPos <= offset + capt1.length + capt2.length) {//Do nothing if the cursor is within the symbol or the adjacent characters.
 			return match;
@@ -1255,6 +1255,8 @@ const convertTypingRealTime = function(element) {
 			if (offset < cursorPos) {
 				cursorPos += 2;
 			}
+			console.log(match)
+			console.log(capt3)
 			return capt1 + "[" + capt2 + "]" + capt3;
 		}
 	})
@@ -1307,6 +1309,7 @@ const convertTypingRealTime = function(element) {
 			}
 			if (!assignedCards[cardName]) {
 				let foundCardlistIndex = questionObj.cardLists.findIndex(function (element) {
+
 					return JSON.stringify(element) === `["${cardName}"]`;
 				})
 				if (foundCardlistIndex > -1 && document.querySelector(`#cardGenerator${foundCardlistIndex + 1} .modeSwitchButton`).textContent === "Switch to Template") {
