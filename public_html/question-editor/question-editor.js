@@ -1244,7 +1244,10 @@ const convertTypingRealTime = function(element) {
 	let stringsToExpresify = ["card 1", "card 2", "card 3", "card 4", "card 5", "card 6", "card 7", "card 8", "card 9", "card 10", "card 11", "card 12", "card 13", "card 14", "card 15", "AP", "NAP", "NAP1", "NAP2", "NAP3", "APa", "APb", "NAPa", "NAPb", "+1", "+2", "+3", "+4", "+5", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "-9", "-10", "-11", "-12", "-13", "-14", "-15"];//Also rule citations, and card names
 	const stringsToSymbolfy = ["W", "U", "B", "R", "G", "C", "S", "P", "W/P", "U/P", "B/P", "R/P", "G/P", "2/W", "2/U", "2/B", "2/R", "2/G", "W/U", "W/B", "U/B", "U/R", "B/R", "B/G", "R/W", "R/G", "G/W", "G/U", "W/U/P", "W/B/P", "U/B/P", "U/R/P", "B/R/P", "B/G/P", "R/W/P", "R/G/P", "G/W/P", "G/U/P", "E", "T", "Q", "CHAOS"];
 
-	const allCardNamesMinusWords = JSON.parse(JSON.stringify(allCardNames)).filter(name => !cardNamesToIgnore.includes(name));
+	const allCardNamesMinusWords = JSON.parse(JSON.stringify(allCardNames)).filter(name => !cardNamesToIgnore.includes(name)).sort(function(a, b) {
+		//Putting the longest card names at the beginning means that it recognizes "Colossus Hammer" rather than just "Colossus", etc.
+		return b.length - a.length;
+	});
 	stringsToExpresify = stringsToExpresify.concat(allCardNamesMinusWords);
 
 	const expressionRegex = new RegExp("(^|\\s)(" + stringsToExpresify.join("|").replace(/[+()]/g, "\\$&") + ")($|\\s|[.,;'])", "gi");
