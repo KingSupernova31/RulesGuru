@@ -93,7 +93,7 @@ const getRandomQuestion = function(callback) {
 };
 
 let goToQuestionPendingRequest = null;
-let goToQuestion = function(questionId, callback) {
+let goToQuestion = function(questionId, callback, settingsToUse) {
 	document.querySelector("title").textContent = "RulesGuru #" + questionId;
 	if (goToQuestionPendingRequest) {
 		goToQuestionPendingRequest.abort();
@@ -131,10 +131,10 @@ let goToQuestion = function(questionId, callback) {
 				callback();
 			}
 		}
-	});
+	}, settingsToUse);
 };
 
-const getSpecificQuestion = function(questionId, callback) {
+const getSpecificQuestion = function(questionId, callback, settingsToUse) {
 	let response;
 	clearTimeout(getQuestionTimeoutId);
 
@@ -174,13 +174,15 @@ const getSpecificQuestion = function(questionId, callback) {
 			}
 		}
 	};
+	console.log(settingsToUse)
+	if (settingsToUse === undefined) {
+		settingsToUse = JSON.parse(JSON.stringify(sidebarSettings));
+	}
+	settingsToUse.id = questionId;
+	settingsToUse.from = "homePage";
+	settingsToUse.avoidRateLimiting = true;//If you find this and use it to get around my rate limiting, go ahead, you deserve it. But I'll be fixing it eventually.
 
-	const settings = JSON.parse(JSON.stringify(sidebarSettings));
-	settings.id = questionId;
-	settings.from = "homePage";
-	settings.avoidRateLimiting = true;//If you find this and use it to get around my rate limiting, go ahead, you deserve it. But I'll be fixing it eventually.
-
-	const queryString = encodeURIComponent(JSON.stringify(settings));
+	const queryString = encodeURIComponent(JSON.stringify(settingsToUse));
 
 	httpRequest.open("GET", `/api/questions/?json=${queryString}`, true);
 	httpRequest.send();

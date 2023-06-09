@@ -300,12 +300,9 @@ if (goToSearchLink) {
 		returnToHome(false);
 	} else {
 		const newSidebarSettings = result;
-		for (let i in newSidebarSettings) {
-			sidebarSettings[i] = newSidebarSettings[i];
-		}
 
 		//Log this request so we know how often people are using searchLinks.
-		const dataToLog = JSON.parse(JSON.stringify(sidebarSettings));
+		const dataToLog = JSON.parse(JSON.stringify(newSidebarSettings));
 		dataToLog.goToQuestionNum = goToQuestionNum;
 		const httpRequest = new XMLHttpRequest();
 		httpRequest.open("POST", "/logSearchLinkData", true);
@@ -317,8 +314,11 @@ if (goToSearchLink) {
 		  document.getElementById("startPage").style.display = "none";
 		  goToQuestion(goToQuestionNum, function() {
 			  toggleAnimation("stop");
-		  });
+		  }, newSidebarSettings);
 		} else {
+			for (let i in newSidebarSettings) {
+				sidebarSettings[i] = newSidebarSettings[i];
+			}
 		  if (typeof doSomethingOnSidebarSettingsUpdate !== "undefined") {
 			  doSomethingOnSidebarSettingsUpdate();
 		  }
