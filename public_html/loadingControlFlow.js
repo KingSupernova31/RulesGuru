@@ -28,6 +28,20 @@ if (window.location.href.match(/\?\d/)) {
 	goToQuestionNum = Number(window.location.href.match(/\/?(\d+)$/)[1]);
 }
 
+const maximallyPermissiveSidebarSettings = {
+	"level": ["0", "1", "2", "3", "Corner Case"],
+	"complexity": ["Simple", "Intermediate", "Complicated"],
+	"legality": "All of Magic",
+	"expansions": [],
+	"playableOnly": false,
+	"tags": [],
+	"tagsConjunc": "",
+	"rules": [],
+	"rulesConjunc": "",
+	"cards": [],
+	"cardsConjunc": ""
+};
+
 if (goToSearchLink) {
 	document.getElementById("startPage").style.display = "none";
 } else if (typeof goToQuestionNum === "number") {
@@ -35,7 +49,7 @@ if (goToSearchLink) {
 	document.getElementById("startPage").style.display = "none";
 	goToQuestion(goToQuestionNum, function() {
 		toggleAnimation("stop");
-	});
+	}, maximallyPermissiveSidebarSettings);
 } else {
 	toggleAnimation("stop");
 	document.getElementById("FOUCOverlay").style.display = "none";

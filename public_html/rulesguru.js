@@ -174,7 +174,6 @@ const getSpecificQuestion = function(questionId, callback, settingsToUse) {
 			}
 		}
 	};
-	console.log(settingsToUse)
 	if (settingsToUse === undefined) {
 		settingsToUse = JSON.parse(JSON.stringify(sidebarSettings));
 	}

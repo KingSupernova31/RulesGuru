@@ -22,7 +22,6 @@ Tags, rules, and cards all have a 1 at the beginning after the seperator to avoi
 
 */
 
-
 //Returns a new sidebar settings object when given a searchlink string.
 const convertSearchLinkToSettings = function(searchLink) {
 	const newSidebarSettings = {
