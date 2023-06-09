@@ -148,10 +148,10 @@ const convertSearchLinkToSettings = function(searchLink) {
 		}
 		newSidebarSettings.rules = [];
 		for (let i in binaryRulesArray) {
+			const binaryRule = binaryRulesArray[i].slice(0, 12);
 			if (searchLinkMappings.rules[parseInt(binaryRule, 2)] === undefined) {
 				return false;
 			}
-			const binaryRule = binaryRulesArray[i].slice(0, 12);
 			const isStrict = binaryRulesArray[i].slice(12) === "1";
 			let rule = searchLinkMappings.rules[parseInt(binaryRule, 2)];
 			if (isStrict) {

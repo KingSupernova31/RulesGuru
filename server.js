@@ -218,7 +218,7 @@ const updateReferenceObjects = function(startServer) {
 				}
 				total += totalVariations;
 			}
-			console.log(total)
+			console.log("(Approxomate) total question permutations: " + total)
 
 			updateIndexQuestionCount();
 			if (startServer) {
@@ -693,7 +693,7 @@ app.get("/api/questions", function(req, res) {
 			let loopCounter = 0;
 			while (true) {
 				loopCounter++;
-				if (loopCounter > 9999) {
+				if (loopCounter > 99999) {
 					handleError(`While loop not terminating.`)
 					break;
 				}
@@ -710,7 +710,7 @@ app.get("/api/questions", function(req, res) {
 					currentSearchLocation = 0;
 				}
 				if (currentSearchLocation === locationToStartSearch) {
-					res.json({"status": 404, "error":"There are not enough questions that fit your parameters."});
+					res.json({"status": 404, "error":`There are ${requestSettings.count === 1 ? "no" : "not enough"} questions that fit your settings.`});
 					break;
 				}
 			}
