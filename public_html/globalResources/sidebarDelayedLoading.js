@@ -129,3 +129,4 @@ if (!window.location.href.includes("question-editor")) {
 }
 
 togglePlayability();
+populateSidebarRulesDropdown();

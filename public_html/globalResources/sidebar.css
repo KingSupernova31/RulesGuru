@@ -28,11 +28,13 @@
 
 #sidebar ul {
 	list-style-image: url("icons/red-x.png");
-	margin-left: 2rem;
+	margin-left: 1rem;
 }
 
 #sidebar li {
 	width: fit-content;
+	cursor: pointer;
+	list-style-position: inside;
 }
 
 #sidebar h4, #sidebar label {

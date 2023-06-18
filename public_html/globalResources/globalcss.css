@@ -379,3 +379,7 @@ body {
 	height: 6rem;
 	border-radius: 5rem;
 }
+
+button, select, .radioLabel {
+	cursor: pointer;
+}
