@@ -27,14 +27,24 @@
 }
 
 #sidebar ul {
-	list-style-image: url("icons/red-x.png");
-	margin-left: 1rem;
+	margin-left: 2rem;
 }
 
 #sidebar li {
 	width: fit-content;
 	cursor: pointer;
-	list-style-position: inside;
+	list-style-type: none;
+}
+
+#sidebar li:before {
+	content: url("icons/red-x.png");
+	transform: translateX(-1rem);
+	position: absolute;
+}
+
+#sidebar li:hover:before {
+	transform: translateX(-1rem) scale(1.5);
+	transition: transform 0.2s ease
 }
 
 #sidebar h4, #sidebar label {

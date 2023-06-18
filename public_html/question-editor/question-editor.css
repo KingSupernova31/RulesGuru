@@ -22,7 +22,19 @@ h1 {
 }
 
 #tagList li {
-	list-style-image: url("../globalResources/icons/red-x.png");
+	cursor: pointer;
+	list-style-type: none;
+}
+
+#tagList li:before {
+	content: url("../globalResources/icons/red-x.png");
+	transform: translateX(-1rem);
+	position: absolute;
+}
+
+#tagList li:hover:before {
+	transform: translateX(-1rem) scale(1.5);
+	transition: transform 0.2s ease
 }
 
 #question, #answer {
