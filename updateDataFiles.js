@@ -248,8 +248,7 @@ const updateAllCards = function() {
 
 		//Add layout = prototype, and create a second card object for each one.
 		for (let i in allCards) {
-			if (allCards[i].layout === "normal" && allCards[i].text.includes("Prototype {")) {
-				allCards[i].layout = "prototype";
+			if (allCards[i].layout === "prototype") {
 				allCards[i].side = "a";
 
 				const copy = Object.assign({}, allCards[i]);
@@ -683,6 +682,9 @@ const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to br
 		const props = Object.keys(testCardData[testCard]);
 		for (let prop of props) {
 			if (!["printingsName", "printingsCode", "playability", "legalities"].includes(prop)) {//These three can change with future releases. (So can all the others, but errata/bans/new formats is much rarer than a reprint.)
+				if (!allCards[testCard].hasOwnProperty(prop)) {
+					return `${testCard} does not have a "${prop}" property.`;
+				}
 				if (JSON.stringify(testCardData[testCard][prop]) !== JSON.stringify(allCards[testCard][prop])) {
 					return `${testCard}'s ${prop} property does not match. (New prop is ${JSON.stringify(allCards[testCard][prop]).slice(0,100)})`;
 				}
@@ -741,4 +743,5 @@ const getCharacteristicsFromManaCost = function(manaCost) {
 	};
 }
 
-downloadAllFiles();
+//downloadAllFiles();
+updateAllCards();
