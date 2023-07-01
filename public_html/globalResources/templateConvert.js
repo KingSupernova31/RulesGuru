@@ -17,8 +17,8 @@ const templateConvert = function(template, globalCardList) {
 		let currentValidCards = Object.values(globalCardList);
 		currentValidCards = currentValidCards.filter(function(currentCard) {
 			let currentCardValid = true;
-			//Nontraditional cards with layout "other" shouldn't appear in templates.
-			if (currentCard.layout === "other") {
+			//Nontraditional cards shouldn't appear in templates.
+			if (currentCard.layout === "other" || currentCard.subtypes.includes("Attraction")) {
 				currentCardValid = false;
 			}
 			const orGroupsSatisfied = {};
