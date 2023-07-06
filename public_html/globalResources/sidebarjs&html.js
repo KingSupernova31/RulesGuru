@@ -39,7 +39,7 @@ document.querySelector("body").insertAdjacentHTML("beforeend", `
 		<br>
 		<div id="sidebarPlayabilityHide">
 			<label>
-				<h4 tooltip="Restrict questions to those that could potentially come up in a tournament of this format, and that don't apply equally to all formats.">Tournament viable:</h4>
+				<h4 tooltip="Restrict questions to those that could potentially come up in a tournament of the selected format, and that don't apply equally to all formats.">Tournament-relevant:</h4>
 				<input type="checkbox" id="sidebarPlayability">
 			</label>
 			<br>
