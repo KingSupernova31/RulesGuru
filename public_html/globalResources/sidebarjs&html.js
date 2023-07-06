@@ -39,7 +39,7 @@ document.querySelector("body").insertAdjacentHTML("beforeend", `
 		<br>
 		<div id="sidebarPlayabilityHide">
 			<label>
-				<h4 tooltip="If this box is checked, questions will be restricted to cards that see competitive play in the chosen format.">Playable Only:</h4>
+				<h4 tooltip="Restrict questions to those that could potentially come up in a tournament of this format, and that don't apply equally to all formats.">Tournament viable:</h4>
 				<input type="checkbox" id="sidebarPlayability">
 			</label>
 			<br>
@@ -175,7 +175,7 @@ let	sidebarOpen = false,
 			"complexity": ["Simple", "Intermediate"],
 			"legality": "Modern",
 			"expansions": [],
-			"playableOnly": false,
+			"playableOnly": true,
 			"tags": ["Unsupported answers"],
 			"tagsConjunc": "NOT",
 			"rules": [],

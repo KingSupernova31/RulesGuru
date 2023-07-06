@@ -233,7 +233,7 @@ setInterval(updateReferenceObjects, 86400000, false);
 
 //Modifies the original question to matches the settings specified and returns it, or returns false if it can't match.
 const questionMatchesSettings = function(question, settings, allCards) {
-	//Move to the next question if level or complexity don't fit.
+	//Check if level or complexity match fit.
 	if (!settings.level.includes(question.level)) {
 		return false;
 	}
@@ -241,7 +241,19 @@ const questionMatchesSettings = function(question, settings, allCards) {
 		return false;
 	}
 
-	//Move to the next question if the tags don't match.
+	//Check if the question is tournament viable.
+	if (["Modern", "Pioneer", "Standard"].includes(settings.legality) && settings.playableOnly) {
+		if (question.cardLists.length === 0) {
+			return false;
+		}
+		for (let tag of ["Multiplayer", "Commander", "Two-Headed Giant"]) {
+			if (question.tags.includes(tag)) {
+				return false;
+			}
+		}
+	}
+
+	//Check if the tags match.
 	if (settings.tags.length > 0) {
 		if (settings.tagsConjunc === "OR") {
 			if (!(settings.tags.some(function(element) {
@@ -263,7 +275,8 @@ const questionMatchesSettings = function(question, settings, allCards) {
 			}
 		}
 	}
-	//Move to the next question if the rules don't match.
+
+	//Check if the rules match.
 	if (settings.rules.length > 0) {
 		const citedRules = question.answer.match(/\d{3}(?:\.\d{1,3}(?:[a-z])?)?(?=\])/g) || [];
 		const requiredRulesExact = settings.rules.filter(function(currentvalue){
@@ -309,7 +322,7 @@ const questionMatchesSettings = function(question, settings, allCards) {
 		}
 	}
 */
-	//Remove cards that don't match legality (including playable only) and move to the next question if no valid cards are left.
+	//Remove cards that don't match legality (including playable only) and return false if this causes a list to be empty.
 	if (settings.legality === "Choose Expansions") {
 		for (let list in question.cardLists) {
 			question.cardLists[list] = question.cardLists[list].filter(function(card) {
@@ -326,11 +339,7 @@ const questionMatchesSettings = function(question, settings, allCards) {
 						 return false;
 					} else {
 						if (settings.playableOnly) {
-							if (allCards[card].playability.includes(settings.legality)) {
-								return true;
-							} else {
-								return false;
-							}
+							return allCards[card].playability.includes(settings.legality);
 						} else {
 							return true;
 						}
@@ -344,7 +353,7 @@ const questionMatchesSettings = function(question, settings, allCards) {
 			return false;
 		}
 	}
-	//Remove non-matching cards and move to the next question if no valid set of cards is found.
+	//Remove non-matching cards and return false if this causes a list to be empty.
 	if (settings.cards.length > 0) {
 		if (settings.cardsConjunc === "AND") {
 			const requiredCards = settings.cards.slice();
