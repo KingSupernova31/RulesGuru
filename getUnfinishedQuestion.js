@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 const getUnfinishedQuestion = function(admin, allQuestions) {
 	let pendingQuestions = [];
 	let awaitingVerificationQuestions = [];
@@ -46,10 +48,31 @@ const getUnfinishedQuestion = function(admin, allQuestions) {
 		choice = Math.round(Math.random()) === 0 ? "pending" : "awaiting verification";
 	}
 
+	const getAQuestionToSend = function(listOfQuestions) {
+		let recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
+		listOfQuestions.sort((a, b) => b.id - a.id);
+		let foundQuestion = null;
+		for (let question of listOfQuestions) {
+			if (!recentlyDistributedQuestionIds.includes(question.id)) {
+				foundQuestion = question;
+				break;
+			}
+		}
+		if (foundQuestion === null) {
+			foundQuestion = listOfQuestions[Math.floor(Math.random() * pendingQuestions.length)];
+		}
+		recentlyDistributedQuestionIds.push(foundQuestion.id);
+		if (recentlyDistributedQuestionIds.length >= 100) {
+			recentlyDistributedQuestionIds = recentlyDistributedQuestionIds.slice(recentlyDistributedQuestionIds.length - 5);
+		}
+		fs.writeFileSync("recentlyDistributedQuestionIds.json", JSON.stringify(recentlyDistributedQuestionIds));
+		return foundQuestion;
+	}
+
 	if (choice === "pending") {
-		return pendingQuestions[Math.floor(Math.random() * pendingQuestions.length)];
+		return getAQuestionToSend(pendingQuestions);
 	} else if (choice === "awaiting verification") {
-		return awaitingVerificationQuestions[Math.floor(Math.random() * awaitingVerificationQuestions.length)];
+		return getAQuestionToSend(awaitingVerificationQuestions);
 	}
 }
 
