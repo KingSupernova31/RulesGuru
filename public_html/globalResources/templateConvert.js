@@ -9,13 +9,19 @@ Object.defineProperty(Array.prototype, "includesCaseInsensitive", {
 	}
 });
 
+//Time intensive step is the regexes, focus there for optimization.
+//Somehow this takes over a second: templateConvert([{"field":"Rules text","operator":"Matches:","value":"When ::name:: enters the battlefield, exile target nonland permanent an opponent controls until ::name:: leaves the battlefield.","orGroup":null}], allCards)
+//No individual card causes the problems; longest card is about 8ms, and it's inconsistent which card it is.
+
 const templateConvert = function(template, globalCardList) {
 	//An empty template returns no cards, not all of them.
 	if (template.length === 0) {
 		return [];
 	} else {
 		let currentValidCards = Object.values(globalCardList);
+
 		currentValidCards = currentValidCards.filter(function(currentCard) {
+
 			let currentCardValid = true;
 			//Nontraditional cards shouldn't appear in templates.
 			if (currentCard.layout === "other" || currentCard.subtypes.includes("Attraction")) {

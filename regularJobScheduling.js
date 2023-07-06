@@ -11,13 +11,13 @@ day of week	0-6 (0 is sunday)
 
 //Every day:
 cron.schedule("0 0 0 * * *", function() {
-	require('child_process').fork('updateDataFiles.js');
+	require('child_process').fork('custom_modules/updateDataFiles.js');
 });
 
-cron.schedule("0 0 5 * * *", function() {
-	require('child_process').fork('createBackups.js');
+cron.schedule("* * * * * *", function() {
+	require('child_process').fork('custom_modules/createBackups.js');
 });
 
 cron.schedule("0 0 12 * * *", function() {
-	require('child_process').fork('dailyEmails.js');
+	require('child_process').fork('custom_modules/dailyEmails.js');
 });
