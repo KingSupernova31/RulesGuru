@@ -59,11 +59,11 @@ const getUnfinishedQuestion = function(admin, allQuestions) {
 			}
 		}
 		if (foundQuestion === null) {
-			foundQuestion = listOfQuestions[Math.floor(Math.random() * pendingQuestions.length)];
+			foundQuestion = listOfQuestions[Math.floor(Math.random() * listOfQuestions.length)];
 		}
 		recentlyDistributedQuestionIds.push(foundQuestion.id);
-		if (recentlyDistributedQuestionIds.length >= 100) {
-			recentlyDistributedQuestionIds = recentlyDistributedQuestionIds.slice(recentlyDistributedQuestionIds.length - 5);
+		if (recentlyDistributedQuestionIds.length >= 500) {
+			recentlyDistributedQuestionIds = recentlyDistributedQuestionIds.slice(recentlyDistributedQuestionIds.length - 500);
 		}
 		fs.writeFileSync("recentlyDistributedQuestionIds.json", JSON.stringify(recentlyDistributedQuestionIds));
 		return foundQuestion;

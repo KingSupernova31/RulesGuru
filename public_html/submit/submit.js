@@ -71,10 +71,10 @@ const clearFields = function() {
 }
 
 const compressMobileNameDescription = function() {
-	if (document.getElementById("name").clientWidth < parseFloat(getComputedStyle(document.documentElement).fontSize) * 30) {
-		document.getElementById("name").placeholder = "Name (optional)";
+	if (document.getElementById("name").clientWidth < parseFloat(getComputedStyle(document.documentElement).fontSize) * 20) {
+		document.getElementById("name").placeholder = "Name. (Optional)";
 	} else {
-		document.getElementById("name").placeholder = "Enter your name if you'd like to be credited for this question";
+		document.getElementById("name").placeholder = "Name. (Optional, if you'd like to be credited.)";
 	}
 }
 document.onload = compressMobileNameDescription;
