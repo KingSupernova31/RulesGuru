@@ -210,6 +210,28 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 		if (onRegex.test(questionObj.question.toLowerCase()) || onRegex.test(questionObj.answer.toLowerCase())) {
 			warnings.push(`Please don't use the word "on" to indicate an action; say "targeting" or "choosing" as appropriate instead.`);
 		}
+		let questionIncludesFlipCard = false;
+		for (let list of convertedTemplateStorage) {
+			let thisListIsAllFlipCards = true;
+			for (let card of list) {
+				if (allCards[card].layout !== "flip") {
+					thisListIsAllFlipCards = false;
+					break;
+				}
+			}
+			if (thisListIsAllFlipCards) {
+				questionIncludesFlipCard = true;
+				break;
+			}
+		}
+		if (!questionIncludesFlipCard) {
+			if (questionObj.question.toLowerCase().includes("flip")) {
+				errors.push(`"Flip" is a technical term, please only use it to refer to the action of flipping a flip card.`);
+			}
+			if (questionObj.answer.toLowerCase().includes("flip")) {
+				errors.push(`"Flip" is a technical term, please only use it to refer to the action of flipping a flip card.`);
+			}
+		}
 
 		//Check for comma splice.
 		if (/,.*\?/.test(questionObj.question) && !/If[^.]*,.*\?/.test(questionObj.question) && currentAdminName === "Tobias Vyseri") {
