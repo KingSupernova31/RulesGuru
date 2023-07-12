@@ -2731,13 +2731,22 @@ const addPresetTemplateRule = function(description, ignoreShift) {
 }
 
 const addPresetRulesToTemplate = function() {
+
+	const rules = Array.from(document.getElementsByClassName("templateRule"));
+	let allOrGroupsInUse = rules.map(rule => rule.dataset.orgroup).filter(orGroup => !Number.isNaN(Number(orGroup)));
+	allOrGroupsInUse = Array.from(new Set(allOrGroupsInUse));
+	allOrGroupsInUse.sort();
+	const numOrGroupsAlreadyInUse = allOrGroupsInUse.length;
+
 	const presetDesc = document.getElementById('presetTemplates').value;
 	let preset = presetTemplates.filter(presetTemplate => presetTemplate.description === presetDesc)[0].rules;
 	for (let rule of preset) {
 		if (rule.preset) {
 			addPresetTemplateRule(rule.preset, true);
 		} else {
-			addTemplateRule(rule.field, rule.operator, rule.value, rule.fieldOption, rule.orGroup);
+			const orGroup = rule.orGroup === null ? null : rule.orGroup + numOrGroupsAlreadyInUse;
+			console.log(orGroup)
+			addTemplateRule(rule.field, rule.operator, rule.value, rule.fieldOption, orGroup);
 		}
 	}
 }
