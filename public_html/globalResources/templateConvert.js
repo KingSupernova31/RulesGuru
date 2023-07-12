@@ -20,6 +20,7 @@ const templateConvert = function(template, globalCardList, presetTemplates) {
 	} else {
 
 		let count = 0;
+		let presetOrGroupNum = 0;
 		const generateExpandedTemplate = function(template) {
 			count++;
 			if (count > 50) {
@@ -28,9 +29,17 @@ const templateConvert = function(template, globalCardList, presetTemplates) {
 			const finalRules = [];
 			for (let rule of template) {
 				if (rule.preset) {
+					presetOrGroupNum += 100;
 					const presetTemplate = presetTemplates.filter(presetTemplate => presetTemplate.description === rule.preset)[0].rules;
-					finalRules.push(...generateExpandedTemplate(presetTemplate))
+					const presetRules = generateExpandedTemplate(presetTemplate);
+					for (let rule of presetRules) {
+						if (rule.orGroup !== null) {
+							rule.orGroup = rule.orGroup + presetOrGroupNum;
+						}
+					}
+					finalRules.push(...presetRules);
 				} else {
+					const orGroupEditedRule = Object.assign({}, rule);
 					finalRules.push(rule);
 				}
 			}

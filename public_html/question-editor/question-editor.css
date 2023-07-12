@@ -721,3 +721,7 @@ div[data-orgroup="4"] {
 	background-color: #ff8585;
 	border-radius: 0.5rem;
 }
+
+#templateRuleList {
+	margin-top: 0.5rem;
+}

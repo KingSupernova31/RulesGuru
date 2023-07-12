@@ -221,7 +221,7 @@ const addCardGenerator = function() {
 		const templateNum = Number(this.parentElement.id.slice(13) - 1);
 		document.getElementById("cardGeneratorgreyout").style.display = "block";
 		document.getElementById("templateScrollContainer").style.display = "block";
-		document.querySelector("#templateDiv h3").textContent = `Add rules to template ${templateNum + 1}`;
+		document.querySelector("#templateBoxHeading").textContent = `Edit template ${templateNum + 1}`;
 		document.getElementById("addORGroupButton").textContent = "Add OR group";
 		for (let i in questionObj.cardTemplates[templateNum]) {
 			if (questionObj.cardTemplates[templateNum][i].preset) {
@@ -675,7 +675,7 @@ const processTemplateBox = function() {
 	let template = createTemplate();
 	let validatedTemplate = validateTemplate(template);
 	if (validatedTemplate.templateErrors.length === 0) {
-		const templateNum = document.getElementById("templateBoxHeading").textContent.slice(22) - 1;
+		const templateNum = Number(document.getElementById("templateBoxHeading").textContent.slice(14)) - 1;
 		closeTemplateBox();
 		questionObj.cardTemplates[templateNum] = template;
 		displayTemplateCardSet(template, templateNum);
@@ -1075,7 +1075,7 @@ const populateFields = function(question) {
 				element.dispatchEvent(event);
 			}
 		} else {
-			document.querySelector("#templateDiv h3").textContent = `Add rules to template ${i - - 1}`;
+			document.querySelector("#templateBoxHeading").textContent = `Edit template ${i - - 1}`;
 			for (let j in question.cardGenerators[i]) {
 				if (question.cardGenerators[i][j].preset) {
 					addPresetTemplateRule(question.cardGenerators[i][j].preset);
@@ -2731,7 +2731,6 @@ const addPresetTemplateRule = function(description, ignoreShift) {
 }
 
 const addPresetRulesToTemplate = function() {
-	document.getElementById("templateRules").innerHTML = "";
 	const presetDesc = document.getElementById('presetTemplates').value;
 	let preset = presetTemplates.filter(presetTemplate => presetTemplate.description === presetDesc)[0].rules;
 	for (let rule of preset) {

@@ -272,7 +272,11 @@
 			</div>
 			<div id="templateScrollContainer" class="roundedCorners">
 				<div id="templateDiv">
-					<h3 id="templateBoxHeading">Add rules to template X</h3>
+					<h3 id="templateBoxHeading">Edit template X</h3>
+					<select id="presetTemplates"></select>
+					<button class="specialButtonBlack" id="addORGroupButton" onclick="addOrGroup()">Add OR group</button>
+					<button class="specialButtonBlack" id="addPresetTemplateButton" onclick="addPresetTemplateRule(document.getElementById('presetTemplates').value)">Add preset</button>
+					<br>
 					<select id="templateRuleList">
 						<option>Colors</option>
 						<option>Color identity</option>
@@ -292,10 +296,6 @@
 						<option>Types</option>
 					</select>
 					<button class="specialButtonBlack" id="addTemplateRuleButton" onclick="addTemplateRule(document.getElementById('templateRuleList').value)">Add rule</button>
-					<br><br>
-					<select id="presetTemplates"></select>
-					<button class="specialButtonBlack" id="addORGroupButton" onclick="addOrGroup()">Add OR group</button>
-					<button class="specialButtonBlack" id="addPresetTemplateButton" onclick="addPresetTemplateRule(document.getElementById('presetTemplates').value)">Add preset</button>
 					<br><br>
 					<div id="templateRules"></div>
 					<div id="templateBottomDiv">
