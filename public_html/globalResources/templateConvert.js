@@ -384,7 +384,7 @@ const templateRuleMatchesCard = function(rule, card) {
 			if (fieldOption === "manaCost") {
 				currentCardAttributeNumber = card.manaCost ? card.manaCost.match(/{/g).length : 0;
 			} else {
-				currentCardAttributeNumber = currentCard[fieldOption].length;
+				currentCardAttributeNumber = card[fieldOption].length;
 			}
 			if (rule.operator === "=") {
 				if (currentCardAttributeNumber !== Number(rule.value)) {
