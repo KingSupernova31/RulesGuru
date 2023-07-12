@@ -243,7 +243,7 @@ li {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	width: 26rem;
+	width: 27rem;
 	height: 32.44rem;
 	z-index: 2;
 	display: none;
@@ -287,6 +287,11 @@ li {
 	display: grid;
 	grid-template-columns: 4% 35% 26% 35%;
 	text-align: left;
+}
+
+.presetTemplateRule {
+	display: block !important;
+	height: 2rem;
 }
 
 .templateRuleWithLongName {

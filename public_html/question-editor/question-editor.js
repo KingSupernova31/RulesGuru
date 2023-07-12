@@ -17,6 +17,17 @@ const populateAdminTagsDropdown = function() {
 }
 populateAdminTagsDropdown();
 
+//Fill in options for the preset templates input..
+const populatePresetTemplatesDropdown = function() {
+	let options = "";
+	let presetDescriptions = presetTemplates.map(preset => preset.description);
+	for (let i in presetDescriptions) {
+		options += "<option>" + presetDescriptions[i] + "</option>";
+	}
+	document.getElementById("presetTemplates").innerHTML = options;
+}
+populatePresetTemplatesDropdown();
+
 if (typeof allCardNames !== undefined) {
 	window.allCardNames = Object.keys(allCards);
 }
@@ -213,7 +224,11 @@ const addCardGenerator = function() {
 		document.querySelector("#templateDiv h3").textContent = `Add rules to template ${templateNum + 1}`;
 		document.getElementById("addORGroupButton").textContent = "Add OR group";
 		for (let i in questionObj.cardTemplates[templateNum]) {
-			addTemplateRule(questionObj.cardTemplates[templateNum][i].field, questionObj.cardTemplates[templateNum][i].operator, questionObj.cardTemplates[templateNum][i].value, questionObj.cardTemplates[templateNum][i].fieldOption, questionObj.cardTemplates[templateNum][i].orGroup);
+			if (questionObj.cardTemplates[templateNum][i].preset) {
+				addPresetTemplateRule(questionObj.cardTemplates[templateNum][i].preset);
+			} else {
+				addTemplateRule(questionObj.cardTemplates[templateNum][i].field, questionObj.cardTemplates[templateNum][i].operator, questionObj.cardTemplates[templateNum][i].value, questionObj.cardTemplates[templateNum][i].fieldOption, questionObj.cardTemplates[templateNum][i].orGroup);
+			}
 		}
 		oldTemplateValue = createTemplate();
 		if (previewWindow) {
@@ -221,7 +236,7 @@ const addCardGenerator = function() {
 			previewWindow.parentData.currentGeneratorOpen = true;
 			previewWindow.parentData.currentGeneratorStatusChanged = true;
 			previewWindow.parentData.currentGeneratorType = "template";
-			previewWindow.parentData.currentGenerator = templateConvert(validatedTemplate.templateWithValidRulesOnly, allCards);
+			previewWindow.parentData.currentGenerator = templateConvert(validatedTemplate.templateWithValidRulesOnly, allCards, presetTemplates);
 			previewWindow.parentData.currentGeneratorErrors = validatedTemplate.templateErrors;
 		}
 	});
@@ -301,14 +316,19 @@ const createTemplate = function() {
 
 	for (let i = 0 ; i < rules.length ; i++) {
 		let rule;
-		if (rules[i].childNodes.length === 4) {
+		if (rules[i].childNodes.length === 2) {//Presets
+			rule = {
+				"preset": rules[i].childNodes[1].textContent,
+				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
+			}
+		} else if (rules[i].childNodes.length === 4) {//Normal rules
 			rule = {
 				"field": rules[i].childNodes[1].textContent,
 				"operator": rules[i].childNodes[2].value,
 				"value": rules[i].childNodes[3].value,
 				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
 			}
-		} else if (rules[i].childNodes.length === 5) {
+		} else if (rules[i].childNodes.length === 5) {//Number of
 			rule = {
 				"field": rules[i].childNodes[1].textContent,
 				"fieldOption": rules[i].childNodes[2].value,
@@ -453,16 +473,16 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 	switch (field) {
 		case "Layout":
 			operators = ["Is:", "Not:"];
-			values = ["normal", "split (half)", "split (full)", "flip", "transforming double-faced", "modal double-faced", "meld", "adventurer"];
-			valuesText = ["Normal", "Split (half)", "Split (full)", "Flip", "Transforming Double-Faced", "Modal Double-Faced", "Meld", "Adventurer"];
+			values = ["normal", "split (half)", "split (full)", "flip", "transforming double-faced", "modal double-faced", "meld", "adventurer", "prototype"];
+			valuesText = ["Normal", "Split (half)", "Split (full)", "Flip", "Transforming Double-Faced", "Modal Double-Faced", "Meld", "Adventurer", "Prototype"];
 			break;
 		case "Multi-part side":
 			operators = ["Is:", "Not:"];
 			values = ["a", "b"];
 			valuesText = ["A", "B"];
-			tooltip = `"A": Front face of a double-faced card, unflipped flip card, left half of a split card, unmelded face of a meld card default characteristics of an adventurer card.
+			tooltip = `"A": Front face of a double-faced card, unflipped flip card, left half of a split card, unmelded face of a meld card default characteristics of an adventurer card, non-prototyped prototype card.
 			<br><br>
-			"B": Back face of a double-faced card, flipped flip card, right half of a split card, melded face of a meld pair, alternative characteristics of an adventurer card.`;
+			"B": Back face of a double-faced card, flipped flip card, right half of a split card, melded face of a meld pair, alternative characteristics of an adventurer card, prototyped prototype card.`;
 			break;
 		case "Colors":
 			operators = ["Includes:", "Doesn't include:"];
@@ -1057,7 +1077,11 @@ const populateFields = function(question) {
 		} else {
 			document.querySelector("#templateDiv h3").textContent = `Add rules to template ${i - - 1}`;
 			for (let j in question.cardGenerators[i]) {
-				addTemplateRule(question.cardGenerators[i][j].field, question.cardGenerators[i][j].operator, question.cardGenerators[i][j].value, question.cardGenerators[i][j].fieldOption, question.cardGenerators[i][j].orGroup);
+				if (question.cardGenerators[i][j].preset) {
+					addPresetTemplateRule(question.cardGenerators[i][j].preset);
+				} else {
+					addTemplateRule(question.cardGenerators[i][j].field, question.cardGenerators[i][j].operator, question.cardGenerators[i][j].value, question.cardGenerators[i][j].fieldOption, question.cardGenerators[i][j].orGroup);
+				}
 			}
 			processTemplateBox();
 			switchModes(`cardGenerator${i + 1}`);
@@ -1093,7 +1117,7 @@ const populateFields = function(question) {
 		savedCardLists = createQuestionObj().cardGenerators;
 		for (let i in savedCardLists) {
 			if (typeof savedCardLists[i][0] === "object") {
-				savedCardLists[i] = templateConvert(savedCardLists[i], allCards);
+				savedCardLists[i] = templateConvert(savedCardLists[i], allCards, presetTemplates);
 			}
 		}
 	}, 0)
@@ -1401,7 +1425,7 @@ document.addEventListener("selectionchange", function() {
 
 const convertedTemplateStorage = [];
 const displayTemplateCardSet = function(template, num) {
-	const convertedTemplate = templateConvert(template, allCards);
+	const convertedTemplate = templateConvert(template, allCards, presetTemplates);
 	const affectedSubCardGenerator = document.querySelector(`#cardGenerator${num + 1} > .subCardGeneratorTemplate`);
 	affectedSubCardGenerator.innerHTML = "";
 	for (let i = 0 ; i < convertedTemplate.length ; i++) {
@@ -1849,7 +1873,7 @@ const openPreview = function() {
 	};
 	validateWithWorker();
 	if (document.getElementById("templateScrollContainer").style.display === "block") {
-		previewWindow.parentData.currentGenerator = templateConvert(createTemplate(), allCards);
+		previewWindow.parentData.currentGenerator = templateConvert(createTemplate(), allCards, presetTemplates);
 		if (templateErrors.length > 0) {
 			previewWindow.parentData.currentGeneratorErrors = validateTemplate(previewWindow.parentData.currentGenerator).templateErrors;
 		} else {
@@ -1961,7 +1985,7 @@ setInterval(function() {
 				} else {
 					previewWindow.parentData.currentGeneratorErrors = [];
 				}
-				previewWindow.parentData.currentGenerator = templateConvert(validatedTemplate.templateWithValidRulesOnly, allCards);
+				previewWindow.parentData.currentGenerator = templateConvert(validatedTemplate.templateWithValidRulesOnly, allCards, presetTemplates);
 				previewWindow.parentData.currentGeneratorChanged = true;
 			}
 		}
@@ -2670,4 +2694,51 @@ const replaceDoppelgangerChars = function(string) {
 	}
 	const regex = new RegExp("[" + Object.keys(map).join("") + "]", "g");
 	return string.replace(regex, match => map[match]);
+}
+
+let shiftKeyPressed = false;
+document.onkeydown = function(event) {
+	shiftKeyPressed = event.shiftKey;
+}
+document.onkeyup = function(event) {
+	shiftKeyPressed = event.shiftKey;
+}
+
+const addPresetTemplateRule = function(description, ignoreShift) {
+
+	if (shiftKeyPressed && !ignoreShift) {
+		addPresetRulesToTemplate();
+		return;
+	}
+
+	let deleteButton = document.createElement("img");
+	deleteButton.setAttribute("src", "/globalResources/icons/red-x.png");
+	deleteButton.setAttribute("class", "templateRuleDeleteButton");
+	//Delete the rule when clicked.
+	deleteButton.addEventListener("click", function(event) {
+			this.parentElement.remove();
+	});
+	let rule = document.createElement("div");
+	rule.setAttribute("class", "templateRule presetTemplateRule");
+
+	let content = document.createElement("p");
+	content.textContent = description;
+
+	rule.appendChild(deleteButton);
+	rule.appendChild(content);
+
+	document.getElementById("templateRules").appendChild(rule);
+}
+
+const addPresetRulesToTemplate = function() {
+	document.getElementById("templateRules").innerHTML = "";
+	const presetDesc = document.getElementById('presetTemplates').value;
+	let preset = presetTemplates.filter(presetTemplate => presetTemplate.description === presetDesc)[0].rules;
+	for (let rule of preset) {
+		if (rule.preset) {
+			addPresetTemplateRule(rule.preset, true);
+		} else {
+			addTemplateRule(rule.field, rule.operator, rule.value, rule.fieldOption, rule.orGroup);
+		}
+	}
 }
