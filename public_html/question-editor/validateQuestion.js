@@ -203,12 +203,12 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 				errors.push(`"${slang[i][0].toUpperCase() + slang[i].slice(1)}" is not a technical term, please don't use it in the answer.`);
 			}
 		}
-		if (questionObj.question.toLowerCase().includes("you") || questionObj.answer.toLowerCase().includes("you")) {
-			warnings.push(`"You" aren't a player in the game. You should only use the word "you" when referring to its use in a card's text.`);
+		if (/you(?!.*")/.test(questionObj.question.toLowerCase()) || /you(?!.*")/.test(questionObj.answer.toLowerCase())) {
+			errors.push(`"You" aren't a player in the game. Please replace this with a reference to a player in the third person.`);
 		}
 		const onRegex = /(asts|ctivates) \[card \d+\] on /;
 		if (onRegex.test(questionObj.question.toLowerCase()) || onRegex.test(questionObj.answer.toLowerCase())) {
-			warnings.push(`Please don't use the word "on" to indicate an action; say "targeting" or "choosing" as appropriate instead.`);
+			warnings.push(`Please don't use the word "on" to indicate an action; say "targeting" or "choosing" as appropriate.`);
 		}
 		let questionIncludesFlipCard = false;
 		for (let list of convertedTemplateStorage) {
