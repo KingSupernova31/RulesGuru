@@ -17,6 +17,7 @@ const express = require("express"),
 app.set('trust proxy', true);
 
 const templateConvert = require("./public_html/globalResources/templateConvert.js"),
+			presetTemplates = require("./public_html/globalResources/presetTemplates.js"),
 			replaceExpressions = require("./public_html/globalResources/replaceExpressions.js"),
 			playerNames = JSON.parse(fs.readFileSync("playerNames.json", "utf8"));
 
@@ -178,7 +179,7 @@ const convertAllTemplates = function(question, allCards) {
 	for (let i = 0 ; i < convertedQuestion.cardGenerators.length ; i++) {
 
 		if (typeof convertedQuestion.cardGenerators[i][0] === "object") {
-			convertedQuestion.cardLists[i] = templateConvert(convertedQuestion.cardGenerators[i], allCards);
+			convertedQuestion.cardLists[i] = templateConvert(convertedQuestion.cardGenerators[i], allCards, presetTemplates);
 		} else {
 			convertedQuestion.cardLists[i] = convertedQuestion.cardGenerators[i]
 		}
@@ -591,7 +592,7 @@ app.get("/getQuestionCount", async function(req, res) {
 	const allData = await dbAll(`SELECT * FROM questions`);
 
 	if (referenceQuestionArray.length !== allData.filter(question => question.status === "finished").length) {
-		handleError(new Error(`Reference question length does not match database. (${referenceQuestionArray.length} vs. ${allData.filter(question => question.status === "finished").length})`));
+		handleError(new Error(`Reference question array length does not match database. (${referenceQuestionArray.length} vs. ${allData.filter(question => question.status === "finished").length})`));
 	}
 
 	allData.forEach(function(question) {
