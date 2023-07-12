@@ -2,7 +2,12 @@
 
 let requestObj = {};
 
+let submissionOngoing = false;
 const submit = function() {
+	if (submissionOngoing) {
+		return;
+	}
+	submissionOngoing = true;
 	document.getElementById("cursorStyle").innerHTML = "* {cursor: wait !important;}";
 	requestObj.question = document.getElementById("question").value;
 	requestObj.answer = document.getElementById("answer").value;
@@ -26,21 +31,24 @@ const submit = function() {
 		handleSubmissionBacklog(5000);
 		alert("There was an error submitting your question. (Request aborted.) Your question has been saved locally and will be automatically submitted once possible. Please report the issue using the contact form in the upper right.");
 		document.getElementById("cursorStyle").innerHTML = "";
-		clearFields()
+		clearFields();
+		submissionOngoing = false;
 	}
 	httpRequest.onerror = function() {
 		addToSubmissionBacklog(requestObj);
 		handleSubmissionBacklog(5000);
 		alert("You do not have internet access at the moment. Your question has been saved locally and will be automatically submitted once possible. If you're sure that you have an internet connection and the problem persists, please report the issue using the contact form in the upper right.");
 		document.getElementById("cursorStyle").innerHTML = "";
-		clearFields()
+		clearFields();
+		submissionOngoing = false;
 	}
 	httpRequest.ontimeout = function() {
 		addToSubmissionBacklog(requestObj);
 		handleSubmissionBacklog(5000);
 		alert("There was an error submitting your question. (Request timed out.) Your question has been saved locally and will be automatically submitted once possible. If you're sure that you have an internet connection and the problem persists, please report the issue using the contact form in the upper right.");
 		document.getElementById("cursorStyle").innerHTML = "";
-		clearFields()
+		clearFields();
+		submissionOngoing = false;
 	}
 	httpRequest.onload = function() {
 		if (httpRequest.status === 200) {
@@ -49,14 +57,15 @@ const submit = function() {
 				if (!httpRequest.response.includes("error")) {
 					clearFields();
 				}
-				document.getElementById("cursorStyle").innerHTML = "";
 			} else {
 				alert("There was an error submitting your question. (Server returned no response.) Please report this error using the contact form in the upper right.");
-				document.getElementById("cursorStyle").innerHTML = "";
 			}
+			document.getElementById("cursorStyle").innerHTML = "";
+			submissionOngoing = false;
 		} else {
 			alert(`There was an error submitting your question. (Server returned status code "${httpRequest.status}".) Please report this error using the contact form in the upper right.`);
 			document.getElementById("cursorStyle").innerHTML = "";
+			submissionOngoing = false;
 		}
 	}
 	httpRequest.open("POST", "/submitQuestion", true);
