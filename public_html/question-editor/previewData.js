@@ -396,6 +396,10 @@ document.getElementById("generatorDisplayToggle").addEventListener("click", func
 	}
 });
 
+document.getElementById("reloadPreview").addEventListener("click", function() {
+	window.parentData.updateAll = true;
+});
+
 document.getElementById("bannerName").textContent = "Preview";
 
 setInterval(function() {
@@ -407,3 +411,6 @@ setInterval(function() {
 		document.getElementById("questionWarnings").style.color = "";
 	}
 }, 10)
+
+document.getElementById("topBannerRightText").appendChild(document.getElementById("rulesLink"));
+document.getElementById("topBannerRightText").appendChild(document.getElementById("adminAboutLink"));

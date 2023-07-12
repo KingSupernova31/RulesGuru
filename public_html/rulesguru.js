@@ -30,8 +30,8 @@ const loadedQuestions = {
 //Make a request for a new random question that fits the current parameters.
 let getQuestionTimeoutId = 0;
 const getRandomQuestion = function(callback) {
-	console.log("Logging for issue #104 on Github. (Section 4)")
-	console.log(JSON.stringify(sidebarSettings))
+	//console.log("Logging for issue #104 on Github. (Section 4)")
+	//console.log(JSON.stringify(sidebarSettings))
 	let response;
 	clearTimeout(getQuestionTimeoutId);
 
@@ -55,8 +55,8 @@ const getRandomQuestion = function(callback) {
 	httpRequest.onload = function() {
 		if (httpRequest.status === 200) {
 			if (httpRequest.response) {
-				console.log("Logging for issue #104 on Github. (Section 5)")
-				console.log(httpRequest.response)
+				//console.log("Logging for issue #104 on Github. (Section 5)")
+				//console.log(httpRequest.response)
 				response = JSON.parse(httpRequest.response);
 				if (response.error) {
 					getQuestionError = response.error;
@@ -272,7 +272,6 @@ const displayCurrentQuestion = function() {
 	}
 
 	loadedQuestions.pastQuestions[loadedQuestions.currentQuestion.id] = loadedQuestions.currentQuestion;
-
 };
 
 //Add card picture and oracle text displays.
@@ -355,10 +354,9 @@ const setCardDisplaySize = function() {
 		document.getElementById("questionPage").appendChild(document.getElementById("questionIssue"));
 	}
 	//Set the font size.
-	for (let i = 0 ; i < document.querySelectorAll("*").length ; i++) {
-		if (document.getElementById("pictureRows").contains(document.querySelectorAll("*")[i])) {
-			document.querySelectorAll("*")[i].style.fontSize = (imageWidth / 240) + "rem";
-		}
+	const pictureElements = document.querySelectorAll("#pictureRows *");
+	for (let i = 0 ; i < pictureElements.length ; i++) {
+		pictureElements[i].style.fontSize = (imageWidth / 240) + "rem";
 	}
 }
 
@@ -533,9 +531,9 @@ const moveToNextQuestion = function() {
 
 //Function to display the next random question.
 const displayNextRandomQuestion = function() {
-	console.log("Logging for issue #104 on Github. (Section 3)")
-	console.log(JSON.stringify(sidebarSettings))
-	console.log(JSON.stringify(loadedQuestions))
+	//console.log("Logging for issue #104 on Github. (Section 3)")
+	//console.log(JSON.stringify(sidebarSettings))
+	//console.log(JSON.stringify(loadedQuestions))
 	document.getElementById("questionPageBackgroundBox").style.height = "";
 	if (sidebarOpen) {
 		updateSidebarSettingsOnClose();

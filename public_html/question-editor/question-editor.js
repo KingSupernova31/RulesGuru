@@ -489,7 +489,7 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 			break;
 		case "Types":
 			operators = ["Includes:", "Doesn't include:"];
-			values = ["Artifact", "Creature", "Dungeon", "Enchantment", "Instant", "Land", "Planeswalker", "Sorcery", "Tribal"];
+			values = ["Artifact", "Battle", "Creature", "Dungeon", "Enchantment", "Instant", "Land", "Planeswalker", "Sorcery", "Tribal"];
 			break;
 		case "Subtypes":
 			operators = ["Includes:", "Doesn't include:"];
@@ -949,6 +949,7 @@ const executeClearFieldsButton = function() {
 
 const clearFields = function() {
 	turnOffQuestionStuffObserver();
+	savedCardLists = [];
 	document.getElementById("level").value = "";
 	document.getElementById("complexity").value = "";
 	currentTags = [];
@@ -961,6 +962,12 @@ const clearFields = function() {
 	document.getElementById("questionSubmitterNameFieldEditor").style.display = "none";
 	document.getElementById("submitterName").value = "";
 	document.getElementById("getQuestionIdInput").value = "";
+	if (previewWindow) {
+		previewWindow.parentData.questionValidation = {
+			"errors": [],
+			"warnings": []
+		};
+	}
 	currentQuestionData = {};
 	updateQuestionInfoFields();
 	cardGeneratorNum = 1;
@@ -1020,6 +1027,7 @@ const getUnfinishedQuestion = function() {
 	httpRequest.send(JSON.stringify({"password": document.getElementById("password").value}));
 }
 
+let savedCardLists = [];
 const populateFields = function(question) {
 	clearFields();
 	turnOffQuestionStuffObserver();
@@ -1033,7 +1041,6 @@ const populateFields = function(question) {
 
 	//Fix for a bug, can remove once all pending questions have been finished.
 	if (!question.cardGenerators) {
-		alert("This shouldn't have happened, let Isaac know. You can continue editing without issue.")
 		question.cardGenerators = [];
 	}
 
@@ -1079,6 +1086,17 @@ const populateFields = function(question) {
 	document.getElementById("cursorStyle").innerHTML = "";
 
 	document.getElementById("forceStatusNewId").value = "";
+
+	setTimeout(function() {
+		convertTypingRealTime(document.getElementById("question"));
+		convertTypingRealTime(document.getElementById("answer"));
+		savedCardLists = createQuestionObj().cardGenerators;
+		for (let i in savedCardLists) {
+			if (typeof savedCardLists[i][0] === "object") {
+				savedCardLists[i] = templateConvert(savedCardLists[i], allCards);
+			}
+		}
+	}, 0)
 }
 
 let activeGetQuestionIdRequest = null;
@@ -1241,7 +1259,7 @@ const convertTypingRealTime = function(element) {
 	}
 
 	//Turn unbracketed expressions into bracketed ones.
-	let stringsToExpresify = ["card 1", "card 2", "card 3", "card 4", "card 5", "card 6", "card 7", "card 8", "card 9", "card 10", "card 11", "card 12", "card 13", "card 14", "card 15", "AP", "NAP", "NAP1", "NAP2", "NAP3", "APa", "APb", "NAPa", "NAPb", "+1", "+2", "+3", "+4", "+5", "-1", "-2", "-3", "-4", "-5", "-6", "-7", "-8", "-9", "-10", "-11", "-12", "-13", "-14", "-15"];//Also rule citations, and card names
+	let stringsToExpresify = ["card 1", "card 2", "card 3", "card 4", "card 5", "card 6", "card 7", "card 8", "card 9", "card 10", "card 11", "card 12", "card 13", "card 14", "card 15", "AP", "NAP", "NAP1", "NAP2", "NAP3", "APa", "APb", "NAPa", "NAPb", "+1", "+2", "+3", "+4", "+5"];//Also rule citations, and card names
 	const stringsToSymbolfy = ["W", "U", "B", "R", "G", "C", "S", "P", "W/P", "U/P", "B/P", "R/P", "G/P", "2/W", "2/U", "2/B", "2/R", "2/G", "W/U", "W/B", "U/B", "U/R", "B/R", "B/G", "R/W", "R/G", "G/W", "G/U", "W/U/P", "W/B/P", "U/B/P", "U/R/P", "B/R/P", "B/G/P", "R/W/P", "R/G/P", "G/W/P", "G/U/P", "E", "T", "Q", "CHAOS"];
 
 	const allCardNamesMinusWords = JSON.parse(JSON.stringify(allCardNames)).filter(name => !cardNamesToIgnore.includes(name)).sort(function(a, b) {
@@ -1250,7 +1268,7 @@ const convertTypingRealTime = function(element) {
 	});
 	stringsToExpresify = stringsToExpresify.concat(allCardNamesMinusWords);
 
-	const expressionRegex = new RegExp("(^|\\s)(" + stringsToExpresify.join("|").replace(/[+()]/g, "\\$&") + ")($|\\s|[.,;'])", "gi");
+	const expressionRegex = new RegExp("(^|\\s)(" + stringsToExpresify.join("|").replace(/[+()]/g, "\\$&") + ")($|\\s|[.,?;'])", "gi");
 	newValue = newValue.replace(expressionRegex, function(match, capt1, capt2, capt3, offset) {
 		if (offset + capt1.length <= cursorPos && cursorPos <= offset + capt1.length + capt2.length) {//Do nothing if the cursor is within the symbol or the adjacent characters.
 			return match;
@@ -1258,8 +1276,6 @@ const convertTypingRealTime = function(element) {
 			if (offset < cursorPos) {
 				cursorPos += 2;
 			}
-			console.log(match)
-			console.log(capt3)
 			return capt1 + "[" + capt2 + "]" + capt3;
 		}
 	})
@@ -1788,6 +1804,8 @@ const validateWithWorker = function() {
 		"question": createQuestionObj(),
 		"templateEmptyness": templateEmptyness,
 		"convertedTemplateStorage": convertedTemplateStorage,
+		"currentAdminName": currentLoggedInAdmin.name,
+		"savedCardLists": savedCardLists,
 	});
 	oldWorker = previewValidationWorker;
 }
@@ -1797,7 +1815,7 @@ const validateSync = function(question) {
 	for (let i = 0 ; i < questionObj.cardLists.length ; i++) {
 		templateEmptyness.push(document.querySelector(`#cardGenerator${i + 1} > .modeSwitchButton`).textContent === "Switch to List" && document.querySelector(`#cardGenerator${i + 1} .subCardGeneratorTemplate`).childNodes.length === 0);
 	}
-	return validateQuestion(question, templateEmptyness, convertedTemplateStorage, allCards, allRules);
+	return validateQuestion(question, templateEmptyness, convertedTemplateStorage, currentLoggedInAdmin.name, savedCardLists);
 }
 
 //Handle preview window.
@@ -2127,7 +2145,7 @@ const populateTagsEditorList = function() {
 		tagName.appendChild(tagNum);
 	}
 }
-let allTagNames = [];//This shouldn't be here. findthis
+let allTagNames = [];//This shouldn't be here.
 let tagData = {};
 const getTagData = function() {
 	document.getElementById("tagEditorList").classList.add("awaitingUpdate");

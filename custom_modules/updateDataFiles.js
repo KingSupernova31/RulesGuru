@@ -33,9 +33,9 @@ const replaceDoppelgangerChars = function(string) {
 	return string.replace(regex, match => map[match]);
 }
 
-const manualMeldCards = [{"colorIdentity":["W"],"colors":[],"manaValue":11,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Brisela, Voice of Nightmares","names":["Bruna, the Fading Light","Gisela, the Broken Blade","Brisela, Voice of Nightmares"],"power":"9","printings":["EMN","PEMN","V17"],"side":"b","subtypes":["Eldrazi","Angel"],"supertypes":["Legendary"],"text":"Flying, first strike, vigilance, lifelink\nYour opponents can't cast spells with mana value 3 or less.","toughness":"10","type":"Legendary Creature — Eldrazi Angel","types":["Creature"]},{"colorIdentity":["W"],"colors":["W"],"manaValue":7,"layout":"meld","leadershipSkills":{"brawl":false,"commander":true,"oathbreaker":false},"legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","penny":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{5}{W}{W}","name":"Bruna, the Fading Light","names":["Bruna, the Fading Light","Gisela, the Broken Blade","Brisela, Voice of Nightmares"],"power":"5","printings":["EMN","PEMN","V17"],"side":"a","subtypes":["Angel","Horror"],"supertypes":["Legendary"],"text":"When you cast this spell, you may return target Angel or Human creature card from your graveyard to the battlefield.\nFlying, vigilance\n(Melds with Gisela, the Broken Blade.)","toughness":"7","type":"Legendary Creature — Angel Horror","types":["Creature"]},{"colorIdentity":["B"],"colors":[],"manaValue":7,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pauper":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Chittering Host","names":["Midnight Scavengers","Graf Rats","Chittering Host"],"power":"5","printings":["EMN"],"side":"b","subtypes":["Eldrazi","Horror"],"supertypes":[],"text":"Haste\nMenace (This creature can't be blocked except by two or more creatures.)\nWhen Chittering Host enters the battlefield, other creatures you control get +1/+0 and gain menace until end of turn.","toughness":"6","type":"Creature — Eldrazi Horror","types":["Creature"]},{"colorIdentity":["W"],"colors":["W"],"manaValue":4,"layout":"meld","leadershipSkills":{"brawl":false,"commander":true,"oathbreaker":false},"legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{2}{W}{W}","name":"Gisela, the Broken Blade","names":["Bruna, the Fading Light","Gisela, the Broken Blade","Brisela, Voice of Nightmares"],"power":"4","printings":["EMN","PEMN","V17"],"side":"a","subtypes":["Angel","Horror"],"supertypes":["Legendary"],"text":"Flying, first strike, lifelink\nAt the beginning of your end step, if you both own and control Gisela, the Broken Blade and a creature named Bruna, the Fading Light, exile them, then meld them into Brisela, Voice of Nightmares.","toughness":"3","type":"Legendary Creature — Angel Horror","types":["Creature"]},{"colorIdentity":["B"],"colors":["B"],"manaValue":2,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pauper":"Legal","penny":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{1}{B}","name":"Graf Rats","names":["Midnight Scavengers","Graf Rats","Chittering Host"],"power":"2","printings":["EMN"],"side":"a","subtypes":["Rat"],"supertypes":[],"text":"At the beginning of combat on your turn, if you both own and control Graf Rats and a creature named Midnight Scavengers, exile them, then meld them into Chittering Host.","toughness":"1","type":"Creature — Rat","types":["Creature"]},{"colorIdentity":["R"],"colors":[],"manaValue":0,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Hanweir Battlements","names":["Hanweir Battlements","Hanweir Garrison","Hanweir, the Writhing Township"],"printings":["EMN","PEMN"],"side":"a","subtypes":[],"supertypes":[],"text":"{T}: Add {C}.\n{R}, {T}: Target creature gains haste until end of turn.\n{3}{R}{R}, {T}: If you both own and control Hanweir Battlements and a creature named Hanweir Garrison, exile them, then meld them into Hanweir, the Writhing Township.","type":"Land","types":["Land"]},{"colorIdentity":["R"],"colors":["R"],"manaValue":3,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{2}{R}","name":"Hanweir Garrison","names":["Hanweir Battlements","Hanweir Garrison","Hanweir, the Writhing Township"],"power":"2","printings":["EMN","PEMN"],"side":"a","subtypes":["Human","Soldier"],"supertypes":[],"text":"Whenever Hanweir Garrison attacks, create two 1/1 red Human creature tokens that are tapped and attacking.\n(Melds with Hanweir Battlements.)","toughness":"3","type":"Creature — Human Soldier","types":["Creature"]},{"colorIdentity":["R"],"colors":[],"manaValue":3,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Hanweir, the Writhing Township","names":["Hanweir Battlements","Hanweir Garrison","Hanweir, the Writhing Township"],"power":"7","printings":["EMN","PEMN"],"side":"b","subtypes":["Eldrazi","Ooze"],"supertypes":["Legendary"],"text":"Trample, haste\nWhenever Hanweir, the Writhing Township attacks, create two 3/2 colorless Eldrazi Horror creature tokens that are tapped and attacking.","toughness":"4","type":"Legendary Creature — Eldrazi Ooze","types":["Creature"]},{"colorIdentity":["B"],"colors":["B"],"manaValue":5,"layout":"meld","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pauper":"Legal","pioneer":"Legal","vintage":"Legal"},"manaCost":"{4}{B}","name":"Midnight Scavengers","names":["Midnight Scavengers","Graf Rats","Chittering Host"],"power":"3","printings":["EMN"],"side":"a","subtypes":["Human","Rogue"],"supertypes":[],"text":"When Midnight Scavengers enters the battlefield, you may return target creature card with mana value 3 or less from your graveyard to your hand.\n(Melds with Graf Rats.)","toughness":"3","type":"Creature — Human Rogue","types":["Creature"]}];
+let cardNamesToIgnore = ["Turn", "Response", "Never", "Find", "Take", "Death", "Down", "Reason", "Give", "Order", "Granted", "Life", "Ends", "Well", "Status", "Entering", "Chance", "Fight", "Leave", "Regeneration", "Remove", "Charge", "Opportunity", "Return", "Away", "Two-Headed Giant", "Wish", "Redirect", "Done", "Rust", "Gone", "Cut", "Finish", "Ready", "Start", "Memory", "Simple", "Determined", "Excess", "Consider", "Loss", "Clear", "Far", "Dead", "Night", "Day", "Error"];
 
-const manualDungeons = [{"printings":["AFR"],"colorIdentity":[],"colors":[],"keywords":["Scry"],"layout":"dungeon","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Dungeon of the Mad Mage","setCode":"TAFR","subtypes":[],"supertypes":[],"text":"Yawning Portal — You gain 1 life. (Leads to: Dungeon Level)\nDungeon Level — Scry 1. (Leads to: Goblin Bazaar, Twisted Caverns)\nGoblin Bazaar — Create a Treasure token. (Leads to: Lost Level)\nTwisted Caverns — Target creature can't attack until your next turn. (Leads to: Lost Level)\nLost Level — Scry 2. (Leads to: Runestone Caverns, Muiral's Graveyard)\nRunestone Caverns — Exile the top two cards of your library. You may play them. (Leads to: Deep Mines)\nMuiral's Graveyard — Create two 1/1 black Skeleton creature tokens. (Leads to: Deep Mines)\nDeep Mines — Scry 3. (Leads to: Mad Wizard's Lair)\nMad Wizard's Lair — Draw three cards and reveal them. You may cast one of them without paying its mana cost.","type":"Dungeon","types":["Dungeon"]},{"printings":["AFR"],"colorIdentity":[],"colors":[],"keywords":["Scry"],"layout":"dungeon","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Lost Mine of Phandelver","setCode":"TAFR","subtypes":[],"supertypes":[],"text":"Cave Entrance — Scry 1. (Leads to: Goblin Lair, Mine Tunnels)\nGoblin Lair — Create a 1/1 red Goblin creature token. (Leads to: Storeroom, Dark Pool)\nMine Tunnels — Create a Treasure token. (Leads to: Dark Pool, Fungi Cavern)\nStoreroom — Put a +1/+1 counter on target creature. (Leads to: Temple of Dumathoin)\nDark Pool — Each opponent loses 1 life and you gain 1 life. (Leads to: Temple of Dumathoin)\nFungi Cavern — Target creature gets -4/-0 until your next turn. (Leads to: Temple of Dumathoin)\nTemple of Dumathoin — Draw a card.","type":"Dungeon","types":["Dungeon"]},{"printings":["AFR"],"colorIdentity":[],"colors":[],"layout":"dungeon","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Tomb of Annihilation","setCode":"TAFR","subtypes":[],"supertypes":[],"text":"Trapped Entry — Each player loses 1 life. (Leads to: Veils of Fear, Oubliette)\nVeils of Fear — Each player loses 2 life unless they discard a card. (Leads to: Sandfall Cell)\nSandfall Cell — Each player loses 2 life unless they sacrifice a creature, artifact, or land. (Leads to: Cradle of the Death God)\nOubliette — Discard a card and sacrifice a creature, an artifact, and a land. (Leads to: Cradle of the Death God)\nCradle of the Death God — Create The Atropal, a legendary 4/4 black God Horror creature token with deathtouch.","type":"Dungeon","types":["Dungeon"]}];
+const manualDungeons = [{"printings":["AFR"],"colorIdentity":[],"colors":[],"keywords":["Scry"],"layout":"dungeon","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Dungeon of the Mad Mage","manaValue":0,"setCode":"TAFR","subtypes":[],"supertypes":[],"text":"Yawning Portal — You gain 1 life. (Leads to: Dungeon Level)\nDungeon Level — Scry 1. (Leads to: Goblin Bazaar, Twisted Caverns)\nGoblin Bazaar — Create a Treasure token. (Leads to: Lost Level)\nTwisted Caverns — Target creature can't attack until your next turn. (Leads to: Lost Level)\nLost Level — Scry 2. (Leads to: Runestone Caverns, Muiral's Graveyard)\nRunestone Caverns — Exile the top two cards of your library. You may play them. (Leads to: Deep Mines)\nMuiral's Graveyard — Create two 1/1 black Skeleton creature tokens. (Leads to: Deep Mines)\nDeep Mines — Scry 3. (Leads to: Mad Wizard's Lair)\nMad Wizard's Lair — Draw three cards and reveal them. You may cast one of them without paying its mana cost.","type":"Dungeon","types":["Dungeon"]},{"printings":["AFR"],"colorIdentity":[],"colors":[],"keywords":["Scry"],"layout":"dungeon","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Lost Mine of Phandelver","manaValue":0,"setCode":"TAFR","subtypes":[],"supertypes":[],"text":"Cave Entrance — Scry 1. (Leads to: Goblin Lair, Mine Tunnels)\nGoblin Lair — Create a 1/1 red Goblin creature token. (Leads to: Storeroom, Dark Pool)\nMine Tunnels — Create a Treasure token. (Leads to: Dark Pool, Fungi Cavern)\nStoreroom — Put a +1/+1 counter on target creature. (Leads to: Temple of Dumathoin)\nDark Pool — Each opponent loses 1 life and you gain 1 life. (Leads to: Temple of Dumathoin)\nFungi Cavern — Target creature gets -4/-0 until your next turn. (Leads to: Temple of Dumathoin)\nTemple of Dumathoin — Draw a card.","type":"Dungeon","types":["Dungeon"]},{"printings":["AFR"],"colorIdentity":[],"colors":[],"layout":"dungeon","legalities":{"commander":"Legal","duel":"Legal","legacy":"Legal","modern":"Legal","pioneer":"Legal","vintage":"Legal"},"name":"Tomb of Annihilation","manaValue":0,"setCode":"TAFR","subtypes":[],"supertypes":[],"text":"Trapped Entry — Each player loses 1 life. (Leads to: Veils of Fear, Oubliette)\nVeils of Fear — Each player loses 2 life unless they discard a card. (Leads to: Sandfall Cell)\nSandfall Cell — Each player loses 2 life unless they sacrifice a creature, artifact, or land. (Leads to: Cradle of the Death God)\nOubliette — Discard a card and sacrifice a creature, an artifact, and a land. (Leads to: Cradle of the Death God)\nCradle of the Death God — Create The Atropal, a legendary 4/4 black God Horror creature token with deathtouch.","type":"Dungeon","types":["Dungeon"]}];
 
 const colorMappings = {
 	"W": "White",
@@ -54,15 +54,13 @@ const updateAllCards = function() {
 		for (let i of cardsThatAreAwful) {
 			delete notFlatAllCards[i];
 		}
-		notFlatAllCards["Unquenchable Fury"] = notFlatAllCards["Unquenchable Fury"].filter(card => !card.printings.includes("TBTH"));//This is also the name of one the weird Theros chalenge deck cards.
+		notFlatAllCards["Unquenchable Fury"] = notFlatAllCards["Unquenchable Fury"].filter(card => !card.printings.includes("TBTH"));//This is also the name of one the weird Theros challenge deck cards.
 
 		//Flatten subarrays from multipart cards and change both names and object keys to be individual.
 		const allCards = {};
 		for (let i in notFlatAllCards) {
 			if (notFlatAllCards[i].length === 1) {
-				if (notFlatAllCards[i][0].layout !== "meld") {
-					allCards[notFlatAllCards[i][0].name] = notFlatAllCards[i][0];
-				}
+				allCards[notFlatAllCards[i][0].name] = notFlatAllCards[i][0];
 			} else {
 				let names = [];
 				for (let j in notFlatAllCards[i]) {
@@ -76,16 +74,13 @@ const updateAllCards = function() {
 			}
 		}
 
-		//Add in meld cards and dungeons manually.
-		for (let i in manualMeldCards) {
-			allCards[manualMeldCards[i].name] = manualMeldCards[i];
-		}
+		//Add in dungeons manually.
 		for (let i in manualDungeons) {
 			allCards[manualDungeons[i].name] = manualDungeons[i];
 		}
 
 		//Add in missing values.
-		let missingArrays = ["colors", "colorIdentity", "types", "subtypes", "keywords", "playability", "colorIndicator"];
+		let missingArrays = ["colors", "colorIdentity", "types", "subtypes", "supertypes", "keywords", "playability", "colorIndicator"];
 		for (let i in allCards) {
 			missingArrays.forEach(function(element) {
 				if (!allCards[i].hasOwnProperty(element)) {
@@ -109,6 +104,13 @@ const updateAllCards = function() {
 		//Remove tokens and emblems.
 		for (let i in allCards) {
 			if (allCards[i].layout === "token" || allCards[i].layout === "double_faced_token" || allCards[i].layout === "emblem") {
+				delete allCards[i];
+			}
+		}
+
+		//Remove the fake "double-faced" cards like Propaganda // Propaganda.
+		for (let i in allCards) {
+			if (/^(.*) \/\/ \1$/.test(allCards[i].name)) {
 				delete allCards[i];
 			}
 		}
@@ -247,6 +249,41 @@ const updateAllCards = function() {
 			}
 		}
 
+		//Fix meld cards
+		const backFaces = [];
+		const frontFaces = [];
+		for (let i in allCards) {
+			if (allCards[i].layout === "meld") {
+				if (allCards[i].name.includes("//")) {
+					frontFaces.push(allCards[i].name);
+				} else {
+					backFaces.push(allCards[i].name)
+				}
+			}
+		}
+		const fullNameArrays = [];
+		for (let backFace of backFaces) {
+			const nameArray = [];
+			for (let frontFace of frontFaces) {
+				if (frontFace.includes(backFace)) {
+					const frontFaceName = frontFace.slice(0, frontFace.indexOf(" //"));
+					nameArray.push(frontFaceName);
+				}
+			}
+			nameArray.push(backFace);
+			fullNameArrays.push(nameArray);
+		}
+		for (let i in allCards) {
+			if (allCards[i].layout === "meld") {
+				allCards[i].name = allCards[i].faceName;
+				allCards[i].names = fullNameArrays.filter(array => array.includes(allCards[i].name))[0];
+				if (i.includes("//")) {
+					allCards[allCards[i].name] = allCards[i];
+					delete allCards[i];
+				}
+			}
+		}
+
 		//Add layout = prototype, and create a second card object for each one.
 		for (let i in allCards) {
 			if (allCards[i].layout === "prototype") {
@@ -325,6 +362,31 @@ const updateAllCards = function() {
 			}
 		}
 
+		//Create a list of all subtypes.
+		const subtypeRules = ["205.3g", "205.3h", "205.3i", "205.3j", "205.3k", "205.3m"];
+		const isolatedSubtypeLists2 = [];
+		const allSubtypes = [];
+		for (let i in subtypeRules) {
+			isolatedSubtypeLists2.push(allRules[subtypeRules[i]].ruleText.match(/The \w+ types are ((and )?([a-zA-Z-']+)( \(.+?\))?(, |\.))+/)[0]);
+		}
+		for (let i in isolatedSubtypeLists2) {
+			//let iteratible = [...isolatedSubtypeLists2[i].matchAll(/(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g)];
+			//Needed because matchAll is not supported:
+			let iteratible = [];
+			let regex = /(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g;
+			let lastIndexes = {};
+			let match;
+			lastIndexes[regex.lastIndex] = true;
+			while (match = regex.exec(isolatedSubtypeLists2[i])) {
+				lastIndexes[regex.lastIndex] = true;
+				iteratible.push(match);
+			}
+
+			for (let j in iteratible) {
+				allSubtypes.push(iteratible[j][2]);
+			}
+		}
+
 		for (let i in allCards) {
 			if (allCards[i].rulesText.startsWith(`${allCards[i].name} is every creature type.`) || allCards[i].keywords.includes("Changeling")) {
 				allCards[i].subtypes = Array.from(new Set (allCards[i].subtypes.concat(allCreatureTypes))); //We need to not overwrite noncreature subtypes.
@@ -355,6 +417,7 @@ const updateAllCards = function() {
 			}
 		}
 
+		//Fix names
 		for (let i in allCards) {
 			let properName;
 			if (allCards[i].names) {
@@ -362,6 +425,12 @@ const updateAllCards = function() {
 					properName = allCards[i].name;
 				} else  if (allCards[i].layout === "split (half)") {
 					properName = allCards[i].names[0] + " // " + allCards[i].names[1];
+				} else if (allCards[i].layout === "meld") {
+					if (allCards[i].side === "a") {
+						properName = allCards[i].name;
+					} else {
+						properName = allCards[i].names[0];
+					}
 				} else {
 					properName = allCards[i].names[0];
 				}
@@ -394,6 +463,9 @@ const updateAllCards = function() {
 		}
 
 		fs.writeFileSync("data_files/finalAllCards.json", JSON.stringify(allCards));
+
+		//Write the card names to ignore file.
+		fs.writeFileSync("data_files/cardNamesToIgnore.json", JSON.stringify(cardNamesToIgnore.concat(allKeywords.keywordAbilities).concat(allKeywords.keywordActions).concat(allSubtypes)));
 
 		console.log("Finished updating all cards.");
 
@@ -494,6 +566,10 @@ const disperseFiles = function() {
 		const allCards = JSON.parse(fs.readFileSync("data_files/finalAllCards.json", "utf8"));
 		writeCardList(allCards, "allCards.json", ["name", "names", "manaCost", "type", "rulesText", "power", "toughness", "loyalty", "layout", "legalities", "printingsName", "types", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "keywords", "playability", "colorIdentity"], "json");
 		writeCardList(allCards, "public_html/question-editor/allCards.js", ["name", "names", "rulesText", "power", "toughness", "loyalty", "layout", "types", "type", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "manaCost", "keywords", "colorIdentity"], "js");
+
+		//Update cards to ignore
+		const cardNamesToIgnore = fs.readFileSync("data_files/cardNamesToIgnore.json", "utf8");
+		fs.writeFileSync("public_html/question-editor/cardNamesToIgnore.js", "const cardNamesToIgnore = " + cardNamesToIgnore);
 
 		//SearchLink mappings.
 		updateSearchLinkMappings();
@@ -660,20 +736,51 @@ const downloadAllFiles = function() {
 
 const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to break things, so we perform some checks on the data to try and prevent these errors from making it into RulesGuru data.
 	const allCardNames = Object.keys(allCards);
-	const testCardData = JSON.parse(fs.readFileSync("testCardData.json", "utf8"));
-	const cardsThatShouldNotExist = ["Chaos Orb", "Goblin Game", "Target Minotaur", "B.F.M. (Big Furry Monster)", "Knight of the Kitchen Sink", "Smelt // Herd // Saw", "Extremely Slow Zombie", "Arlinn Kord Emblem", "Angel", "Saproling", "Imprision this Insolent Witch", "Intervention of Keranos", "Plot that spans Centuries", "Eight-and-a-Half-Tails Avatar", "Ashnod", "Ashling the Pilgrim Avatar", "Phoebe, Head of S.N.E.A.K.", "Rules Lawyer", "Angel of Unity", "Academy at Tolaria West", "All in Good Time", "Behold My Grandeur", "Reality Shaping", "Robot Chicken", "Metagamer", "Nerf War", "Sword of Dungeons & Dragons", "Dragon", "Richard Garfield, Ph.D.", "Proposal", "Phoenix Heart", "The Legend of Arena", "Fabled Path of Searo Point", "Only the Best", "Rarity", "1996 World Champion", "Shichifukujin Dragon", "Hymn of the Wilds", "A-Armory Veteran"];
 
+	//Check for cards that shouldn't exist in the data.
+	const cardsThatShouldNotExist = ["Chaos Orb", "Goblin Game", "Target Minotaur", "B.F.M. (Big Furry Monster)", "Knight of the Kitchen Sink", "Smelt // Herd // Saw", "Extremely Slow Zombie", "Arlinn Kord Emblem", "Angel", "Saproling", "Imprision this Insolent Witch", "Intervention of Keranos", "Plot that spans Centuries", "Eight-and-a-Half-Tails Avatar", "Ashnod", "Ashling the Pilgrim Avatar", "Phoebe, Head of S.N.E.A.K.", "Rules Lawyer", "Angel of Unity", "Academy at Tolaria West", "All in Good Time", "Behold My Grandeur", "Reality Shaping", "Robot Chicken", "Metagamer", "Nerf War", "Sword of Dungeons & Dragons", "Dragon", "Richard Garfield, Ph.D.", "Proposal", "Phoenix Heart", "The Legend of Arena", "Fabled Path of Searo Point", "Only the Best", "Rarity", "1996 World Champion", "Shichifukujin Dragon", "Hymn of the Wilds", "A-Armory Veteran"];
 	for (let cardName of cardsThatShouldNotExist) {
 		if (allCardNames.includes(cardName)) {
 			return `${cardName} exists. It should not.`;
 		}
 	}
 
+	//Check for a too-short caads file.
 	if (allCardNames.length < 20000) {return `Too few cards; only ${allCardNames.length}`;}
 
+	//Check for duplicated cards.
 	const duplicatedCards = allCardNames.filter(function(item, index) {return allCardNames.indexOf(item) != index});
 	if (duplicatedCards.length > 0) {return `${duplicatedCards[0]} (and ${duplicatedCards.length - 1} others) are duplicated.`;}
 
+	for (let i in allCards) {
+
+		//Check for a card name that's wrong in one place vs. another.
+		if (i !== allCards[i].name) {
+			return `Inconsistent name: ${i} vs. ${allCards[i].name}.`;
+		}
+
+		//Check for any multi-part cards in the original files that slipped through.
+		if (allCards[i].name.includes("//") && !allCards[i].layout.includes("split")) {
+			return `${allCards[i].name} exists. It should not.`;
+		}
+
+		//Check for cards with types that shouldn't exist.
+		const validTypes = ["Artifact", "Creature", "Land", "Enchantment", "Planeswalker", "Battle", "Instant", "Sorcery", "Dungeon", "Tribal"];
+		if (allCards[i].types.filter(type => !validTypes.includes(type)).length > 0) {
+			return `${allCards[i].name} has an invalid type. Types: ${allCards[i].types}`;
+		}
+
+		//Check for cards missing properties that should be on all cards.
+		const properties = ["name", "manaCost", "type", "rulesText", "layout", "legalities", "printingsName", "types", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "keywords", "playability", "colorIdentity"];
+		for (let property of properties) {
+			if (!Object.hasOwn(allCards[i], property)) {
+				return `${allCards[i].name} is missing its ${property} property.`;
+			}
+		}
+	}
+
+	//Compare the newly generated files against some test cards.
+	const testCardData = JSON.parse(fs.readFileSync("testCardData.json", "utf8"));
 	for (let testCard in testCardData) {
 
 		if (!allCardNames.includes(testCardData[testCard].name)) {return `${testCardData[testCard].name} doesn't exist.`;}
@@ -696,14 +803,6 @@ const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to br
 					}
 				}
 			}
-		}
-	}
-
-	//Check for cards with types that shouldn't exist.
-	const validTypes = ["Artifact", "Creature", "Land", "Enchantment", "Planeswalker", "Battle", "Instant", "Sorcery", "Dungeon", "Tribal"];
-	for (let card in allCards) {
-		if (allCards[card].types.filter(type => !validTypes.includes(type)).length > 0) {
-			return `${allCards[card].name} has an invalid type. Types: ${allCards[card].types}`;
 		}
 	}
 

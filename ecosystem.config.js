@@ -9,7 +9,7 @@ module.exports = {
 		{
 			"name": "RGserver",
 			"script": "server.js",
-			"watch": ["server.js", "public_html/globalResources/templateConvert.js"],
+			"watch": ["server.js", "public_html/globalResources/templateConvert.js", "custom_modules"],
 			"log_date_format": "YYYY-MM-DD HH:mm"
 		},
 		{

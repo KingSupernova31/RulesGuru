@@ -29,6 +29,19 @@ app.use(express.static("./public_html"));
 
 let server;
 
+const sendEmail = function(recipientEmail, subject, message) {
+	transporter.sendMail({
+		from: "admin@rulesguru.net",
+		to: recipientEmail,
+		subject: subject,
+		text: message,
+	}, function(err) {
+			if (err) {
+				handleError(err);
+			}
+	});
+}
+
 const sendEmailToOwners = function(subject, message, res) {
 	const allAdmins = JSON.parse(fs.readFileSync("admins.json", "utf8"));
 	for (let i in allAdmins) {
@@ -61,7 +74,7 @@ let promisifiedAll,
 		dbGet,
 		dbRun;
 
-const db = new sqlite.Database("questionDatabase.db", function(err) {
+const db = new sqlite.Database("questionDatabase.db", async function(err) {
 	if (err) {
 		handleError(err);
 	} else {
@@ -83,7 +96,16 @@ const db = new sqlite.Database("questionDatabase.db", function(err) {
 			return result;
 		};
 
-		updateReferenceObjects(true);
+		try {
+			referenceQuestionArray = JSON.parse(fs.readFileSync("referenceQuestionArray.json", "utf8"));
+		} catch {
+			await updateReferenceObjects();
+		}
+
+		server = app.listen(8080, function () {
+			console.log("Listening on port 8080");
+		});
+
 	};
 });
 
@@ -168,56 +190,41 @@ const convertAllTemplates = function(question, allCards) {
 };
 
 //Update the reference question database and card object that are stored in memory.
-const updateReferenceObjects = function(startServer) {
+const updateReferenceObjects = async function() {
 
 	const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
 
-	db.all(`SELECT json FROM questions WHERE status = "finished"`, [], function(err, result) {
-		if (err) {
-			handleError(err);
-		} else {
-			referenceQuestionArray = result;
-			referenceQuestionArray.forEach(function(currentValue, index){
-				referenceQuestionArray[index] = JSON.parse(currentValue.json);
-			});
+	const finishedQuestions = await dbAll(`SELECT json FROM questions WHERE status = "finished"`);
 
-			for (let i = 0 ; i < referenceQuestionArray.length ; i++) {
-				//Expand templates.
-				referenceQuestionArray[i] = convertAllTemplates(referenceQuestionArray[i], allCards);
+	finishedQuestions.forEach(function(currentValue, index){
+		finishedQuestions[index] = JSON.parse(currentValue.json);
+	});
 
-				//Check for a template that generated 0 cards.
-				let emptyTemplate = false;
-				for (let j = 0 ; j < referenceQuestionArray[i].cardLists.length ; j++) {
-					if (referenceQuestionArray[i].cardLists[j].length === 0) {
-						emptyTemplate = true;
-					}
-				}
-				if (emptyTemplate) {
-					sendEmailToOwners("RulesGuru template error", `Question ${referenceQuestionArray[i].id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${referenceQuestionArray[i].id}`);
-				}
-			}
+	for (let i = 0 ; i < finishedQuestions.length ; i++) {
+		//Expand templates.
+		finishedQuestions[i] = convertAllTemplates(finishedQuestions[i], allCards);
 
-			console.log("Reference question array generation complete");
-
-			let total = 0;
-			for (let question of referenceQuestionArray) {
-				let totalVariations = 1;
-				for (let list of question.cardLists) {
-					totalVariations *= list.length;
-				}
-				total += totalVariations;
-			}
-			console.log("(Approxomate) total question permutations: " + total)
-
-			updateIndexQuestionCount();
-			if (startServer) {
-				server = app.listen(8080, function () {
-					console.log("Listening on port 8080");
-				});
+		//Check for a template that generated 0 cards.
+		let emptyTemplate = false;
+		for (let j = 0 ; j < finishedQuestions[i].cardLists.length ; j++) {
+			if (finishedQuestions[i].cardLists[j].length === 0) {
+				emptyTemplate = true;
 			}
 		}
-	});
+		if (emptyTemplate) {
+			sendEmailToOwners("RulesGuru template error", `Question ${finishedQuestions[i].id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${finishedQuestions[i].id}`);
+		}
+	}
+
+	referenceQuestionArray = finishedQuestions;
+
+	console.log("Reference question array generation complete");
+
+	fs.writeFileSync("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray));
+
+	updateIndexQuestionCount();
 }
+
 setInterval(updateReferenceObjects, 86400000, false);
 
 const updateIndexQuestionCount = function() {
@@ -391,6 +398,7 @@ Development:
 
 let recentIPs = [];
 app.get("/api/questions", function(req, res) {
+	const time = performance.now();
 	let requestSettings;
 	try {
 		requestSettings = JSON.parse(decodeURIComponent(req.query.json));
@@ -479,19 +487,23 @@ app.get("/api/questions", function(req, res) {
 				}
 			}
 			if (!questionToReturn) {
+				console.log(`Request took ${performance.now() - time}ms to perform.`);
 				res.json({"status": 404, "error":"A question with that ID does not exist."});
 				return;
 			}
 			const result = questionMatchesSettings(questionToReturn, requestSettings, allCards);
 			if (!result) {
+				console.log(`Request took ${performance.now() - time}ms to perform.`);
 				res.json({"status": 400, "error":`Question ${requestSettings.id} cannot match the chosen settings.`});
 				return;
 			}
 			sendAPIQuestions([result], res, allCards);
+			console.log(`Request took ${performance.now() - time}ms to perform.`);
 		} else {
 			let locationToStartSearch;
 			if (requestSettings.previousId !== undefined) {
 				if (typeof requestSettings.previousId !== "number" || !Number.isInteger(requestSettings.previousId) || requestSettings.previousId < 1) {
+					console.log(`Request took ${performance.now() - time}ms to perform.`);
 					res.json({"status": 400, "error":`${requestSettings.previousId} is not a valid previous ID.`});
 					return;
 				}
@@ -517,7 +529,7 @@ app.get("/api/questions", function(req, res) {
 			while (true) {
 				loopCounter++;
 				if (loopCounter > 99999) {
-					handleError(`While loop not terminating.`)
+					handleError(new Error(`While loop not terminating.`))
 					break;
 				}
 				const result = questionMatchesSettings(questionArray[currentSearchLocation], requestSettings, allCards);
@@ -526,6 +538,7 @@ app.get("/api/questions", function(req, res) {
 				}
 				if (questionsToReturn.length === requestSettings.count) {
 					sendAPIQuestions(questionsToReturn, res, allCards);
+					console.log(`Request took ${performance.now() - time}ms to perform.`);
 					break;
 				}
 				currentSearchLocation++;
@@ -534,6 +547,7 @@ app.get("/api/questions", function(req, res) {
 				}
 				if (currentSearchLocation === locationToStartSearch) {
 					res.json({"status": 404, "error":`There are ${requestSettings.count === 1 ? "no" : "not enough"} questions that fit your settings.`});
+					console.log(`Request took ${performance.now() - time}ms to perform.`);
 					break;
 				}
 			}
@@ -577,7 +591,7 @@ app.get("/getQuestionCount", async function(req, res) {
 	const allData = await dbAll(`SELECT * FROM questions`);
 
 	if (referenceQuestionArray.length !== allData.filter(question => question.status === "finished").length) {
-		handleError(`Reference question length does not match database. (${referenceQuestionArray.length} vs. ${allData.filter(question => question.status === "finished").length})`);
+		handleError(new Error(`Reference question length does not match database. (${referenceQuestionArray.length} vs. ${allData.filter(question => question.status === "finished").length})`));
 	}
 
 	allData.forEach(function(question) {
@@ -629,6 +643,7 @@ app.post("/submitAdminQuestion", async function(req, res) {
 					sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${newQuestion.id}`);
 				}
 				referenceQuestionArray.push(newQuestion);
+				fs.writeFileSync("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray));
 				updateIndexQuestionCount();
 			}
 
@@ -640,16 +655,7 @@ app.post("/submitAdminQuestion", async function(req, res) {
 				"verification": addQuestionResult.newVerification
 			});
 			if (currentAdmin.sendSelfEditLogEmails) {
-				transporter.sendMail({
-					from: "admin@rulesguru.net",
-					to: currentAdmin.emailAddress,
-					subject: "You submitted a RulesGuru question",
-					text: `You submitted question #${addQuestionResult.newId}.\n\nhttps://rulesguru.net/question-editor/?${addQuestionResult.newId}\n\nTime: ${date}\n\n\n${JSON.stringify(req.body.questionObj, null, 2)}`
-				}, function(err) {
-						if (err) {
-							handleError(err);
-						}
-				});
+				sendEmail(currentAdmin.emailAddress, "You submitted a RulesGuru question", `You submitted question #${addQuestionResult.newId}.\n\nhttps://rulesguru.net/question-editor/?${addQuestionResult.newId}\n\nTime: ${date}\n\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 			}
 			if (!currentAdmin.roles.owner) {
 				sendEmailToOwners(`RulesGuru admin submission (${currentAdmin.name})`, `${currentAdmin.name} has submitted question #${addQuestionResult.newId}.\n\nhttps://rulesguru.net/question-editor/?${addQuestionResult.newId}\n\nTime: ${date}\n\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
@@ -708,16 +714,8 @@ app.post("/updateQuestion", async function(req, res) {
 
 			//Send emails about the change.
 			if (currentAdmin.sendSelfEditLogEmails) {
-				transporter.sendMail({
-					from: "admin@rulesguru.net",
-					to: currentAdmin.emailAddress,
-					subject: `Your RulesGuru admin update`,
-					text: `You've updated question #${req.body.questionObj.id} (${oldQuestion.status}).\n\nhttps://rulesguru.net/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`
-				}, function(err) {
-						if (err) {
-							handleError(err);
-						}
-				});
+
+				sendEmail(currentAdmin.emailAddress, `Your RulesGuru admin update`, `You've updated question #${req.body.questionObj.id} (${oldQuestion.status}).\n\nhttps://rulesguru.net/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 			}
 			if (!currentAdmin.roles.owner) {
 				sendEmailToOwners(`RulesGuru admin update (${currentAdmin.name})`, `${currentAdmin.name} has updated question #${req.body.questionObj.id} (${oldQuestion.status}).\n\nhttps://rulesguru.net/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
@@ -729,6 +727,7 @@ app.post("/updateQuestion", async function(req, res) {
 });
 
 app.post("/changeQuestionStatus", async function(req, res) {
+	console.log(`Time 1: ${performance.now()}`)
 	const validateAdminResult = validateAdmin(req.body.password);
 	let currentAdmin;
 	if (typeof validateAdminResult === "string") {
@@ -836,6 +835,8 @@ app.post("/changeQuestionStatus", async function(req, res) {
 
 		await dbRun(`UPDATE questions SET json = '${JSON.stringify(req.body.questionObj).replace(/'/g,"''")}', status = '${newStatus}', verification = '${JSON.stringify(verificationObject).replace(/'/g,"''")}' WHERE id = ${req.body.questionObj.id}`);
 
+		console.log(`Time 2: ${performance.now()}`)
+
 		res.json({
 			"error": false,
 			"message": `Question #${req.body.questionObj.id} ${action} successfully.`,
@@ -860,26 +861,21 @@ app.post("/changeQuestionStatus", async function(req, res) {
 				sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${newQuestion.id}`);
 			}
 			referenceQuestionArray.push(newQuestion);
+			fs.writeFileSync("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray));
 		} else if (statusChange === "decrease") {
 			for (let i in referenceQuestionArray) {
 				if (referenceQuestionArray[i].id === req.body.questionObj.id) {
 					referenceQuestionArray.splice(i, 1);
 				}
 			}
+			fs.writeFileSync("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray));
 		}
+
+		console.log(`Time 3: ${performance.now()}`)
 
 		//Send emails about the change.
 		if (currentAdmin.sendSelfEditLogEmails) {
-			transporter.sendMail({
-				from: "admin@rulesguru.net",
-				to: currentAdmin.emailAddress,
-				subject: `Your RulesGuru admin ${action2}`,
-				text: `You've ${action} question #${req.body.questionObj.id} (${newStatus}).\n\nhttps://rulesguru.net/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`
-			}, function(err) {
-					if (err) {
-						handleError(err);
-					}
-			});
+			sendEmail(currentAdmin.emailAddress, `Your RulesGuru admin ${action2}`, `You've ${action} question #${req.body.questionObj.id} (${newStatus}).\n\nhttps://rulesguru.net/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 		}
 
 		if (!currentAdmin.roles.owner) {
@@ -888,21 +884,24 @@ app.post("/changeQuestionStatus", async function(req, res) {
 
 		if (typeof req.body.changes === "string") {
 			const allAdmins = JSON.parse(fs.readFileSync("admins.json", "utf8"));
-			sendEmailToOwners("RulesGuru admin verification with changes", `${currentAdmin.name} has verified question #${req.body.questionObj.id} (originally approved by ${allAdmins[verificationObject.editor].name}) with the following changes:\n\n${req.body.changes}`);
+			sendEmailToOwners("RulesGuru admin verification with changes", `${currentAdmin.name} has verified question #${req.body.questionObj.id} (originally approved by ${allAdmins[verificationObject.editor] ? allAdmins[verificationObject.editor].name : `an unknown admin with ID ${verificationObject.editor}`}) with the following changes:\n\n${req.body.changes}`);
 
-			transporter.sendMail({
-				from: "admin@rulesguru.net",
-				to: allAdmins[verificationObject.editor].emailAddress,
-				subject: `RulesGuru question verification feedback`,
-				text: `Your question https://rulesguru.net/question-editor/?${req.body.questionObj.id} has been verified with the following feedback:\n\n${req.body.changes}`
-			}, function(err) {
-					if (err) {
-						handleError(err);
-					}
-			});
+			if (allAdmins[verificationObject.editor]) {
+				sendEmail(allAdmins[verificationObject.editor].emailAddress, `RulesGuru question verification feedback`, `Your question https://rulesguru.net/question-editor/?${req.body.questionObj.id} has been verified with the following feedback:\n\n${req.body.changes}`);
+			}
 		}
 
+		let recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
+		if (recentlyDistributedQuestionIds.includes(req.body.questionObj.id)) {
+			const index = recentlyDistributedQuestionIds.indexOf(req.body.questionObj.id);
+			recentlyDistributedQuestionIds.splice(index, 1);
+		}
+		fs.writeFileSync("recentlyDistributedQuestionIds.json", JSON.stringify(recentlyDistributedQuestionIds));
+
+		console.log(`Time 4: ${performance.now()}`)
+
 		updateIndexQuestionCount();
+		console.log(`Time 5: ${performance.now()}`)
 	}
 });
 
@@ -927,7 +926,7 @@ const addQuestion = async function(question, isAdmin, adminId) {
 			while (validNewIds.length < 1000) {
 				loopCounter++;
 					if (loopCounter > 9999) {
-						handleError(`While loop not terminating.`)
+						handleError(new Error(`While loop not terminating.`));
 						break;
 					}
 				if (existingIds[0] === count) {
@@ -1088,6 +1087,7 @@ app.post("/submitQuestion", async function(req, res) {
 	const addQuestionResult = await addQuestion(req.body, false);
 	if (!addQuestionResult.error) {
 		res.send(`Question #${addQuestionResult.newId} submitted successfully. Thanks!`);
+		sendEmailToOwners(`New question submission (${addQuestionResult.newId})`, `${JSON.stringify(req.body, null, 2)}`);
 	} else {
 		res.send(`Your question encountered an error being submitted. (${addQuestionResult.error}) Please report this issue using the contact form in the upper right.`);
 	}
@@ -1252,6 +1252,7 @@ app.post("/updateAndForceStatus", async function(req, res) {
 			}
 			referenceQuestionArray.push(newQuestion);
 		}
+		fs.writeFileSync("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray));
 
 		updateIndexQuestionCount();
 
@@ -1268,6 +1269,14 @@ app.post("/updateAndForceStatus", async function(req, res) {
 			const date = Date();
 			sendEmailToOwners(`RulesGuru question ID change`, `${currentAdmin.name} has moved question #${req.body.id} to ID #${req.body.newId}.\n\nTime: ${date}`);
 		}
+
+		let recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
+		if (recentlyDistributedQuestionIds.includes(req.body.id)) {
+			const index = recentlyDistributedQuestionIds.indexOf(req.body.id);
+			recentlyDistributedQuestionIds.splice(index, 1);
+		}
+		fs.writeFileSync("recentlyDistributedQuestionIds.json", JSON.stringify(recentlyDistributedQuestionIds));
+
 	}
 });
 

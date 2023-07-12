@@ -34,7 +34,7 @@ h1 {
 
 #tagList li:hover:before {
 	transform: translateX(-1rem) scale(1.5);
-	transition: transform 0.2s ease
+	transition: transform 0.2s ease;
 }
 
 #question, #answer {
@@ -156,8 +156,32 @@ li {
 	margin-right: 0.3rem;
 }
 
+.subCard:hover .subCardGeneratorX {
+	transform: scale(1.5);
+	transition: transform 0.2s ease;
+}
+
 .subCard {
 	width: fit-content;
+	cursor: pointer;
+}
+
+.cardGeneratorX {
+	cursor: pointer;
+}
+
+.cardGeneratorX:hover {
+	transform: scale(1.5);
+	transition: transform 0.2s ease;
+}
+
+.templateRuleDeleteButton {
+	cursor: pointer;
+}
+
+.templateRuleDeleteButton:hover {
+	transform: scale(1.5);
+	transition: transform 0.2s ease;
 }
 
 .cardGenerator > .templateButton {

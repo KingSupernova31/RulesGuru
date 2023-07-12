@@ -4,6 +4,11 @@ const nodemailer = require("nodemailer"),
 
 //General error handling function- puts the error in the console and emails it to me.
 const handleError = function(error) {
+	if (!error instanceof Error) {
+		handleError(new Error(`Yo dawg I heard you liked errors so I put an error in yo error. Original error: ${error}`));
+		return;
+	}
+
 	console.error(error)
 	const allAdmins = JSON.parse(fs.readFileSync("admins.json", "utf8"));
 	for (let i in allAdmins) {

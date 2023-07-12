@@ -14,7 +14,7 @@ cron.schedule("0 0 0 * * *", function() {
 	require('child_process').fork('custom_modules/updateDataFiles.js');
 });
 
-cron.schedule("* * * * * *", function() {
+cron.schedule("0 0 6 * * *", function() {
 	require('child_process').fork('custom_modules/createBackups.js');
 });
 

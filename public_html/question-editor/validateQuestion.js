@@ -1,8 +1,6 @@
-const cardNamesToIgnore = ["Turn", "Response", "Never", "Find", "Take", "Death", "Down", "Reason", "Give", "Order", "Granted", "Life", "Ends", "Well", "Status", "Entering", "Chance", "Fight", "Leave", "Regeneration", "Remove", "Charge", "Opportunity", "Return", "Away", "Two-Headed Giant", "Wish", "Redirect", "Done", "Rust", "Gone", "Cut", "Finish", "Ready", "Start", "Memory", "Simple", "Determined", "Excess", "Consider", "Loss"].concat(allKeywords.keywordAbilities).concat(allKeywords.keywordActions);
-
 const fakePlayerNamesMap = {"AP":{"name":"Amara","gender":"female"},"NAP1":{"name":"Bruno","gender":"male"},"NAP2":{"name":"Carol","gender":"neutral"},"NAP3":{"name":"Danica","gender":"female"},"NAP":{"name":"Nikolai","gender":"male"},"APa":{"name":"Addison","gender":"neutral"},"APb":{"name":"Ayden","gender":"male"},"NAPa":{"name":"Nylah","gender":"female"},"NAPb":{"name":"Nico","gender":"neutral"}};
 
-const validateQuestion = function(questionObj, templateEmptyness, convertedTemplateStorage) {
+const validateQuestion = function(questionObj, templateEmptyness, convertedTemplateStorage, currentAdminName, savedCardLists) {
 	const errors = [],
 				warnings = [];
 
@@ -193,6 +191,7 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 				warnings.push(`There may be a gendered pronoun ("${pronouns[i]}") in the answer. (All players should be referred to gender-neutrally.)`);
 			}
 		}
+
 		//Check for non-technical terms.
 		const slang = ["fizzle", "into play", "in play", "bounce"];
 		for (let i in slang) {
@@ -209,8 +208,17 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 		}
 		const onRegex = /(asts|ctivates) \[card \d+\] on /;
 		if (onRegex.test(questionObj.question.toLowerCase()) || onRegex.test(questionObj.answer.toLowerCase())) {
-			warnings.push(`Please don't use the term "on" to indicate an action, say "targeting" or "choosing" as appropriate instead.`);
+			warnings.push(`Please don't use the word "on" to indicate an action; say "targeting" or "choosing" as appropriate instead.`);
 		}
+
+		//Check for comma splice.
+		if (/,.*\?/.test(questionObj.question) && !/If[^.]*,.*\?/.test(questionObj.question) && currentAdminName === "Tobias Vyseri") {
+			warnings.push("There may be a comma splice in the question.");
+		}
+		if (/,.*\?/.test(questionObj.answer) && !/If[^.]*,.*\?/.test(questionObj.answer) && currentAdminName === "Tobias Vyseri") {
+			warnings.push("There may be a comma splice in the answer.");
+		}
+
 		//Check for double spaces.
 		if (questionObj.question.includes("  ")) {
 			errors.push("Please remove the double spaces in the question.");
@@ -261,6 +269,29 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 				errors.push(`You have created card generator ${i - - 1}, but not used it anywhere in the question or answer.`);
 			}
 		}
+
+		//Check for missing cards.
+		const allCardsWeCareAboutInOriginalQuestion = [];
+		for (let savedCardList of savedCardLists) {
+			if (savedCardList.length <= 3) {
+				allCardsWeCareAboutInOriginalQuestion.push(...savedCardList);
+			}
+		}
+		const allCardsInCurrentQuestion = [];
+		for (let generator of questionObj.cardGenerators) {
+			if (typeof generator[0] === "string") {
+				allCardsInCurrentQuestion.push(...generator);
+			}
+		}
+		for (let convertedTemplate of convertedTemplateStorage) {
+			allCardsInCurrentQuestion.push(...convertedTemplate);
+		}
+		for (let card of allCardsWeCareAboutInOriginalQuestion) {
+			if (!allCardsInCurrentQuestion.includes(card)) {
+				warnings.push(`The original question mentioned ${card}, but the current question does not. Please keep the original cards in the question if possible.`);
+			}
+		}
+
 		//Check for valid rule citations and a nonzero number of them.
 		const ruleCitations = questionObj.answer.match(/\[(\d{3}(\.\d{1,3}([a-z])?)?)/g);
 		if (ruleCitations) {
