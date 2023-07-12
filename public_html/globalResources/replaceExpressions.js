@@ -121,6 +121,7 @@ const symbolsToHtml = function(string) {
 		"[-13]": "<i class='ms ms-loyalty-down ms-loyalty-13 ms-2x'></i>",
 		"[-14]": "<i class='ms ms-loyalty-down ms-loyalty-14 ms-2x'></i>",
 		"[-15]": "<i class='ms ms-loyalty-down ms-loyalty-15 ms-2x'></i>",
+		"[-X]": "<i class='ms ms-loyalty-down ms-loyalty-x ms-2x'></i>",
 	};
 	string = string.replace(/[{\[][A-Z0-9\/+-]{1,5}[}\]]/g, function(match) {
 		return symbolMap[match] || match;

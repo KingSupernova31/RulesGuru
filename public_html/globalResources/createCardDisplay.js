@@ -18,6 +18,8 @@ const createCardDisplay = function(cardData, defaultDisplayType) {
 		imageElement.style.transform = "rotate(180deg)";
 	} else if (cardData.layout === "split (half)") {
 		imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.names[0] + " // " + cardData.names[1]}`);
+	} else if (cardData.layout === "prototype" && cardData.name.includes(" (prototyped)")) {
+		imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.name.replace(" (prototyped)", "")}`);
 	} else {
 		imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.name}`);
 	}
