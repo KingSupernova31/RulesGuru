@@ -130,7 +130,7 @@ const symbolsToHtml = function(string) {
 }
 
 //Accepts a string containing various [expressions] and {symbols} and returns a plaintext version and an HTML version.
-const replaceExpressions = function(string, playerNamesMap, oracle, allCards, allRules) {
+const replaceExpressions = function(string, playerNamesMap, oracle, allCards, allRules, forPreview) {
 
 	const combineStrings = function(strings) {
 		if (typeof strings !== "object") {
@@ -280,9 +280,13 @@ const replaceExpressions = function(string, playerNamesMap, oracle, allCards, al
 			}
 			if (result === undefined || result === "" || Number.isNaN(result)) {
 				resultToReturn.errors.push(`${cardExpression} evaluates to ${result}.`)
-				return cardExpression;
+				return cardExpression + " test 1";
 			} else {
-				return "↔" + result + "↕";//These are arbitrary symbols used by the aVsAn and pluralization fixer to identify where a card expression replacement occured.
+				if (forPreview) {
+					return `↔${result} <sup style="color:green;font-size:0.7rem">${cardExpression}</sup>↕`;
+				} else {
+					return "↔" + result + "↕";//These are arbitrary symbols used by the aVsAn and pluralization fixer to identify where a card expression replacement occured.
+				}
 			}
 		} catch (err) {
 			console.error(err);

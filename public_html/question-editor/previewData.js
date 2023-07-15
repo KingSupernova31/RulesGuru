@@ -88,10 +88,10 @@ const displayNewText = function() {
 		document.getElementById("submittedByField").style.display = "none";
 	}
 	//Display the question.
-	document.getElementById("question").innerHTML = replaceExpressions(window.parentData.questionObj.question, playerNamesMap, currentPreviewCards, window.parentData.allCards, window.parentData.allRules).html;
+	document.getElementById("question").innerHTML = replaceExpressions(window.parentData.questionObj.question, playerNamesMap, currentPreviewCards, window.parentData.allCards, window.parentData.allRules, true).html;
 
 	//Display answer.
-	document.getElementById("answer").innerHTML = replaceExpressions(window.parentData.questionObj.answer, playerNamesMap, currentPreviewCards, window.parentData.allCards, window.parentData.allRules).html;
+	document.getElementById("answer").innerHTML = replaceExpressions(window.parentData.questionObj.answer, playerNamesMap, currentPreviewCards, window.parentData.allCards, window.parentData.allRules, true).html;
 
 	//Display validation.
 	if (window.parentData.questionValidation.errors.length > 0) {
