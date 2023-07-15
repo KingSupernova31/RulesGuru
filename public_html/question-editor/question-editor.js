@@ -199,6 +199,8 @@ const addCardGenerator = function() {
 
 	//Multi-entry
 	multiEntryButton.addEventListener("click", function(event) {
+		window.scrollTo(0, 0);
+		document.querySelector("html").style.overflow = "hidden";
 		document.getElementById("cardGeneratorgreyout").style.display = "block";
 		document.getElementById("multiEntryDiv").style.display = "block";
 		document.getElementById("multiEntryText").value = questionObj.cardLists[this.parentElement.id.slice(13) - 1].join("\n");
@@ -219,6 +221,8 @@ const addCardGenerator = function() {
 	//Templates
 	templateButton.addEventListener("click", function(event) {
 		const templateNum = Number(this.parentElement.id.slice(13) - 1);
+		window.scrollTo(0, 0);
+		document.querySelector("html").style.overflow = "hidden";
 		document.getElementById("cardGeneratorgreyout").style.display = "block";
 		document.getElementById("templateScrollContainer").style.display = "block";
 		document.querySelector("#templateBoxHeading").textContent = `Edit template ${templateNum + 1}`;
@@ -686,6 +690,7 @@ const processTemplateBox = function() {
 }
 
 const closeTemplateBox = function() {
+	document.querySelector("html").style.overflow = "";
 	document.getElementById("cardGeneratorgreyout").style.display = "none";
 	document.getElementById("templateScrollContainer").style.display = "none";
 	document.getElementById("templateRules").innerHTML = "";
@@ -1226,6 +1231,7 @@ const processMultiEntry = function() {
 }
 
 const closeMultiEntry = function() {
+	document.querySelector("html").style.overflow = "";
 	document.getElementById("cardGeneratorgreyout").style.display = "none";
 	document.getElementById("multiEntryDiv").style.display = "none";
 	document.getElementById("multiEntryText").value = "";
