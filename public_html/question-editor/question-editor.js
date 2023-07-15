@@ -501,11 +501,11 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 			values = ["White", "Blue", "Black", "Red", "Green"];
 			break;
 		case "Mana cost":
-			operators = ["Includes:", "Doesn't include:", "Exactly:"];
+			operators = ["Includes:", "Doesn't include:", "Exactly:", "Not exactly:"];
 			tooltip = `The order of the symbols doesn't matter. You can use ::generic::, ::phyrexian::, ::hybrid::, and ::[color]:: to match multiple symbols.<br><br>If "Doesn't include" is selected, only cards that don't have <b>all</b> of those symbols are returned. If "don't have <b>any</b>" is the desired query, use multiple "Doesn't include" rules.`;
 			break;
 		case "Mana value":
-			operators = ["=", ">", "<"];
+			operators = ["=", "≠", ">", "<"];
 			break;
 		case "Supertypes":
 			operators = ["Includes:", "Doesn't include:"];
@@ -528,20 +528,20 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 			values = allKeywords.keywordAbilities.concat(allKeywords.keywordActions);
 			break;
 		case "Power":
-			operators = ["=", ">", "<"];
+			operators = ["=", "≠", ">", "<"];
 			tooltip = `Non-numerical powers such as "1+*" are supported. The ">" and "<" operators will not return cards with non-numerical powers.`;
 			break;
 		case "Toughness":
-			operators = ["=", ">", "<"];
+			operators = ["=", "≠", ">", "<"];
 			tooltip = `Non-numerical toughnesses such as "1+*" are supported. The ">" and "<" operators will not return cards with non-numerical toughnesses.`;
 			break;
 		case "Loyalty":
-			operators = ["=", ">", "<"];
+			operators = ["=", "≠", ">", "<"];
 			tooltip = `Non-numerical loyalties such as "X" are supported. The ">" and "<" operators will not return cards with non-numerical loyalties.`;
 			break;
 		case "Number of":
 			fieldOptions = ["Colors", "Color identity", "Color indicator", "Keywords", "Mana cost", "Subtypes", "Supertypes", "Types"];
-			operators = ["=", ">", "<"];
+			operators = ["=", "≠", ">", "<"];
 			tooltip = `The number of instances of the chosen attribute that the card has. If "Color identity" or "Color indicator" is selected, it refers to the number of colors that that attribute has. If "Mana cost" is selected, it refers to the number of mana symbols in that cost.`;
 			break;
 	}

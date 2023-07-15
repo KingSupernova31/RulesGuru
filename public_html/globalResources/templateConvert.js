@@ -99,6 +99,54 @@ const templateConvert = function(template, globalCardList, presetTemplates) {
 	}
 };
 
+//Doesn't include "number of", since that's a special case.
+const fieldToPropMapping = {
+	"Colors": "colors",
+	"Color identity": "colorIdentity",
+	"Color indicator": "colorIndicator",
+	"Keywords": "keywords",
+	"Layout": "layout",
+	"Loyalty": "loyalty",
+	"Mana cost": "manaCost",
+	"Mana value": "manaValue",
+	"Multi-part side": "side",
+	"Power": "power",
+	"Rules text": "rulesText",
+	"Subtypes": "subtypes",
+	"Supertypes": "supertypes",
+	"Toughness": "toughness",
+	"Types": "types",
+}
+
+const typicalArrayRuleMatchesCard = function(rule, card) {
+	const relevantProperty = fieldToPropMapping[rule.field];
+	if (rule.operator === "Includes:") {
+		return card[relevantProperty].includes(rule.value);
+	} else if (rule.operator === "Doesn't include:") {
+		return !card[relevantProperty].includes(rule.value);
+	}
+}
+
+const typicalPseudoNumericalRuleMatchesCard = function(rule, card) {
+	const relevantProperty = fieldToPropMapping[rule.field];
+	if (card[relevantProperty] === undefined) {
+		return false;
+	}
+
+	if (typeof rule.value !== "string" || typeof card[relevantProperty] !== "string") {
+		throw new Error("You fool! You expected a numerical quantity to be of type \"number\"!")
+	}
+	if (rule.operator === "=") {
+		return card[relevantProperty] === rule.value;
+	} else if (rule.operator === "≠") {
+		return card[relevantProperty] !== rule.value;
+	}	else if (rule.operator === ">") {
+		return card[relevantProperty] > Number(rule.value);//Always returns false if rule.value is not a number like "*+1".
+	} else if (rule.operator === "<") {
+		return card[relevantProperty] < Number(rule.value);
+	}
+}
+
 const templateRuleMatchesCard = function(rule, card) {
 	switch (rule.field) {
 		case "Layout":
@@ -111,7 +159,7 @@ const templateRuleMatchesCard = function(rule, card) {
 					return false;
 				}
 			}
-			break;
+			return true;
 		case "Multi-part side":
 			if (rule.operator === "Is:") {
 				if (!card.side || card.side !== rule.value) {
@@ -122,40 +170,13 @@ const templateRuleMatchesCard = function(rule, card) {
 					return false;
 				}
 			}
-			break;
+			return true;
 		case "Colors":
-			if (rule.operator === "Includes:") {
-				if (!card.colors.includes(rule.value)) {
-					return false;
-				}
-			} else if (rule.operator === "Doesn't include:") {
-				if (card.colors.includes(rule.value)) {
-					return false;
-				}
-			}
-			break;
+			return typicalArrayRuleMatchesCard(rule, card);
 		case "Color indicator":
-			if (rule.operator === "Includes:") {
-				if (!card.colorIndicator.includes(rule.value)) {
-					return false;
-				}
-			} else if (rule.operator === "Doesn't include:") {
-				if (card.colorIndicator.includes(rule.value)) {
-					return false;
-				}
-			}
-			break;
+			return typicalArrayRuleMatchesCard(rule, card);
 		case "Color identity":
-			if (rule.operator === "Includes:") {
-				if (!card.colorIdentity.includes(rule.value)) {
-					return false;
-				}
-			} else if (rule.operator === "Doesn't include:") {
-				if (card.colorIdentity.includes(rule.value)) {
-					return false;
-				}
-			}
-			break;
+			return typicalArrayRuleMatchesCard(rule, card);
 		case "Mana cost":
 			const cardManaCostArray = card.manaCost ? card.manaCost.replace(" // ", "").split(/(?={)/) : [],
 						templateSymbols = rule.value.match(/{[A-Z0-9/]{0,3}}/g) || [],
@@ -205,7 +226,7 @@ const templateRuleMatchesCard = function(rule, card) {
 				return foundATransfersal;
 			}
 
-			if (rule.operator === "Includes:") {
+			const includes = function() {
 				for (let i = 0 ; i < templateSymbols.length ; i++) {
 					if (cardManaCostArray.includes(templateSymbols[i])) {
 						cardManaCostArray.splice(cardManaCostArray.indexOf(templateSymbols[i]), 1)
@@ -216,22 +237,10 @@ const templateRuleMatchesCard = function(rule, card) {
 				if (templatePseudoSymbols.length > 0 && !marriageTheoremMet(templatePseudoSymbols, cardManaCostArray)) {
 					return false;
 				}
-			} else if (rule.operator === "Doesn't include:") {
-				let includedAllSymbols = true;
-				for (let i = 0 ; i < templateSymbols.length ; i++) {
-					if (cardManaCostArray.includes(templateSymbols[i])) {
-						cardManaCostArray.splice(cardManaCostArray.indexOf(templateSymbols[i]), 1)
-					} else {
-						includedAllSymbols = false;
-					}
-				}
-				if (templatePseudoSymbols.length > 0 && !marriageTheoremMet(templatePseudoSymbols, cardManaCostArray)) {
-					includedAllSymbols = false;
-				}
-				if (includedAllSymbols) {
-					return false;
-				}
-			} else if (rule.operator === "Exactly:") {
+				return true;
+			}
+
+			const exactly = function() {
 				for (let i = 0 ; i < templateSymbols.length ; i++) {
 					if (cardManaCostArray.includes(templateSymbols[i])) {
 						cardManaCostArray.splice(cardManaCostArray.indexOf(templateSymbols[i]), 1)
@@ -245,56 +254,26 @@ const templateRuleMatchesCard = function(rule, card) {
 				if (templatePseudoSymbols.length > 0 && !marriageTheoremMet(templatePseudoSymbols, cardManaCostArray)) {
 					return false;
 				}
+				return true;
 			}
-			break;
+
+			if (rule.operator === "Includes:") {
+				return includes();
+			} else if (rule.operator === "Doesn't include:") {
+				return !includes();
+			} else if (rule.operator === "Exactly:") {
+				return exactly();
+			} else if (rule.operator === "Not exactly:") {
+				return !exactly();
+			}
 		case "Mana value":
-			if (rule.operator === "=") {
-				if (card.manaValue !== Number(rule.value)) {
-					 return false;
-				}
-			} else if (rule.operator === ">") {
-				if (!(card.manaValue > rule.value)) {
-					 return false;
-				}
-			} else if (rule.operator === "<") {
-				if (!(card.manaValue < rule.value)) {
-					 return false;
-				}
-			}
-			break;
+			return typicalPseudoNumericalRuleMatchesCard(rule, card);
 		case "Supertypes":
-			if (rule.operator === "Includes:") {
-				if (!card.supertypes.includes(rule.value)) {
-					return false;
-				}
-			} else if (rule.operator === "Doesn't include:") {
-				if (card.supertypes.includes(rule.value)) {
-					return false;
-				}
-			}
-			break;
+			return typicalArrayRuleMatchesCard(rule, card);
 		case "Types":
-			if (rule.operator === "Includes:") {
-				if (!card.types.includes(rule.value)) {
-					return false;
-				}
-			} else if (rule.operator === "Doesn't include:") {
-				if (card.types.includes(rule.value)) {
-					return false;
-				}
-			}
-			break;
+			return typicalArrayRuleMatchesCard(rule, card);
 		case "Subtypes":
-			if (rule.operator === "Includes:") {
-				if (!card.subtypes.includesCaseInsensitive(rule.value)) {
-					return false;
-				}
-			} else if (rule.operator === "Doesn't include:") {
-				if (card.subtypes.includesCaseInsensitive(rule.value)) {
-					return false;
-				}
-			}
-			break;
+			return typicalArrayRuleMatchesCard(rule, card);
 		case "Rules text":
 			const replacedValue = rule.value.replace(/::name::/g, card.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
 			if (rule.operator === "Matches:") {
@@ -316,70 +295,17 @@ const templateRuleMatchesCard = function(rule, card) {
 					return false;
 				}
 			}
-			break;
+			return true;
 		case "Keywords":
-			if (rule.operator === "Includes:") {
-				if (!card.keywords.includesCaseInsensitive(rule.value)) {
-					return false;
-				}
-			} else if (rule.operator === "Doesn't include:") {
-				if (card.keywords.includesCaseInsensitive(rule.value)) {
-					return false;
-				}
-			}
-			break;
+			return typicalArrayRuleMatchesCard(rule, card);
 		case "Power":
-			if (rule.operator === "=") {
-				if (card.power !== rule.value) {
-					 return false;
-				}
-			} else if (rule.operator === ">") {
-				if (!(card.power > Number(rule.value))) {
-					 return false;
-				}
-			} else if (rule.operator === "<") {
-				if (!(card.power < Number(rule.value))) {
-					 return false;
-				}
-			}
-			break;
+			return typicalPseudoNumericalRuleMatchesCard(rule, card);
 		case "Toughness":
-			if (rule.operator === "=") {
-				if (card.toughness !== rule.value) {
-					 return false;
-				}
-			} else if (rule.operator === ">") {
-				if (!(card.toughness > Number(rule.value))) {
-					 return false;
-				}
-			} else if (rule.operator === "<") {
-				if (!(card.toughness < Number(rule.value))) {
-					 return false;
-				}
-			}
-			break;
+			return typicalPseudoNumericalRuleMatchesCard(rule, card);
 		case "Loyalty":
-			if (rule.operator === "=") {
-				if (card.loyalty !== rule.value) {
-					 return false;
-				}
-			} else if (rule.operator === ">") {
-				if (!(card.loyalty > Number(rule.value))) {
-					 return false;
-				}
-			} else if (rule.operator === "<") {
-				if (!(card.loyalty < Number(rule.value))) {
-					 return false;
-				}
-			}
-			break;
+			return typicalPseudoNumericalRuleMatchesCard(rule, card);
 		case "Number of":
-			const toCamelCase = function(string) {
-				return string.replace(/(?:^\w|[A-Z]|\b\w)/g, function(word, index) {
-					return index === 0 ? word.toLowerCase() : word.toUpperCase();
-				}).replace(/\s+/g, '');
-			}
-			const fieldOption = toCamelCase(rule.fieldOption);
+			const fieldOption = fieldToPropMapping[rule.fieldOption];
 			let currentCardAttributeNumber;
 			if (fieldOption === "manaCost") {
 				currentCardAttributeNumber = card.manaCost ? card.manaCost.match(/{/g).length : 0;
@@ -387,21 +313,15 @@ const templateRuleMatchesCard = function(rule, card) {
 				currentCardAttributeNumber = card[fieldOption].length;
 			}
 			if (rule.operator === "=") {
-				if (currentCardAttributeNumber !== Number(rule.value)) {
-					 return false;
-				}
+				return currentCardAttributeNumber === Number(rule.value);
+			} else if (rule.operator === "≠") {
+				return currentCardAttributeNumber !== Number(rule.value);
 			} else if (rule.operator === ">") {
-				if (!(currentCardAttributeNumber > Number(rule.value))) {
-					 return false;
-				}
+				return currentCardAttributeNumber > Number(rule.value);
 			} else if (rule.operator === "<") {
-				if (!(currentCardAttributeNumber < Number(rule.value))) {
-					 return false;
-				}
+				return currentCardAttributeNumber < Number(rule.value);
 			}
-			break;
 	}
-	return true;
 }
 
 if (typeof module === "object") {
