@@ -279,11 +279,12 @@ const getPlayerNamesMap = function() {
 
 //Format a question to be sent to the browser and send it.
 const sendAPIQuestions = function(questions, res, allCards) {
+
 	const allQuestionsToSend = {
 		"status": 200,
 		"questions": []
 	};
-	for (let question of questions) {
+	outerQuestionLoop: for (let question of questions) {
 		const questionToSend = JSON.parse(JSON.stringify(question));
 
 		let cardExpressions = Array.from((questionToSend.question + " " + questionToSend.answer).matchAll(/\[(card \d+(?::other side)?)(?::(?:colors|mana cost|mana value|supertypes|types|subtypes|power|toughness|loyalty))?(?::simple)?\]/g));
@@ -291,22 +292,25 @@ const sendAPIQuestions = function(questions, res, allCards) {
 		cardExpressions = cardExpressions.filter(function(item, pos, self) {//Remove duplicates while preserving order of first instance.
 			return self.indexOf(item) == pos;
 		});
-
-		const chosenCardNames = [];
+		let chosenCardNames = [];
 		questionToSend.includedCards = [];
 		if (questionToSend.cardLists.length > 0) {
 			//Randomly pick cards for the question.
-			for (let i = 0 ; i < 100000 ; i++) {
+			for (let i = 0 ; i < 10000 ; i++) {
+				const chosenCardNamesToTest = [];
 				for (let j = 0 ; j < questionToSend.cardLists.length ; j++) {
-					chosenCardNames.push(questionToSend.cardLists[j][Math.floor(Math.random()*questionToSend.cardLists[j].length)]);
+					chosenCardNamesToTest.push(questionToSend.cardLists[j][Math.floor(Math.random()*questionToSend.cardLists[j].length)]);
 				}
-				if (Array.from(new Set(chosenCardNames)).length === chosenCardNames.length) {
+				if (Array.from(new Set(chosenCardNamesToTest)).length === chosenCardNamesToTest.length) {
+					chosenCardNames = chosenCardNamesToTest;
 					break;
 				}
 			}
-			if (Array.from(new Set(chosenCardNames)).length !== chosenCardNames.length) {
-				res.json({"error":"There are no questions that fit your parameters. Please change your settings and try again.\n\Have a question that would fit those parameters? Submit it!"});
-				return;
+
+			//Check for a question with no valid card selection. If this occurs, we don't send that question.
+			if (chosenCardNames.length === 0) {
+				handleError(new Error(`No valid card selection on question #${questionToSend.id}`))
+				continue outerQuestionLoop;
 			}
 
 			for (let i = 0 ; i < cardExpressions.length ; i++) {
@@ -333,7 +337,6 @@ const sendAPIQuestions = function(questions, res, allCards) {
 		const playerNamesMap = getPlayerNamesMap();
 
 		const chosenCards = chosenCardNames.map(cardName => allCards[cardName]);//We need to provide the cards to replaceExpressions in card generator order, not in text order like they are in includedCards.
-
 
 		questionToSend.questionSimple = replaceExpressions(questionToSend.question, playerNamesMap, chosenCards, allCards, allRules).plaintext;
 		questionToSend.answerSimple = replaceExpressions(questionToSend.answer, playerNamesMap, chosenCards, allCards, allRules).plaintext;
@@ -408,7 +411,6 @@ app.get("/api/questions", function(req, res) {
 		res.json({"status": 400, "error":"json parameter is not valid JSON."});
 		return;
 	}
-
 	//When a request is received, update recentIPs to include only ones from within the last 2 seconds.
 	recentIPs = recentIPs.filter(ip => Date.now() - ip.date < 2000);
 	if (recentIPs.filter(ip => ip.ip).length > 0 && !requestSettings.avoidRateLimiting) {//If you find this and use it to get around my rate limiting, go ahead, you deserve it. But I'll be fixing this eventally.
@@ -508,7 +510,6 @@ app.get("/api/questions", function(req, res) {
 					res.json({"status": 400, "error":`${requestSettings.previousId} is not a valid previous ID.`});
 					return;
 				}
-
 				questionArray.sort((a, b) => a.id - b.id);
 				for (let i = 0 ; i < questionArray.length ; i++) {
 					if (questionArray[i].id > requestSettings.previousId) {
@@ -537,6 +538,7 @@ app.get("/api/questions", function(req, res) {
 				if (result) {
 					questionsToReturn.push(result);
 				}
+
 				if (questionsToReturn.length === requestSettings.count) {
 					sendAPIQuestions(questionsToReturn, res, allCards);
 					console.log(`Request took ${performance.now() - time}ms to perform.`);
@@ -728,7 +730,6 @@ app.post("/updateQuestion", async function(req, res) {
 });
 
 app.post("/changeQuestionStatus", async function(req, res) {
-	console.log(`Time 1: ${performance.now()}`)
 	const validateAdminResult = validateAdmin(req.body.password);
 	let currentAdmin;
 	if (typeof validateAdminResult === "string") {
@@ -836,8 +837,6 @@ app.post("/changeQuestionStatus", async function(req, res) {
 
 		await dbRun(`UPDATE questions SET json = '${JSON.stringify(req.body.questionObj).replace(/'/g,"''")}', status = '${newStatus}', verification = '${JSON.stringify(verificationObject).replace(/'/g,"''")}' WHERE id = ${req.body.questionObj.id}`);
 
-		console.log(`Time 2: ${performance.now()}`)
-
 		res.json({
 			"error": false,
 			"message": `Question #${req.body.questionObj.id} ${action} successfully.`,
@@ -872,16 +871,12 @@ app.post("/changeQuestionStatus", async function(req, res) {
 			fs.writeFileSync("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray));
 		}
 
-		console.log(`Time 3: ${performance.now()}`)
-
 		//Send emails about the change.
 		if (currentAdmin.sendSelfEditLogEmails) {
 			sendEmail(currentAdmin.emailAddress, `Your RulesGuru admin ${action2}`, `You've ${action} question #${req.body.questionObj.id} (${newStatus}).\n\nhttps://rulesguru.net/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 		}
 
-		if (!currentAdmin.roles.owner) {
-			sendEmailToOwners(`RulesGuru admin ${action2} (${currentAdmin.name})`, `${currentAdmin.name} has ${action} question #${req.body.questionObj.id}(${newStatus}).\n\nhttps://rulesguru.net/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
-		}
+		sendEmailToOwners(`RulesGuru admin ${action2} (${currentAdmin.name})`, `${currentAdmin.name} has ${action} question #${req.body.questionObj.id}(${newStatus}).\n\nhttps://rulesguru.net/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 
 		if (typeof req.body.changes === "string") {
 			const allAdmins = JSON.parse(fs.readFileSync("admins.json", "utf8"));
@@ -899,10 +894,7 @@ app.post("/changeQuestionStatus", async function(req, res) {
 		}
 		fs.writeFileSync("recentlyDistributedQuestionIds.json", JSON.stringify(recentlyDistributedQuestionIds));
 
-		console.log(`Time 4: ${performance.now()}`)
-
 		updateIndexQuestionCount();
-		console.log(`Time 5: ${performance.now()}`)
 	}
 });
 
