@@ -180,6 +180,20 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 				warnings.push(`It looks like the subtype "${subtypesToCheck[i].toLowerCase()}" in the answer is not capitalized.`);
 			}
 		}
+		//Check for needlessly capitalized letters.
+		const needlesslyCapitalizedWords = /(.{0,2})([A-Z]\w+)/g;
+		const matches = questionObj.question.matchAll(needlesslyCapitalizedWords);
+		outer: for (let match of matches) {
+			if ([". ", ") ", "", " [", "[", "(["].includes(match[1])) {
+				continue;
+			}
+			for (let subtype of allSubtypes) {
+				if (match[2] === subtype) {
+					continue outer;
+				}
+			}
+			warnings.push(`"${match[2]}" probably shouldn't be capitalized.`);
+		}
 		//Check for gendered pronouns.
 		const pronouns = ["he", "she", "him", "her", "his", "hers"];
 		for (let i in pronouns) {
