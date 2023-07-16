@@ -133,13 +133,15 @@ const typicalPseudoNumericalRuleMatchesCard = function(rule, card) {
 		return false;
 	}
 
-	if (typeof rule.value !== "string" || typeof card[relevantProperty] !== "string") {
+	if (typeof rule.value !== "string" || (typeof card[relevantProperty] !== "string" && relevantProperty !== "manaValue")) {
+		console.log(rule)
+		console.log(card)
 		throw new Error("You fool! You expected a numerical quantity to be of type \"number\"!")
 	}
 	if (rule.operator === "=") {
-		return card[relevantProperty] === rule.value;
+		return card[relevantProperty].toString() === rule.value;//Needs to be converted to a string in order for mana value to work properly.
 	} else if (rule.operator === "≠") {
-		return card[relevantProperty] !== rule.value;
+		return card[relevantProperty].toString() !== rule.value;
 	}	else if (rule.operator === ">") {
 		return card[relevantProperty] > Number(rule.value);//Always returns false if rule.value is not a number like "*+1".
 	} else if (rule.operator === "<") {
