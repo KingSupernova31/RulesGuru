@@ -280,7 +280,6 @@ const replaceExpressions = function(string, playerNamesMap, oracle, allCards, al
 			}
 			if (result === undefined || result === "" || Number.isNaN(result)) {
 				resultToReturn.errors.push(`${cardExpression} evaluates to ${result}.`)
-				return cardExpression + " test 1";
 			} else {
 				if (forPreview) {
 					return `↔${result} <sup style="color:green;font-size:0.7rem">${cardExpression}</sup>↕`;
