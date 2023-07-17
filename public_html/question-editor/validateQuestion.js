@@ -184,7 +184,7 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 		const capitalizedWords = /(.{0,2})([A-Z]\w+)/g;
 		const matches = questionObj.question.matchAll(capitalizedWords);
 		outer: for (let match of matches) {
-			if ([". ", ") ", "", " [", "[", "([", "[N"].includes(match[1])) {
+			if ([". ", ") ", "", " [", "[", "([", "[N", "? "].includes(match[1])) {
 				continue;
 			}
 			for (let subtype of allSubtypes) {
