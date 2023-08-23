@@ -217,10 +217,10 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 				errors.push(`"${slang[i][0].toUpperCase() + slang[i].slice(1)}" is not a technical term, please don't use it in the answer.`);
 			}
 		}
-		if (/you(?!.*")/.test(questionObj.question.toLowerCase()) || /you(?!.*")/.test(questionObj.answer.toLowerCase())) {
+		if (/\byou\b/.test(questionObj.question.toLowerCase()) || /\byou\b/.test(questionObj.answer.toLowerCase())) {
 			errors.push(`"You" aren't a player in the game. Please replace this with a reference to a player in the third person.`);
 		}
-		if (/we(?!.*")/.test(questionObj.question.toLowerCase()) || /we(?!.*")/.test(questionObj.answer.toLowerCase())) {
+		if (/\bwe\b/.test(questionObj.question.toLowerCase()) || /\bwe\b/.test(questionObj.answer.toLowerCase())) {
 			errors.push(`"We" aren't in the game. Please replace this with a reference to "the game" or similar.`);
 		}
 		const onRegex = /(asts|ctivates) \[card \d+\] on /;
