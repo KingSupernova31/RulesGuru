@@ -33,7 +33,8 @@ const presetTemplates = [
 			{"field":"Types","operator":"Doesn't include:","value":"Sorcery","orGroup":null},
 			{"field":"Toughness","operator":">","value":"0","orGroup":0},
 			{"field":"Types","operator":"Doesn't include:","value":"Creature","orGroup":0},
-			{"field":"Rules text","operator":"Does not match:","value":"(^|\\n)::name:: gets [+-]\\d+/-[1-9]","orGroup":null}],
+			{"field":"Rules text","operator":"Does not match:","value":"(^|\\n)::name:: gets [+-]\\d+/-[1-9]","orGroup":null}
+		],
 	},
 	{
 		"description": "Can participate in combat with no side effects",
@@ -50,6 +51,7 @@ const presetTemplates = [
 			{"field":"Types","operator":"Includes:","value":"Creature","orGroup":null},
 			{"field":"Rules text","operator":"Does not contain:","value":"attack","orGroup":null},
 			{"field":"Rules text","operator":"Does not contain:","value":"block","orGroup":null}
+		]
 	},
 	{
 		"description": "Targetable on battlefield with no side effects",
@@ -62,7 +64,8 @@ const presetTemplates = [
 			{"field":"Rules text","operator":"Does not contain:","value":"cast","orGroup":null},
 			{"field":"Rules text","operator":"Does not contain:","value":"target","orGroup":null},
 			{"field":"Rules text","operator":"Does not contain:","value":"activate","orGroup":null},
-			{"field":"Rules text","operator":"Does not contain:","value":"trigger","orGroup":null}],
+			{"field":"Rules text","operator":"Does not contain:","value":"trigger","orGroup":null}
+		],
 	},
 	{
 		"description": "Destructible with no side effects",
@@ -71,7 +74,8 @@ const presetTemplates = [
 			{"field":"Rules text","operator":"Does not contain:","value":"::name:: would be destroyed","orGroup":null},
 			{"field":"Keywords","operator":"Doesn't include:","value":"Indestructible","orGroup":null},
 			{"field":"Rules text","operator":"Does not match:","value":"hen(ever)? .* (dies|(is|are) put into a graveyard|leaves the battlefield)","orGroup":null},
-			{"field":"Rules text","operator":"Does not match:","value":"would (die|be put into a graveyard)","orGroup":null}],
+			{"field":"Rules text","operator":"Does not match:","value":"would (die|be put into a graveyard)","orGroup":null}
+		],
 	},
 	{
 		"description": "Spell to permanently exile one target creature",
