@@ -282,7 +282,7 @@ const replaceExpressions = function(string, playerNamesMap, oracle, allCards, al
 				resultToReturn.errors.push(`${cardExpression} evaluates to ${result}.`)
 			} else {
 				if (forPreview) {
-					return `↔${result} <sup style="color:green;font-size:0.7rem">${cardExpression}</sup>↕`;
+					return `↔${result}<sup style="color:green;font-size:0.7rem">${cardExpression}</sup>↕`;
 				} else {
 					return "↔" + result + "↕";//These are arbitrary symbols used by the aVsAn and pluralization fixer to identify where a card expression replacement occured.
 				}

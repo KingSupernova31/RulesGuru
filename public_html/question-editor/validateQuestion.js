@@ -220,6 +220,9 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 		if (/you(?!.*")/.test(questionObj.question.toLowerCase()) || /you(?!.*")/.test(questionObj.answer.toLowerCase())) {
 			errors.push(`"You" aren't a player in the game. Please replace this with a reference to a player in the third person.`);
 		}
+		if (/we(?!.*")/.test(questionObj.question.toLowerCase()) || /we(?!.*")/.test(questionObj.answer.toLowerCase())) {
+			errors.push(`"We" aren't in the game. Please replace this with a reference to "the game" or similar.`);
+		}
 		const onRegex = /(asts|ctivates) \[card \d+\] on /;
 		if (onRegex.test(questionObj.question.toLowerCase()) || onRegex.test(questionObj.answer.toLowerCase())) {
 			warnings.push(`Please don't use the word "on" to indicate an action; say "targeting" or "choosing" as appropriate.`);
