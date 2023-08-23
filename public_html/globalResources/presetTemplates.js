@@ -36,6 +36,22 @@ const presetTemplates = [
 			{"field":"Rules text","operator":"Does not match:","value":"(^|\\n)::name:: gets [+-]\\d+/-[1-9]","orGroup":null}],
 	},
 	{
+		"description": "Can participate in combat with no side effects",
+		"rules": [
+			{"preset":"Destructible with no side effects","orGroup":null},
+			{"field":"Keywords","operator":"Doesn't include:","value":"First strike","orGroup":null},
+			{"field":"Keywords","operator":"Doesn't include:","value":"Double strike","orGroup":null},
+			{"field":"Keywords","operator":"Doesn't include:","value":"Protection","orGroup":null},
+			{"field":"Keywords","operator":"Doesn't include:","value":"Absorb","orGroup":null},
+			{"field":"Keywords","operator":"Doesn't include:","value":"Indestructible","orGroup":null},
+			{"field":"Rules text","operator":"Does not contain:","value":"would be dealt damage","orGroup":null},
+			{"field":"Rules text","operator":"Does not contain:","value":"would be destroyed","orGroup":null},
+			{"field":"Rules text","operator":"Does not contain:","value":"would die","orGroup":null},
+			{"field":"Types","operator":"Includes:","value":"Creature","orGroup":null},
+			{"field":"Rules text","operator":"Does not contain:","value":"attack","orGroup":null},
+			{"field":"Rules text","operator":"Does not contain:","value":"block","orGroup":null}
+	},
+	{
 		"description": "Targetable on battlefield with no side effects",
 		"rules": [
 			{"preset":"Can exist self-sufficiently on battlefield","orGroup":null},

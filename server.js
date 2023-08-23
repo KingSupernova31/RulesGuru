@@ -309,7 +309,7 @@ const sendAPIQuestions = function(questions, res, allCards) {
 
 			//Check for a question with no valid card selection. If this occurs, we don't send that question.
 			if (chosenCardNames.length === 0) {
-				handleError(new Error(`No valid card selection on question #${questionToSend.id}`))
+				handleError(new Error(`No valid card selection on question #${questionToSend.id}. Lists: ${JSON.stringify(questionToSend.cardLists)}`))
 				continue outerQuestionLoop;
 			}
 
