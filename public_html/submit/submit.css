@@ -2,7 +2,7 @@ h1 {
 	text-align: center;
 }
 
-#question, #answer {
+#question {
 	width: 80%;
 	max-width: 30rem;
 	height: calc(50vh - 9rem);
@@ -13,7 +13,7 @@ h1 {
 	display: block;
 }
 
-#questionButton, #answerButton, #submit  {
+#submit  {
 	display: block;
 	position: relative;
 	left: 50%;
@@ -28,4 +28,13 @@ h1 {
 	max-width: 30rem;
 	margin-top: 1rem;
 	margin-bottom: 1rem;
+}
+
+#attribution {
+	text-align: center;
+	font-size: 0.7rem;
+	position: absolute;
+	bottom: 2rem;
+	left: 50%;
+	transform: translate(-50%);
 }

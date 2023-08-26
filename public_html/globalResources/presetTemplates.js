@@ -50,7 +50,8 @@ const presetTemplates = [
 			{"field":"Rules text","operator":"Does not contain:","value":"would die","orGroup":null},
 			{"field":"Types","operator":"Includes:","value":"Creature","orGroup":null},
 			{"field":"Rules text","operator":"Does not contain:","value":"attack","orGroup":null},
-			{"field":"Rules text","operator":"Does not contain:","value":"block","orGroup":null}
+			{"field":"Rules text","operator":"Does not contain:","value":"block","orGroup":null},
+			{"field":"Rules text","operator":"Does not contain:","value":"prevent","orGroup":null}
 		]
 	},
 	{

@@ -10,7 +10,7 @@ const submit = function() {
 	submissionOngoing = true;
 	document.getElementById("cursorStyle").innerHTML = "* {cursor: wait !important;}";
 	requestObj.question = document.getElementById("question").value;
-	requestObj.answer = document.getElementById("answer").value;
+	requestObj.answer = "";
 	requestObj.submitterName = document.getElementById("name").value;
 	//Validate the submission.
 	if (requestObj.question.length < 10) {
@@ -76,7 +76,6 @@ const submit = function() {
 
 const clearFields = function() {
 	document.getElementById("question").value = "";
-	document.getElementById("answer").value = "";
 }
 
 const compressMobileNameDescription = function() {

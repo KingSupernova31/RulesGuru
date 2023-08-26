@@ -1,4 +1,4 @@
-#Files that get updated automatically by the data file update script:
+#Files that get generated automatically by the data file update script:
 
 data_files/
 allCards.json
@@ -8,6 +8,7 @@ public_html/globalResources/allKeywords.js
 public_html/globalResources/allSets.js
 public_html/question-editor/allCards.js
 public_html/question-editor/allRules.js
+public_html/question-editor/cardNamesToIgnore.js
 
 
 #Miscellaneous stuff that doesn't need to be tracked:
