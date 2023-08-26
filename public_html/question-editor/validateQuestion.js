@@ -1,6 +1,7 @@
 const fakePlayerNamesMap = {"AP":{"name":"Amara","gender":"female"},"NAP1":{"name":"Bruno","gender":"male"},"NAP2":{"name":"Carol","gender":"neutral"},"NAP3":{"name":"Danica","gender":"female"},"NAP":{"name":"Nikolai","gender":"male"},"APa":{"name":"Addison","gender":"neutral"},"APb":{"name":"Ayden","gender":"male"},"NAPa":{"name":"Nylah","gender":"female"},"NAPb":{"name":"Nico","gender":"neutral"}};
 
 const validateQuestion = function(questionObj, templateEmptyness, convertedTemplateStorage, currentAdminName, savedCardLists) {
+
 	const errors = [],
 				warnings = [];
 
@@ -223,6 +224,9 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 		if (/\bwe\b/.test(questionObj.question.toLowerCase()) || /\bwe\b/.test(questionObj.answer.toLowerCase())) {
 			errors.push(`"We" aren't in the game. Please replace this with a reference to "the game" or similar.`);
 		}
+		if (/\bus\b/.test(questionObj.question.toLowerCase()) || /\bus\b/.test(questionObj.answer.toLowerCase())) {
+			errors.push(`"Us" doesn't refer to anyone. Please replace this with a reference to "the game" or similar.`);
+		}
 		const onRegex = /(asts|ctivates) \[card \d+\] on /;
 		if (onRegex.test(questionObj.question.toLowerCase()) || onRegex.test(questionObj.answer.toLowerCase())) {
 			warnings.push(`Please don't use the word "on" to indicate an action; say "targeting" or "choosing" as appropriate.`);
@@ -308,6 +312,41 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 				errors.push(`You have created card generator ${i - - 1}, but not used it anywhere in the question or answer.`);
 			}
 		}
+
+		//Check for duplicate lists
+		const monoCardLists = [];
+		for (let listNum in questionObj.cardGenerators) {
+			if (typeof questionObj.cardGenerators[listNum][0] === "string" && questionObj.cardGenerators[listNum].length === 1 ) {
+				monoCardLists.push({
+					"list": Number(listNum),
+					"card": questionObj.cardGenerators[listNum][0]
+				});
+			}
+		}
+		loop1: for (let listNum in monoCardLists) {
+			for (let otherListNum in monoCardLists) {
+				if (listNum !== otherListNum && monoCardLists[listNum].card === monoCardLists[otherListNum].card) {
+					errors.push(`Card lists ${monoCardLists[listNum].list + 1} and ${monoCardLists[otherListNum].list + 1} both have only ${monoCardLists[listNum].card}.`);
+					break loop1;
+				}
+			}
+		}
+
+		//Check for a template with no preset.
+		for (let generatorNum in questionObj.cardGenerators) {
+			const template = questionObj.cardGenerators[generatorNum];
+			if (typeof template[0] !== "string") {
+				let isPreset = false;
+				for (let rule of template) {
+					if (rule.preset) {
+						isPreset = true;
+						break;
+					}
+				}
+				warnings.push(`Template ${Number(generatorNum) + 1} uses no preset.`);
+			}
+		}
+
 
 		//Check for missing cards.
 		const allCardsWeCareAboutInOriginalQuestion = [];

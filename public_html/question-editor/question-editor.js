@@ -1108,7 +1108,8 @@ const populateFields = function(question) {
 	currentQuestionData = {
 		"status": question.status,
 		"id": question.id,
-		"verification": question.verification
+		"verification": question.verification,
+		"submitterName": question.submitterName
 	};
 	updateQuestionInfoFields();
 	updateButtonsAndUnsavedChanges(false);
@@ -1322,7 +1323,7 @@ const convertTypingRealTime = function(element) {
 		}
 	})
 
-	const ruleCitationRegex = /(^|\s|\(|\/)(\d{3}(?:\.\d\d?[a-z]?)?)($|\s|[;:\)\/])/g;
+	const ruleCitationRegex = /(^|\s|\(|\/)(\d{3}(?:\.\d\d?[a-z]?)?)($|\s|[,;:\)\/])/g;
 	newValue = newValue.replace(ruleCitationRegex, function(match, capt1, capt2, capt3, offset) {
 		if (offset + capt1.length <= cursorPos && cursorPos <= offset + capt1.length + capt2.length) {//Do nothing if the cursor is within the symbol or the adjacent characters.
 			return match;
@@ -2526,6 +2527,9 @@ setInterval(function() {
 		}
 		if (currentQuestionData.verification) {
 			savedQuestionState.verification = currentQuestionData.verification;
+		}
+		if (document.getElementById("submitterName").value.trim().length > 0) {
+			savedQuestionState.submitterName = document.getElementById("submitterName").value.trim();
 		}
 		localStorage.setItem("savedQuestionState", JSON.stringify(savedQuestionState));
 	} else {

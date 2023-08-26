@@ -230,6 +230,8 @@ const updateReferenceObjects = async function() {
 		}
 		if (emptyTemplate) {
 			sendEmailToOwners("RulesGuru template error", `Question ${finishedQuestions[i].id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${finishedQuestions[i].id}`);
+			finishedQuestions.splice(i, 1);
+			i--;
 		}
 	}
 
@@ -671,8 +673,9 @@ app.post("/submitAdminQuestion", async function(req, res) {
 				}
 				if (emptyTemplate) {
 					sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${newQuestion.id}`);
+				} else {
+					referenceQuestionArray.push(newQuestion);
 				}
-				referenceQuestionArray.push(newQuestion);
 				fs.writeFileSync("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray));
 				updateIndexQuestionCount();
 			}
@@ -886,8 +889,9 @@ app.post("/changeQuestionStatus", async function(req, res) {
 			}
 			if (emptyTemplate) {
 				sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${newQuestion.id}`);
+			} else {
+				referenceQuestionArray.push(newQuestion);
 			}
-			referenceQuestionArray.push(newQuestion);
 			fs.writeFileSync("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray));
 		} else if (statusChange === "decrease") {
 			for (let i in referenceQuestionArray) {
@@ -1269,8 +1273,9 @@ app.post("/updateAndForceStatus", async function(req, res) {
 			}
 			if (emptyTemplate) {
 				sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${newQuestion.id}`);
+			} else {
+				referenceQuestionArray.push(newQuestion);
 			}
-			referenceQuestionArray.push(newQuestion);
 		}
 		fs.writeFileSync("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray));
 
