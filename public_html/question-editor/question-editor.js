@@ -1256,6 +1256,10 @@ const convertTypingRealTime = function(element) {
 	if (element.selectionStart !== element.selectionEnd) {
 		return;
 	}
+	//If the element isn't in focus we don't care where the cursor was.
+	if (document.activeElement !== element) {
+		cursorPos = -1;
+	}
 	//General text changes:
 
 	//Remove double spaces.
@@ -1420,22 +1424,39 @@ const convertTypingRealTime = function(element) {
 	element.setSelectionRange(cursorPos, cursorPos);
 }
 
-document.getElementById("question").addEventListener("input", function() {
-	setTimeout(function() {//These are behind a timeout to prevent the typing from feeling laggy.
+//This is way easier than trying to catch every event on which we should check. And doing it synchonously with keypresses lags typing anyway.
+const previousText = {
+	"question": "",
+	"answer": ""
+};
+const previousCursorPos = {
+	"question": -1,
+	"answer": -1
+};
+let previouslyFocusedElement = null;
+const anythingRelevantHasChanged = function(element) {
+	if (element.value !== previousText[element.id]) {
+		previousText[element.id] = element.value;
+		return true;
+	}
+	if (element.selectionStart !== previousCursorPos[element.id]) {
+		previousCursorPos[element.id] = element.selectionStart;
+		return true;
+	}
+	if (document.activeElement !== previouslyFocusedElement) {
+		previouslyFocusedElement = document.activeElement;
+		return true;
+	}
+	return false;
+}
+setInterval(function() {
+	if (anythingRelevantHasChanged(document.getElementById("question"))) {
 		convertTypingRealTime(document.getElementById("question"));
-	}, 0)
-});
-document.getElementById("answer").addEventListener("input", function() {
-	setTimeout(function() {
+	}
+	if (anythingRelevantHasChanged(document.getElementById("answer"))) {
 		convertTypingRealTime(document.getElementById("answer"));
-	}, 0)
-});
-document.addEventListener("selectionchange", function() {
-	setTimeout(function() {
-		convertTypingRealTime(document.getElementById("question"));
-		convertTypingRealTime(document.getElementById("answer"));
-	}, 0)
-});
+	}
+}, 10);
 
 const convertedTemplateStorage = [];
 const displayTemplateCardSet = function(template, num) {
