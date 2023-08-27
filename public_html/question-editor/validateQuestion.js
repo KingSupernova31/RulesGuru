@@ -254,14 +254,6 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 			}
 		}
 
-		//Check for comma splice.
-		if (/,.*\?/.test(questionObj.question) && !/If[^.]*,.*\?/.test(questionObj.question) && currentAdminName === "Tobias Vyseri") {
-			warnings.push("There may be a comma splice in the question.");
-		}
-		if (/,.*\?/.test(questionObj.answer) && !/If[^.]*,.*\?/.test(questionObj.answer) && currentAdminName === "Tobias Vyseri") {
-			warnings.push("There may be a comma splice in the answer.");
-		}
-
 		//Check for double spaces.
 		if (questionObj.question.includes("  ")) {
 			errors.push("Please remove the double spaces in the question.");
