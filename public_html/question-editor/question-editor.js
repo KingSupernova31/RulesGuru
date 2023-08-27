@@ -721,6 +721,11 @@ const createQuestionObj = function() {
 	return newQuestionObj;
 }
 
+let lastKnownServerQuestionState = createQuestionObj();
+const questionsAreDifferent = function(questionObj1, questionObj2) {
+	return JSON.stringify(questionObj1) !== JSON.stringify(questionObj2);
+}
+
 const askUserToValidateQuestion = function(validation) {
 	if (validation.errors.length > 0) {
 		alert(validation.errors[0]);
@@ -775,13 +780,12 @@ const convertRolesToHumanText = function(roles) {
 	return humanString;
 };
 
-const updateButtonsAndUnsavedChanges = function(unsavedChanges) {
+const updateButtons = function() {
 	turnOffQuestionStuffObserver();
-	questionHasUnsavedChanges = unsavedChanges;
 	const applicableVerifiedRoles = getIntersectionOfAdminRolesAndQuestionVerification("verified");
 	const applicableUnverifiedRoles = getIntersectionOfAdminRolesAndQuestionVerification("unverified");
 	//Update button
-	if (questionHasUnsavedChanges && currentQuestionData.status === "pending") {
+	if (questionsAreDifferent(lastKnownServerQuestionState, createQuestionObj()) && currentQuestionData.status === "pending") {
 		document.getElementById("updateButton").style.display = "block";
 		document.getElementById("updateButton").textContent = "Update";
 	} else {
@@ -828,7 +832,7 @@ const updateButtonsAndUnsavedChanges = function(unsavedChanges) {
 		document.getElementById("submitButton").textContent = "Submit as New Question";
 	}
 
-	if (questionHasUnsavedChanges) {
+	if (questionsAreDifferent(lastKnownServerQuestionState, createQuestionObj())) {
 		document.getElementById("changeStatusUpwards").textContent = "Update & " + document.getElementById("changeStatusUpwards").textContent;
 		document.getElementById("changeStatusDownwards").textContent = "Update & " + document.getElementById("changeStatusDownwards").textContent;
 	} else {
@@ -876,7 +880,8 @@ const update = function() {
 						setTimeout(getQuestionsList, 50, displayQuestionsList);
 					}
 					if (response.message === `Question #${requestObj.questionObj.id} updated successfully.`) {
-						updateButtonsAndUnsavedChanges(false);
+						lastKnownServerQuestionState = createQuestionObj();
+						updateButtons();
 					}
 					alert(response.message);
 				} else {
@@ -945,7 +950,8 @@ const submit = function() {
 						currentQuestionData.verification = response.verification;
 						updateQuestionInfoFields();
 						getTagData();
-						updateButtonsAndUnsavedChanges(false);
+						lastKnownServerQuestionState = createQuestionObj();
+						updateButtons();
 						alert(response.message);
 						setTimeout(getQuestionsList, 50, displayQuestionsList);
 					}
@@ -963,7 +969,7 @@ const submit = function() {
 }
 
 const executeClearFieldsButton = function() {
-	if (questionHasUnsavedChanges) {
+	if (questionsAreDifferent(lastKnownServerQuestionState, createQuestionObj())) {
 		if (confirm('Your question has unsaved changes. Clear all fields anyway?')) {
 			clearFields();
 		}
@@ -1000,11 +1006,12 @@ const clearFields = function() {
 		"cardLists": [],
 		"cardTemplates": []
 	};
-	updateButtonsAndUnsavedChanges(false);
+	lastKnownServerQuestionState = createQuestionObj();
+	updateButtons();
 }
 
 const getUnfinishedQuestion = function() {
-	if (questionHasUnsavedChanges) {
+	if (questionsAreDifferent(lastKnownServerQuestionState, createQuestionObj())) {
 		if (!confirm('Your question has unsaved changes. Load new question anyway?')) {
 			return;
 		}
@@ -1037,6 +1044,7 @@ const getUnfinishedQuestion = function() {
 					currentQuestionData.status = response.question.status;
 					currentQuestionData.verification = response.question.verification;
 					populateFields(response.question);
+					lastKnownServerQuestionState = createQuestionObj();
 				}
 			} else {
 				document.getElementById("cursorStyle").innerHTML = "";
@@ -1112,27 +1120,25 @@ const populateFields = function(question) {
 		"submitterName": question.submitterName
 	};
 	updateQuestionInfoFields();
-	updateButtonsAndUnsavedChanges(false);
+	updateButtons();
 	document.getElementById("cursorStyle").innerHTML = "";
 
 	document.getElementById("forceStatusNewId").value = "";
 
-	setTimeout(function() {
-		convertTypingRealTime(document.getElementById("question"));
-		convertTypingRealTime(document.getElementById("answer"));
-		savedCardLists = createQuestionObj().cardGenerators;
-		for (let i in savedCardLists) {
-			if (typeof savedCardLists[i][0] === "object") {
-				savedCardLists[i] = templateConvert(savedCardLists[i], allCards, presetTemplates);
-			}
+	convertTypingRealTime(document.getElementById("question"));
+	convertTypingRealTime(document.getElementById("answer"));
+	savedCardLists = createQuestionObj().cardGenerators;
+	for (let i in savedCardLists) {
+		if (typeof savedCardLists[i][0] === "object") {
+			savedCardLists[i] = templateConvert(savedCardLists[i], allCards, presetTemplates);
 		}
-	}, 0)
+	}
 }
 
 let activeGetQuestionIdRequest = null;
 
 const getQuestionId = function(id) {
-	if (questionHasUnsavedChanges) {
+	if (questionsAreDifferent(lastKnownServerQuestionState, createQuestionObj())) {
 		if (!confirm('Your question has unsaved changes. Load new question anyway?')) {
 			return;
 		}
@@ -1168,6 +1174,7 @@ const getQuestionId = function(id) {
 						alert("Error: That question doesn't exist.");
 					} else {
 						populateFields(JSON.parse(httpRequest.response));
+						lastKnownServerQuestionState = createQuestionObj();
 					}
 				}
 			} else {
@@ -1414,7 +1421,7 @@ const convertTypingRealTime = function(element) {
 }
 
 document.getElementById("question").addEventListener("input", function() {
-	setTimeout(function() {
+	setTimeout(function() {//These are behind a timeout to prevent the typing from feeling laggy.
 		convertTypingRealTime(document.getElementById("question"));
 	}, 0)
 });
@@ -1606,7 +1613,6 @@ const login = function() {
 				}
 				if (thereIsASavedQuestion) {
 					populateFields(savedQuestionState);
-					updateButtonsAndUnsavedChanges(true);
 				}
 			} else {
 				alert("There was an error validating your login. (Server returned no response.) Please check your internet connection and try again. If the problem persists, please report the issue.");
@@ -1621,9 +1627,8 @@ const login = function() {
 }
 
 //Change the approve/unapprove button if the question is updated.
-let questionHasUnsavedChanges = false;
 const mutationObserverCallback = function() {
-	updateButtonsAndUnsavedChanges(true);
+	updateButtons();
 };
 
 const questionStuffObserver = new MutationObserver(mutationObserverCallback);
@@ -1651,7 +1656,7 @@ const changeStatusUpwards = function() {
 			document.getElementById("cursorStyle").innerHTML = "";
 			return;
 		}
-		if (currentQuestionData.status === "awaiting verification" && questionHasUnsavedChanges) {
+		if (currentQuestionData.status === "awaiting verification" && questionsAreDifferent(lastKnownServerQuestionState, createQuestionObj())) {
 			const userInput = prompt("Please enter a description of the changes you made to this question. This will be sent to this question's editor so that they can better avoid these sorts of issues next time.");
 			if (userInput === null) {
 				document.getElementById("cursorStyle").innerHTML = "";
@@ -1692,7 +1697,7 @@ const changeStatusUpwards = function() {
 						currentQuestionData.status = response.newStatus;
 						currentQuestionData.verification = response.newVerification;
 						updateQuestionInfoFields();
-						updateButtonsAndUnsavedChanges(false);
+						updateButtons();
 						alert(response.message);
 						setTimeout(getQuestionsList, 50, displayQuestionsList);
 					} else {
@@ -1748,7 +1753,7 @@ const changeStatusDownwards = function() {
 						currentQuestionData.status = response.newStatus;
 						currentQuestionData.verification = response.newVerification;
 						updateQuestionInfoFields();
-						updateButtonsAndUnsavedChanges(false);
+						updateButtons();
 						alert(response.message);
 						setTimeout(getQuestionsList, 50, displayQuestionsList);
 					} else {
@@ -2073,7 +2078,7 @@ if (window.location.href.includes("?")) {
 		savedQuestionState = JSON.parse(savedQuestionState);
 		thereIsASavedQuestion = true;
 	} else {
-		updateButtonsAndUnsavedChanges(false);
+		updateButtons();
 	}
 }
 
@@ -2517,7 +2522,7 @@ const getCursorXY = (input, selectionPoint) => {
 
 //Persist question data.
 setInterval(function() {
-	if (questionHasUnsavedChanges) {
+	if (questionsAreDifferent(lastKnownServerQuestionState, createQuestionObj())) {
 		savedQuestionState = createQuestionObj();
 		if (currentQuestionData.id) {
 			savedQuestionState.id = currentQuestionData.id;
@@ -2584,7 +2589,8 @@ const updateAndForceStatus = function(newStatus, newId) {
 						}
 						document.getElementById("forceStatusNewId").value = "";
 						updateQuestionInfoFields();
-						updateButtonsAndUnsavedChanges(false);
+						lastKnownServerQuestionState = createQuestionObj();
+						updateButtons();
 						alert(response.message);
 						setTimeout(getQuestionsList, 50, displayQuestionsList);
 					} else {
