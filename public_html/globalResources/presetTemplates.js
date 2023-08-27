@@ -6,8 +6,12 @@ const presetTemplates = [
 		"id": 0,
 		"description": "Can exist in library",
 		"rules": [
-			{"field":"Layout","operator":"Not:","value":"split (half)","orGroup":null},
-			{"field":"Multi-part side","operator":"Not:","value":"b","orGroup":null}
+			{"field":"Layout","operator":"Not:","value":"split (half)","orGroup":0},
+			{"field":"Multi-part side","operator":"Not:","value":"b","orGroup":1},
+			{"field":"Multi-part side","operator":"Not:","value":"b","orGroup":2},
+			{"field":"Multi-part side","operator":"Not:","value":"b","orGroup":3},
+			{"field":"Multi-part side","operator":"Not:","value":"b","orGroup":4},
+			{"field":"Multi-part side","operator":"Not:","value":"b","orGroup":5},
 		],
 	},
 	{
@@ -86,21 +90,12 @@ const presetTemplates = [
 	},
 	{
 		"id": 6,
-		"description": "Spell to permanently exile one target creature",
-		"rules": [
-			{"preset":1,"orGroup":null},
-			{"field":"Rules text","operator":"Matches:","value":"Exile target (\\w+, )*(or )?(\\w+ or )?(creature|permanent)(?![a-z,A-Z ]*(with|if|card|that|an|and))","orGroup":null},
-			{"field":"Types","operator":"Includes:","value":"Instant","orGroup":0},
-			{"field":"Types","operator":"Includes:","value":"Sorcery","orGroup":0},
-			{"field":"Rules text","operator":"Does not contain:","value":"choose","orGroup":null},
-			{"field":"Rules text","operator":"Does not contain:","value":"return it","orGroup":null},
-			{"field":"Rules text","operator":"Does not contain:","value":"return that","orGroup":null},
-			{"field":"Rules text","operator":"Does not match:","value":"arget.*arget","orGroup":null},
-		]
+		"description": "Instant or sorcery to permanently exile one target creature",
+		"rules": [{"field":"Rules text","operator":"Matches:","value":"Exile target (\\w+, )*(or )?(\\w+ or )?(creature|permanent)(?![a-z,A-Z ]*(with|if|card|that|an|and))","orGroup":null},{"field":"Types","operator":"Includes:","value":"Instant","orGroup":200},{"field":"Types","operator":"Includes:","value":"Sorcery","orGroup":200},{"field":"Rules text","operator":"Does not contain:","value":"choose","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"return it","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"return that","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"arget.*arget","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"target[a-zA-Z ]*you( don't)?( own or)? control","orGroup":null},{"preset":1,"orGroup":null}]
 	},
 	{
 		"id": 7,
-		"description": "Spell to permanently destroy one target creature",
+		"description": "Instant or sorcery to permanently destroy one target creature",
 		"rules": [
 			{"preset":1,"orGroup":null},
 			{"field":"Rules text","operator":"Matches:","value":"Destroy target (\\w+, )*(or )?(\\w+ or )?(creature|permanent)(?![a-z,A-Z ]*(with|if|card|that|an|and))","orGroup":null},
@@ -126,7 +121,7 @@ const presetTemplates = [
 	},
 	{
 		"id": 10,
-		"description": "Spell to deal any amount of damage to any target",
+		"description": "Instant or sorcery to deal any amount of damage to any target",
 		"rules": [
 			{"preset":1,"orGroup":null},
 			{"field":"Rules text","operator":"Matches:","value":"(^|\\n)::name:: deals \\d damage to any target","orGroup":null},
@@ -140,8 +135,26 @@ const presetTemplates = [
 		"rules": [
 			{"field":"Rules text","operator":"Matches:","value":"You may have ::name:: enter the battlefield as a copy of (any nonland permanent|a creature|any creature)(?! card)","orGroup":null}
 		],
-	}
+	},
+	{
+		"id": 12,
+		"description": "Instant or sorcery that targets exactly one thing",
+		"rules": [{"field":"Rules text","operator":"Contains:","value":"a target","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"(ne|wo|hree|our|ive|ix|ny number of|X|or more) target","orGroup":null},{"field":"Rules text","operator":"Contains:","value":"target","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"arget(.|\\\\n)*arget","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"\".*arget.*","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"new target","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"becomes? (a|the) target","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"be the target","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"that targets","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Overload","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Awaken","orGroup":null},{"field":"Types","operator":"Includes:","value":"Instant","orGroup":1},{"field":"Types","operator":"Includes:","value":"Sorcery","orGroup":1},{"field":"Rules text","operator":"Does not contain:","value":"upport","orGroup":null}],
+	},
 ]
+
+let presetIds = [];
+let presetDescriptions = [];
+for (let preset of presetTemplates) {
+	presetIds.push(preset.id);
+	presetDescriptions.push(preset.id)
+}
+if (presetIds.length !== Array.from(new Set(presetIds)).length) {
+	handleError("Duplicate preset IDs");
+}
+if (presetDescriptions.length !== Array.from(new Set(presetDescriptions)).length) {
+	handleError("Duplicate preset descriptions");
+}
 
 if (typeof module === "object") {
 	module.exports = presetTemplates;

@@ -451,6 +451,10 @@ const switchModes = function(generatorId) {
 
 let datalistNum = 0;
 const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
+	if (orGroup > 4) {
+		alert("Something has caused this template to have more than 5 'or' groups, which shouldn't happen.");
+		return;
+	}
 	let deleteButton = document.createElement("img");
 	deleteButton.setAttribute("src", "/globalResources/icons/red-x.png");
 	deleteButton.setAttribute("class", "templateRuleDeleteButton");
@@ -635,6 +639,7 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 	rule.appendChild(operatorSelect);
 	rule.appendChild(valueInput);
 	document.getElementById("templateRules").appendChild(rule);
+	document.getElementById("templateDiv").scrollTo(0, document.getElementById("templateDiv").scrollHeight);
 }
 
 const addOrGroup = function() {
@@ -644,6 +649,10 @@ const addOrGroup = function() {
 		if (rule.dataset.orgroup && rule.dataset.orgroup !== "null") {
 			allOrGroupsInUse.push(isNaN(Number(rule.dataset.orgroup)) ? null : Number(rule.dataset.orgroup));
 		}
+	}
+	if (allOrGroupsInUse.length > 4) {
+		alert("You can't have more than 5 'or' groups. If you need more than that, let me know and I'll increase the limit.");
+		return;
 	}
 	for (let i = 0 ; i < 5 ; i++) {
 		if (!allOrGroupsInUse.includes(i)) {
@@ -1842,18 +1851,20 @@ window.addEventListener("resize", function() {
 });
 moveElementsOnResize();
 
-let oldWorker;
+const previewValidationWorker = new Worker("validationWorker.js");
+previewValidationWorker.onmessage = function(message) {
+	previewWindow.parentData.greyoutValidation = false;
+	previewWindow.parentData.questionValidation = message.data;
+	previewWindow.parentData.updateText = true;
+	currentlyValidating = false;
+};
+let currentlyValidating = false;
 const validateWithWorker = function() {
-	if (typeof oldWorker === "object") {
-		oldWorker.terminate();
+	if (currentlyValidating) {
+		return;
 	}
+	currentlyValidating = true;
 	previewWindow.parentData.greyoutValidation = true;
-	const previewValidationWorker = new Worker("validationWorker.js");
-	previewValidationWorker.onmessage = function(message) {
-		previewWindow.parentData.greyoutValidation = false;
-		previewWindow.parentData.questionValidation = message.data;
-		previewWindow.parentData.updateText = true;
-	}
 	const templateEmptyness = [];
 	for (let i = 0 ; i < questionObj.cardLists.length ; i++) {
 		templateEmptyness.push(document.querySelector(`#cardGenerator${i + 1} > .modeSwitchButton`).textContent === "Switch to List" && document.querySelector(`#cardGenerator${i + 1} .subCardGeneratorTemplate`).childNodes.length === 0);
@@ -1866,7 +1877,6 @@ const validateWithWorker = function() {
 		"currentAdminName": currentLoggedInAdmin.name,
 		"savedCardLists": savedCardLists,
 	});
-	oldWorker = previewValidationWorker;
 }
 
 const validateSync = function(question) {

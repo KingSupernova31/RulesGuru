@@ -26,11 +26,13 @@ const templateConvert = function(template, globalCardList, presetTemplates) {
 			if (count > 50) {
 				throw new Error("Circular dependency, you idiot.")
 			}
+			const copiedTemplate = JSON.parse(JSON.stringify(template));
 			const finalRules = [];
-			for (let rule of template) {
+			for (let rule of copiedTemplate) {
 				if (typeof rule.preset === "number") {
 					presetOrGroupNum += 100;
-					const presetTemplate = presetTemplates.filter(presetTemplate => presetTemplate.id === rule.preset)[0].rules;
+					//We have to duplicate the object so that modifying its or groups doesn't modify the saved preset permanently.
+					const presetTemplate = JSON.parse(JSON.stringify(presetTemplates.filter(presetTemplate => presetTemplate.id === rule.preset)[0])).rules;
 					const presetRules = generateExpandedTemplate(presetTemplate);
 					for (let rule of presetRules) {
 						if (rule.orGroup !== null) {
