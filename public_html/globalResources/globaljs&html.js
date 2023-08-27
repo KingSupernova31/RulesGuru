@@ -258,7 +258,8 @@ document.addEventListener("keypress", function(event) {
 	if (document.activeElement.tagName !== "TEXTAREA" && document.activeElement.tagName !== "INPUT") {
 		keysPressed += event.key;
 		if (keysPressed.slice(-4).toLowerCase() === "edit") {
-			if (typeof loadedQuestions.currentQuestion === "object" && loadedQuestions.currentQuestion) {
+			//Need both typeof checks for pages where loadedQuestions doesn't exist at all.
+			if (typeof loadedQuestions === "object" && typeof loadedQuestions.currentQuestion === "object" && loadedQuestions.currentQuestion) {
 				window.location = "/question-editor/?" + loadedQuestions.currentQuestion.id;
 			} else {
 				window.location = "/question-editor";

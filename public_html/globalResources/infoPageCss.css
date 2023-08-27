@@ -64,19 +64,13 @@ li {
 	padding: 0.3rem;
 	text-align: center;
 	font-weight: bold;
-	border-top: 3.5rem solid transparent;
-	margin-top: -3.5rem;
 	background-clip: padding-box;
 }
 
 .content {
 	background-color: white;
-	padding: 1rem 1rem 2rem 1rem;
+	padding: 1rem 1rem 1rem 1rem;
 	margin-bottom: 0.5rem;
-}
-
-.indent {
-	margin-left: 1rem;
 }
 
 .gridLeft {
@@ -97,4 +91,8 @@ li {
 
 .inline {
 	display: inline;
+}
+
+.content p, .content ul {
+	margin-bottom: 1rem;
 }

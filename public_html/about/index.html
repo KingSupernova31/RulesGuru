@@ -25,43 +25,34 @@
 		<br>
 		<div id="info">
 			<h4 class="header">What is RulesGuru?</h4>
-
 				<div class="content">
-				<p>RulesGuru is a searchable database of <b>Magic: The Gathering</b> rules questions that anyone can contribute to. With an ever-expanding and constantly-updated question pool, you can find everything from the easiest Standard questions to the most complicated of corner cases here.</p>
-				<br>
-				<p>Each question is extensively tagged and categorized, allowing you to tailor the questions you're given to your exact purpose. The available filters include difficulty, format legality, cards used in the question, and the area of the rules that's being asked about. Detailed descriptions of each filter can be found by hovering over the appropriate section of the sidebar accessible in the upper left of the <a href="..">home page</a>.</p>
-				<br>
-				<p>We also have a <a href="https://discord.gg/Mwknxg3drr">Discord server</a> for discussion of Magic's rules.</p>
+					<p>RulesGuru is a searchable database of <b>Magic: The Gathering</b> rules questions that anyone can contribute to. With an ever-expanding and constantly-updated question pool, you can find everything from the easiest Standard questions to the most complicated of corner cases here.</p>
+					<p>Each question is extensively tagged and categorized, allowing you to tailor the questions you're given to your exact purpose. The available filters include difficulty, format legality, cards used in the question, and the area of the rules that's being asked about. Detailed descriptions of each filter can be found by hovering over the appropriate section of the sidebar accessible in the upper left of the <a href="..">home page</a>.</p>
+					<p>If you're looking for programmatically-accessible questions, see our <a href="/api/documentation">API</a>.</p>
+					<p>We also have a <a href="https://discord.gg/Mwknxg3drr">Discord server</a> for discussion of Magic's rules.</p>
 			</div>
 
 			<h4 class="header">Questions about Questions?</h4>
-
 				<div class="content">
-					<p>Player names that start with "A" are the active player; that is, the player currently taking their turn. Player names that start with any other letter are nonactive players. (In multiplayer the names will start with "B", "C", "D" etc to indicate turn order.) If the question spans multiple turns, the players' names do not change as new turns begin.</p>
-					<br>
+					<p>Player names that start with "A" are the active player; that is, the player currently taking their turn. Player names that start with any other letter are nonactive players. (In multiplayer the nonactive player names will start with "B", "C", "D" etc to indicate turn order.) If the question spans multiple turns, the players' names do not change as new turns begin.</p>
 					<p>Questions will always refer to an object by its original name, regardless of any changes caused by game effects. For example if a Clone enters the battlefield and copies Grizzly Bears, the question will still refer to it as "Clone" in order to distinguish it from the original Grizzly Bears.</p>
-					<br>
-					<p>Unless otherwise stated, you can assume that the only relevant cards in a question are those that have been mentioned by name. Similarly you can assume that nothing "weird" has happened unless the question says it has. (If a player controls a permanent, they cast it from their hand, etc.)</p>
+					<p>Unless otherwise stated, the only relevant cards in any non-library game zone are those that have been mentioned by name, along with any that need to exist for the question to make sense. (For example, if the question has a player casting a targeted spell, you can assume there's a legal target on the battlefield.)</p>
+
+					<p>Similarly, you can assume that nothing "weird" has happened unless the question says it has. (The library isn't empty, the player hasn't already played a land this turn, any permanent on the battlefield didn't enter this turn, etc.)</p>
 				</div>
 
 			<h4 class="header">Want to Help?</h4>
-
 			<div class="content">
 				<p>RulesGuru functions similarly to a wiki, in that anyone can contribute to the data that's available for everyone else. With the community's help the question pool can be as large as possible and include questions about new cards as soon as they're spoiled. You can easily submit questions of your own by heading <a href="../submit">here</a> and typing in your question. Once submitted, questions will be reviewed for accuracy by our team of admins and then approved into the site database.</p>
-				<br>
 				<p>If you're interested in joining our admin team, we'd love to have you. See <a class="inline" href="../get-involved">here</a> for more information.</p>
-				<br><br>
 				<p>If you find a bug or have a feature suggestion, please <button class="inline" id="questionIssueButton">let us know</button> as soon as possible.</p>
-				<br><br>
 				<p>To keep up with new features and announcements, <a href="https://twitter.com/MTGRulesGuru?ref_src=twsrc%5Etfw"> follow us on Twitter.</a></p>
 			</div>
 
 			<h4 class="header">Additional Information</h4>
-
 			<div class="content">
-				<p>RulesGuru was created by Isaac King. It's currently maintained by<span id="adminNames"></span>. Thank you to everyone who has submitted suggestions, feedback, and questions. Art by permission of <a href="https://darylart.com/">Daniel Ljunggren</a>, "Trail of Evidence". Also with acknowledgment to <a href="https://mtgjson.com/">MTGJSON</a>, <a href="https://academyruins.com/">Academy Ruins</a>, <a href="https://scryfall.com/">Scryfall</a>, <a href="https://mtgdecks.net/">MTG Decks</a>, and the <a href="https://mana.andrewgioia.com/">Mana</a> font for use of their content and services.</p>
-				<br>
-				<p>RulesGuru is offered to the Magic community free of charge. Any person or organization may freely utilize questions from RulesGuru for any non-commercial purpose; proper attribution is appreciated but not required. (We reserve the right to withdraw this permission at any time.) RulesGuru is in no way affiliated with Hasbro, Wizards of the Coast, or Judge Academy. All cards, rules, and Magic symbols used on RulesGuru are the intellectual property of Wizards of the Coast.  All questions, code, and other content on RulesGuru are the intellectual property of RulesGuru.</p>
+				<p>RulesGuru was created by Isaac King. It's currently maintained by<span id="adminNames"></span>. Thank you to everyone who has submitted suggestions, feedback, and questions. Homepage art by permission of <a href="https://darylart.com/">Daniel Ljunggren</a>, "Trail of Evidence". Also with thanks to <a href="https://mtgjson.com/">MTGJSON</a>, <a href="https://academyruins.com/">Academy Ruins</a>, <a href="https://scryfall.com/">Scryfall</a>, <a href="https://mtgdecks.net/">MTG Decks</a>, and the <a href="https://mana.andrewgioia.com/">Mana</a> font for use of their content and services.</p>
+				<p>RulesGuru is offered to the Magic community free of charge. Any individual or organization may freely utilize questions from RulesGuru for any non-commercial purpose; attribution is appreciated but not required. (We reserve the right to withdraw this permission at any time.) RulesGuru is in no way affiliated with Hasbro, Wizards of the Coast, or Judge Academy. All cards, rules, and Magic symbols used on RulesGuru are the intellectual property of Wizards of the Coast.  All questions, code, and other content on RulesGuru are the intellectual property of RulesGuru.</p>
 			</div>
 		</div>
 

@@ -12,7 +12,7 @@ Reset
 	font-size: 1rem;
 }
 
-p, label, button, a, li {
+p, label, button, a, li, div {
 	font-weight: 100;
 }
 
