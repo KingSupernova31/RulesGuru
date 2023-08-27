@@ -16,6 +16,7 @@ const submit = function() {
 	if (requestObj.question.length < 10) {
 		alert("You must include a valid question.");
 		document.getElementById("cursorStyle").innerHTML = "";
+		submissionOngoing = false;
 		return;
 	}
 	//Send the request.
