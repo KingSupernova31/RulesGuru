@@ -3,6 +3,7 @@
 
 const presetTemplates = [
 	{
+		"id": 0,
 		"description": "Can exist in library",
 		"rules": [
 			{"field":"Layout","operator":"Not:","value":"split (half)","orGroup":null},
@@ -10,6 +11,7 @@ const presetTemplates = [
 		],
 	},
 	{
+		"id": 1,
 		"description": "Castable with no side effects",
 		"rules": [
 			{"field":"Types","operator":"Doesn't include:","value":"Land","orGroup":null},
@@ -27,6 +29,7 @@ const presetTemplates = [
 		],
 	},
 	{
+		"id": 2,
 		"description": "Can exist self-sufficiently on battlefield",
 		"rules": [
 			{"field":"Types","operator":"Doesn't include:","value":"Instant","orGroup":null},
@@ -37,9 +40,10 @@ const presetTemplates = [
 		],
 	},
 	{
+		"id": 3,
 		"description": "Can participate in combat with no side effects",
 		"rules": [
-			{"preset":"Destructible with no side effects","orGroup":null},
+			{"preset":5,"orGroup":null},
 			{"field":"Keywords","operator":"Doesn't include:","value":"First strike","orGroup":null},
 			{"field":"Keywords","operator":"Doesn't include:","value":"Double strike","orGroup":null},
 			{"field":"Keywords","operator":"Doesn't include:","value":"Protection","orGroup":null},
@@ -55,9 +59,10 @@ const presetTemplates = [
 		]
 	},
 	{
+		"id": 4,
 		"description": "Targetable on battlefield with no side effects",
 		"rules": [
-			{"preset":"Can exist self-sufficiently on battlefield","orGroup":null},
+			{"preset":2,"orGroup":null},
 			{"field":"Keywords","operator":"Doesn't include:","value":"Hexproof","orGroup":null},
 			{"field":"Keywords","operator":"Doesn't include:","value":"Shroud","orGroup":null},
 			{"field":"Keywords","operator":"Doesn't include:","value":"Protection","orGroup":null},
@@ -69,9 +74,10 @@ const presetTemplates = [
 		],
 	},
 	{
+		"id": 5,
 		"description": "Destructible with no side effects",
 		"rules": [
-			{"preset":"Can exist self-sufficiently on battlefield","orGroup":null},
+			{"preset":2,"orGroup":null},
 			{"field":"Rules text","operator":"Does not contain:","value":"::name:: would be destroyed","orGroup":null},
 			{"field":"Keywords","operator":"Doesn't include:","value":"Indestructible","orGroup":null},
 			{"field":"Rules text","operator":"Does not match:","value":"hen(ever)? .* (dies|(is|are) put into a graveyard|leaves the battlefield)","orGroup":null},
@@ -79,9 +85,10 @@ const presetTemplates = [
 		],
 	},
 	{
+		"id": 6,
 		"description": "Spell to permanently exile one target creature",
 		"rules": [
-			{"preset":"Castable with no side effects","orGroup":null},
+			{"preset":1,"orGroup":null},
 			{"field":"Rules text","operator":"Matches:","value":"Exile target (\\w+, )*(or )?(\\w+ or )?(creature|permanent)(?![a-z,A-Z ]*(with|if|card|that|an|and))","orGroup":null},
 			{"field":"Types","operator":"Includes:","value":"Instant","orGroup":0},
 			{"field":"Types","operator":"Includes:","value":"Sorcery","orGroup":0},
@@ -92,9 +99,10 @@ const presetTemplates = [
 		]
 	},
 	{
+		"id": 7,
 		"description": "Spell to permanently destroy one target creature",
 		"rules": [
-			{"preset":"Castable with no side effects","orGroup":null},
+			{"preset":1,"orGroup":null},
 			{"field":"Rules text","operator":"Matches:","value":"Destroy target (\\w+, )*(or )?(\\w+ or )?(creature|permanent)(?![a-z,A-Z ]*(with|if|card|that|an|and))","orGroup":null},
 			{"field":"Types","operator":"Includes:","value":"Instant","orGroup":0},
 			{"field":"Types","operator":"Includes:","value":"Sorcery","orGroup":0},
@@ -103,32 +111,36 @@ const presetTemplates = [
 		],
 	},
 	{
+		"id": 8,
 		"description": "Draw cards and do nothing else",
 		"rules": [
 			{"field":"Rules text","operator":"Matches:","value":"^(Draw|Target player draws) \\w+ cards?\\.$","orGroup":null}
 		],
 	},
 	{
+		"id": 9,
 		"description": "Tap for any amount of mana with no side effects",
 		"rules": [
 			{"field":"Rules text","operator":"Matches:","value":"(^|\\n){T}: Add ({[WUBRG0-9C]})+\\.($|\\n)","orGroup":null}
 		],
 	},
 	{
+		"id": 10,
 		"description": "Spell to deal any amount of damage to any target",
 		"rules": [
-			{"preset":"Castable with no side effects","orGroup":null},
+			{"preset":1,"orGroup":null},
 			{"field":"Rules text","operator":"Matches:","value":"(^|\\n)::name:: deals \\d damage to any target","orGroup":null},
 			{"field":"Rules text","operator":"Does not contain:","value":"choose","orGroup":null},
 			{"field":"Rules text","operator":"Does not match:","value":"arget.*arget","orGroup":null},
-	],
+		],
 	},
 	{
+		"id": 11,
 		"description": "Enter as a copy of any nonland creature",
 		"rules": [
 			{"field":"Rules text","operator":"Matches:","value":"You may have ::name:: enter the battlefield as a copy of (any nonland permanent|a creature|any creature)(?! card)","orGroup":null}
 		],
-	},
+	}
 ]
 
 if (typeof module === "object") {

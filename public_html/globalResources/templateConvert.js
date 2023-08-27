@@ -28,9 +28,9 @@ const templateConvert = function(template, globalCardList, presetTemplates) {
 			}
 			const finalRules = [];
 			for (let rule of template) {
-				if (rule.preset) {
+				if (typeof rule.preset === "number") {
 					presetOrGroupNum += 100;
-					const presetTemplate = presetTemplates.filter(presetTemplate => presetTemplate.description === rule.preset)[0].rules;
+					const presetTemplate = presetTemplates.filter(presetTemplate => presetTemplate.id === rule.preset)[0].rules;
 					const presetRules = generateExpandedTemplate(presetTemplate);
 					for (let rule of presetRules) {
 						if (rule.orGroup !== null) {

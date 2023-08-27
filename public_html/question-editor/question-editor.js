@@ -228,7 +228,7 @@ const addCardGenerator = function() {
 		document.querySelector("#templateBoxHeading").textContent = `Edit template ${templateNum + 1}`;
 		document.getElementById("addORGroupButton").textContent = "Add OR group";
 		for (let i in questionObj.cardTemplates[templateNum]) {
-			if (questionObj.cardTemplates[templateNum][i].preset) {
+			if (typeof questionObj.cardTemplates[templateNum][i].preset === "number") {
 				addPresetTemplateRule(questionObj.cardTemplates[templateNum][i].preset);
 			} else {
 				addTemplateRule(questionObj.cardTemplates[templateNum][i].field, questionObj.cardTemplates[templateNum][i].operator, questionObj.cardTemplates[templateNum][i].value, questionObj.cardTemplates[templateNum][i].fieldOption, questionObj.cardTemplates[templateNum][i].orGroup);
@@ -322,7 +322,7 @@ const createTemplate = function() {
 		let rule;
 		if (rules[i].childNodes.length === 2) {//Presets
 			rule = {
-				"preset": rules[i].childNodes[1].textContent,
+				"preset": presetTemplates.filter(preset => preset.description === rules[i].childNodes[1].textContent)[0].id,
 				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
 			}
 		} else if (rules[i].childNodes.length === 4) {//Normal rules
@@ -1090,7 +1090,7 @@ const populateFields = function(question) {
 		} else {
 			document.querySelector("#templateBoxHeading").textContent = `Edit template ${i - - 1}`;
 			for (let j in question.cardGenerators[i]) {
-				if (question.cardGenerators[i][j].preset) {
+				if (typeof question.cardGenerators[i][j].preset === "number") {
 					addPresetTemplateRule(question.cardGenerators[i][j].preset);
 				} else {
 					addTemplateRule(question.cardGenerators[i][j].field, question.cardGenerators[i][j].operator, question.cardGenerators[i][j].value, question.cardGenerators[i][j].fieldOption, question.cardGenerators[i][j].orGroup);
@@ -2720,8 +2720,7 @@ document.onkeyup = function(event) {
 	shiftKeyPressed = event.shiftKey;
 }
 
-const addPresetTemplateRule = function(description, ignoreShift) {
-
+const addPresetTemplateRule = function(id, ignoreShift) {
 	if (shiftKeyPressed && !ignoreShift) {
 		addPresetRulesToTemplate();
 		return;
@@ -2738,7 +2737,7 @@ const addPresetTemplateRule = function(description, ignoreShift) {
 	rule.setAttribute("class", "templateRule presetTemplateRule");
 
 	let content = document.createElement("p");
-	content.textContent = description;
+	content.textContent = presetTemplates.filter(preset => preset.id === id)[0].description;
 
 	rule.appendChild(deleteButton);
 	rule.appendChild(content);
@@ -2747,7 +2746,6 @@ const addPresetTemplateRule = function(description, ignoreShift) {
 }
 
 const addPresetRulesToTemplate = function() {
-
 	const rules = Array.from(document.getElementsByClassName("templateRule"));
 	let allOrGroupsInUse = rules.map(rule => rule.dataset.orgroup).filter(orGroup => !Number.isNaN(Number(orGroup)));
 	allOrGroupsInUse = Array.from(new Set(allOrGroupsInUse));
@@ -2755,13 +2753,12 @@ const addPresetRulesToTemplate = function() {
 	const numOrGroupsAlreadyInUse = allOrGroupsInUse.length;
 
 	const presetDesc = document.getElementById('presetTemplates').value;
-	let preset = presetTemplates.filter(presetTemplate => presetTemplate.description === presetDesc)[0].rules;
-	for (let rule of preset) {
-		if (rule.preset) {
+	let presetRules = presetTemplates.filter(presetTemplate => presetTemplate.description === presetDesc)[0].rules;
+	for (let rule of presetRules) {
+		if (typeof rule.preset === "number") {
 			addPresetTemplateRule(rule.preset, true);
 		} else {
 			const orGroup = rule.orGroup === null ? null : rule.orGroup + numOrGroupsAlreadyInUse;
-			console.log(orGroup)
 			addTemplateRule(rule.field, rule.operator, rule.value, rule.fieldOption, orGroup);
 		}
 	}

@@ -275,7 +275,7 @@
 					<h3 id="templateBoxHeading">Edit template X</h3>
 					<select id="presetTemplates"></select>
 					<button class="specialButtonBlack" id="addORGroupButton" onclick="addOrGroup()">Add OR group</button>
-					<button class="specialButtonBlack" id="addPresetTemplateButton" onclick="addPresetTemplateRule(document.getElementById('presetTemplates').value)">Add preset</button>
+					<button class="specialButtonBlack" id="addPresetTemplateButton" onclick="addPresetTemplateRule(presetTemplates.filter(preset => preset.description === document.getElementById('presetTemplates').value)[0].id)">Add preset</button>
 					<br>
 					<select id="templateRuleList">
 						<option>Colors</option>
