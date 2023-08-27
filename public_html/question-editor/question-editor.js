@@ -1697,6 +1697,7 @@ const changeStatusUpwards = function() {
 						currentQuestionData.status = response.newStatus;
 						currentQuestionData.verification = response.newVerification;
 						updateQuestionInfoFields();
+						lastKnownServerQuestionState = createQuestionObj();
 						updateButtons();
 						alert(response.message);
 						setTimeout(getQuestionsList, 50, displayQuestionsList);
@@ -1753,6 +1754,7 @@ const changeStatusDownwards = function() {
 						currentQuestionData.status = response.newStatus;
 						currentQuestionData.verification = response.newVerification;
 						updateQuestionInfoFields();
+						lastKnownServerQuestionState = createQuestionObj();
 						updateButtons();
 						alert(response.message);
 						setTimeout(getQuestionsList, 50, displayQuestionsList);

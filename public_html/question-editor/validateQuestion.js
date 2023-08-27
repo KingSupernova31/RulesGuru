@@ -327,7 +327,7 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 		//Check for a template with no preset.
 		for (let generatorNum in questionObj.cardGenerators) {
 			const template = questionObj.cardGenerators[generatorNum];
-			if (typeof template[0] !== "string") {
+			if (typeof template[0] !== "number") {
 				let isPreset = false;
 				for (let rule of template) {
 					if (rule.preset) {
