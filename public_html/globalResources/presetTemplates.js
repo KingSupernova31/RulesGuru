@@ -4,14 +4,10 @@
 const presetTemplates = [
 	{
 		"id": 0,
-		"description": "Can exist in library",
+		"description": "Can exist in non-battlefield, non-stack zones",
 		"rules": [
-			{"field":"Layout","operator":"Not:","value":"split (half)","orGroup":0},
-			{"field":"Multi-part side","operator":"Not:","value":"b","orGroup":1},
-			{"field":"Multi-part side","operator":"Not:","value":"b","orGroup":2},
-			{"field":"Multi-part side","operator":"Not:","value":"b","orGroup":3},
-			{"field":"Multi-part side","operator":"Not:","value":"b","orGroup":4},
-			{"field":"Multi-part side","operator":"Not:","value":"b","orGroup":5},
+			{"field":"Layout","operator":"Not:","value":"split (half)","orGroup":null},
+			{"field":"Multi-part side","operator":"Not:","value":"b","orGroup":null},
 		],
 	},
 	{
@@ -45,21 +41,9 @@ const presetTemplates = [
 	},
 	{
 		"id": 3,
-		"description": "Can participate in combat with no side effects",
+		"description": "Can participate in combat with no side effects (may still have LTB triggers/replacement effects)",
 		"rules": [
-			{"preset":5,"orGroup":null},
-			{"field":"Keywords","operator":"Doesn't include:","value":"First strike","orGroup":null},
-			{"field":"Keywords","operator":"Doesn't include:","value":"Double strike","orGroup":null},
-			{"field":"Keywords","operator":"Doesn't include:","value":"Protection","orGroup":null},
-			{"field":"Keywords","operator":"Doesn't include:","value":"Absorb","orGroup":null},
-			{"field":"Keywords","operator":"Doesn't include:","value":"Indestructible","orGroup":null},
-			{"field":"Rules text","operator":"Does not contain:","value":"would be dealt damage","orGroup":null},
-			{"field":"Rules text","operator":"Does not contain:","value":"would be destroyed","orGroup":null},
-			{"field":"Rules text","operator":"Does not contain:","value":"would die","orGroup":null},
-			{"field":"Types","operator":"Includes:","value":"Creature","orGroup":null},
-			{"field":"Rules text","operator":"Does not contain:","value":"attack","orGroup":null},
-			{"field":"Rules text","operator":"Does not contain:","value":"block","orGroup":null},
-			{"field":"Rules text","operator":"Does not contain:","value":"prevent","orGroup":null}
+			{"field":"Types","operator":"Includes:","value":"Creature","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"attack","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"block","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"prevent","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"becomes tapped","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"damage","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Deathtouch","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Defender","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Double strike","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"First strike","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Flying","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Indestructible","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Intimidate","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Landwalk","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Lifelink","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Protection","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Reach","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Trample","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Vigilance","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Banding","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Rampage","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Flanking","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Shadow","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Horsemanship","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Fear","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Provoke","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Bushido","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Absorb","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Frenzy","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Poisonous","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Persist","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Wither","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Exalted","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Annihilator","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Infect","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Battle cry","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Dethrone","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Menace","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Renown","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Ingest","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Myriad","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Skulk","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Melee","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Afflict","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Mentor","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Decayed","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Training","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Enlist","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Toxic","orGroup":null},{"preset":13,"orGroup":null}
 		]
 	},
 	{
@@ -140,6 +124,11 @@ const presetTemplates = [
 		"id": 12,
 		"description": "Instant or sorcery that targets exactly one thing",
 		"rules": [{"field":"Rules text","operator":"Contains:","value":"a target","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"(ne|wo|hree|our|ive|ix|ny number of|X|or more) target","orGroup":null},{"field":"Rules text","operator":"Contains:","value":"target","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"arget(.|\\\\n)*arget","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"\".*arget.*","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"new target","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"becomes? (a|the) target","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"be the target","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"that targets","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Overload","orGroup":null},{"field":"Keywords","operator":"Doesn't include:","value":"Awaken","orGroup":null},{"field":"Types","operator":"Includes:","value":"Instant","orGroup":1},{"field":"Types","operator":"Includes:","value":"Sorcery","orGroup":1},{"field":"Rules text","operator":"Does not contain:","value":"upport","orGroup":null}],
+	},
+	{
+		"id": 13,
+		"description": "Doesn't change its own type",
+		"rules": [{"field":"Rules text","operator":"Does not match:","value":"(is(n't)? an?|are|it's an?|becomes an?) (\\d\\/\\d )?(\\w+ )?(artifact|creature|land|battle|enchantment|planeswalker)","orGroup":null}],
 	},
 ]
 
