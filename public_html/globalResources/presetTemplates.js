@@ -130,6 +130,13 @@ const presetTemplates = [
 		"description": "Doesn't change its own type",
 		"rules": [{"field":"Rules text","operator":"Does not match:","value":"(is(n't)? an?|are|it's an?|becomes an?) (\\d\\/\\d )?(\\w+ )?(artifact|creature|land|battle|enchantment|planeswalker)","orGroup":null}],
 	},
+	{
+		"id": 14,
+		"description": "Only has abilities that function on the stack or battlefield, CDAs, and zone-change triggers/replacement effects/casting allowances",
+		"rules": [
+			{"field":"Rules text","operator":"Does not contain:","value":"creature it haunts dies","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"if ::name:: is in your","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"if ::name:: is exiled","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"exile ::name:: from your","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"discard ::name::","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"::name:: isn't on the battlefield","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"return ::name:: from your","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"as long as ::name:: is in your","orGroup":null},{"field":"Rules text","operator":"Does not contain:","value":"you cycle ::name::","orGroup":null}
+		],
+	},
 ]
 
 let presetIds = [];
