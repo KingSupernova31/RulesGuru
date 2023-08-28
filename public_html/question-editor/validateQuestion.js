@@ -327,18 +327,19 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 		//Check for a template with no preset.
 		for (let generatorNum in questionObj.cardGenerators) {
 			const template = questionObj.cardGenerators[generatorNum];
-			if (typeof template[0] !== "number") {
+			if (typeof template[0] === "object") {
 				let isPreset = false;
 				for (let rule of template) {
-					if (rule.preset) {
+					if (typeof rule.preset === "number") {
 						isPreset = true;
 						break;
 					}
 				}
-				warnings.push(`Template ${Number(generatorNum) + 1} uses no preset.`);
+				if (!isPreset && convertedTemplateStorage[generatorNum].length >= 10) {
+					warnings.push(`Template ${Number(generatorNum) + 1} uses no preset.`);
+				}
 			}
 		}
-
 
 		//Check for missing cards.
 		const allCardsWeCareAboutInOriginalQuestion = [];
