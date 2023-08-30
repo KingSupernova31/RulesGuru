@@ -356,10 +356,14 @@ const sendAPIQuestions = function(questions, res, allCards) {
 
 		const chosenCards = chosenCardNames.map(cardName => allCards[cardName]);//We need to provide the cards to replaceExpressions in card generator order, not in text order like they are in includedCards.
 
-		questionToSend.questionSimple = replaceExpressions(questionToSend.question, playerNamesMap, chosenCards, allCards, allRules).plaintext;
-		questionToSend.answerSimple = replaceExpressions(questionToSend.answer, playerNamesMap, chosenCards, allCards, allRules).plaintext;
-		questionToSend.questionHTML = replaceExpressions(questionToSend.question, playerNamesMap, chosenCards, allCards, allRules).html;
-		questionToSend.answerHTML = replaceExpressions(questionToSend.answer, playerNamesMap, chosenCards, allCards, allRules).html;
+		const questionResult = replaceExpressions(questionToSend.question, playerNamesMap, chosenCards, allCards, allRules);
+		const answerResult = replaceExpressions(questionToSend.answer, playerNamesMap, chosenCards, allCards, allRules);
+
+		questionToSend.questionSimple = questionResult.plaintextNoCitations;
+		questionToSend.questionHTML = questionResult.html;
+		questionToSend.answerSimple = answerResult.plaintextNoCitations;
+		questionToSend.answerSimpleCited = answerResult.plaintext;
+		questionToSend.answerHTML = answerResult.html;
 
 		//Add citedRules
 		const allNeededRuleNumbers = (questionToSend.question + questionToSend.answer).match(/(?<=\[)(\d{3}(\.\d{1,3}([a-z])?)?)(?=\])/g) || [];

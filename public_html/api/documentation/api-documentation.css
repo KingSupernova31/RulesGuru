@@ -48,7 +48,7 @@ h1 {
 }
 
 .grid3 {
-	grid-template-columns: 15% 16% auto;
+	grid-template-columns: 20% 16% auto;
 }
 
 .grid4 :nth-child(4n+1), .grid4 :nth-child(4n+2), .grid4 :nth-child(4n+3) {

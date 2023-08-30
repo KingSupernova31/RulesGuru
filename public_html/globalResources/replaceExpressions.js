@@ -155,6 +155,7 @@ const replaceExpressions = function(string, playerNamesMap, oracle, allCards, al
 
 	const resultToReturn = {
 		"plaintext": "",
+		"plaintextNoCitations": "",
 		"html": "",
 		"errors": []
 	};
@@ -328,15 +329,14 @@ const replaceExpressions = function(string, playerNamesMap, oracle, allCards, al
 	}
 
 	resultToReturn.plaintext = string;
+	resultToReturn.plaintextNoCitations = string;
 	resultToReturn.html = string;
 
 	//Remove rules citations or replace them with HTML.
-	resultToReturn.plaintext = resultToReturn.plaintext.replace(/ \(\[\d{3}(\.\d{1,3}([a-z])?)?\]\)/g, "");
-	/*This turns rule citations into plaintext, which we don't do at the moment; we just remove them entirely.
-	resultToReturn.plaintext = resultToReturn.plaintext.replace(/\[(\d{3}(\.\d{1,3}([a-z])?)?)\]/g, function(match, capt1) {
-		return capt1;
+	resultToReturn.plaintextNoCitations = resultToReturn.plaintext.replace(/ \((\[\d{3}\.\d{1,2}[a-z]?\](\/|, )?)+\)/g, "");
+	resultToReturn.plaintext = resultToReturn.plaintext.replace(/ \((\[\d{3}\.\d{1,2}[a-z]?\](\/|, )?)+\)/g, function(string) {
+		return string.replace(/[\]\[]/g, "");
 	});
-	*/
 	resultToReturn.html = resultToReturn.html.replace(/\[(\d{3}(\.\d{1,3}([a-z])?)?)\]/g, function(match, capt1) {
 		if (!allRules[capt1]) {
 			resultToReturn.errors.push(`Rule ${capt1} does not exist.`)
