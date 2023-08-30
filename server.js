@@ -19,6 +19,7 @@ app.set('trust proxy', true);
 const templateConvert = require("./public_html/globalResources/templateConvert.js"),
 			presetTemplates = require("./public_html/globalResources/presetTemplates.js"),
 			replaceExpressions = require("./public_html/globalResources/replaceExpressions.js"),
+			searchLinks = require("./public_html/globalResources/searchLinks.js"),
 			playerNames = JSON.parse(fs.readFileSync("playerNames.json", "utf8"));
 
 let referenceQuestionArray;
@@ -374,6 +375,22 @@ const sendAPIQuestions = function(questions, res, allCards) {
 		for (let rule of allNeededRules) {
 			questionToSend.citedRules[rule.ruleNumber] = rule;
 		}
+
+		//Add a link to the question on RG
+		const searchLinkMappings = JSON.parse(fs.readFileSync("public_html/globalResources/searchLinkMappings.js", "utf8").slice(27));
+		questionToSend.url = "https://rulesguru.net/?" + questionToSend.id + "RG" + searchLinks.convertSettingsToSearchLink({
+			"level": ["0", "1", "2", "3", "Corner Case"],
+			"complexity": ["Simple", "Intermediate", "Complicated"],
+			"legality": "All of Magic",
+			"expansions": [],
+			"playableOnly": false,
+			"tags": [],
+			"tagsConjunc": "OR",
+			"rules": [],
+			"rulesConjunc": "OR",
+			"cards": questionToSend.includedCards.map(card => card.name),
+			"cardsConjunc": "AND",
+		}, searchLinkMappings) + "GG";
 
 		//Remove old raw properties.
 		delete questionToSend.question;
