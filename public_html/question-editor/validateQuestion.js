@@ -184,14 +184,12 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 		//Check for needlessly capitalized letters.
 		const capitalizedWords = /(.{0,2})([A-Z]\w+)/g;
 		const matches = questionObj.question.matchAll(capitalizedWords);
-		outer: for (let match of matches) {
-			if ([". ", ") ", "", " [", "[", "([", "[N", "? "].includes(match[1])) {
+		for (let match of matches) {
+			if ([". ", ") ", "", " [", "[", "([", "[N", "? ", " ("].includes(match[1])) {
 				continue;
 			}
-			for (let subtype of allSubtypes) {
-				if (match[2] === subtype) {
-					continue outer;
-				}
+			if (allSubtypes.includes(match[2])) {
+				continue;
 			}
 			warnings.push(`"${match[2]}" probably shouldn't be capitalized.`);
 		}

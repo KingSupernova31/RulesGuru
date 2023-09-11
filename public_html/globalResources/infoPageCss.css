@@ -96,3 +96,7 @@ li {
 .content p, .content ul {
 	margin-bottom: 1rem;
 }
+
+body {
+	padding-bottom: 2rem;
+}

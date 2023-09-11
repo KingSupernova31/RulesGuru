@@ -1,4 +1,4 @@
-"use strict";
+
 
 document.getElementById("topBannerRightText").appendChild(document.getElementById("rulesLink"));
 document.getElementById("topBannerRightText").appendChild(document.getElementById("adminAboutLink"));
@@ -640,6 +640,7 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 	rule.appendChild(valueInput);
 	document.getElementById("templateRules").appendChild(rule);
 	document.getElementById("templateDiv").scrollTo(0, document.getElementById("templateDiv").scrollHeight);
+	valueInput.focus();
 }
 
 const addOrGroup = function() {
@@ -1857,10 +1858,16 @@ previewValidationWorker.onmessage = function(message) {
 	previewWindow.parentData.questionValidation = message.data;
 	previewWindow.parentData.updateText = true;
 	currentlyValidating = false;
+	if (queuedValidation) {
+		queuedValidation = false;
+		validateWithWorker();
+	}
 };
-let currentlyValidating = false;
+let currentlyValidating = false,
+		queuedValidation = false;
 const validateWithWorker = function() {
 	if (currentlyValidating) {
+		queuedValidation = true;
 		return;
 	}
 	currentlyValidating = true;
@@ -2796,3 +2803,36 @@ const addPresetRulesToTemplate = function() {
 		}
 	}
 }
+
+let lastKnownPageSourceData = {
+	"/globalResources/allTags.js": null,
+	"allCards.js": null,
+	"allRules.js": null,
+	"cardNamesToIgnore.js": null,
+	"/globalResources/replaceExpressions.js": null,
+	"/globalResources/presetTemplates.js": null,
+	"/globalResources/searchLinks.js": null,
+	"/globalResources/allKeywords.js": null,
+	"/globalResources/templateConvert.js": null,
+	"validateQuestion.js": null,
+	"question-editor.js": null,
+	"validationWorker.js": null,
+	"index.html": null
+};
+let currentPageSourceCheckNumber = 0;
+setInterval(async function() {
+	const sources = Object.keys(lastKnownPageSourceData);
+	currentPageSourceCheckNumber++;
+	if (currentPageSourceCheckNumber === sources.length) {
+		currentPageSourceCheckNumber = 0;
+	}
+	const currentSource = sources[currentPageSourceCheckNumber];
+	const result = await (await fetch(currentSource)).text();
+	if (lastKnownPageSourceData[currentSource] === null) {
+		lastKnownPageSourceData[currentSource] = result;
+	} else {
+		if (lastKnownPageSourceData[currentSource] !== result) {
+			location.reload();
+		}
+	}
+}, 10000)
