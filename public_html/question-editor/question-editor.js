@@ -452,7 +452,7 @@ const switchModes = function(generatorId) {
 let datalistNum = 0;
 const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 	if (orGroup > 4) {
-		alert("Something has caused this template to have more than 5 'or' groups, which shouldn't happen.");
+		alert("This question appears to be corrupted, please don't edit it and inform the site owner of the issue. (>5 'or' groups.)");
 		return;
 	}
 	let deleteButton = document.createElement("img");

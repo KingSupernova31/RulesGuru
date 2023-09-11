@@ -130,7 +130,7 @@ const updateAllCards = function() {
 				delete allCards[i];
 				continue;
 			}
-			if (allCards[i].legalities.alchemy && !allCards[i].legalities.vintage) {
+			if (allCards[i].legalities.historic && !allCards[i].legalities.vintage) {
 				delete allCards[i];
 			}
 		}

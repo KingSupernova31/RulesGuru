@@ -446,7 +446,6 @@ app.get("/api/questions", function(req, res) {
 	try {
 		requestSettings = JSON.parse(decodeURIComponent(req.query.json));
 	} catch (error) {
-		handleError(error);
 		res.json({"status": 400, "error":"json parameter is not valid JSON."});
 		return;
 	}
