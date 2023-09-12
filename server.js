@@ -22,14 +22,29 @@ const templateConvert = require("./public_html/globalResources/templateConvert.j
 			searchLinks = require("./public_html/globalResources/searchLinks.js"),
 			playerNames = JSON.parse(fs.readFileSync("playerNames.json", "utf8"));
 
-let referenceQuestionArray;
-
 app.use(compression());
 app.use(bodyParser.json({"limit":"1mb"}));
 app.use(bodyParser.urlencoded({"extended": true}));
 app.use(express.static("./public_html"));
 
 let server;
+
+function deepFreeze(object) {
+  // Retrieve the property names defined on object
+  const propNames = Reflect.ownKeys(object);
+  // Freeze properties before freezing self
+  for (const name of propNames) {
+    const value = object[name];
+    if ((value && typeof value === "object") || typeof value === "function") {
+      deepFreeze(value);
+    }
+  }
+  return Object.freeze(object);
+}
+
+let referenceQuestionArray;
+let canonicalAllCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
+deepFreeze(canonicalAllCards);
 
 const sendEmail = function(recipientEmail, subject, message) {
 	transporter.sendMail({
@@ -100,6 +115,7 @@ const db = new sqlite.Database("questionDatabase.db", async function(err) {
 
 		try {
 			referenceQuestionArray = JSON.parse(fs.readFileSync("referenceQuestionArray.json", "utf8"));
+			deepFreeze(referenceQuestionArray);
 		} catch {
 			console.log("Generating reference question array")
 			await updateReferenceObjects();
@@ -193,6 +209,7 @@ const convertAllTemplates = function(question, allCards) {
 
 	const convertedQuestion = JSON.parse(JSON.stringify(question))
 	convertedQuestion.cardLists = [];
+
 	for (let i = 0 ; i < convertedQuestion.cardGenerators.length ; i++) {
 
 		if (typeof convertedQuestion.cardGenerators[i][0] === "object") {
@@ -210,7 +227,8 @@ const convertAllTemplates = function(question, allCards) {
 //Update the reference question database and card object that are stored in memory.
 const updateReferenceObjects = async function() {
 
-	const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
+	canonicalAllCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
+	deepFreeze(canonicalAllCards);
 
 	const finishedQuestions = await dbAll(`SELECT json FROM questions WHERE status = "finished"`);
 
@@ -220,7 +238,7 @@ const updateReferenceObjects = async function() {
 
 	for (let i = 0 ; i < finishedQuestions.length ; i++) {
 		//Expand templates.
-		finishedQuestions[i] = convertAllTemplates(finishedQuestions[i], allCards);
+		finishedQuestions[i] = convertAllTemplates(finishedQuestions[i], canonicalAllCards);
 
 		//Check for a template that generated 0 cards.
 		let emptyTemplate = false;
@@ -237,10 +255,11 @@ const updateReferenceObjects = async function() {
 	}
 
 	referenceQuestionArray = finishedQuestions;
+	deepFreeze(referenceQuestionArray);
 
 	console.log("Reference question array generation complete");
 
-	fs.writeFileSync("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray));
+	saveReferenceQuestionArrayToDisk();
 
 	updateIndexQuestionCount();
 }
@@ -252,6 +271,24 @@ const updateIndexQuestionCount = function() {
 	html = html.replace(/(?<=\<span id=\"questionCount\"\>)\d+(?=\<\/span\>)/, referenceQuestionArray.length);
 	html = html.replace(/(?<=\<span id=\"questionCountMobile\"\>)\d+(?=\<\/span\>)/, referenceQuestionArray.length);
 	fs.writeFileSync("public_html/index.html", html);
+}
+
+let saveReferenceQuestionArrayToDiskRunning = false;
+let saveReferenceQuestionArrayToDiskPending = false;
+const saveReferenceQuestionArrayToDisk = async function() {
+	if (saveReferenceQuestionArrayToDiskRunning) {
+		saveReferenceQuestionArrayToDiskPending = true;
+		return;
+	}
+	saveReferenceQuestionArrayToDiskRunning = true;
+	saveReferenceQuestionArrayToDiskPending = false;
+	await Promise.resolve();//Cut off synchroous execution so the stringify doesn't block the outer function.
+	fs.writeFile("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray), function() {
+		saveReferenceQuestionArrayToDiskRunning = false;
+		if (saveReferenceQuestionArrayToDiskPending) {
+			saveReferenceQuestionArrayToDisk();
+		}
+	});
 }
 
 //Returns a random map of player names and genders for each possible player tag.
@@ -441,7 +478,6 @@ Development:
 
 let recentIPs = [];
 app.get("/api/questions", function(req, res) {
-	const time = performance.now();
 	let requestSettings;
 	try {
 		requestSettings = JSON.parse(decodeURIComponent(req.query.json));
@@ -450,21 +486,20 @@ app.get("/api/questions", function(req, res) {
 		return;
 	}
 	//When a request is received, update recentIPs to include only ones from within the last 2 seconds.
-	recentIPs = recentIPs.filter(ip => Date.now() - ip.date < 2000);
+	recentIPs = recentIPs.filter(ip => performance.now() - ip.date < 2000);
 	if (recentIPs.filter(ip => ip.ip).length > 0 && !requestSettings.avoidRateLimiting) {//If you find this and use it to get around my rate limiting, go ahead, you deserve it. But I'll be fixing this eventally.
 		res.json({"status": 429, "error":"Please don't send more than one request every 2 seconds."});
-		recentIPs.push({"ip": req.ip, "date": Date.now()});
+		recentIPs.push({"ip": req.ip, "date": performance.now()});
 		return;
 	} else {
-		recentIPs.push({"ip": req.ip, "date": Date.now()});
+		recentIPs.push({"ip": req.ip, "date": performance.now()});
 	}
-
 	let apiLog = JSON.parse(fs.readFileSync("logs/apiLog.json", "utf8"));
 	apiLog.push({"date": Date.now(), "request": req.query, "ip": req.ip});
 	fs.writeFileSync("logs/apiLog.json", JSON.stringify(apiLog));
 
-	const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
-	let questionArray = JSON.parse(JSON.stringify(referenceQuestionArray));
+	const allCards = canonicalAllCards;
+	let questionArray = referenceQuestionArray.slice(0);// Must be a copy because referenceQuestionArray is immutable and this needs to be shuffled. Each question in the copy will still be immutable, which is desirable.
 	try {
 		let defaults;
 		if (requestSettings.id === undefined) {
@@ -513,7 +548,6 @@ app.get("/api/questions", function(req, res) {
 		res.json({"status": 400, "error":"Incorrectly formatted query string."});
 		return;
 	}
-
 	try {
 		if (requestSettings.id !== undefined) {
 			if (typeof requestSettings.id !== "number" || requestSettings.id < 1) {
@@ -528,23 +562,19 @@ app.get("/api/questions", function(req, res) {
 				}
 			}
 			if (!questionToReturn) {
-				console.log(`Request took ${performance.now() - time}ms to perform.`);
 				res.json({"status": 404, "error":"A question with that ID does not exist."});
 				return;
 			}
 			const result = questionMatchesSettings(questionToReturn, requestSettings, allCards);
 			if (!result) {
-				console.log(`Request took ${performance.now() - time}ms to perform.`);
 				res.json({"status": 400, "error":`Question ${requestSettings.id} cannot match the chosen settings.`});
 				return;
 			}
 			sendAPIQuestions([result], res, allCards);
-			console.log(`Request took ${performance.now() - time}ms to perform.`);
 		} else {
 			let locationToStartSearch;
 			if (requestSettings.previousId !== undefined) {
 				if (typeof requestSettings.previousId !== "number" || !Number.isInteger(requestSettings.previousId) || requestSettings.previousId < 1) {
-					console.log(`Request took ${performance.now() - time}ms to perform.`);
 					res.json({"status": 400, "error":`${requestSettings.previousId} is not a valid previous ID.`});
 					return;
 				}
@@ -568,7 +598,7 @@ app.get("/api/questions", function(req, res) {
 			let loopCounter = 0;
 			while (true) {
 				loopCounter++;
-				if (loopCounter > 99999) {
+				if (loopCounter > 9999) {
 					handleError(new Error(`While loop not terminating.`))
 					break;
 				}
@@ -579,7 +609,6 @@ app.get("/api/questions", function(req, res) {
 
 				if (questionsToReturn.length === requestSettings.count) {
 					sendAPIQuestions(questionsToReturn, res, allCards);
-					console.log(`Request took ${performance.now() - time}ms to perform.`);
 					break;
 				}
 				currentSearchLocation++;
@@ -588,7 +617,6 @@ app.get("/api/questions", function(req, res) {
 				}
 				if (currentSearchLocation === locationToStartSearch) {
 					res.json({"status": 404, "error":`There are ${requestSettings.count === 1 ? "no" : "not enough"} questions that fit your settings.`});
-					console.log(`Request took ${performance.now() - time}ms to perform.`);
 					break;
 				}
 			}
@@ -627,6 +655,7 @@ app.post("/submitContactForm", function(req, res) {
 	}
 });
 
+let lastTimeReferenceArrayMismatchWarningSent = 0;
 app.get("/getQuestionCount", async function(req, res) {
 
 	const allData = await dbAll(`SELECT * FROM questions`);
@@ -642,9 +671,11 @@ app.get("/getQuestionCount", async function(req, res) {
 		problemString += `Reference array doesn't include questions ${databaseNums.filter(num => !referenceArrayNums.includes(num))}`;
 	}
 	if (problemString !== "") {
-		handleError(new Error(`Reference array mismatch: ${problemString}`));
+		if (performance.now() - lastTimeReferenceArrayMismatchWarningSent > 60000) {
+			handleError(new Error(`Reference array mismatch: ${problemString}`));
+			lastTimeReferenceArrayMismatchWarningSent = performance.now();
+		}
 	}
-
 
 	allData.forEach(function(question) {
 		question.verification = JSON.parse(question.verification);
@@ -681,7 +712,7 @@ app.post("/submitAdminQuestion", async function(req, res) {
 			//Update the reference question array
 			if (addQuestionResult.newStatus === "finished") {
 				let newQuestion = req.body.questionObj;
-				const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
+				const allCards = canonicalAllCards;
 				newQuestion = convertAllTemplates(newQuestion, allCards);
 
 				//Check for a template that generated 0 cards.
@@ -694,9 +725,12 @@ app.post("/submitAdminQuestion", async function(req, res) {
 				if (emptyTemplate) {
 					sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${newQuestion.id}`);
 				} else {
+					//We have to copy the array and discard the old one since it was immutable.
+					referenceQuestionArray = referenceQuestionArray.slice(0);
 					referenceQuestionArray.push(newQuestion);
+					deepFreeze(referenceQuestionArray);
 				}
-				fs.writeFileSync("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray));
+				saveReferenceQuestionArrayToDisk();
 				updateIndexQuestionCount();
 			}
 
@@ -745,10 +779,13 @@ app.post("/updateQuestion", async function(req, res) {
 
 			//Update the reference question array
 			if (oldQuestion.status === "finished") {
+				//We have to copy the array and discard the old one since it was immutable.
+				referenceQuestionArray = referenceQuestionArray.slice(0);
+
 				for (let i in referenceQuestionArray) {
 					if (referenceQuestionArray[i].id === req.body.questionObj.id) {
 						let newQuestion = req.body.questionObj;
-						const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
+						const allCards = canonicalAllCards;
 						newQuestion = convertAllTemplates(newQuestion, allCards);
 						//Check for a template that generated 0 cards.
 						let emptyTemplate = false;
@@ -763,6 +800,7 @@ app.post("/updateQuestion", async function(req, res) {
 						referenceQuestionArray[i] = newQuestion;
 					}
 				}
+				deepFreeze(referenceQuestionArray);
 			}
 
 			//Send emails about the change.
@@ -897,7 +935,7 @@ app.post("/changeQuestionStatus", async function(req, res) {
 		//Update the reference question array
 		if (newStatus === "finished") {
 			let newQuestion = req.body.questionObj;
-			const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
+			const allCards = canonicalAllCards;
 			newQuestion = convertAllTemplates(newQuestion, allCards);
 
 			//Check for a template that generated 0 cards.
@@ -910,16 +948,22 @@ app.post("/changeQuestionStatus", async function(req, res) {
 			if (emptyTemplate) {
 				sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${newQuestion.id}`);
 			} else {
+				//We have to copy the array and discard the old one since it was immutable.
+				referenceQuestionArray = referenceQuestionArray.slice(0);
 				referenceQuestionArray.push(newQuestion);
+				deepFreeze(referenceQuestionArray);
 			}
-			fs.writeFileSync("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray));
+			saveReferenceQuestionArrayToDisk();
 		} else if (statusChange === "decrease") {
+			//We have to copy the array and discard the old one since it was immutable.
+			referenceQuestionArray = referenceQuestionArray.slice(0);
 			for (let i in referenceQuestionArray) {
 				if (referenceQuestionArray[i].id === req.body.questionObj.id) {
 					referenceQuestionArray.splice(i, 1);
 				}
 			}
-			fs.writeFileSync("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray));
+			deepFreeze(referenceQuestionArray);
+			saveReferenceQuestionArrayToDisk();
 		}
 
 		//Send emails about the change.
@@ -1095,13 +1139,12 @@ app.post("/getSpecificAdminQuestion", function(req, res) {
 });
 
 app.post("/getQuestionsList", function(req, res) {
-	const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
-	let questionArray = JSON.parse(JSON.stringify(referenceQuestionArray));
+	const allCards = canonicalAllCards;
 	const validQuestionsList = [];
 
-	for (let i = 0 ; i < questionArray.length ; i++) {
-		if (questionMatchesSettings(questionArray[i], req.body.settings, allCards)) {
-			validQuestionsList.push(questionArray[i].id);
+	for (let i = 0 ; i < referenceQuestionArray.length ; i++) {
+		if (questionMatchesSettings(referenceQuestionArray[i], req.body.settings, allCards)) {
+			validQuestionsList.push(referenceQuestionArray[i].id);
 		}
 	}
 
@@ -1272,18 +1315,20 @@ app.post("/updateAndForceStatus", async function(req, res) {
 
 		await dbRun(`UPDATE questions SET status = '${req.body.newStatus}', verification = '${JSON.stringify(newVerificationObject).replace(/'/g,"''")}', json = '${JSON.stringify(req.body.questionData).replace(/'/g,"''")}', id = '${req.body.newId || req.body.id}' WHERE id = ${req.body.id}`);
 
-		//Update the reference question array
+		//Update the reference question array. We have to copy the array and discard the old one since it was immutable.
+		referenceQuestionArray = referenceQuestionArray.slice(0);
 		for (let i in referenceQuestionArray) {
 			if (referenceQuestionArray[i].id === req.body.id) {
 				referenceQuestionArray.splice(i, 1);
 				break;
 			}
 		}
+		deepFreeze(referenceQuestionArray);
+
 		if (req.body.newStatus === "finished") {
 			let newQuestion = req.body.questionData;
-			const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
+			const allCards = canonicalAllCards;
 			newQuestion = convertAllTemplates(newQuestion, allCards);
-
 			//Check for a template that generated 0 cards.
 			let emptyTemplate = false;
 			for (let j = 0 ; j < newQuestion.cardLists.length ; j++) {
@@ -1294,10 +1339,13 @@ app.post("/updateAndForceStatus", async function(req, res) {
 			if (emptyTemplate) {
 				sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${newQuestion.id}`);
 			} else {
+				//We have to copy the array and discard the old one since it was immutable.
+				referenceQuestionArray = referenceQuestionArray.slice(0);
 				referenceQuestionArray.push(newQuestion);
+				deepFreeze(referenceQuestionArray);
 			}
 		}
-		fs.writeFileSync("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray));
+		saveReferenceQuestionArrayToDisk();
 
 		updateIndexQuestionCount();
 
@@ -1314,14 +1362,12 @@ app.post("/updateAndForceStatus", async function(req, res) {
 			const date = Date();
 			sendEmailToOwners(`RulesGuru question ID change`, `${currentAdmin.name} has moved question #${req.body.id} to ID #${req.body.newId}.\n\nTime: ${date}`);
 		}
-
 		let recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
 		if (recentlyDistributedQuestionIds.includes(req.body.id)) {
 			const index = recentlyDistributedQuestionIds.indexOf(req.body.id);
 			recentlyDistributedQuestionIds.splice(index, 1);
 		}
 		fs.writeFileSync("recentlyDistributedQuestionIds.json", JSON.stringify(recentlyDistributedQuestionIds));
-
 	}
 });
 

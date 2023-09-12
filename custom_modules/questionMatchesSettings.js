@@ -4,6 +4,10 @@ const shuffle = require("./shuffle.js");
 
 //Takes about 200ms to run this on 1159 questions with long-taking settings, so probably not worth optimizing.
 const questionMatchesSettings = function(question, settings, allCards) {
+
+	//We don't want to modify the original question when returning one that matches the settings.
+	question = JSON.parse(JSON.stringify(question));
+
 	//Check if level or complexity match fit.
 	if (!settings.level.includes(question.level)) {
 		return false;
