@@ -91,9 +91,11 @@ const createCardDisplay = function(cardData, defaultDisplayType) {
 	if (cardData.rulesText) {
 		text.innerHTML = symbolsToHtml(cardData.rulesText.replace(/\n/g, "<br><br>"));
 	}
-	if (cardData.loyalty) {
+	if (cardData.loyalty.length > 0) {
 		stats.textContent = cardData.loyalty;
-	} else if (cardData.power) {
+	} else if (cardData.defense.length > 0) {
+		stats.textContent = cardData.defense;
+	} else if (cardData.power.length > 0) {
 		stats.textContent = cardData.power + "/" + cardData.toughness;
 	}
 

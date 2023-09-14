@@ -18,7 +18,6 @@ const templateConvert = function(template, globalCardList, presetTemplates) {
 	if (template.length === 0) {
 		return [];
 	} else {
-
 		let count = 0;
 		let presetOrGroupNum = 0;
 		const generateExpandedTemplate = function(template) {
@@ -106,6 +105,7 @@ const fieldToPropMapping = {
 	"Colors": "colors",
 	"Color identity": "colorIdentity",
 	"Color indicator": "colorIndicator",
+	"Defense": "defense",
 	"Keywords": "keywords",
 	"Layout": "layout",
 	"Loyalty": "loyalty",
@@ -307,6 +307,8 @@ const templateRuleMatchesCard = function(rule, card) {
 		case "Toughness":
 			return typicalPseudoNumericalRuleMatchesCard(rule, card);
 		case "Loyalty":
+			return typicalPseudoNumericalRuleMatchesCard(rule, card);
+		case "Defense":
 			return typicalPseudoNumericalRuleMatchesCard(rule, card);
 		case "Number of":
 			const fieldOption = fieldToPropMapping[rule.fieldOption];

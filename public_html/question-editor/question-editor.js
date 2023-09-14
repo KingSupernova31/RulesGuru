@@ -355,7 +355,7 @@ const validateTemplate = function(inputTemplate) {
 	for (let i in template) {
 		let thisRuleErrored = false;
 		//Blank fields
-		if (!["Toughness", "Power", "Loyalty", "Mana cost"].includes(template[i].field)) {
+		if (!["Toughness", "Power", "Loyalty", "Defense", "Mana cost"].includes(template[i].field)) {
 			if (template[i].value === "") {
 				templateErrors.push(`${template[i].field} cannot be blank.`);
 				thisRuleErrored = true;
@@ -396,7 +396,7 @@ const validateTemplate = function(inputTemplate) {
 			}
 		}
 		//Power, toughness, and loyalty with <>.
-		if (["Toughness", "Power", "Loyalty"].includes(template[i].field)) {
+		if (["Toughness", "Power", "Loyalty", "Defense"].includes(template[i].field)) {
 			if (template[i].operator === ">" || template[i].operator === "<") {
 				if (!/^\d+$/.test(template[i].value)) {
 					templateErrors.push(`"${template[i].value}" is not a valid ${template[i].field[0].toLowerCase() + template[i].field.slice(1)} with operator "${template[i].operator}".`);
@@ -404,11 +404,11 @@ const validateTemplate = function(inputTemplate) {
 				}
 			}
 		}
-		//Power, toughness, and loyalty with =.
-		if (["Toughness", "Power", "Loyalty"].includes(template[i].field)) {
-			if (template[i].operator === "=") {
-				if (!/^[0-9*\-+X]+$/.test(template[i].value)) {
-					templateErrors.push(`"${template[i].value}" is not a valid ${template[i].field[0].toLowerCase() + template[i].field.slice(1)} with operator "=".`);
+		//Power, toughness, and loyalty with = or .
+		if (["Toughness", "Power", "Loyalty", "Defense"].includes(template[i].field)) {
+			if (template[i].operator === "=" || template[i].operator === "≠") {
+				if (!/^[0-9*\-+X]*$/.test(template[i].value)) {
+					templateErrors.push(`"${template[i].value}" is not a valid ${template[i].field[0].toLowerCase() + template[i].field.slice(1)} with operator "${template[i].operator}".`);
 					thisRuleErrored = true;
 				}
 			}
@@ -533,15 +533,19 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 			break;
 		case "Power":
 			operators = ["=", "≠", ">", "<"];
-			tooltip = `Non-numerical powers such as "1+*" are supported. The ">" and "<" operators will not return cards with non-numerical powers.`;
+			tooltip = `Non-numerical powers such as "1+*" are supported. The ">" and "<" operators will not return cards with non-numerical powers. Leave blank to match cards that have no power.`;
 			break;
 		case "Toughness":
 			operators = ["=", "≠", ">", "<"];
-			tooltip = `Non-numerical toughnesses such as "1+*" are supported. The ">" and "<" operators will not return cards with non-numerical toughnesses.`;
+			tooltip = `Non-numerical toughnesses such as "1+*" are supported. The ">" and "<" operators will not return cards with non-numerical toughnesses. Leave blank to match cards that have no toughness.`;
 			break;
 		case "Loyalty":
 			operators = ["=", "≠", ">", "<"];
-			tooltip = `Non-numerical loyalties such as "X" are supported. The ">" and "<" operators will not return cards with non-numerical loyalties.`;
+			tooltip = `Non-numerical loyalties such as "X" are supported. The ">" and "<" operators will not return cards with non-numerical loyalties. Leave blank to match cards that have no loyalty.`;
+			break;
+		case "Defense":
+			operators = ["=", "≠", ">", "<"];
+			tooltip = `Non-numerical defenses such as "X" are supported. The ">" and "<" operators will not return cards with non-numerical loyalties. Leave blank to match cards that have no defense.`;
 			break;
 		case "Number of":
 			fieldOptions = ["Colors", "Color identity", "Color indicator", "Keywords", "Mana cost", "Subtypes", "Supertypes", "Types"];

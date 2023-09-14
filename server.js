@@ -1107,7 +1107,7 @@ app.post("/getUnfinishedQuestion", async function(req, res) {
 	}
 });
 
-app.post("/getSpecificAdminQuestion", function(req, res) {
+app.post("/getSpecificAdminQuestion", async function(req, res) {
 	const validateAdminResult = validateAdmin(req.body.password);
 	let currentAdmin;
 	if (typeof validateAdminResult === "string") {
@@ -1116,21 +1116,17 @@ app.post("/getSpecificAdminQuestion", function(req, res) {
 		currentAdmin = validateAdminResult;
 
 		if (!Number.isNaN(parseInt(req.body.id))) {
-			db.get(`SELECT * FROM questions WHERE id = ${req.body.id}`, function(err, result) {
-				if (err) {
-					handleError(err);
-				} else {
-					if (result) {
-						const questionToSend = JSON.parse(result.json);
-						questionToSend.status = result.status;
-						questionToSend.verification = JSON.parse(result.verification);
 
-						res.send(questionToSend);
-					} else {
-						res.send("That question doesn't exist.");
-					}
-				}
-			});
+			const question = await dbGet(`SELECT * FROM questions WHERE id = ${req.body.id}`);
+
+			if (question) {
+				const questionToSend = JSON.parse(question.json);
+				questionToSend.status = question.status;
+				questionToSend.verification = JSON.parse(question.verification);
+				res.send(questionToSend);
+			} else {
+				res.send("That question doesn't exist.");
+			}
 		} else {
 			res.send("That question doesn't exist.")
 		}

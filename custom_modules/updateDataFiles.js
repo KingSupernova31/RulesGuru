@@ -83,10 +83,16 @@ const updateAllCards = function() {
 
 		//Add in missing values.
 		let missingArrays = ["colors", "colorIdentity", "types", "subtypes", "supertypes", "keywords", "playability", "colorIndicator"];
+		let missingStrings = ["power", "toughness", "loyalty", "defense", "manaCost", "text"];
 		for (let i in allCards) {
 			missingArrays.forEach(function(element) {
 				if (!allCards[i].hasOwnProperty(element)) {
 					allCards[i][element] = [];
+				}
+			})
+			missingStrings.forEach(function(element) {
+				if (!allCards[i].hasOwnProperty(element)) {
+					allCards[i][element] = "";
 				}
 			})
 			if (!allCards[i].hasOwnProperty("layout")) {
@@ -94,12 +100,6 @@ const updateAllCards = function() {
 			}
 			if (!allCards[i].hasOwnProperty("legalities")) {
 				allCards[i].legalities = {};
-			}
-			if (!allCards[i].hasOwnProperty("text")) {
-				allCards[i].text = "";
-			}
-			if (!allCards[i].hasOwnProperty("manaCost")) {
-				allCards[i].manaCost = "";
 			}
 		}
 
@@ -449,7 +449,7 @@ const updateAllCards = function() {
 			}
 		}
 
-		const relevantProps = ["colorIdentity", "colorIndicator", "colors", "manaValue", "layout", "legalities", "loyalty", "manaCost", "name", "names", "power", "side", "subtypes", "supertypes", "text", "toughness", "type", "types", "rulesText", "printingsName", "printingsCode", "keywords", "playability"];
+		const relevantProps = ["colorIdentity", "colorIndicator", "colors", "manaValue", "layout", "legalities", "loyalty", "manaCost", "name", "names", "power", "side", "subtypes", "supertypes", "text", "toughness", "type", "types", "rulesText", "printingsName", "printingsCode", "keywords", "playability", "defense"];
 		for (let i in allCards) {
 			const allProps = Object.keys(allCards[i]);
 			for (let j in allProps) {
@@ -566,8 +566,8 @@ const disperseFiles = function() {
 
 		//Update cards.
 		const allCards = JSON.parse(fs.readFileSync("data_files/finalAllCards.json", "utf8"));
-		writeCardList(allCards, "allCards.json", ["name", "names", "manaCost", "type", "rulesText", "power", "toughness", "loyalty", "layout", "legalities", "printingsName", "types", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "keywords", "playability", "colorIdentity"], "json");
-		writeCardList(allCards, "public_html/question-editor/allCards.js", ["name", "names", "rulesText", "power", "toughness", "loyalty", "layout", "types", "type", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "manaCost", "keywords", "colorIdentity"], "js");
+		writeCardList(allCards, "allCards.json", ["name", "names", "manaCost", "type", "rulesText", "power", "toughness", "loyalty", "layout", "legalities", "printingsName", "types", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "keywords", "playability", "colorIdentity", "defense"], "json");
+		writeCardList(allCards, "public_html/question-editor/allCards.js", ["name", "names", "rulesText", "power", "toughness", "loyalty", "layout", "types", "type", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "manaCost", "keywords", "colorIdentity", "defense"], "js");
 
 		//Update cards to ignore
 		const cardNamesToIgnore = fs.readFileSync("data_files/cardNamesToIgnore.json", "utf8");
