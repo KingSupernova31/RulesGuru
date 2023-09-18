@@ -80,14 +80,22 @@ const openContactForm = function() {
 
 let contactFormIsOpen = false;
 
-const tryClosingContactForm = function(event) {
+document.addEventListener("mousedown", function(event) {
 	if (contactFormIsOpen) {
 		if (!document.getElementById("contactFormPopup").contains(event.target)) {
 			document.getElementById("contactFormPopup").style.display = "none";
 			setTimeout(function() {contactFormIsOpen = false}, 1);
 		}
 	}
-}
+});
+document.addEventListener("touchstart", function(event) {
+	if (contactFormIsOpen) {
+		if (!document.getElementById("contactFormPopup").contains(event.target)) {
+			document.getElementById("contactFormPopup").style.display = "none";
+			setTimeout(function() {contactFormIsOpen = false}, 1);
+		}
+	}
+});
 
 //Handle left clicks, middle clicks, and pressing enter on buttons. Strings as the "action" are treated as a url to open, funtions are executed regardless of the type of click/press.
 const bindButtonAction = function(element, action) {
@@ -185,7 +193,6 @@ document.addEventListener("touchstart", function touchDetect(event) {
 });
 
 //Button handlers:
-bindButtonAction(document.querySelector("html"), tryClosingContactForm);
 bindButtonAction(document.getElementById("bannerName"), "/");
 bindButtonAction(document.getElementById("bannerNameMobile"), "/");
 bindButtonAction(document.getElementById("donations"), function() {
