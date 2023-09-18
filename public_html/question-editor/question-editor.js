@@ -1447,7 +1447,10 @@ const previousCursorPos = {
 	"question": -1,
 	"answer": -1
 };
-let previouslyFocusedElement = null;
+const previouslyFocused = {
+	"question": false,
+	"answer": false
+}
 const anythingRelevantHasChanged = function(element) {
 	if (element.value !== previousText[element.id]) {
 		previousText[element.id] = element.value;
@@ -1457,17 +1460,19 @@ const anythingRelevantHasChanged = function(element) {
 		previousCursorPos[element.id] = element.selectionStart;
 		return true;
 	}
-	if (document.activeElement !== previouslyFocusedElement) {
-		previouslyFocusedElement = document.activeElement;
+	if ((document.activeElement === element) !== previouslyFocused[element.id]) {
+		previouslyFocused[element.id] = (document.activeElement === element);
 		return true;
 	}
 	return false;
 }
 setInterval(function() {
 	if (anythingRelevantHasChanged(document.getElementById("question"))) {
+		console.log("question change")
 		convertTypingRealTime(document.getElementById("question"));
 	}
 	if (anythingRelevantHasChanged(document.getElementById("answer"))) {
+		console.log("answer change")
 		convertTypingRealTime(document.getElementById("answer"));
 	}
 }, 10);

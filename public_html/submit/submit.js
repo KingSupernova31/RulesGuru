@@ -3,15 +3,15 @@
 let requestObj = {};
 
 let submissionOngoing = false;
-const submit = function() {
+const submit = function(question, answer, submitterName) {
 	if (submissionOngoing) {
 		return;
 	}
 	submissionOngoing = true;
 	document.getElementById("cursorStyle").innerHTML = "* {cursor: wait !important;}";
-	requestObj.question = document.getElementById("question").value;
-	requestObj.answer = "";
-	requestObj.submitterName = document.getElementById("name").value;
+	requestObj.question = question || document.getElementById("question").value;
+	requestObj.answer = answer || "";
+	requestObj.submitterName = submitterName || document.getElementById("name").value;
 	//Validate the submission.
 	if (requestObj.question.length < 10) {
 		alert("You must include a valid question.");
@@ -54,7 +54,11 @@ const submit = function() {
 	httpRequest.onload = function() {
 		if (httpRequest.status === 200) {
 			if (httpRequest.response) {
-				alert(httpRequest.response);
+				if (!question) {
+					alert(httpRequest.response);
+				} else {
+					console.log(httpRequest.response);
+				}
 				if (!httpRequest.response.includes("error")) {
 					clearFields();
 				}
@@ -98,3 +102,15 @@ document.addEventListener("keypress", function(event) {
 		}
 	}
 });
+
+const submitLots = function(questions) {
+	const job = setInterval(function() {
+		if (!submissionOngoing) {
+			const question = questions.pop();
+			submit(question.question, question.answer, question.submitterName);
+		}
+		if (questions.length === 0) {
+			clearInterval(job);
+		}
+	}, 1000);
+};
