@@ -2,22 +2,11 @@
 Start Page
 */
 
-body {
-	padding-top: 2.79rem; /*Firefox is stupid.*/
-	height: 100%;
-}
-
-#pageContent {
-	height: 100%;
-	transform: translate(0);
-}
-
 #homepageImage {
 	width: 100%;
-	max-height: 25rem;
+	max-height: 22rem;
 	object-fit: cover;
 	display: block;
-	transform: scaleX(1.001); /*Firefox remains stupid.*/
 }
 
 #welcome {

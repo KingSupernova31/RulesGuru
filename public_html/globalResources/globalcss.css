@@ -78,7 +78,11 @@ body {
 	background: linear-gradient(white, #d8d8d8);
 	background-repeat: no-repeat;
 	background-attachment: fixed;
-	padding-top: 3.5rem;
+	padding-top: 2.75rem;/*Needs to be slightly less than the size of the banner + banner border because Firefox inserts extra space for some reason*/
+}
+
+body > h1:first-of-type {
+	margin-top: 0.5rem;
 }
 
 .roundedCorners {
