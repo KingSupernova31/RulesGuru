@@ -148,14 +148,6 @@ Question Page
 	display: inline;
 }
 
-#questionIssueButton {
-	text-decoration: underline;
-	color: #0000ee;
-	cursor: pointer;
-	background-color: transparent;
-	border: none;
-}
-
 #submittedByField, #submittedBy {
 	font-size: 0.85rem;
 	margin-bottom: 0.5rem;

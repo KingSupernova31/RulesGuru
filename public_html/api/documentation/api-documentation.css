@@ -79,14 +79,6 @@ h1 {
 	display: inline;
 }
 
-#questionIssueButton {
-	text-decoration: underline;
-	color: #0000ee;
-	cursor: pointer;
-	background-color: transparent;
-	border: none;
-}
-
 #jsonWrapper {
 	width: 20rem;
 	position: relative;

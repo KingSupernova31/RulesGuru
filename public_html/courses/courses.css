@@ -1,10 +1,14 @@
-#aboutLink {
-	display: none;
-}
-
 #info {
 	max-width: 50rem;
 	position: relative;
 	left: 50%;
 	transform: translateX(-50%);
+}
+
+ul {
+	list-style-type: none;
+}
+
+ul li:not(:last-child) {
+	margin-bottom: 1rem;
 }

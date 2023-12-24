@@ -339,3 +339,7 @@ const shuffle = function(array) {
     array[randomIndex] = temporaryValue;
   }
 }
+
+if (document.getElementById("contactFormTextLink")) {
+	bindButtonAction(document.getElementById("contactFormTextLink"), openContactForm);
+}

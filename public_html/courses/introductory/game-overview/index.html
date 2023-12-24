@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-122686421-1"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'UA-122686421-1');
+		</script>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<link rel="stylesheet" href="/globalResources/globalcss.css">
+		<link rel="stylesheet" href="/globalResources/infoPageCss.css">
+		<script defer src="/globalResources/globaljs&html.js"></script>
+
+		<link rel="stylesheet" href="/courses/course.css">
+		<script defer src="/courses/course.js"></script>
+	</head>
+	<body>
+		<h1>Introductory Course #1: Game Overview</h1>
+		<br>
+		<div class="content">
+
+			<p>Magic: The Gathering is a game about resource management, tempo, positional tactics, and hidden information. (Often described as a cross between chess and poker.) The core gameplay consists of slowly building up an army over the course of several turns, and using that army to take down your opponent's army and win the game. Players are limited in the resources that are available to them every turn, and have to make careful decisions about the best time to go on the offensive.</p>
+
+			<p>To start the game, you shuffle your deck of cards (which is referred to in-game as your "library"), and draw seven of them. If you get unlucky and draw a bad hand, you're allowed to "mulligan", which means you reshuffle those seven cards and draw a new seven, then put one card from your hand onto the bottom of your library for each time you've mulliganed so far.</p>
+
+			<p>The game consists of an alternating series of turns; you'll have a turn, then your opponent takes their turn, then you again, etc. until one player wins. On every turn except the very first one of the game, the playing taking that turn draws a card from their library. Then they're free to take as many actions as they want to during that turn, limited by the resources they have available. This cycle continues until someone wins.</p>
+
+			<p>Winning the game is generally accomplished by "attacking" your opponent, or "targeting" them with types of cards known as "spells" and "abilities". Each player starts the game with a "life total" of 20 points, and the various actions you can take can reduce your opponent's life total. If they ever get to 0, you win!</p>
+
+			<p>Most of the emergent complexity of the gameplay stems from the fact that each card has its own different abilities. You'll have to read them carefully and figure out how best to use them. Other than the built-in functionality of the various types of card, Magic is a very literal game; cards do exactly what they say, and nothing else. It takes a bit of getting used to, but once you're accustomed to reading cards and figuring out what they do, you'll be able to play with any one of Magic's 30,000+ different cards, without needing to consult the rulebook.</p>
+
+			<p>Sometimes Wizards of the Coast changes a card's text, in order to fix an error, balance the card's power level, or otherwise bring it in line with their vision for the game. You can find the current "Official" version of every card's text by inputting its name on <a href="https://scryfall.com/">Scryfall.com</a>. The Official text of a card is referred to as its "oracle text", and this is the only text that matters for gameplay purposes. The physical bits of ink printed on the cardboard are ignored if they're out of date.</p>
+
+			<p><a href="../card-types-and-layout">Next course: Card types and layout</a></p>
+		</div>
+
+		<div id="FOUCOverlay"></div>
+		<div id="jsDisabled">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your Javascript is disabled. You'll need to enable it in order for the site to work.</p>
+		</div>
+		<div id="jsOutOfDate">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your browser is out of date. You'll need to update it to a newer version in order for the site to work.</p>
+		</div>
+		<script>
+			//Check for Javascript
+			document.getElementById("jsDisabled").style.display = "none";
+
+			eval("const foo = 'bar'");
+
+			document.getElementById("jsOutOfDate").style.display = "none";
+		</script>
+	</body>
+</html>

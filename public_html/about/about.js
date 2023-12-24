@@ -1,5 +1,3 @@
-bindButtonAction(document.getElementById("questionIssueButton"), openContactForm);
-
 const getAdminData = function() {
 	const httpRequest = new XMLHttpRequest();
 	httpRequest.timeout = 10000;

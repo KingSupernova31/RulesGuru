@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-122686421-1"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'UA-122686421-1');
+		</script>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<link rel="stylesheet" href="/globalResources/globalcss.css">
+		<link rel="stylesheet" href="/globalResources/infoPageCss.css">
+		<script defer src="/globalResources/globaljs&html.js"></script>
+
+		<link rel="stylesheet" href="courses.css">
+	</head>
+	<body>
+		<h1>Courses</h1>
+		<br>
+		<div id="info">
+
+			<h4 class="header">Information</h4>
+			<div class="content">
+					<p>RulesGuru offers a broad selection of courses for learning Magic's rules, covering all experience levels.</p>
+
+					<p>The introductory courses cover the core gameplay. If you've never played Magic before, you can start here and learn the basics. Most players will never need to know anything past these courses.</p>
+
+					<p>For those looking to gain deeper knowledge of the rules, the intermediate courses go over the underlying concepts and mechanics that make the game work. They're ideal for someone who's trying to become a judge, or a competitive player who wants to make sure they have every strategical edge covered.</p>
+
+					<p>The advanced courses dive into the rules from a technical, philosophical, and algorithmic perspective. You'll learn exactly how they work, step-by-step processes to figure out what happens in any given game state no matter how complicated, and some of the design principles behind why they were written that way.</p>
+
+					<p>If you have any questions or feedback about these courses, please <button class="inline" id="contactFormTextLink">contact us</button>.</p>
+			</div>
+
+			<h4 class="header">Introductory courses</h4>
+			<div class="content">
+				<ul>
+					<li><a href="introductory/game-overview">General game overview</a></li>
+					<li>Card types and layout</li>
+					<li>Playing cards and abilities</li>
+					<li>Combat</li>
+					<li>Common keywords and terms</li>
+				</ul>
+			</div>
+
+			<h4 class="header">Intermediate courses</h4>
+			<div class="content">
+				<ul>
+					<li><a href="intermediate/how-to-use-the-comprehensive-rules">How to use the Comprehensive Rules</a></li>
+					<li>Multi-part cards</li>
+					<li>Timing and priority</li>
+					<li>Kinds of abilities</li>
+					<li>Zone changes</li>
+					<li>Replacement effects</li>
+					<li>Steps to casting a spell</li>
+					<li>Continuous effects</li>
+					<li>Type-changing effects</li>
+					<li>Multiplayer rules</li>
+					<li>Card text interpretation</li>
+				</ul>
+			</div>
+
+			<h4 class="header">Advanced courses</h4>
+			<div class="content">
+				<ul>
+					<li>Official rulings and information sources</li>
+					<li>Events</li>
+					<li>Costs</li>
+					<li>Dependencies</li>
+					<li>The replacement effect lookahead</li>
+					<li>Processing damage</li>
+					<li>Target parsing</li>
+				</ul>
+			</div>
+
+
+		</div>
+
+		<div id="FOUCOverlay"></div>
+		<div id="jsDisabled">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your Javascript is disabled. You'll need to enable it in order for the site to work.</p>
+		</div>
+		<div id="jsOutOfDate">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your browser is out of date. You'll need to update it to a newer version in order for the site to work.</p>
+		</div>
+		<script>
+			//Check for Javascript
+			document.getElementById("jsDisabled").style.display = "none";
+
+			eval("const foo = 'bar'");
+
+			document.getElementById("jsOutOfDate").style.display = "none";
+		</script>
+	</body>
+</html>

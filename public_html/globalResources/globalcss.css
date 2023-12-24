@@ -387,3 +387,11 @@ body > h1:first-of-type {
 button, select, .radioLabel {
 	cursor: pointer;
 }
+
+#contactFormTextLink {
+	text-decoration: underline;
+	color: #0000ee;
+	cursor: pointer;
+	background-color: transparent;
+	border: none;
+}

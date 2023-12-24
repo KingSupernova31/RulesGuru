@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- Global site tag (gtag.js) - Google Analytics -->
+		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-122686421-1"></script>
+		<script>
+		  window.dataLayer = window.dataLayer || [];
+		  function gtag(){dataLayer.push(arguments);}
+		  gtag('js', new Date());
+
+		  gtag('config', 'UA-122686421-1');
+		</script>
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<link rel="stylesheet" href="/globalResources/globalcss.css">
+		<link rel="stylesheet" href="/globalResources/infoPageCss.css">
+		<script defer src="/globalResources/globaljs&html.js"></script>
+
+		<link rel="stylesheet" href="/courses/course.css">
+		<script defer src="/courses/course.js"></script>
+	</head>
+	<body>
+		<h1>How to use the Comprehensive Rules</h1>
+		<p id="backLink"><a href="/courses">Back to index</a></p>
+		<br>
+		<div class="content">
+
+			<p>Magic is a complicated game, and it comes with a large rulebook to be used as reference material. Once you're familiar with its layout, you can easily look up the answer to any question you need an answer to, without having to read the whole thing.</p>
+
+			<p>The best place to find the rulebook is at <a href="https://yawgatog.com/resources/magic-rules/">Yawgatog.com</a>. Wizards of the Coast releases PDFs, but those change every few months, so it can be easy to accidentally refer to outdated rules if you rely on them. Yawgatog keeps its page constantly up-to-date with the newest release, and also includes hyperlinks for each navigation.</p>
+
+			<p>Of course you'll want to know what changed in each new release, and for that you can use the diff breakdown provided by <a href="https://academyruins.com/diff/cr">Academy Ruins</a>. That page shows a list of everything that changed in the most recent update, and you can use <a href="https://academyruins.com/archives">the archives</a> to see older changes.</p>
+
+			<p>Finding the relevant section of the rules is generally as matter of using your browser's search function. (Usually control + f on Windows and Linux, and Command + f on MacOS.) The Comprehensive Rules (CR) is <i>not</i> laid out for sequential reading. Instead it's structured as a reference document, with each concept getting its own section, and the sections laid out in a mostly arbitrary order.</p>
+
+			<p>To find your desired section, you'll need to be familiar with "Magicese"; the terminology and phraseology that Magic uses in the rulebook and card text. Learning Magicese is simply a matter of playing the game, reading snippets of the rules, and getting used to how it's written. The glossary at the bottom of the CR is also very useful, as it tells you what rules are most relevant for any given term.</p>
+
+			<p>Try it yourself. Open <a href="https://yawgatog.com/resources/magic-rules/">Yawgatog</a>, and find the rule that describes how cards </p>
+
+			<button class="specialButtonBlack answerButton">Show answer</button>
+
+			<div class="answer">
+				<p>205.1a and 205.1b. You could have found this in a few different ways:</p>
+				<ul>
+					<li>Look at the index, and note the two most relevant sections: 205 (type line) and 300 (card types). Both are reasonable places for these rules to be, so you could just check both.</li>
+					<li>Look at the glossary under the word "type", and it would point you to those sections.</li>
+					<li>Note a specific phrase that cards tend to use for these effects, such as "in addition to its other types". Search the CR for that phrase and you'll get no results, because the current version of the CR has a typo. (You'll have to get used to this, it's common.) But in general this approach works, and you can slightly change the phrase to see what matches, like searching for just "in addition to".</li>
+					<li>Vaguely recall that there's some exception for changing the types of artifact creatures, and search for the phrase "artifact creature".</li>
+				</ul>
+			</div>
+
+			<p>In general, finding what you need in the CR is more of an art than a science. Once you gain some familiarity with the document, it'll become second-nature to find the exact rule you're looking for in less than 20 seconds.</p>
+
+			<p>For the rest of the intermediate courses, we encourage you to practice this skill. Keep Yawgatog open in another tab, and any time there's a question, take a moment to find the relevant rules and figure out the answer yourself. As with any skill, practice is required, but if you're willing to put in that practice, you can become an expert in no time.</p>
+
+			<p><a href="../multi-part-cards">Next course: Multi-part cards</a></p>
+		</div>
+
+		<div id="FOUCOverlay"></div>
+		<div id="jsDisabled">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your Javascript is disabled. You'll need to enable it in order for the site to work.</p>
+		</div>
+		<div id="jsOutOfDate">
+			<h1>Welcome to RulesGuru!</h1>
+			<p>It looks like your browser is out of date. You'll need to update it to a newer version in order for the site to work.</p>
+		</div>
+		<script>
+			//Check for Javascript
+			document.getElementById("jsDisabled").style.display = "none";
+
+			eval("const foo = 'bar'");
+
+			document.getElementById("jsOutOfDate").style.display = "none";
+		</script>
+	</body>
+</html>

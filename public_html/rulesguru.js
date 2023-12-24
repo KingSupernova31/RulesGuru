@@ -587,7 +587,6 @@ bindButtonAction(document.getElementById("sidebarViewQuestion"), displayNextRand
 bindButtonAction(document.getElementById("submitQuestionButton"), "/submit");
 document.getElementById("showAnswer").addEventListener("click", toggleAnswer);
 bindButtonAction(document.getElementById("nextQuestion"), displayNextRandomQuestion);
-bindButtonAction(document.getElementById("questionIssueButton"), openContactForm);
 
 //Questions list
 let questionsListOpen = false;
