@@ -12,7 +12,12 @@ const express = require("express"),
 			shuffle = require("./custom_modules/shuffle.js"),
 			questionMatchesSettings = require("./custom_modules/questionMatchesSettings.js"),
 			nodemailer = require("nodemailer"),
-			transporter = nodemailer.createTransport(JSON.parse(fs.readFileSync("emailCredentials.json", "utf8")));
+			transporter = nodemailer.createTransport({
+				"host": "smtp.zoho.com",
+				"port": 465,
+				"secure": true,
+				"auth": JSON.parse(fs.readFileSync("externalCredentials.json", "utf8")).email
+			});
 
 app.set('trust proxy', true);
 
@@ -136,6 +141,16 @@ const db = new sqlite.Database("questionDatabase.db", async function(err) {
 			handleError(new Error(`Reference array mismatch: ${problemString}`));
 		}
 
+		let totalVariations = 0;
+		for (let question of referenceQuestionArray) {
+			let variations = 1;
+			for (let list of question.cardLists) {
+				variations *= list.length;
+			}
+			totalVariations += variations;
+		}
+		console.log("Approxomate total question variations: " + totalVariations);//Slight overestimate because it won't subtract impossible variations that use the same card in multiple generators. Doesn't count player name choices.
+
 		server = app.listen(8080, function () {
 			console.log("Listening on port 8080");
 		});
@@ -248,7 +263,7 @@ const updateReferenceObjects = async function() {
 			}
 		}
 		if (emptyTemplate) {
-			sendEmailToOwners("RulesGuru template error", `Question ${finishedQuestions[i].id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${finishedQuestions[i].id}`);
+			sendEmailToOwners("RulesGuru template error", `Question ${finishedQuestions[i].id} generates an empty template.\n\nhttps://rulesguru.org/question-editor/?${finishedQuestions[i].id}`);
 			finishedQuestions.splice(i, 1);
 			i--;
 		}
@@ -414,7 +429,7 @@ const sendAPIQuestions = function(questions, res, allCards) {
 
 		//Add a link to the question on RG
 		const searchLinkMappings = JSON.parse(fs.readFileSync("public_html/globalResources/searchLinkMappings.js", "utf8").slice(27));
-		questionToSend.url = "https://rulesguru.net/?" + questionToSend.id + "RG" + searchLinks.convertSettingsToSearchLink({
+		questionToSend.url = "https://rulesguru.org/?" + questionToSend.id + "RG" + searchLinks.convertSettingsToSearchLink({
 			"level": ["0", "1", "2", "3", "Corner Case"],
 			"complexity": ["Simple", "Intermediate", "Complicated"],
 			"legality": "All of Magic",
@@ -477,6 +492,7 @@ Development:
 
 let recentIPs = [];
 app.get("/api/questions", function(req, res) {
+	console.log("Request received at " + performance.now());
 	let requestSettings;
 	try {
 		requestSettings = JSON.parse(decodeURIComponent(req.query.json));
@@ -493,9 +509,9 @@ app.get("/api/questions", function(req, res) {
 	} else {
 		recentIPs.push({"ip": req.ip, "date": performance.now()});
 	}
-	let apiLog = JSON.parse(fs.readFileSync("logs/apiLog.json", "utf8"));
-	apiLog.push({"date": Date.now(), "request": req.query, "ip": req.ip});
-	fs.writeFileSync("logs/apiLog.json", JSON.stringify(apiLog));
+
+	const logObj = {"date": Date.now(), "request": req.query, "ip": req.ip};
+	fs.appendFileSync("logs/apiLog.jsonl", "\n" + JSON.stringify(logObj));
 
 	const allCards = canonicalAllCards;
 	let questionArray = referenceQuestionArray.slice(0);// Must be a copy because referenceQuestionArray is immutable and this needs to be shuffled. Each question in the copy will still be immutable, which is desirable.
@@ -624,6 +640,7 @@ app.get("/api/questions", function(req, res) {
 		console.log(error)
 		res.json({"status": 400, "error":"Incorrectly formatted json."});
 	}
+	console.log("Finished at " + performance.now());
 });
 
 app.post("/submitContactForm", function(req, res) {
@@ -688,9 +705,7 @@ app.get("/getQuestionCount", async function(req, res) {
 		"awaitingVerificationRules": allData.filter(question => question.status === "awaiting verification" && question.verification.rulesGuru === null).length,
 	});
 
-	let countLog = JSON.parse(fs.readFileSync("logs/questionCountLog.json", "utf8"));
-	countLog.push(Date.now());
-	fs.writeFileSync("logs/questionCountLog.json", JSON.stringify(countLog));
+	fs.appendFileSync("logs/questionCountLog.jsonl", "\n" + String(Date.now()));
 });
 
 app.post("/submitAdminQuestion", async function(req, res) {
@@ -722,7 +737,7 @@ app.post("/submitAdminQuestion", async function(req, res) {
 					}
 				}
 				if (emptyTemplate) {
-					sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${newQuestion.id}`);
+					sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.org/question-editor/?${newQuestion.id}`);
 				} else {
 					//We have to copy the array and discard the old one since it was immutable.
 					referenceQuestionArray = referenceQuestionArray.slice(0);
@@ -741,10 +756,10 @@ app.post("/submitAdminQuestion", async function(req, res) {
 				"verification": addQuestionResult.newVerification
 			});
 			if (currentAdmin.sendSelfEditLogEmails) {
-				sendEmail(currentAdmin.emailAddress, "You submitted a RulesGuru question", `You submitted question #${addQuestionResult.newId}.\n\nhttps://rulesguru.net/question-editor/?${addQuestionResult.newId}\n\nTime: ${date}\n\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
+				sendEmail(currentAdmin.emailAddress, "You submitted a RulesGuru question", `You submitted question #${addQuestionResult.newId}.\n\nhttps://rulesguru.org/question-editor/?${addQuestionResult.newId}\n\nTime: ${date}\n\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 			}
 			if (!currentAdmin.roles.owner) {
-				sendEmailToOwners(`RulesGuru admin submission (${currentAdmin.name})`, `${currentAdmin.name} has submitted question #${addQuestionResult.newId}.\n\nhttps://rulesguru.net/question-editor/?${addQuestionResult.newId}\n\nTime: ${date}\n\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
+				sendEmailToOwners(`RulesGuru admin submission (${currentAdmin.name})`, `${currentAdmin.name} has submitted question #${addQuestionResult.newId}.\n\nhttps://rulesguru.org/question-editor/?${addQuestionResult.newId}\n\nTime: ${date}\n\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 			}
 		} else {
 			res.json({
@@ -794,7 +809,7 @@ app.post("/updateQuestion", async function(req, res) {
 							}
 						}
 						if (emptyTemplate) {
-							sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${newQuestion.id}`);
+							sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.org/question-editor/?${newQuestion.id}`);
 						}
 						referenceQuestionArray[i] = newQuestion;
 					}
@@ -805,10 +820,10 @@ app.post("/updateQuestion", async function(req, res) {
 			//Send emails about the change.
 			if (currentAdmin.sendSelfEditLogEmails) {
 
-				sendEmail(currentAdmin.emailAddress, `Your RulesGuru admin update`, `You've updated question #${req.body.questionObj.id} (${oldQuestion.status}).\n\nhttps://rulesguru.net/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
+				sendEmail(currentAdmin.emailAddress, `Your RulesGuru admin update`, `You've updated question #${req.body.questionObj.id} (${oldQuestion.status}).\n\nhttps://rulesguru.org/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 			}
 			if (!currentAdmin.roles.owner) {
-				sendEmailToOwners(`RulesGuru admin update (${currentAdmin.name})`, `${currentAdmin.name} has updated question #${req.body.questionObj.id} (${oldQuestion.status}).\n\nhttps://rulesguru.net/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
+				sendEmailToOwners(`RulesGuru admin update (${currentAdmin.name})`, `${currentAdmin.name} has updated question #${req.body.questionObj.id} (${oldQuestion.status}).\n\nhttps://rulesguru.org/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 			}
 		} else {
 			res.json({"message": "That question doesn't exist."});
@@ -945,7 +960,7 @@ app.post("/changeQuestionStatus", async function(req, res) {
 				}
 			}
 			if (emptyTemplate) {
-				sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${newQuestion.id}`);
+				sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.org/question-editor/?${newQuestion.id}`);
 			} else {
 				//We have to copy the array and discard the old one since it was immutable.
 				referenceQuestionArray = referenceQuestionArray.slice(0);
@@ -967,21 +982,27 @@ app.post("/changeQuestionStatus", async function(req, res) {
 
 		//Send emails about the change.
 		if (currentAdmin.sendSelfEditLogEmails) {
-			sendEmail(currentAdmin.emailAddress, `Your RulesGuru admin ${action2}`, `You've ${action} question #${req.body.questionObj.id} (${newStatus}).\n\nhttps://rulesguru.net/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
+			sendEmail(currentAdmin.emailAddress, `Your RulesGuru admin ${action2}`, `You've ${action} question #${req.body.questionObj.id} (${newStatus}).\n\nhttps://rulesguru.org/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 		}
 
-		sendEmailToOwners(`RulesGuru admin ${action2} (${currentAdmin.name})`, `${currentAdmin.name} has ${action} question #${req.body.questionObj.id}(${newStatus}).\n\nhttps://rulesguru.net/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
+		sendEmailToOwners(`RulesGuru admin ${action2} (${currentAdmin.name})`, `${currentAdmin.name} has ${action} question #${req.body.questionObj.id}(${newStatus}).\n\nhttps://rulesguru.org/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 
 		if (typeof req.body.changes === "string") {
 			const allAdmins = JSON.parse(fs.readFileSync("admins.json", "utf8"));
 			sendEmailToOwners("RulesGuru admin verification with changes", `${currentAdmin.name} has verified question #${req.body.questionObj.id} (originally approved by ${allAdmins[verificationObject.editor] ? allAdmins[verificationObject.editor].name : `an unknown admin with ID ${verificationObject.editor}`}) with the following changes:\n\n${req.body.changes}`);
 
 			if (allAdmins[verificationObject.editor]) {
-				sendEmail(allAdmins[verificationObject.editor].emailAddress, `RulesGuru question verification feedback`, `Your question https://rulesguru.net/question-editor/?${req.body.questionObj.id} has been verified with the following feedback:\n\n${req.body.changes}`);
+				sendEmail(allAdmins[verificationObject.editor].emailAddress, `RulesGuru question verification feedback`, `Your question https://rulesguru.org/question-editor/?${req.body.questionObj.id} has been verified with the following feedback:\n\n${req.body.changes}`);
 			}
 		}
 
-		let recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
+		let recentlyDistributedQuestionIds;
+		if (fs.existsSync(recentlyDistributedQuestionIds.json)) {
+			recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
+		} else {
+			recentlyDistributedQuestionIds = [];
+		}
+
 		if (recentlyDistributedQuestionIds.includes(req.body.questionObj.id)) {
 			const index = recentlyDistributedQuestionIds.indexOf(req.body.questionObj.id);
 			recentlyDistributedQuestionIds.splice(index, 1);
@@ -1191,9 +1212,8 @@ app.post("/validateLogin", function(req, res) {
 });
 
 app.post("/logSearchLinkData", function(req, res) {
-	let searchLinkLog = JSON.parse(fs.readFileSync("logs/searchLinkLog.json", "utf8"));
-	searchLinkLog.push({"date": Date.now(), "request": req.body});
-	fs.writeFileSync("logs/searchLinkLog.json", JSON.stringify(searchLinkLog));
+	const obj = {"date": Date.now(), "request": req.body};
+	fs.appendFileSync("logs/searchLinkLog.jsonl", "\n" + JSON.stringify(obj));
 });
 
 app.get("/getTagData", function(req, res) {
@@ -1332,7 +1352,7 @@ app.post("/updateAndForceStatus", async function(req, res) {
 				}
 			}
 			if (emptyTemplate) {
-				sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.net/question-editor/?${newQuestion.id}`);
+				sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.org/question-editor/?${newQuestion.id}`);
 			} else {
 				//We have to copy the array and discard the old one since it was immutable.
 				referenceQuestionArray = referenceQuestionArray.slice(0);
@@ -1357,7 +1377,12 @@ app.post("/updateAndForceStatus", async function(req, res) {
 			const date = Date();
 			sendEmailToOwners(`RulesGuru question ID change`, `${currentAdmin.name} has moved question #${req.body.id} to ID #${req.body.newId}.\n\nTime: ${date}`);
 		}
-		let recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
+		let recentlyDistributedQuestionIds;
+		if (fs.existsSync(recentlyDistributedQuestionIds.json)) {
+			recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
+		} else {
+			recentlyDistributedQuestionIds = [];
+		}
 		if (recentlyDistributedQuestionIds.includes(req.body.id)) {
 			const index = recentlyDistributedQuestionIds.indexOf(req.body.id);
 			recentlyDistributedQuestionIds.splice(index, 1);

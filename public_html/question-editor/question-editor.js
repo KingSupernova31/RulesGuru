@@ -517,7 +517,7 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 			break;
 		case "Types":
 			operators = ["Includes:", "Doesn't include:"];
-			values = ["Artifact", "Battle", "Creature", "Dungeon", "Enchantment", "Instant", "Land", "Planeswalker", "Sorcery", "Tribal"];
+			values = ["Artifact", "Battle", "Creature", "Dungeon", "Enchantment", "Instant", "Land", "Planeswalker", "Sorcery", "Kindred"];
 			break;
 		case "Subtypes":
 			operators = ["Includes:", "Doesn't include:"];

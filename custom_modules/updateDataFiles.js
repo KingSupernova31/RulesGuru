@@ -4,7 +4,12 @@ const https = require("https"),
 			fs = require("fs"),
 			request = require("request"),
 			nodemailer = require("nodemailer"),
-			transporter = nodemailer.createTransport(JSON.parse(fs.readFileSync("emailCredentials.json", "utf8"))),
+			transporter = nodemailer.createTransport({
+				"host": "smtp.zoho.com",
+				"port": 465,
+				"secure": true,
+				"auth": JSON.parse(fs.readFileSync("externalCredentials.json", "utf8")).email
+			}),
 			handleError = require("./handleError.js");;
 
 const downloadFile = function(dest, source, callback) {
@@ -52,7 +57,7 @@ const updateAllCards = function() {
 		const notFlatAllCards = JSON.parse(replaceDoppelgangerChars(fs.readFileSync("data_files/rawAllCards.json", "utf8"))).data;
 
 		//I hate Unstable and mystery booster.
-		const cardsThatAreAwful = ["Target Minotaur", "Secret Base", "Novellamental", "Extremely Slow Zombie", "Beast in Show", "Amateur Auteur", "Garbage Elemental", "Target Minotaur", "Sly Spy", "Knight of the Kitchen Sink", "Everythingamajig", "Ineffable Blessing", "Very Cryptic Command", "Start // Fire", "B.F.M. (Big Furry Monster)", "Smelt // Herd // Saw"];
+		const cardsThatAreAwful = ["Target Minotaur", "Secret Base", "Novellamental", "Extremely Slow Zombie", "Beast in Show", "Amateur Auteur", "Garbage Elemental", "Target Minotaur", "Sly Spy", "Knight of the Kitchen Sink", "Everythingamajig", "Ineffable Blessing", "Very Cryptic Command", "Start // Fire", "B.F.M. (Big Furry Monster)", "Smelt // Herd // Saw", "Red Herring"];
 		for (let i of cardsThatAreAwful) {
 			delete notFlatAllCards[i];
 		}
@@ -342,53 +347,10 @@ const updateAllCards = function() {
 		}
 
 		//Fix subtype CDAs. (MTGJSON gets all the color CDAs and color indicators correct.)
-		//Create a list of all subtypes.
 		const allRules = JSON.parse(fs.readFileSync("data_files/finalAllRules.json"));
-		const isolatedSubtypeLists = [];
-		const allCreatureTypes = [];
-		isolatedSubtypeLists.push(allRules["205.3m"].ruleText.match(/The \w+ types are ((and )?([a-zA-Z-']+)( \(.+?\))?(, |\.))+/)[0]);
-		for (let i in isolatedSubtypeLists) {
-			//let iteratible = [...isolatedSubtypeLists[i].matchAll(/(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g)];
-			//Needed because matchAll is not supported:
-			let iteratible = [];
-			let regex = /(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g;
-			let lastIndexes = {};
-			let match;
-			lastIndexes[regex.lastIndex] = true;
-			while (match = regex.exec(isolatedSubtypeLists[i])) {
-				lastIndexes[regex.lastIndex] = true;
-				iteratible.push(match);
-			}
-			for (let j in iteratible) {
-				allCreatureTypes.push(iteratible[j][2]);
-			}
-		}
-
-		//Create a list of all subtypes.
-		const subtypeRules = ["205.3g", "205.3h", "205.3i", "205.3j", "205.3k", "205.3m"];
-		const isolatedSubtypeLists2 = [];
-		const allSubtypes = [];
-		for (let i in subtypeRules) {
-			isolatedSubtypeLists2.push(allRules[subtypeRules[i]].ruleText.match(/The \w+ types are ((and )?([a-zA-Z-']+)( \(.+?\))?(, |\.))+/)[0]);
-		}
-		for (let i in isolatedSubtypeLists2) {
-			//let iteratible = [...isolatedSubtypeLists2[i].matchAll(/(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g)];
-			//Needed because matchAll is not supported:
-			let iteratible = [];
-			let regex = /(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g;
-			let lastIndexes = {};
-			let match;
-			lastIndexes[regex.lastIndex] = true;
-			while (match = regex.exec(isolatedSubtypeLists2[i])) {
-				lastIndexes[regex.lastIndex] = true;
-				iteratible.push(match);
-			}
-
-			for (let j in iteratible) {
-				allSubtypes.push(iteratible[j][2]);
-			}
-		}
-
+		const allCreatureTypes = getSubtypesFromRuleText(allRules["205.3m"].ruleText);
+		const subtypeRules = ["205.3g", "205.3h", "205.3i", "205.3j", "205.3k", "205.3m", "205.3q"];
+		const allSubtypes = subtypeRules.map(ruleNum => getSubtypesFromRuleText(allRules[ruleNum].ruleText));
 		for (let i in allCards) {
 			if (allCards[i].rulesText.startsWith(`${allCards[i].name} is every creature type.`) || allCards[i].keywords.includes("Changeling")) {
 				allCards[i].subtypes = Array.from(new Set (allCards[i].subtypes.concat(allCreatureTypes))); //We need to not overwrite noncreature subtypes.
@@ -482,6 +444,28 @@ const updateAllCards = function() {
 		handleError(err);
 	}
 };
+
+//This is overcomplicated because the verson of node on Isaac's laptop is too old to support matchAll and he has thus far been too lazy to upgrade it.
+const getSubtypesFromRuleText = function(ruleText) {
+	const types = [];
+	const listText = ruleText.match(/types? (are|is)( one word long:)? ((and )?([a-zA-Z-']+)( \(.+?\))?(, |\.))+/)[0];
+	let iteratible = [];
+	let regex = /(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g;
+	let lastIndexes = {};
+	let match;
+	lastIndexes[regex.lastIndex] = true;
+	while (match = regex.exec(listText)) {
+		lastIndexes[regex.lastIndex] = true;
+		iteratible.push(match);
+	}
+	for (let j in iteratible) {
+		types.push(iteratible[j][2]);
+	}
+	if (ruleText.startsWith("Creatures")) {
+		types.push("Time Lord");
+	}
+	return types;
+}
 
 //Write the card list to file, with only the specified properties. Format can be "js" or "json".
 const writeCardList = function(allCards, path, properties, format) {
@@ -634,24 +618,43 @@ const downloadAllFiles = function() {
 
 	const apiUrls = JSON.parse(fs.readFileSync("mostPlayedApiUrls.json", "utf8")); //URLs need to be hidden as the API is private.
 
-	downloadFile("data_files/mostPlayedStandard.json", apiUrls.standard, function() {
+	//We mirror them to another file so that if cloudflare blocks the request (as happened before), we still have a saved copy.
+	downloadFile("data_files/rawMostPlayedStandard.json", apiUrls.standard, function() {
 		console.log("mostPlayedStandard downloaded");
+		try {
+			const data = JSON.parse(fs.readFileSync("data_files/rawMostPlayedStandard.json", "utf8"));
+			fs.writeFileSync("data_files/mostPlayedStandard.json", JSON.stringify(data));
+		} catch (e) {
+			handleError(e)
+		}
 		finishedDownloads++;
 		if (finishedDownloads === 7) {
 			updateAllCards();
 		}
 	});
 
-	downloadFile("data_files/mostPlayedPioneer.json", apiUrls.pioneer, function() {
+	downloadFile("data_files/rawMostPlayedPioneer.json", apiUrls.pioneer, function() {
 		console.log("mostPlayedPioneer downloaded");
+		try {
+			const data = JSON.parse(fs.readFileSync("data_files/rawMostPlayedPioneer.json", "utf8"));
+			fs.writeFileSync("data_files/mostPlayedPioneer.json", JSON.stringify(data));
+		} catch (e) {
+			handleError(e)
+		}
 		finishedDownloads++;
 		if (finishedDownloads === 7) {
 			updateAllCards();
 		}
 	});
 
-	downloadFile("data_files/mostPlayedModern.json", apiUrls.modern, function() {
+	downloadFile("data_files/rawMostPlayedModern.json", apiUrls.modern, function() {
 		console.log("mostPlayedModern downloaded");
+		try {
+			const data = JSON.parse(fs.readFileSync("data_files/rawMostPlayedModern.json", "utf8"));
+			fs.writeFileSync("data_files/mostPlayedModern.json", JSON.stringify(data));
+		} catch (e) {
+			handleError(e)
+		}
 		finishedDownloads++;
 		if (finishedDownloads === 7) {
 			updateAllCards();
@@ -767,7 +770,7 @@ const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to br
 		}
 
 		//Check for cards with types that shouldn't exist.
-		const validTypes = ["Artifact", "Creature", "Land", "Enchantment", "Planeswalker", "Battle", "Instant", "Sorcery", "Dungeon", "Tribal"];
+		const validTypes = ["Artifact", "Creature", "Land", "Enchantment", "Planeswalker", "Battle", "Instant", "Sorcery", "Dungeon", "Kindred"];
 		if (allCards[i].types.filter(type => !validTypes.includes(type)).length > 0) {
 			return `${allCards[i].name} has an invalid type. Types: ${allCards[i].types}`;
 		}
@@ -796,7 +799,7 @@ const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to br
 					return `${testCard} does not have a "${prop}" property.`;
 				}
 				if (JSON.stringify(testCardData[testCard][prop]) !== JSON.stringify(allCards[testCard][prop])) {
-					return `${testCard}'s ${prop} property does not match. (New prop is ${JSON.stringify(allCards[testCard][prop]).slice(0,100)})`;
+					return `${testCard}'s ${prop} property does not match. (New prop is ${JSON.stringify(allCards[testCard][prop]).slice(0,600)})`;
 				}
 			} else if (["printingsName", "printingsCode"].includes(prop)) {//For these we check that the old printings are a subset of the new ones.
 				for (let set of testCardData[testCard][prop]) {

@@ -44,7 +44,8 @@ const client = new Client({
 		GatewayIntentBits.GuildMembers,
 	],
 });
-client.login(fs.readFileSync("discordPassword.txt", "utf8").trim());
+const discordPassword = JSON.parse(fs.readFileSync("externalCredentials.json", "utf8")).discord;
+client.login(discordPassword);
 
 //Provide a link to questions.
 client.on("messageCreate", function(message) {
@@ -56,7 +57,7 @@ client.on("messageCreate", function(message) {
 	if (match) {
 		for (let command of match) {
 			const questionNum = command.slice(1);
-			message.channel.send(`https://rulesguru.net/question-editor?${questionNum}`);
+			message.channel.send(`https://rulesguru.org/question-editor?${questionNum}`);
 		}
 	} else {
 		return;
@@ -85,7 +86,7 @@ client.on("messageCreate", async function(message) {
 	const match = message.content.match(/^RGsubmit (.+)$/i);
 	if (match) {
 		try {
-			const res = await post('https://rulesguru.net/submitQuestion', {
+			const res = await post('https://rulesguru.org/submitQuestion', {
 				"question": match[1],
 				"answer": "",
 				"submitterName": message.member.nickname

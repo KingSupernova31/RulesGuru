@@ -49,7 +49,12 @@ const getUnfinishedQuestion = function(admin, allQuestions) {
 	}
 
 	const getAQuestionToSend = function(listOfQuestions) {
-		let recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
+		let recentlyDistributedQuestionIds;
+		if (fs.existsSync(recentlyDistributedQuestionIds.json)) {
+			recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
+		} else {
+			recentlyDistributedQuestionIds = [];
+		}
 		listOfQuestions.sort((a, b) => b.id - a.id);
 		let foundQuestion = null;
 		for (let question of listOfQuestions) {

@@ -355,7 +355,7 @@ const convertSettingsToSearchLink = function(sidebarSettings, searchLinkMappings
 }
 
 if (typeof document === "object") {
-	document.getElementById("searchLink").value = "https://rulesguru.net/?RG" + convertSettingsToSearchLink(sidebarSettings, searchLinkMappings) + "GG";
+	document.getElementById("searchLink").value = "https://rulesguru.org/?RG" + convertSettingsToSearchLink(sidebarSettings, searchLinkMappings) + "GG";
 }
 
 //Go to a random question if the URL contains a searchLink

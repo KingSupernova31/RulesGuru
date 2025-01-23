@@ -14,10 +14,11 @@ cron.schedule("0 0 0 * * *", function() {
 	require('child_process').fork('custom_modules/updateDataFiles.js');
 });
 
-cron.schedule("0 0 6 * * *", function() {
-	require('child_process').fork('custom_modules/createBackups.js');
-});
-
 cron.schedule("0 0 12 * * *", function() {
 	require('child_process').fork('custom_modules/dailyEmails.js');
+});
+
+//Every month
+cron.schedule("0 0 6 2 * *", function() {
+	require('child_process').fork('custom_modules/createBackups.js');
 });

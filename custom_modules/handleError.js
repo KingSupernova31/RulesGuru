@@ -1,6 +1,11 @@
 const nodemailer = require("nodemailer"),
 			fs = require("fs"),
-			transporter = nodemailer.createTransport(JSON.parse(fs.readFileSync("emailCredentials.json", "utf8")));
+			transporter = nodemailer.createTransport({
+				"host": "smtp.zoho.com",
+				"port": 465,
+				"secure": true,
+				"auth": JSON.parse(fs.readFileSync("externalCredentials.json", "utf8")).email
+			});
 
 //General error handling function- puts the error in the console and emails it to me.
 const handleError = function(error) {
@@ -20,19 +25,8 @@ const handleError = function(error) {
 				text: error.stack
 			}, function(emailError) {
 				if (emailError) {
-					console.log("Double disaster!");
+					console.log("Error email could not be sent!");
 					console.error(emailError)
-					transporter.sendMail({
-						from: "admin@rulesguru.net",
-						to: "admin@rulesguru.net",
-						subject: "Double disaster!",
-						text: `Original error:\n\n${error.stack}\n\nEmail error:\n\n${emailError.stack}`
-					}, function(err) {
-						if (err) {
-							console.log("Triple disaster. This is bad.");
-							console.error(err)
-						}
-					});
 				}
 			});
 		}

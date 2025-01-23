@@ -1,5 +1,5 @@
 {
-	"standard": "https://rulesguru.net/mostPlayedStandard",
-	"pioneer": "https://rulesguru.net/mostPlayedPioneer",
-	"modern": "https://rulesguru.net/mostPlayedModern"
+	"standard": "https://rulesguru.org/mostPlayedStandard",
+	"pioneer": "https://rulesguru.org/mostPlayedPioneer",
+	"modern": "https://rulesguru.org/mostPlayedModern"
 }

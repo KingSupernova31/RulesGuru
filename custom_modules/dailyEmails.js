@@ -4,11 +4,16 @@ const sqlite = require("sqlite3").verbose(),
 			fs = require("fs"),
 			util = require("util"),
 			nodemailer = require("nodemailer"),
-			transporter = nodemailer.createTransport(JSON.parse(fs.readFileSync("emailCredentials.json", "utf8"))),
+			transporter = nodemailer.createTransport({
+				"host": "smtp.zoho.com",
+				"port": 465,
+				"secure": true,
+				"auth": JSON.parse(fs.readFileSync("externalCredentials.json", "utf8")).email
+			}),
 			handleError = require("./handleError.js"),
 			getUnfinishedQuestion = require("./getUnfinishedQuestion.js");
 
-/*
+
 const handleEmails = function(peopleToEmail) {
 	const db = new sqlite.Database("questionDatabase.db", async function(err) {
 		if (err) {
@@ -45,7 +50,7 @@ const handleEmails = function(peopleToEmail) {
 						from: "admin@rulesguru.net",
 						to: peopleToEmail[i].emailAddress,
 						subject: `Your RulesGuru question to approve`,
-						text: `Hi ${peopleToEmail[i].name.split(" ")[0]},\n\nYour question today is #${result.id}. Head on over to https://rulesguru.net/question-editor/?${result.id} and check it out!`
+						text: `Hi ${peopleToEmail[i].name.split(" ")[0]},\n\nYour question today is #${result.id}. Head on over to https://rulesguru.org/question-editor/?${result.id} and check it out!`
 					}, function(err) {
 						if (err) {
 							handleError(err);
@@ -110,36 +115,3 @@ try {
 } catch (err) {
 	handleError(err)
 }
-*/
-//Check disk space since the backups tend to get big.
-const checkDiskSpace = require("check-disk-space").default;
-const fastFolderSize = require("fast-folder-size/sync");
-const sendEmailToOwners = function(subject, message) {
-	const allAdmins = JSON.parse(fs.readFileSync("admins.json", "utf8"));
-	for (let i in allAdmins) {
-		if (allAdmins[i].roles.owner) {
-			transporter.sendMail({
-				"from": "admin@rulesguru.net",
-				"to": allAdmins[i].emailAddress,
-				"subject": subject,
-				"text": message
-			}, function(err) {
-				if (err) {
-					handleError(err);
-				}
-			});
-		}
-	}
-}
-const fileSystemStuff = async function() {
-	const diskSpace = await checkDiskSpace("/");
-	if (diskSpace.free < 1000000000) {
-		sendEmailToOwners("RulesGuru disk space running low", `Only ${diskSpace.free} bytes remaining.`);
-	}
-
-	const backupSize = fastFolderSize("backups");
-	if (backupSize > 10000000000) {
-		sendEmailToOwners("RulesGuru backups folder too large", `The backups folder has grown larger than 10gb on disk, should be pruned.`);
-	}
-};
-fileSystemStuff();

@@ -296,7 +296,7 @@ const updateSidebarSettings = function() {
 	if (!isDeepEqual(newSidebarSettings, sidebarSettings)) {
 		sidebarSettings = newSidebarSettings;
 		localStorage.setItem("sidebarSettings", JSON.stringify(sidebarSettings));
-		document.getElementById("searchLink").value = "https://rulesguru.net/?RG" + convertSettingsToSearchLink(sidebarSettings, searchLinkMappings) + "GG";
+		document.getElementById("searchLink").value = "https://rulesguru.org/?RG" + convertSettingsToSearchLink(sidebarSettings, searchLinkMappings) + "GG";
 		if (typeof doSomethingOnSidebarSettingsUpdate !== "undefined") {
 			doSomethingOnSidebarSettingsUpdate();
 		}

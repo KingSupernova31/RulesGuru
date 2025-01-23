@@ -1,6 +1,6 @@
 //Handle sites that append garbage to the url.
-if (!/^https?:\/\/(?:localhost:8080|rulesguru\.net)\/\?(?:\d*(RG.+GG)?)$/.test(window.location.href)) {
-	const match = window.location.href.match(/^https?:\/\/(?:localhost:8080|rulesguru\.net)\/(\?(?:\d*(RG.+GG)?))/);
+if (!/^https?:\/\/(?:localhost:8080|rulesguru\.org)\/\?(?:\d*(RG.+GG)?)$/.test(window.location.href)) {
+	const match = window.location.href.match(/^https?:\/\/(?:localhost:8080|rulesguru\.org)\/(\?(?:\d*(RG.+GG)?))/);
 	if (match === null) {
 		history.replaceState({}, "", ".");
 	} else {
