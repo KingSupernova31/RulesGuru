@@ -269,30 +269,6 @@ const addCardGenerator = function() {
 	questionObj.cardTemplates.push([]);
 }
 
-//Create a list of all subtypes.
-const subtypeRules = ["205.3g", "205.3h", "205.3i", "205.3j", "205.3k", "205.3m"];
-const isolatedSubtypeLists = [];
-const allSubtypes = [];
-for (let i in subtypeRules) {
-	isolatedSubtypeLists.push(allRules[subtypeRules[i]].ruleText.match(/The \w+ types are ((and )?([a-zA-Z-']+)( \(.+?\))?(, |\.))+/)[0]);
-}
-for (let i in isolatedSubtypeLists) {
-	//let iteratible = [...isolatedSubtypeLists[i].matchAll(/(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g)];
-	//Needed because matchAll is not supported:
-	let iteratible = [];
-	let regex = /(and )?([a-zA-Z-']+)( \(.+?\))?(, |\.)/g;
-	let lastIndexes = {};
-	let match;
-	lastIndexes[regex.lastIndex] = true;
-	while (match = regex.exec(isolatedSubtypeLists[i])) {
-		lastIndexes[regex.lastIndex] = true;
-		iteratible.push(match);
-	}
-
-	for (let j in iteratible) {
-		allSubtypes.push(iteratible[j][2]);
-	}
-}
 allSubtypes.sort();
 let subtypeOptions = "";
 for (let i in allSubtypes) {

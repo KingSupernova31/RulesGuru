@@ -8,6 +8,7 @@ public_html/globalResources/allSets.js
 public_html/question-editor/allCards.js
 public_html/question-editor/allRules.js
 public_html/question-editor/cardNamesToIgnore.js
+public_html/question-editor/allSubtypes.js
 
 #Created by running npm install:
 node_modules/

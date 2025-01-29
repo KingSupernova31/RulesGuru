@@ -350,7 +350,7 @@ const updateAllCards = function() {
 		const allRules = JSON.parse(fs.readFileSync("data_files/finalAllRules.json"));
 		const allCreatureTypes = getSubtypesFromRuleText(allRules["205.3m"].ruleText);
 		const subtypeRules = ["205.3g", "205.3h", "205.3i", "205.3j", "205.3k", "205.3m", "205.3q"];
-		const allSubtypes = subtypeRules.map(ruleNum => getSubtypesFromRuleText(allRules[ruleNum].ruleText));
+		const allSubtypes = subtypeRules.map(ruleNum => getSubtypesFromRuleText(allRules[ruleNum].ruleText)).flat(1);
 		for (let i in allCards) {
 			if (allCards[i].rulesText.startsWith(`${allCards[i].name} is every creature type.`) || allCards[i].keywords.includes("Changeling")) {
 				allCards[i].subtypes = Array.from(new Set (allCards[i].subtypes.concat(allCreatureTypes))); //We need to not overwrite noncreature subtypes.
@@ -430,6 +430,10 @@ const updateAllCards = function() {
 
 		//Write the card names to ignore file.
 		fs.writeFileSync("data_files/cardNamesToIgnore.json", JSON.stringify(cardNamesToIgnore.concat(allKeywords.keywordAbilities).concat(allKeywords.keywordActions).concat(allSubtypes)));
+
+		//Give the editor a list of subtypes for the dropdown.
+		fs.writeFileSync("public_html/question-editor/allSubtypes.js", "const allSubtypes = " + JSON.stringify(allSubtypes));
+
 
 		console.log("Finished updating all cards.");
 
