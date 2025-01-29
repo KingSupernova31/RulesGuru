@@ -1,8 +1,8 @@
 "use strict";
 
 //"700" will change all 700 rule citations to 701, 701 to 702, etc up to the end of the section. "700.1" will change 700.1 to 700.2, etc. You can probably guess what "700.1a" does. Type the rule that got added/removed.
-const startingRuleToUpdate = "713";
-const change = "removed";
+const startingRuleToUpdate = "805.10f";
+const change = "removed";//Can be "added" or "removed".
 
 //Returns the next letter of the alphabet, skipping "l" and "o".
 const nextLetter = function(letter) {
