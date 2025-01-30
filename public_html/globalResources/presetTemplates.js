@@ -104,7 +104,7 @@ const presetTemplates = [
 		"id": 11,
 		"description": "Enter as a copy of any nonland creature",
 		"rules": [
-			{"field":"Rules text","operator":"Matches:","value":"You may have ::name:: enter the battlefield as a copy of (any nonland permanent|a creature|any creature)(?! card)","orGroup":null}
+			{"field":"Rules text","operator":"Matches:","value":"You may have ::name:: enter as a copy of (any nonland permanent|a creature|any creature)(?! card)","orGroup":null}
 		],
 	},
 	{
