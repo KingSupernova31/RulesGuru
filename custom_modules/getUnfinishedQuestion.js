@@ -50,7 +50,7 @@ const getUnfinishedQuestion = function(admin, allQuestions) {
 
 	const getAQuestionToSend = function(listOfQuestions) {
 		let recentlyDistributedQuestionIds;
-		if (fs.existsSync(recentlyDistributedQuestionIds.json)) {
+		if (fs.existsSync("recentlyDistributedQuestionIds.json")) {
 			recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
 		} else {
 			recentlyDistributedQuestionIds = [];
