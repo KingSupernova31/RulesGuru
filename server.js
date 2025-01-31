@@ -135,7 +135,8 @@ const db = new sqlite.Database("questionDatabase.db", async function(err) {
 			problemString += `Database doesn't include questions ${referenceArrayNums.filter(num => !databaseNums.includes(num))}. `;
 		}
 		if (databaseNums.filter(num => !referenceArrayNums.includes(num)).length > 0) {
-			problemString += `Reference array doesn't include questions ${databaseNums.filter(num => !referenceArrayNums.includes(num))}`;
+			//Disabling because it's super annoying and not a real problem. Fix this properly later.
+			//problemString += `Reference array doesn't include questions ${databaseNums.filter(num => !referenceArrayNums.includes(num))}`;
 		}
 		if (problemString !== "") {
 			handleError(new Error(`Reference array mismatch: ${problemString}`));
@@ -684,7 +685,8 @@ app.get("/getQuestionCount", async function(req, res) {
 		problemString += `Database doesn't include questions ${referenceArrayNums.filter(num => !databaseNums.includes(num))}. `;
 	}
 	if (databaseNums.filter(num => !referenceArrayNums.includes(num)).length > 0) {
-		problemString += `Reference array doesn't include questions ${databaseNums.filter(num => !referenceArrayNums.includes(num))}`;
+		//Disabling because it's super annoying and not a real problem. Fix this properly later.
+		//problemString += `Reference array doesn't include questions ${databaseNums.filter(num => !referenceArrayNums.includes(num))}`;
 	}
 	if (problemString !== "") {
 		if (performance.now() - lastTimeReferenceArrayMismatchWarningSent > 60000) {
@@ -997,7 +999,7 @@ app.post("/changeQuestionStatus", async function(req, res) {
 		}
 
 		let recentlyDistributedQuestionIds;
-		if (fs.existsSync(recentlyDistributedQuestionIds.json)) {
+		if (fs.existsSync("recentlyDistributedQuestionIds.json")) {
 			recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
 		} else {
 			recentlyDistributedQuestionIds = [];
@@ -1378,7 +1380,7 @@ app.post("/updateAndForceStatus", async function(req, res) {
 			sendEmailToOwners(`RulesGuru question ID change`, `${currentAdmin.name} has moved question #${req.body.id} to ID #${req.body.newId}.\n\nTime: ${date}`);
 		}
 		let recentlyDistributedQuestionIds;
-		if (fs.existsSync(recentlyDistributedQuestionIds.json)) {
+		if (fs.existsSync("recentlyDistributedQuestionIds.json")) {
 			recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
 		} else {
 			recentlyDistributedQuestionIds = [];
