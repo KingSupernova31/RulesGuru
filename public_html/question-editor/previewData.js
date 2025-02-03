@@ -87,13 +87,11 @@ const displayNewText = function() {
 	} else {
 		document.getElementById("submittedByField").style.display = "none";
 	}
-	//Display the question, and move superscripts to after pluralizations or posessives.
-	const questionString = replaceExpressions(window.parentData.questionObj.question, playerNamesMap, currentPreviewCards, window.parentData.allCards, window.parentData.allRules, true).html;
-	document.getElementById("question").innerHTML = questionString.replace(/<sup(.*?)<\/sup>([^ .,;]*)/g, "$2<sup$1</sup>");//HTML tags leaking from my eyes like liquid pain! (They'll never be nested.)
+	//Display the question.
+	document.getElementById("question").innerHTML = replaceExpressions(window.parentData.questionObj.question, playerNamesMap, currentPreviewCards, window.parentData.allCards, window.parentData.allRules, true).html;
 
 	//Display answer.
-	const answerString = replaceExpressions(window.parentData.questionObj.answer, playerNamesMap, currentPreviewCards, window.parentData.allCards, window.parentData.allRules, true).html;
-	document.getElementById("answer").innerHTML = answerString.replace(/<sup(.*?)<\/sup>([^ .,;]*)/g, "$2<sup$1</sup>");
+	document.getElementById("answer").innerHTML = replaceExpressions(window.parentData.questionObj.answer, playerNamesMap, currentPreviewCards, window.parentData.allCards, window.parentData.allRules, true).html;
 
 	//Display validation.
 	if (window.parentData.questionValidation.errors.length > 0) {

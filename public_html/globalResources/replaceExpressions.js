@@ -313,7 +313,7 @@ const replaceExpressions = function(string, playerNamesMap, oracle, allCards, al
 		return playerNamesMap[capt1].name;
 	});
 
-	//Capitalize the first letter at the beginning of a sentence after a parenthetical statement.
+	//Capitalize the first letter at the beginning of a sentence after a parenthetical statement. (These are needed for expressions that just got replaced.)
 	string = string.replace(/\. \([^()]+?\) ([a-z])/g, function(match, capt1) {
 		return match.slice(0, -1) + capt1[0].toUpperCase() + capt1.substring(1);
 	});
@@ -331,6 +331,14 @@ const replaceExpressions = function(string, playerNamesMap, oracle, allCards, al
 	resultToReturn.plaintext = string;
 	resultToReturn.plaintextNoCitations = string;
 	resultToReturn.html = string;
+
+	//Move the superscripts to after any pluralizations.
+	if (forPreview) {
+		//HTML tags leaking from my eyes like liquid pain! (They'll never be nested.)
+		console.log(resultToReturn.html)
+		resultToReturn.html = resultToReturn.html.replace(/<sup(.*?)<\/sup>([^ .,;<]*)/g, "$2<sup$1</sup>");
+		console.log(resultToReturn.html)
+	}
 
 	//Remove rules citations or replace them with HTML.
 	resultToReturn.plaintextNoCitations = resultToReturn.plaintext.replace(/ \((\[\d{3}\.\d{1,2}[a-z]?\](\/|, )?)+\)/g, "");
