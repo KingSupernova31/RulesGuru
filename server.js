@@ -647,7 +647,7 @@ app.get("/api/questions", function(req, res) {
 app.post("/submitContactForm", function(req, res) {
 	if (req.body.message !== undefined) {
 		const message = req.body.message;
-		const num = message.match(/^Message about question #(\d+):/)[1];
+		const num = message.match(/^Message about question #(\d+):/)?.[1];
 		sendEmailToOwners(num ? `RulesGuru contact form submission about question ${num}` : "RulesGuru contact form submission", message, res);
 		transporter.sendMail({
 			"from": "admin@rulesguru.net",
