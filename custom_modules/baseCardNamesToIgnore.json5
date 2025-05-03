@@ -1,57 +1,5 @@
 [
-  "Undo",
-  "Survive",
-  "Turn",
-  "Response",
-  "Never",
-  "Contradict",
-  "The End",
-  "Wear",
-  "Find",
-  "Take",
-  "Death",
-  "Down",
-  "Reason",
-  "Give",
-  "Order",
-  "Granted",
-  "Life",
-  "Ends",
-  "Well",
-  "Status",
-  "Entering",
-  "Chance",
-  "Fight",
-  "Leave",
-  "Regeneration",
-  "Reduce",
-  "Remove",
-  "Charge",
-  "Opportunity",
-  "Return",
-  "Away",
-  "Two-Headed Giant",
-  "Wish",
-  "Redirect",
-  "Done",
-  "Gone",
-  "Cut",
-  "Finish",
-  "Ready",
-  "Start",
-  "Memory",
-  "Simple",
-  "Determined",
-  "Excess",
-  "Consider",
-  "Loss",
-  "Clear",
-  "Far",
-  "Dead",
-  "Night",
-  "Day",
-  "Error",
-  "Alive",
+  // Normal Counter Types
   "Acorn",
   "Aegis",
   "Age",
@@ -147,6 +95,7 @@
   "Manifestation",
   "Mannequin",
   "Matrix",
+  "Memory",
   "Midway",
   "Mine",
   "Mining",
@@ -206,7 +155,6 @@
   "Tide",
   "Time",
   "Tower",
-  "Training",
   "Trap",
   "Treasure",
   "Unity",
@@ -222,9 +170,59 @@
   "Winch",
   "Wind",
   "Wish",
+
+  // Normal counter, but conflicts with Training keyword
+  "Training",
+
+  // Action Counters
   "Shield",
   "Stun",
-  "Library",
-  "Six",
-  "Trial",
+
+  // Split Cards
+  "Alive", "Well",
+  "Far", "Away",
+  "Leave", "Chance",
+  "Cut", /* "Ribbons", */
+  "Dead", "Gone",
+  "Night", "Day", // Night is also a counter type
+  "Down", /* "Dirty", */
+  /* "Commit", */ "Memory", // Memory is also a counter type
+  /* "Breaking", */ "Entering",
+  /* "Bound", */ "Determined",
+  /* "Said", */ "Done",
+  /* "Odds", */ "Ends",
+  "Trial", "Error",
+  "Start", "Finish",
+  /* "Indulge", */ "Excess",
+  "Find", /* "Finality", */ // Finality is also a counter type
+  /* "Prepare", */ "Fight",
+  "Give", "Take",
+  /* "Profit", */ "Loss",
+  "Life", /* "Death", */ // Death is also a counter type
+  "Never", "Return",
+  "Order", /* "Chaos", */
+  "Ready", /* "Willing", */
+  "Reason", /* "Believe", */
+  "Reduce", /* "Rubble", */
+  "Response", /* "Resurgence", */
+  /* "Pure", */ "Simple",
+  "Status", /* "Statue", */
+  /* "Struggle", */ "Survive",
+  "Turn", /* "Burn", */
+  "Wear", /* "Burn", */
+
+  "Library",          // Land - {U}/{R}
+  "Regeneration",     // Enchantment
+  "Six",              // Legendary Creature
+  "Two-Headed Giant", // Creature
+
+  "Clear",        // Destroy target enchantment
+  "Consider",     // Surveil 1. Draw a card.
+  "Contradict",   // Counter target spell.
+  "Granted",      // Gets card from outside the game, Adventure half of Fae of Wishes
+  "Opportunity",  // Target player draws four cards
+  "Redirect",     // You may choose new targets for target spell.
+  "Remove",       // Return target attacking creature to its owner’s hand.
+  "The End",      // Exile Permanent, and any in Graveyard, Library, and Hand
+  "Undo",         // Return two target creatures to their owners’ hands.
 ]
