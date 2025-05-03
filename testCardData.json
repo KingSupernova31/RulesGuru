@@ -78,7 +78,7 @@
       "Insect"
     ],
     "supertypes": [],
-    "text": "Flying\nAt the beginning of your upkeep, mill a card. If an instant or sorcery card was milled this way, transform Aberrant Researcher.",
+    "text": "Flying\nAt the beginning of your upkeep, mill a card. If an instant or sorcery card was milled this way, transform this creature. (To mill a card, put the top card of your library into your graveyard.)",
     "toughness": "2",
     "type": "Creature — Human Insect",
     "types": [
@@ -95,7 +95,7 @@
     "printingsName": [
       "Shadows over Innistrad"
     ],
-    "rulesText": "Flying\nAt the beginning of your upkeep, mill a card. If an instant or sorcery card was milled this way, transform Aberrant Researcher."
+    "rulesText": "Flying\nAt the beginning of your upkeep, mill a card. If an instant or sorcery card was milled this way, transform this creature."
   },
   "Absorb Vis": {
     "colorIdentity": [
@@ -168,7 +168,7 @@
     "name": "Abstruse Interference",
     "subtypes": [],
     "supertypes": [],
-    "text": "Devoid (This card has no color.)\nCounter target spell unless its controller pays {1}. You create a 1/1 colorless Eldrazi Scion creature token. It has \"Sacrifice this creature: Add {C}.\" ({C} represents colorless mana.)",
+    "text": "Devoid (This card has no color.)\nCounter target spell unless its controller pays {1}. You create a 1/1 colorless Eldrazi Scion creature token. It has \"Sacrifice this token: Add {C}.\" ({C} represents colorless mana.)",
     "type": "Instant",
     "types": [
       "Instant"
@@ -180,7 +180,7 @@
     "printingsName": [
       "Oath of the Gatewatch"
     ],
-    "rulesText": "Devoid\nCounter target spell unless its controller pays {1}. You create a 1/1 colorless Eldrazi Scion creature token. It has \"Sacrifice this creature: Add {C}.\""
+    "rulesText": "Devoid\nCounter target spell unless its controller pays {1}. You create a 1/1 colorless Eldrazi Scion creature token. It has \"Sacrifice this token: Add {C}.\""
   },
   "Accorder's Shield": {
     "colorIdentity": [],
@@ -410,7 +410,7 @@
       "Elemental"
     ],
     "supertypes": [],
-    "text": "When Avenger of Zendikar enters, create a 0/1 green Plant creature token for each land you control.\nLandfall — Whenever a land you control enters, you may put a +1/+1 counter on each Plant creature you control.",
+    "text": "When this creature enters, create a 0/1 green Plant creature token for each land you control.\nLandfall — Whenever a land you control enters, you may put a +1/+1 counter on each Plant creature you control.",
     "toughness": "5",
     "type": "Creature — Elemental",
     "types": [
@@ -441,7 +441,7 @@
       "Secret Lair Drop",
       "Worldwake"
     ],
-    "rulesText": "When Avenger of Zendikar enters, create a 0/1 green Plant creature token for each land you control.\nWhenever a land you control enters, you may put a +1/+1 counter on each Plant creature you control."
+    "rulesText": "When this creature enters, create a 0/1 green Plant creature token for each land you control.\nWhenever a land you control enters, you may put a +1/+1 counter on each Plant creature you control."
   },
   "Bear Cub": {
     "colorIdentity": [
@@ -521,7 +521,7 @@
       "Dragon"
     ],
     "supertypes": [],
-    "text": "Flying\nAcid Breath — When Black Dragon enters, target creature an opponent controls gets -3/-3 until end of turn.",
+    "text": "Flying\nAcid Breath — When this creature enters, target creature an opponent controls gets -3/-3 until end of turn.",
     "toughness": "4",
     "type": "Creature — Dragon",
     "types": [
@@ -538,7 +538,7 @@
       "Alchemy Horizons: Baldur's Gate",
       "Magic Online Promos"
     ],
-    "rulesText": "Flying\nWhen Black Dragon enters, target creature an opponent controls gets -3/-3 until end of turn."
+    "rulesText": "Flying\nWhen this creature enters, target creature an opponent controls gets -3/-3 until end of turn."
   },
   "Black Knight": {
     "colorIdentity": [
@@ -655,7 +655,7 @@
       "Giant"
     ],
     "supertypes": [],
-    "text": "Whenever Bonecrusher Giant becomes the target of a spell, Bonecrusher Giant deals 2 damage to that spell's controller.",
+    "text": "Whenever this creature becomes the target of a spell, this creature deals 2 damage to that spell's controller.",
     "toughness": "3",
     "type": "Creature — Giant",
     "types": [
@@ -683,7 +683,7 @@
       "The List",
       "Magic Online Promos"
     ],
-    "rulesText": "Whenever Bonecrusher Giant becomes the target of a spell, Bonecrusher Giant deals 2 damage to that spell's controller."
+    "rulesText": "Whenever this creature becomes the target of a spell, this creature deals 2 damage to that spell's controller."
   },
   "Branchloft Pathway": {
     "colorIdentity": [
@@ -767,7 +767,7 @@
     "supertypes": [
       "Legendary"
     ],
-    "text": "When Breya, Etherium Shaper enters, create two 1/1 blue Thopter artifact creature tokens with flying.\n{2}, Sacrifice two artifacts: Choose one —\n• Breya deals 3 damage to target player or planeswalker.\n• Target creature gets -4/-4 until end of turn.\n• You gain 5 life.",
+    "text": "When Breya enters, create two 1/1 blue Thopter artifact creature tokens with flying.\n{2}, Sacrifice two artifacts: Choose one —\n• Breya deals 3 damage to target player or planeswalker.\n• Target creature gets -4/-4 until end of turn.\n• You gain 5 life.",
     "toughness": "4",
     "type": "Legendary Artifact Creature — Human",
     "types": [
@@ -790,7 +790,7 @@
       "Treasure Chest",
       "Secret Lair Drop"
     ],
-    "rulesText": "When Breya, Etherium Shaper enters, create two 1/1 blue Thopter artifact creature tokens with flying.\n{2}, Sacrifice two artifacts: Choose one —\n• Breya deals 3 damage to target player or planeswalker.\n• Target creature gets -4/-4 until end of turn.\n• You gain 5 life."
+    "rulesText": "When Breya enters, create two 1/1 blue Thopter artifact creature tokens with flying.\n{2}, Sacrifice two artifacts: Choose one —\n• Breya deals 3 damage to target player or planeswalker.\n• Target creature gets -4/-4 until end of turn.\n• You gain 5 life."
   },
   "Kenzo the Hardhearted": {
     "colorIdentity": [
@@ -1174,7 +1174,7 @@
       "Adventure"
     ],
     "supertypes": [],
-    "text": "Create a Food token. (Then exile this card. You may cast the creature later from exile. A Food token is an artifact with \"{2}, {T}, Sacrifice this artifact: You gain 3 life.\")",
+    "text": "Create a Food token. (Then exile this card. You may cast the creature later from exile. A Food token is an artifact with \"{2}, {T}, Sacrifice this token: You gain 3 life.\")",
     "type": "Sorcery — Adventure",
     "types": [
       "Sorcery"
@@ -1224,7 +1224,7 @@
       "Beast"
     ],
     "supertypes": [],
-    "text": "Deathtouch\nWhenever a permanent you control is turned face up, you may return Deathmist Raptor from your graveyard to the battlefield face up or face down.\nMegamorph {4}{G} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its megamorph cost and put a +1/+1 counter on it.)",
+    "text": "Deathtouch\nWhenever a permanent you control is turned face up, you may return this card from your graveyard to the battlefield face up or face down.\nMegamorph {4}{G} (You may cast this card face down as a 2/2 creature for {3}. Turn it face up any time for its megamorph cost and put a +1/+1 counter on it.)",
     "toughness": "3",
     "type": "Creature — Dinosaur Beast",
     "types": [
@@ -1239,7 +1239,7 @@
       "Commander 2019",
       "Dragons of Tarkir"
     ],
-    "rulesText": "Deathtouch\nWhenever a permanent you control is turned face up, you may return Deathmist Raptor from your graveyard to the battlefield face up or face down.\nMegamorph {4}{G}"
+    "rulesText": "Deathtouch\nWhenever a permanent you control is turned face up, you may return this card from your graveyard to the battlefield face up or face down.\nMegamorph {4}{G}"
   },
   "Dredge": {
     "colorIdentity": [
@@ -1302,7 +1302,7 @@
       "Dryad"
     ],
     "supertypes": [],
-    "text": "(Dryad Arbor isn't a spell, it's affected by summoning sickness, and it has \"{T}: Add {G}.\")",
+    "text": "(This land isn't a spell, it's affected by summoning sickness, and it has \"{T}: Add {G}.\")",
     "toughness": "1",
     "type": "Land Creature — Forest Dryad",
     "types": [
@@ -1382,7 +1382,7 @@
     "side": "b",
     "subtypes": [],
     "supertypes": [],
-    "text": "As Emeria, Shattered Skyclave enters, you may pay 3 life. If you don't, it enters tapped.\n{T}: Add {W}.",
+    "text": "As this land enters, you may pay 3 life. If you don't, it enters tapped.\n{T}: Add {W}.",
     "type": "Land",
     "types": [
       "Land"
@@ -1406,7 +1406,7 @@
       "Zendikar Rising Promos",
       "Zendikar Rising"
     ],
-    "rulesText": "As Emeria, Shattered Skyclave enters, you may pay 3 life. If you don't, it enters tapped.\n{T}: Add {W}."
+    "rulesText": "As this land enters, you may pay 3 life. If you don't, it enters tapped.\n{T}: Add {W}."
   },
   "Erase": {
     "colorIdentity": [
@@ -1485,7 +1485,7 @@
     "supertypes": [
       "Legendary"
     ],
-    "text": "Flying\nWhenever the fourth spell of a turn is cast, flip Erayo, Soratami Ascendant.",
+    "text": "Flying\nWhenever the fourth spell of a turn is cast, flip Erayo.",
     "toughness": "1",
     "type": "Legendary Creature — Moonfolk Monk",
     "types": [
@@ -1502,7 +1502,7 @@
     "printingsName": [
       "Saviors of Kamigawa"
     ],
-    "rulesText": "Flying\nWhenever the fourth spell of a turn is cast, flip Erayo, Soratami Ascendant."
+    "rulesText": "Flying\nWhenever the fourth spell of a turn is cast, flip Erayo."
   },
   "Forest": {
     "colorIdentity": [
@@ -2017,7 +2017,7 @@
     "supertypes": [
       "Legendary"
     ],
-    "text": "As long as Grist, the Hunger Tide isn't on the battlefield, it's a 1/1 Insect creature in addition to its other types.\n[+1]: Create a 1/1 black and green Insect creature token, then mill a card. If an Insect card was milled this way, put a loyalty counter on Grist and repeat this process.\n[-2]: You may sacrifice a creature. When you do, destroy target creature or planeswalker.\n[-5]: Each opponent loses life equal to the number of creature cards in your graveyard.",
+    "text": "As long as Grist isn't on the battlefield, it's a 1/1 Insect creature in addition to its other types.\n[+1]: Create a 1/1 black and green Insect creature token, then mill a card. If an Insect card was milled this way, put a loyalty counter on Grist and repeat this process.\n[-2]: You may sacrifice a creature. When you do, destroy target creature or planeswalker.\n[-5]: Each opponent loses life equal to the number of creature cards in your graveyard.",
     "type": "Legendary Planeswalker — Grist",
     "types": [
       "Planeswalker"
@@ -2035,7 +2035,7 @@
       "Modern Horizons 2 Promos",
       "Magic Online Promos"
     ],
-    "rulesText": "As long as Grist, the Hunger Tide isn't on the battlefield, it's a 1/1 Insect creature in addition to its other types.\n[+1]: Create a 1/1 black and green Insect creature token, then mill a card. If an Insect card was milled this way, put a loyalty counter on Grist and repeat this process.\n[-2]: You may sacrifice a creature. When you do, destroy target creature or planeswalker.\n[-5]: Each opponent loses life equal to the number of creature cards in your graveyard."
+    "rulesText": "As long as Grist isn't on the battlefield, it's a 1/1 Insect creature in addition to its other types.\n[+1]: Create a 1/1 black and green Insect creature token, then mill a card. If an Insect card was milled this way, put a loyalty counter on Grist and repeat this process.\n[-2]: You may sacrifice a creature. When you do, destroy target creature or planeswalker.\n[-5]: Each opponent loses life equal to the number of creature cards in your graveyard."
   },
   "Gruul Guildgate": {
     "colorIdentity": [
@@ -2162,7 +2162,7 @@
       "Soldier"
     ],
     "supertypes": [],
-    "text": "Outlast {2}{W} ({2}{W}, {T}: Put a +1/+1 counter on this creature. Outlast only as a sorcery.)\nWhenever you activate Herald of Anafenza's outlast ability, create a 1/1 white Warrior creature token.",
+    "text": "Outlast {2}{W} ({2}{W}, {T}: Put a +1/+1 counter on this creature. Outlast only as a sorcery.)\nWhenever you activate this creature's outlast ability, create a 1/1 white Warrior creature token.",
     "toughness": "2",
     "type": "Creature — Human Soldier",
     "types": [
@@ -2177,7 +2177,7 @@
       "Khans of Tarkir",
       "Khans of Tarkir Promos"
     ],
-    "rulesText": "Outlast {2}{W}\nWhenever you activate Herald of Anafenza's outlast ability, create a 1/1 white Warrior creature token."
+    "rulesText": "Outlast {2}{W}\nWhenever you activate this creature's outlast ability, create a 1/1 white Warrior creature token."
   },
   "Wildsong Howler": {
     "colorIdentity": [
@@ -2469,7 +2469,7 @@
       "Dog"
     ],
     "supertypes": [],
-    "text": "Bestow {2}{R} (If you cast this card for its bestow cost, it's an Aura spell with enchant creature. It becomes a creature again if it's not attached to a creature.)\nMogis's Warhound attacks each combat if able.\nEnchanted creature gets +2/+2 and attacks each combat if able.",
+    "text": "Bestow {2}{R} (If you cast this card for its bestow cost, it's an Aura spell with enchant creature. It becomes a creature again if it's not attached to a creature.)\nThis creature attacks each combat if able.\nEnchanted creature gets +2/+2 and attacks each combat if able.",
     "toughness": "2",
     "type": "Enchantment Creature — Dog",
     "types": [
@@ -2483,7 +2483,7 @@
     "printingsName": [
       "Journey into Nyx"
     ],
-    "rulesText": "Bestow {2}{R}\nMogis's Warhound attacks each combat if able.\nEnchanted creature gets +2/+2 and attacks each combat if able."
+    "rulesText": "Bestow {2}{R}\nThis creature attacks each combat if able.\nEnchanted creature gets +2/+2 and attacks each combat if able."
   },
   "Nameless Race": {
     "colorIdentity": [
@@ -2509,7 +2509,7 @@
     "power": "*",
     "subtypes": [],
     "supertypes": [],
-    "text": "Trample\nAs Nameless Race enters, pay any amount of life. The amount you pay can't be more than the total number of white nontoken permanents your opponents control plus the total number of white cards in their graveyards.\nNameless Race's power and toughness are each equal to the life paid as it entered.",
+    "text": "Trample\nAs this creature enters, pay any amount of life. The amount you pay can't be more than the total number of white nontoken permanents your opponents control plus the total number of white cards in their graveyards.\nNameless Race's power and toughness are each equal to the life paid as it entered.",
     "toughness": "*",
     "type": "Creature",
     "types": [
@@ -2522,7 +2522,7 @@
     "printingsName": [
       "The Dark"
     ],
-    "rulesText": "Trample\nAs Nameless Race enters, pay any amount of life. The amount you pay can't be more than the total number of white nontoken permanents your opponents control plus the total number of white cards in their graveyards.\nNameless Race's power and toughness are each equal to the life paid as it entered."
+    "rulesText": "Trample\nAs this creature enters, pay any amount of life. The amount you pay can't be more than the total number of white nontoken permanents your opponents control plus the total number of white cards in their graveyards.\nNameless Race's power and toughness are each equal to the life paid as it entered."
   },
   "Pack Rat": {
     "colorIdentity": [
@@ -2553,7 +2553,7 @@
       "Rat"
     ],
     "supertypes": [],
-    "text": "Pack Rat's power and toughness are each equal to the number of Rats you control.\n{2}{B}, Discard a card: Create a token that's a copy of Pack Rat.",
+    "text": "Pack Rat's power and toughness are each equal to the number of Rats you control.\n{2}{B}, Discard a card: Create a token that's a copy of this creature.",
     "toughness": "*",
     "type": "Creature — Rat",
     "types": [
@@ -2571,7 +2571,7 @@
       "Return to Ravnica",
       "Secret Lair Drop"
     ],
-    "rulesText": "Pack Rat's power and toughness are each equal to the number of Rats you control.\n{2}{B}, Discard a card: Create a token that's a copy of Pack Rat."
+    "rulesText": "Pack Rat's power and toughness are each equal to the number of Rats you control.\n{2}{B}, Discard a card: Create a token that's a copy of this creature."
   },
   "Phantom Carriage": {
     "colorIdentity": [
@@ -2609,7 +2609,7 @@
       "Spirit"
     ],
     "supertypes": [],
-    "text": "Flying\nWhen Phantom Carriage enters, you may search your library for a card with flashback or disturb, put it into your graveyard, then shuffle.",
+    "text": "Flying\nWhen this creature enters, you may search your library for a card with flashback or disturb, put it into your graveyard, then shuffle.",
     "toughness": "4",
     "type": "Creature — Spirit",
     "types": [
@@ -2624,7 +2624,7 @@
       "Innistrad: Double Feature",
       "Innistrad: Midnight Hunt"
     ],
-    "rulesText": "Flying\nWhen Phantom Carriage enters, you may search your library for a card with flashback or disturb, put it into your graveyard, then shuffle."
+    "rulesText": "Flying\nWhen this creature enters, you may search your library for a card with flashback or disturb, put it into your graveyard, then shuffle."
   },
   "Progenitus": {
     "colorIdentity": [
@@ -2716,7 +2716,7 @@
     "supertypes": [
       "Legendary"
     ],
-    "text": "When you cast this spell, create X 0/1 red Kobold creature tokens named Kobolds of Kher Keep, where X is the amount of mana spent to cast it.\nFlying\nSacrifice another creature: Prossh, Skyraider of Kher gets +1/+0 until end of turn.",
+    "text": "When you cast this spell, create X 0/1 red Kobold creature tokens named Kobolds of Kher Keep, where X is the amount of mana spent to cast it.\nFlying\nSacrifice another creature: Prossh gets +1/+0 until end of turn.",
     "toughness": "5",
     "type": "Legendary Creature — Dragon",
     "types": [
@@ -2738,7 +2738,7 @@
       "The List",
       "Magic Online Promos"
     ],
-    "rulesText": "When you cast this spell, create X 0/1 red Kobold creature tokens named Kobolds of Kher Keep, where X is the amount of mana spent to cast it.\nFlying\nSacrifice another creature: Prossh, Skyraider of Kher gets +1/+0 until end of turn."
+    "rulesText": "When you cast this spell, create X 0/1 red Kobold creature tokens named Kobolds of Kher Keep, where X is the amount of mana spent to cast it.\nFlying\nSacrifice another creature: Prossh gets +1/+0 until end of turn."
   },
   "Ranar the Ever-Watchful": {
     "colorIdentity": [
@@ -3131,7 +3131,7 @@
       "Wizard"
     ],
     "supertypes": [],
-    "text": "Tajuru Paragon is also a Cleric, Rogue, Warrior, and Wizard.\nKicker {3}\nWhen Tajuru Paragon enters, if it was kicked, reveal the top six cards of your library. You may put a card that shares a creature type with it from among them into your hand. Put the rest on the bottom of your library in a random order.",
+    "text": "Tajuru Paragon is also a Cleric, Rogue, Warrior, and Wizard.\nKicker {3}\nWhen this creature enters, if it was kicked, reveal the top six cards of your library. You may put a card that shares a creature type with it from among them into your hand. Put the rest on the bottom of your library in a random order.",
     "toughness": "2",
     "type": "Creature — Elf",
     "types": [
@@ -3148,7 +3148,7 @@
       "Zendikar Rising Promos",
       "Zendikar Rising"
     ],
-    "rulesText": "Tajuru Paragon is also a Cleric, Rogue, Warrior, and Wizard.\nKicker {3}\nWhen Tajuru Paragon enters, if it was kicked, reveal the top six cards of your library. You may put a card that shares a creature type with it from among them into your hand. Put the rest on the bottom of your library in a random order."
+    "rulesText": "Tajuru Paragon is also a Cleric, Rogue, Warrior, and Wizard.\nKicker {3}\nWhen this creature enters, if it was kicked, reveal the top six cards of your library. You may put a card that shares a creature type with it from among them into your hand. Put the rest on the bottom of your library in a random order."
   },
   "Tamiyo's Journal": {
     "colorIdentity": [],
@@ -3173,7 +3173,7 @@
     "supertypes": [
       "Legendary"
     ],
-    "text": "At the beginning of your upkeep, investigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this artifact: Draw a card.\")\n{T}, Sacrifice three Clues: Search your library for a card, put that card into your hand, then shuffle.",
+    "text": "At the beginning of your upkeep, investigate. (Create a Clue token. It's an artifact with \"{2}, Sacrifice this token: Draw a card.\")\n{T}, Sacrifice three Clues: Search your library for a card, put that card into your hand, then shuffle.",
     "type": "Legendary Artifact",
     "types": [
       "Artifact"
@@ -3444,7 +3444,7 @@
       "Aura"
     ],
     "supertypes": [],
-    "text": "Enchant creature\nEnchanted creature has \"Whenever this creature attacks, it deals X damage to defending player, where X is the number of cards in their hand.\"\nWhen Unquenchable Fury is put into your graveyard from the battlefield, return it to your hand.",
+    "text": "Enchant creature\nEnchanted creature has \"Whenever this creature attacks, it deals X damage to defending player, where X is the number of cards in their hand.\"\nWhen this Aura is put into your graveyard from the battlefield, return it to your hand.",
     "type": "Enchantment — Aura",
     "types": [
       "Enchantment"
@@ -3459,7 +3459,7 @@
     "printingsName": [
       "Neon Dynasty Commander"
     ],
-    "rulesText": "Enchant creature\nEnchanted creature has \"Whenever this creature attacks, it deals X damage to defending player, where X is the number of cards in their hand.\"\nWhen Unquenchable Fury is put into your graveyard from the battlefield, return it to your hand."
+    "rulesText": "Enchant creature\nEnchanted creature has \"Whenever this creature attacks, it deals X damage to defending player, where X is the number of cards in their hand.\"\nWhen this Aura is put into your graveyard from the battlefield, return it to your hand."
   },
   "Void Beckoner": {
     "colorIdentity": [
@@ -3496,7 +3496,7 @@
       "Horror"
     ],
     "supertypes": [],
-    "text": "Deathtouch\nCycling {2}{B} ({2}{B}, Discard this card: Draw a card.)\nWhen you cycle Void Beckoner, put a deathtouch counter on target creature you control.",
+    "text": "Deathtouch\nCycling {2}{B} ({2}{B}, Discard this card: Draw a card.)\nWhen you cycle this card, put a deathtouch counter on target creature you control.",
     "toughness": "8",
     "type": "Creature — Nightmare Horror",
     "types": [
@@ -3511,7 +3511,7 @@
       "Ikoria: Lair of Behemoths",
       "Magic Online Promos"
     ],
-    "rulesText": "Deathtouch\nCycling {2}{B}\nWhen you cycle Void Beckoner, put a deathtouch counter on target creature you control."
+    "rulesText": "Deathtouch\nCycling {2}{B}\nWhen you cycle this card, put a deathtouch counter on target creature you control."
   },
   "Yidris, Maelstrom Wielder": {
     "colorIdentity": [
@@ -3547,7 +3547,7 @@
     "supertypes": [
       "Legendary"
     ],
-    "text": "Trample\nWhenever Yidris, Maelstrom Wielder deals combat damage to a player, as you cast spells from your hand this turn, they gain cascade. (When you cast the spell, exile cards from the top of your library until you exile a nonland card that costs less. You may cast it without paying its mana cost. Put the exiled cards on the bottom in a random order.)",
+    "text": "Trample\nWhenever Yidris deals combat damage to a player, as you cast spells from your hand this turn, they gain cascade. (When you cast the spell, exile cards from the top of your library until you exile a nonland card that costs less. You may cast it without paying its mana cost. Put the exiled cards on the bottom in a random order.)",
     "toughness": "4",
     "type": "Legendary Creature — Ogre Wizard",
     "types": [
@@ -3566,7 +3566,7 @@
       "Treasure Chest",
       "Secret Lair Drop"
     ],
-    "rulesText": "Trample\nWhenever Yidris, Maelstrom Wielder deals combat damage to a player, as you cast spells from your hand this turn, they gain cascade."
+    "rulesText": "Trample\nWhenever Yidris deals combat damage to a player, as you cast spells from your hand this turn, they gain cascade."
   },
   "Brisela, Voice of Nightmares": {
     "colorIdentity": [
@@ -3655,7 +3655,7 @@
       "Rat"
     ],
     "supertypes": [],
-    "text": "At the beginning of combat on your turn, if you both own and control Graf Rats and a creature named Midnight Scavengers, exile them, then meld them into Chittering Host.",
+    "text": "At the beginning of combat on your turn, if you both own and control this creature and a creature named Midnight Scavengers, exile them, then meld them into Chittering Host.",
     "toughness": "1",
     "type": "Creature — Rat",
     "types": [
@@ -3671,7 +3671,7 @@
     "printingsName": [
       "Eldritch Moon"
     ],
-    "rulesText": "At the beginning of combat on your turn, if you both own and control Graf Rats and a creature named Midnight Scavengers, exile them, then meld them into Chittering Host."
+    "rulesText": "At the beginning of combat on your turn, if you both own and control this creature and a creature named Midnight Scavengers, exile them, then meld them into Chittering Host."
   },
   "Hanweir Battlements": {
     "colorIdentity": [
@@ -3697,7 +3697,7 @@
     "side": "a",
     "subtypes": [],
     "supertypes": [],
-    "text": "{T}: Add {C}.\n{R}, {T}: Target creature gains haste until end of turn.\n{3}{R}{R}, {T}: If you both own and control Hanweir Battlements and a creature named Hanweir Garrison, exile them, then meld them into Hanweir, the Writhing Township.",
+    "text": "{T}: Add {C}.\n{R}, {T}: Target creature gains haste until end of turn.\n{3}{R}{R}, {T}: If you both own and control this land and a creature named Hanweir Garrison, exile them, then meld them into Hanweir, the Writhing Township.",
     "type": "Land",
     "types": [
       "Land"
@@ -3716,7 +3716,7 @@
       "Eldritch Moon",
       "Eldritch Moon Promos"
     ],
-    "rulesText": "{T}: Add {C}.\n{R}, {T}: Target creature gains haste until end of turn.\n{3}{R}{R}, {T}: If you both own and control Hanweir Battlements and a creature named Hanweir Garrison, exile them, then meld them into Hanweir, the Writhing Township."
+    "rulesText": "{T}: Add {C}.\n{R}, {T}: Target creature gains haste until end of turn.\n{3}{R}{R}, {T}: If you both own and control this land and a creature named Hanweir Garrison, exile them, then meld them into Hanweir, the Writhing Township."
   },
   "Fire // Ice": {
     "colorIdentity": [
@@ -3908,7 +3908,7 @@
       "Wizard"
     ],
     "supertypes": [],
-    "text": "Prototype {1}{U}{U} — 2/1 (You may cast this spell with different mana cost, color, and size. It keeps its abilities and types.)\nWhen Arcane Proxy enters, if you cast it, exile target instant or sorcery card with mana value less than or equal to Arcane Proxy's power from your graveyard. Copy that card. You may cast the copy without paying its mana cost.",
+    "text": "Prototype {1}{U}{U} — 2/1 (You may cast this spell with different mana cost, color, and size. It keeps its abilities and types.)\nWhen this creature enters, if you cast it, exile target instant or sorcery card with mana value less than or equal to this creature's power from your graveyard. Copy that card. You may cast the copy without paying its mana cost.",
     "toughness": "3",
     "type": "Artifact Creature — Wizard",
     "types": [
@@ -3928,7 +3928,7 @@
       "The Brothers' War Promos",
       "Magic Online Promos"
     ],
-    "rulesText": "Prototype {1}{U}{U} — 2/1\nWhen Arcane Proxy enters, if you cast it, exile target instant or sorcery card with mana value less than or equal to Arcane Proxy's power from your graveyard. Copy that card. You may cast the copy without paying its mana cost."
+    "rulesText": "Prototype {1}{U}{U} — 2/1\nWhen this creature enters, if you cast it, exile target instant or sorcery card with mana value less than or equal to this creature's power from your graveyard. Copy that card. You may cast the copy without paying its mana cost."
   },
   "Arcane Proxy (prototyped)": {
     "colorIdentity": [
@@ -3966,7 +3966,7 @@
       "Wizard"
     ],
     "supertypes": [],
-    "text": "Prototype {1}{U}{U} — 2/1 (You may cast this spell with different mana cost, color, and size. It keeps its abilities and types.)\nWhen Arcane Proxy enters, if you cast it, exile target instant or sorcery card with mana value less than or equal to Arcane Proxy's power from your graveyard. Copy that card. You may cast the copy without paying its mana cost.",
+    "text": "Prototype {1}{U}{U} — 2/1 (You may cast this spell with different mana cost, color, and size. It keeps its abilities and types.)\nWhen this creature enters, if you cast it, exile target instant or sorcery card with mana value less than or equal to this creature's power from your graveyard. Copy that card. You may cast the copy without paying its mana cost.",
     "toughness": "1",
     "type": "Artifact Creature — Wizard",
     "types": [
@@ -3986,7 +3986,7 @@
       "The Brothers' War Promos",
       "Magic Online Promos"
     ],
-    "rulesText": "Prototype {1}{U}{U} — 2/1\nWhen Arcane Proxy enters, if you cast it, exile target instant or sorcery card with mana value less than or equal to Arcane Proxy's power from your graveyard. Copy that card. You may cast the copy without paying its mana cost."
+    "rulesText": "Prototype {1}{U}{U} — 2/1\nWhen this creature enters, if you cast it, exile target instant or sorcery card with mana value less than or equal to this creature's power from your graveyard. Copy that card. You may cast the copy without paying its mana cost."
   },
   "Imbraham, Dean of Theory": {
     "colorIdentity": [
