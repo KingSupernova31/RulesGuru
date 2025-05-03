@@ -54,15 +54,287 @@ const colorMappings = {
 }
 
 const updateAllCards = function() {
+	const verbose_updateAllCards = true;
 	try {
+		if (verbose_updateAllCards) { console.log(`Updating all cards`); }
+
 		const notFlatAllCards = JSON.parse(replaceDoppelgangerChars(fs.readFileSync("data_files/rawAllCards.json", "utf8"))).data;
 
-		//I hate Unstable and mystery booster.
-		const cardsThatAreAwful = ["Target Minotaur", "Secret Base", "Novellamental", "Extremely Slow Zombie", "Beast in Show", "Amateur Auteur", "Garbage Elemental", "Target Minotaur", "Sly Spy", "Knight of the Kitchen Sink", "Everythingamajig", "Ineffable Blessing", "Very Cryptic Command", "Start // Fire", "B.F.M. (Big Furry Monster)", "Smelt // Herd // Saw", "Red Herring"];
-		for (let i of cardsThatAreAwful) {
-			delete notFlatAllCards[i];
+		// Patch cards with normal versions and silly variants
+		{
+			if (verbose_updateAllCards) { console.log(`-- Patching: Red Herring`); }
+			const cards = notFlatAllCards["Red Herring"]
+			delete notFlatAllCards["Red Herring"]
+			let norm_card = cards.find((card) => card["text"].startsWith("Haste"))
+			let alt__card = cards.find((card) => card["text"].startsWith("{1}{U}"))
+			alt__card["name"] = "Sketchy Red Herring"
+			notFlatAllCards["Red Herring"]         = [norm_card]
+			notFlatAllCards["Sketchy Red Herring"] = [alt__card]
 		}
-		notFlatAllCards["Unquenchable Fury"] = notFlatAllCards["Unquenchable Fury"].filter(card => !card.printings.includes("TBTH"));//This is also the name of one the weird Theros challenge deck cards.
+
+		{
+			if (verbose_updateAllCards) { console.log(`-- Patching: Pick Your Poison`); }
+			const cards = notFlatAllCards["Pick Your Poison"]
+			delete notFlatAllCards["Pick Your Poison"]
+			let norm_card = cards.find((card) => card["text"].startsWith("Choose one"))
+			let alt__card = cards.find((card) => card["text"].startsWith("Choose any"))
+			alt__card["name"] = "Pick Your Sketchy Poison"
+			notFlatAllCards["Pick Your Poison"]         = [norm_card]
+			notFlatAllCards["Pick Your Sketchy Poison"] = [alt__card]
+		}
+
+		{
+			if (verbose_updateAllCards) { console.log(`-- Patching: Unquenchable Fury`); }
+			const cards = notFlatAllCards["Unquenchable Fury"]
+			delete notFlatAllCards["Unquenchable Fury"]
+			let norm_card = cards.find((card) => card["text"].startsWith("Enchant creature"))
+			let alt__card = cards.find((card) => card["text"].startsWith("Each Minotaur"))
+			alt__card["name"] = "Horde's Unquenchable Fury"
+			notFlatAllCards["Unquenchable Fury"]         = [norm_card]
+			notFlatAllCards["Horde's Unquenchable Fury"] = [alt__card]
+		}
+
+		{
+			if (verbose_updateAllCards) { console.log(`-- Patching: Fast // Furious`); }
+			const cards = notFlatAllCards["Fast // Furious"]
+			delete notFlatAllCards["Fast // Furious"]
+			let norm_card_a = cards.find((card) => (card["faceName"] == "Fast"    && card["text"].startsWith("Discard a card")))
+			let norm_card_b = cards.find((card) => (card["faceName"] == "Furious" && card["text"].startsWith("Furious deals")))
+			let alt__card_a = cards.find((card) => (card["faceName"] == "Fast"    && card["text"].startsWith("Target creature")))
+			let alt__card_b = cards.find((card) => (card["faceName"] == "Furious" && card["text"].startsWith("Target creature")))
+			alt__card_a["name"] = "Fasto // Furiouso"
+			alt__card_b["name"] = "Fasto // Furiouso"
+			alt__card_a["faceName"] = "Fasto"
+			alt__card_b["faceName"] = "Furiouso"
+			notFlatAllCards["Fast // Furious"]   = [norm_card_a, norm_card_b]
+			notFlatAllCards["Fasto // Furiouso"] = [alt__card_a, alt__card_b]
+		}
+
+		// Add in dungeons manually
+		{
+			for (let i in additionalCards) {
+				if (verbose_updateAllCards) { console.log(`-- Patching in additional card: ${additionalCards[i].name}`) }
+				notFlatAllCards[additionalCards[i].name] = [additionalCards[i]];
+			}
+		}
+
+		// Fix dungeons to have a first printing
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].type === "Dungeon") {
+					if (verbose_updateAllCards) { console.log(`-- Patching dungeon ${i} - First printing, Legalities, manaValue`) }
+					notFlatAllCards[i][0].layout = "dungeon"
+					notFlatAllCards[i][0].manaValue = 0
+					notFlatAllCards[i][0].printings = ["AFR"]
+					notFlatAllCards[i][0].legalities = { "commander": "Legal" }
+				}
+			}
+		}
+
+		// Remove reversible cards
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].layout === "reversible_card") {
+					if (verbose_updateAllCards) { console.log(`-- Removing (Layout = reversible_card): ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Remove Vanguards
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].layout === "vanguard") {
+					if (verbose_updateAllCards) { console.log(`-- Removing (Layout = vanguard): ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Remove Planar
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].layout === "planar") {
+					if (verbose_updateAllCards) { console.log(`-- Removing (Layout = planar): ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Remove sticker sheets
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].type === "Stickers") {
+					if (verbose_updateAllCards) { console.log(`-- Removing (Type = Stickers): ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Remove Conspiracies
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].type === "Conspiracy") {
+					if (verbose_updateAllCards) { console.log(`-- Removing (Type = Conspiracy): ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Remove Schemes
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].type === "Scheme" ||
+				    notFlatAllCards[i][0].type === "Ongoing Scheme") {
+					if (verbose_updateAllCards) { console.log(`-- Removing (Type = Scheme): ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Remove Planes
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].type.startsWith("Plane ")) {
+					if (verbose_updateAllCards) { console.log(`-- Removing (Type = Plane): ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Remove Arena only cards (by name)
+		{
+			for (let i in notFlatAllCards) {
+				if (i.startsWith("A-")) {
+					if (verbose_updateAllCards) { console.log(`-- Removing Arena-only card (by-name): ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Remove Arena only cards (by legality)
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].legalities.historic &&
+				   !notFlatAllCards[i][0].legalities.vintage) {
+					if (verbose_updateAllCards) { console.log(`-- Removing Arena-only card (by-legality): ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Remove Arena only cards (by set)
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].firstPrinting === "HBG") {
+					if (verbose_updateAllCards) { console.log(`-- Removing Arena-only card (by-set): ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Remove Unknown Event cards
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].firstPrinting === "UNK") {
+					if (verbose_updateAllCards) { console.log(`-- Removing Unknown Event card: ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Remove Mystery Booster cards
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].firstPrinting === "MB2" ||
+				    notFlatAllCards[i][0].firstPrinting === "CMB2" ||
+				    notFlatAllCards[i][0].firstPrinting === "CMB1") {
+					if (verbose_updateAllCards) { console.log(`-- Removing Mystery Booster card: ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Remove Un-set cards
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].firstPrinting === "UGL" ||
+				    notFlatAllCards[i][0].firstPrinting === "UNH" ||
+				    notFlatAllCards[i][0].firstPrinting === "UST" ||
+				    notFlatAllCards[i][0].firstPrinting === "UND" ||
+				    (notFlatAllCards[i][0].firstPrinting === "UNF" &&
+				     Object.keys(notFlatAllCards[i][0].legalities).length === 0)) {
+					if (verbose_updateAllCards) { console.log(`-- Removing Un-set card: ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Remove Secret Lair Drop cards
+		{
+			for (let i in notFlatAllCards) {
+				if ((notFlatAllCards[i][0].firstPrinting === "SLD" &&
+				     Object.keys(notFlatAllCards[i][0].legalities).length === 0)) {
+					if (verbose_updateAllCards) { console.log(`-- Removing Secret Lair Drop card: ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Removing Miscellaneous Silly cards
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].firstPrinting === "PSSC" ||
+				    notFlatAllCards[i][0].firstPrinting === "PCEL" ||
+				    notFlatAllCards[i][0].firstPrinting === "PSDG" ||
+				    notFlatAllCards[i][0].firstPrinting === "PAST" ||
+				    notFlatAllCards[i][0].firstPrinting === "PTG" ||
+				    notFlatAllCards[i][0].firstPrinting === "HHO") {
+					if (verbose_updateAllCards) { console.log(`-- Removing Misc-Silly card: ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Removing Hero's Path cards
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].firstPrinting === "TBTH" ||
+				    notFlatAllCards[i][0].firstPrinting === "THP1" ||
+				    notFlatAllCards[i][0].firstPrinting === "THP2" ||
+				    notFlatAllCards[i][0].firstPrinting === "THP3") {
+					if (verbose_updateAllCards) { console.log(`-- Removing Hero's Path card: ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Removing Heroes of the Realm cards
+		{
+			for (let i in notFlatAllCards) {
+				if (notFlatAllCards[i][0].firstPrinting === "PH22" ||
+				    notFlatAllCards[i][0].firstPrinting === "PH21" ||
+				    notFlatAllCards[i][0].firstPrinting === "PH20" ||
+				    notFlatAllCards[i][0].firstPrinting === "PH19" ||
+				    notFlatAllCards[i][0].firstPrinting === "PH18" ||
+				    notFlatAllCards[i][0].firstPrinting === "PH17" ||
+				    notFlatAllCards[i][0].firstPrinting === "PHTR") {
+					if (verbose_updateAllCards) { console.log(`-- Removing Heroes of the Realm card: ${i}`) }
+					delete notFlatAllCards[i];
+				}
+			}
+		}
+
+		// Remove remaining cards with no legalities
+		{
+			for (let i in notFlatAllCards) {
+				if (Object.keys(notFlatAllCards[i][0].legalities).length === 0) {
+					if (verbose_updateAllCards) { console.log(`-- Removing card with empty legalities (probably unreleased): ${i}`); }
+					delete notFlatAllCards[i];
+					continue;
+				}
+			}
+		}
 
 		//Flatten subarrays from multipart cards and change both names and object keys to be individual.
 		const allCards = {};
@@ -80,11 +352,6 @@ const updateAllCards = function() {
 					allCards[notFlatAllCards[i][j].faceName] = notFlatAllCards[i][j];
 				}
 			}
-		}
-
-		//Add in dungeons manually.
-		for (let i in additionalCards) {
-			allCards[additionalCards[i].name] = additionalCards[i];
 		}
 
 		//Add in missing values.
@@ -106,45 +373,6 @@ const updateAllCards = function() {
 			}
 			if (!allCards[i].hasOwnProperty("legalities")) {
 				allCards[i].legalities = {};
-			}
-		}
-
-		//Remove tokens and emblems.
-		for (let i in allCards) {
-			if (allCards[i].layout === "token" || allCards[i].layout === "double_faced_token" || allCards[i].layout === "emblem") {
-				delete allCards[i];
-			}
-		}
-
-		//Remove the fake "double-faced" cards like Propaganda // Propaganda.
-		for (let i in allCards) {
-			if (/^(.*) \/\/ \1$/.test(allCards[i].name)) {
-				delete allCards[i];
-			}
-		}
-
-		//Remove sticker sheets.
-		for (let i in allCards) {
-			if (allCards[i].types.includes("Stickers")) {
-				delete allCards[i];
-			}
-		}
-
-		//Remove Arena-only cards.
-		for (let i in allCards) {
-			if (allCards[i].name.startsWith("A-")) {
-				delete allCards[i];
-				continue;
-			}
-			if (allCards[i].legalities.historic && !allCards[i].legalities.vintage) {
-				delete allCards[i];
-			}
-		}
-
-		//remove Un-cards, 1996 World Champ, vanguards, conspiracies, mystery booster, etc.
-		for (let i in allCards) {
-			if (!allCards[i].legalities || Object.keys(allCards[i].legalities).length === 0 || allCards[i].types.includes("Conspiracy")) {
-				delete allCards[i];
 			}
 		}
 
