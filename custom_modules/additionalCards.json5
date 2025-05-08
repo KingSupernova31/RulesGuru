@@ -1,0 +1,32 @@
+[
+  // Dungeon of the Mad Mage -- Included  in  mtgjson/AtomicCards.json
+  // Lost Mine of Phandelver -- Included  in  mtgjson/AtomicCards.json
+  // Tomb of Annihilation    -- Included  in  mtgjson/AtomicCards.json
+  // Undercity               -- MISSING  from mtgjson/AtomicCards.json
+  {
+    "printings": [
+      "CLB"
+    ],
+    "colorIdentity": [],
+    "colors": [],
+    "layout": "dungeon",
+    "legalities": {
+      "commander": "Legal",
+      "duel": "Legal",
+      "legacy": "Legal",
+      "modern": "Legal",
+      "pioneer": "Legal",
+      "vintage": "Legal"
+    },
+    "name": "Undercity",
+    "manaValue": 0,
+    "setCode": "TCLB",
+    "subtypes": [],
+    "supertypes": [],
+    "text": "You can’t enter this dungeon unless you “venture into Undercity.”\nSecret Entrance — Search your library for a basic land card, reveal it, put it into your hand, then shuffle. (Leads to: Forge, Lost Well)\nForge — Put two +1/+1 counters on target creature. (Leads to: Trap!, Arena)\nLost Well — Scry 2. (Leads to: Arena, Stash)\nTrap! — Target player loses 5 life. (Leads to: Archives)\nArena — Goad target creature. (Leads to: Archives, Catacombs)\nStash — Create a Treasure token. (Leads to: Catacombs)\nArchives — Draw a card. (Leads to: Throne of the Dead Three)\nCatacombs — Create a 4/1 black Skeleton creature token with menace. (Leads to: Throne of the Dead Three)\nThrone of the Dead Three — Reveal the top ten cards of your library. Put a creature card from among them onto the battlefield with three +1/+1 counters on it. It gains hexproof until your next turn. Then shuffle.",
+    "type": "Dungeon",
+    "types": [
+      "Dungeon"
+    ]
+  },
+]
