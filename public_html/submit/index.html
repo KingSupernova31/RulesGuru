@@ -1,53 +1,76 @@
 <!DOCTYPE html>
 
 <html>
-	<head>
-		<!-- Global site tag (gtag.js) - Google Analytics -->
-		<script async src="https://www.googletagmanager.com/gtag/js?id=UA-122686421-1"></script>
-		<script>
-		  window.dataLayer = window.dataLayer || [];
-		  function gtag(){dataLayer.push(arguments);}
-		  gtag('js', new Date());
+  <head>
+    <title>Submit Question - RulesGuru</title>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-122686421-1"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-		  gtag('config', 'UA-122686421-1');
-		</script>
+      gtag("config", "UA-122686421-1");
+    </script>
 
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-		<link rel="stylesheet" href="/globalResources/globalcss.css">
-		<script defer src="/globalResources/globaljs&html.js"></script>
+    <link rel="stylesheet" href="/globalResources/globalcss.css" />
+    <script defer src="/globalResources/globaljs&html.js"></script>
 
-		<link rel="stylesheet" href="submit.css">
-		<script defer src="submit.js"></script>
+    <link rel="stylesheet" href="submit.css" />
+    <script defer src="submit.js"></script>
 
-		<style id="cursorStyle"></style>
-	</head>
-	<body onresize="compressMobileNameDescription()">
-		<h1>Submit a Question</h1>
-		<br>
-		<textarea id="question" placeholder="Enter your question here. (Shorthand is fine, we just need to know what you're asking. You can include an answer if you have one, but it's not necessary.)"></textarea>
-		<input id="name" placeholder="Name. (Optional, if you'd like to be credited.)"></input>
-		<br>
-		<button onclick="submit()" id="submit" class="specialButtonBlack">Submit</button>
+    <style id="cursorStyle"></style>
+  </head>
+  <body onresize="compressMobileNameDescription()">
+    <h1>Submit a Question</h1>
+    <br />
+    <textarea
+      id="question"
+      placeholder="Enter your question here. (Shorthand is fine, we just need to know what you're asking. You can include an answer if you have one, but it's not necessary.)"
+    ></textarea>
+    <input
+      id="name"
+      placeholder="Name. (Optional, if you'd like to be credited.)"
+    />
+    <br />
+    <button onclick="submit()" id="submit" class="specialButtonBlack">
+      Submit
+    </button>
 
-		<p id="attribution">All content submitted to RulesGuru is the intellectual property of RulesGuru.</p>
+    <p id="attribution">
+      All content submitted to RulesGuru is the intellectual property of
+      RulesGuru.
+    </p>
 
-		<div id="FOUCOverlay"></div>
-		<div id="jsDisabled">
-			<h1>Welcome to RulesGuru!</h1>
-			<p>It looks like your Javascript is disabled. You'll need to enable it in order for the site to work.</p>
-		</div>
-		<div id="jsOutOfDate">
-			<h1>Welcome to RulesGuru!</h1>
-			<p>It looks like your browser is out of date. You'll need to update it to a newer version in order for the site to work.</p>
-		</div>
-		<script>
-			//Check for Javascript
-			document.getElementById("jsDisabled").style.display = "none";
+    <div id="FOUCOverlay"></div>
+    <div id="jsDisabled">
+      <h1>Welcome to RulesGuru!</h1>
+      <p>
+        It looks like your Javascript is disabled. You'll need to enable it in
+        order for the site to work.
+      </p>
+    </div>
+    <div id="jsOutOfDate">
+      <h1>Welcome to RulesGuru!</h1>
+      <p>
+        It looks like your browser is out of date. You'll need to update it to a
+        newer version in order for the site to work.
+      </p>
+    </div>
+    <script>
+      //Check for Javascript
+      document.getElementById("jsDisabled").style.display = "none";
 
-			eval("const foo = 'bar'");
+      eval("const foo = 'bar'");
 
-			document.getElementById("jsOutOfDate").style.display = "none";
-		</script>
-	</body>
+      document.getElementById("jsOutOfDate").style.display = "none";
+    </script>
+  </body>
 </html>
