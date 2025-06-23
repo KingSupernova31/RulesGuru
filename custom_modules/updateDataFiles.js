@@ -678,7 +678,7 @@ const updateAllCards = function() {
 	}
 };
 
-//This is overcomplicated because the verson of node on Isaac's laptop is too old to support matchAll and he has thus far been too lazy to upgrade it.
+//TODO: This should be using matchAll instead.
 const getSubtypesFromRuleText = function(ruleText) {
 	const types = [];
 	const listText = ruleText.match(/types? (are|is)( one word long:)? ((and )?([a-zA-Z-']+)( \(.+?\))?(, |\.))+/)[0];

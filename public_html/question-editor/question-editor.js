@@ -1,5 +1,3 @@
-
-
 document.getElementById("topBannerRightText").appendChild(document.getElementById("rulesLink"));
 document.getElementById("topBannerRightText").appendChild(document.getElementById("adminAboutLink"));
 
@@ -1444,11 +1442,9 @@ const anythingRelevantHasChanged = function(element) {
 }
 setInterval(function() {
 	if (anythingRelevantHasChanged(document.getElementById("question"))) {
-		console.log("question change")
 		convertTypingRealTime(document.getElementById("question"));
 	}
 	if (anythingRelevantHasChanged(document.getElementById("answer"))) {
-		console.log("answer change")
 		convertTypingRealTime(document.getElementById("answer"));
 	}
 }, 10);
@@ -2821,3 +2817,50 @@ setInterval(async function() {
 		}
 	}
 }, 10000)
+
+
+
+
+
+
+
+
+
+async function callGroqAPI(userMessage) {
+  const url = "https://api.groq.com/openai/v1/chat/completions";
+  const payload = {
+    model: "deepseek-r1-distill-llama-70b",
+    messages: [{ role: "user", content: userMessage }],
+		temperature: 0,
+  };
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer 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`
+      },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || "No response received.";
+  } catch (error) {
+    console.error("Error calling Groq API:", error);
+    return "Error calling API.";
+  }
+}
+
+const rewriteGrammar = async function() {
+	const instructions = `You will be shown a Magic: The Gathering rules question and answer, and you are to point out any severe grammatical errors. Strings like "[AP]" and "[NAP]" denote the names of players. Strings like "[card 1]" and "[card 2]" denote the names of cards. You are to return a list of spelling and punctuation errors, run-on sentences, etc. Your descriptions shold be as concise as possible. Put each error on a separate line, and include no other text in your reply. If no changes are needed, return "no changes needed". Again, DO NOT INCLUDE ANY OTHER TEXT. Remember: You aren't *answering* the question, you are correcting the grammar of the question. The question and answer are as follows:`
+	const question = document.getElementById("question").value;
+	const answer = document.getElementById("answer").value;
+	const message = `${instructions}
+	Question: ${question}
+	Answer: ${answer}
+	`;
+	const response = await callGroqAPI(message)
+	return response.replace(/<think>[^]*<\/think>/, "");
+}
