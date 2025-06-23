@@ -12,11 +12,12 @@ const express = require("express"),
 			shuffle = require("./custom_modules/shuffle.js"),
 			questionMatchesSettings = require("./custom_modules/questionMatchesSettings.js"),
 			nodemailer = require("nodemailer"),
+			emailAuth = JSON.parse(fs.readFileSync("externalCredentials.json", "utf8")).email,
 			transporter = nodemailer.createTransport({
 				"host": "smtp.zoho.com",
 				"port": 465,
 				"secure": true,
-				"auth": JSON.parse(fs.readFileSync("externalCredentials.json", "utf8")).email
+				"auth": emailAuth.pass
 			});
 
 app.set('trust proxy', true);
@@ -53,7 +54,7 @@ deepFreeze(canonicalAllCards);
 
 const sendEmail = function(recipientEmail, subject, message) {
 	transporter.sendMail({
-		from: "admin@rulesguru.net",
+		from: emailAuth.user,
 		to: recipientEmail,
 		subject: subject,
 		text: message,
@@ -69,7 +70,7 @@ const sendEmailToOwners = function(subject, message, res) {
 	for (let i in allAdmins) {
 		if (allAdmins[i].roles.owner) {
 			transporter.sendMail({
-				"from": "admin@rulesguru.net",
+				"from": emailAuth.user,
 				"to": allAdmins[i].emailAddress,
 				"subject": subject,
 				"text": message
@@ -650,8 +651,8 @@ app.post("/submitContactForm", function(req, res) {
 		const num = message.match(/^Message about question #(\d+):/)?.[1];
 		sendEmailToOwners(num ? `RulesGuru contact form submission about question ${num}` : "RulesGuru contact form submission", message, res);
 		transporter.sendMail({
-			"from": "admin@rulesguru.net",
-			"to": "admin@rulesguru.net",
+			"from": emailAuth.user,
+			"to": emailAuth.user,
 			"subject": "RulesGuru contact form submission",
 			"text": message,
 			"replyTo": req.body.returnEmail

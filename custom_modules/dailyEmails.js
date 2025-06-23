@@ -4,11 +4,13 @@ const sqlite = require("sqlite3").verbose(),
 			fs = require("fs"),
 			util = require("util"),
 			nodemailer = require("nodemailer"),
+			path = require("path"),
+			emailAuth = JSON.parse(fs.readFileSync(path.join(__dirname, "../externalCredentials.json"), "utf8")).email,
 			transporter = nodemailer.createTransport({
 				"host": "smtp.zoho.com",
 				"port": 465,
 				"secure": true,
-				"auth": JSON.parse(fs.readFileSync("externalCredentials.json", "utf8")).email
+				"auth": emailAuth.pass
 			}),
 			handleError = require("./handleError.js"),
 			getUnfinishedQuestion = require("./getUnfinishedQuestion.js");
@@ -33,7 +35,7 @@ const handleEmails = function(peopleToEmail) {
 
 				if (result === false) {
 					transporter.sendMail({
-						from: "admin@rulesguru.net",
+						from: emailAuth.user,
 						to: peopleToEmail[i].emailAddress,
 						subject: "There are no RulesGuru questions needing your attention today!",
 						text: `Hi ${peopleToEmail[i].name.split(" ")[0]},\n\nThanks to your help, we've approved the entire database of unfinished questions that need your attention, and there is currently nothing for you to do. I'm sure this will change soon as more questions get submitted. In the mean time, take a while to relax and look over the following images.\n\nhttps://www.google.com/search?tbm=isch&q=cute+bunny+pictures`
@@ -47,7 +49,7 @@ const handleEmails = function(peopleToEmail) {
 				} else {
 
 					transporter.sendMail({
-						from: "admin@rulesguru.net",
+						from: emailAuth.user,
 						to: peopleToEmail[i].emailAddress,
 						subject: `Your RulesGuru question to approve`,
 						text: `Hi ${peopleToEmail[i].name.split(" ")[0]},\n\nYour question today is #${result.id}. Head on over to https://rulesguru.org/question-editor/?${result.id} and check it out!`

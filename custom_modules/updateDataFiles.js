@@ -1,17 +1,10 @@
 "use strict";
 
 const https = require("https"),
-			fs = require("fs"),
-			JSON5 = require("json5"),
-			request = require("request"),
-			nodemailer = require("nodemailer"),
-			transporter = nodemailer.createTransport({
-				"host": "smtp.zoho.com",
-				"port": 465,
-				"secure": true,
-				"auth": JSON.parse(fs.readFileSync("externalCredentials.json", "utf8")).email
-			}),
-			handleError = require("./handleError.js");;
+	fs = require("fs"),
+	JSON5 = require("json5"),
+	request = require("request"),
+	handleError = require("./handleError.js");
 
 const downloadFile = function(dest, source, callback) {
 	if (!fs.existsSync(dest)) {
