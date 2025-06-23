@@ -15,7 +15,7 @@ Certain files in this repository contain placeholder data as detailed below:
 * The API that RulesGuru uses to fetch metagame data is private and will get blocked by Cloudflare if any other IP address tries to access it, so for development purposes we host a mirror of that data ourselves at the URLs in `mostPlayedApiUrls.json`.
 
 
-##Development guidelines
+## Development guidelines
 
 * Wizards is constantly coming out with new cards, layouts, mechanics, formats, changing oracle text, and more. All RulesGuru features should be designed with future compatibility and maintainabilityis in mind. Cetegorization systems should be broad and easily-extensible. Systems should automatically check for changes from upstream data sources and update RulesGuru's data accordingly. Any part of the code that interfaces with such data should be automated checks for data that falls outside of the supported bounds, and send out an admin warning email if this is detected.
 
