@@ -1,31 +1,22 @@
 {
   "dependencies": {
-    "body-parser": "^1.19.0",
-    "check-disk-space": "^3.4.0",
-    "compression": "^1.7.4",
-    "discord": "^0.8.2",
-    "discord.js": "^14.7.1",
-    "express": "^4.17.1",
-    "expresss": "^0.0.0",
-    "fast-folder-size": "^2.2.0",
+    "body-parser": "^2.2.0",
+    "compression": "^1.8.0",
+    "discord.js": "^14.20.0",
+    "express": "^5.1.0",
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
-    "jest": "^26.6.3",
-    "node-cron": "^2.0.3",
-    "node-fetch": "^3.3.0",
-    "nodemailer": "^6.4.17",
-    "pm2": "^4.5.4",
+    "json5": "^2.2.3",
+    "node-cron": "^4.1.1",
+    "nodemailer": "^7.0.3",
+    "pm2": "^6.0.8",
     "request": "^2.88.2",
-    "rewire": "^5.0.0",
-    "sqlite3": "^5.0.1",
-    "twit": "^2.2.11",
+    "sqlite3": "^5.1.7",
     "twitter-v2": "^1.1.0",
     "util": "^0.12.3"
   },
   "scripts": {
-    "test": "jest",
     "start": "pm2 start ecosystem.config.js",
-    "start-server": "node server.js",
     "stop": "pm2 stop ecosystem.config.js"
   }
 }

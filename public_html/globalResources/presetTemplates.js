@@ -45,7 +45,8 @@ const presetTemplates = [
 			{"field":"Rules text","operator":"Does not contain:","value":"cast","orGroup":null},
 			{"field":"Rules text","operator":"Does not contain:","value":"target","orGroup":null},
 			{"field":"Rules text","operator":"Does not contain:","value":"activate","orGroup":null},
-			{"field":"Rules text","operator":"Does not contain:","value":"trigger","orGroup":null}
+			{"field":"Rules text","operator":"Does not contain:","value":"trigger","orGroup":null},
+			{"field":"Rules text","operator":"Does not match:","value":"(have|has) (hexproof|shroud|protection|ward)","orGroup":null}
 		],
 	},
 	{

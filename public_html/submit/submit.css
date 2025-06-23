@@ -11,6 +11,7 @@ h1 {
 	left: 50%;
 	transform: translate(-50%);
 	display: block;
+	padding: 0.2rem;
 }
 
 #submit  {
@@ -28,6 +29,7 @@ h1 {
 	max-width: 30rem;
 	margin-top: 1rem;
 	margin-bottom: 1rem;
+	padding-left: 0.1rem;
 }
 
 #attribution {

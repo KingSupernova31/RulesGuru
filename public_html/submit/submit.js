@@ -103,6 +103,7 @@ document.addEventListener("keypress", function(event) {
 	}
 });
 
+//Not used normally, here for my use in the console when I want to submit a large dump of questions.
 const submitLots = function(questions) {
 	const job = setInterval(function() {
 		if (!submissionOngoing) {
@@ -114,3 +115,5 @@ const submitLots = function(questions) {
 		}
 	}, 1000);
 };
+
+document.getElementById("question").focus();
