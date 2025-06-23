@@ -31,7 +31,7 @@ Certain files in this repository contain placeholder data as detailed below:
 
 * All contributors to RulesGuru must agree to cede the intellectual property rights to their contributions. Please fill out [this](https://docs.google.com/forms/d/1vsJQ7-JZw098DLBAot4UJVkQX8Egf599DjlGcAu_hyw/edit) form to do so.
 
-* Several organizations have generously given us grants for development work. As such, we can sometimes afford to pay for contributions. Talk to me for the details at any given time.
+* Several organizations have generously given us grants for development work. As such, we can sometimes afford to pay for contributions. Talk to me for the details at any given time. The easiest way to contact me is to via [our Discord server](https://discord.gg/HbBXSe7nf5).
 
 
 ## Third-party usage
