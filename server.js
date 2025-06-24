@@ -6,6 +6,7 @@ const express = require("express"),
 			compression = require("compression"),
 			fs = require("fs"),
 			util = require("util"),
+			path = require("path"),
 			sqlite = require("sqlite3").verbose(),
 			handleError = require("./custom_modules/handleError.js"),
 			getUnfinishedQuestion = require("./custom_modules/getUnfinishedQuestion.js"),
@@ -51,6 +52,15 @@ function deepFreeze(object) {
 let referenceQuestionArray;
 let canonicalAllCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
 deepFreeze(canonicalAllCards);
+
+const addToJsonlLog = function(filePath, newEntry) {
+	if (fs.existsSync(filePath)) {
+		fs.appendFileSync(filePath, "\n" + JSON.stringify(newEntry));
+	} else {
+		fs.mkdirSync(path.dirname(filePath), {recursive:true});
+		fs.writeFileSync(filePath, JSON.stringify(newEntry));
+	}
+}
 
 const sendEmail = function(recipientEmail, subject, message) {
 	transporter.sendMail({
@@ -513,7 +523,7 @@ app.get("/api/questions", function(req, res) {
 	}
 
 	const logObj = {"date": Date.now(), "request": req.query, "ip": req.ip};
-	fs.appendFileSync("logs/apiLog.jsonl", "\n" + JSON.stringify(logObj));
+	addToJsonlLog("logs/apiLog.jsonl", logObj);
 
 	const allCards = canonicalAllCards;
 	let questionArray = referenceQuestionArray.slice(0);// Must be a copy because referenceQuestionArray is immutable and this needs to be shuffled. Each question in the copy will still be immutable, which is desirable.
@@ -708,7 +718,7 @@ app.get("/getQuestionCount", async function(req, res) {
 		"awaitingVerificationRules": allData.filter(question => question.status === "awaiting verification" && question.verification.rulesGuru === null).length,
 	});
 
-	fs.appendFileSync("logs/questionCountLog.jsonl", "\n" + String(Date.now()));
+	addToJsonlLog("logs/questionCountLog.jsonl", Date.now());
 });
 
 app.post("/submitAdminQuestion", async function(req, res) {
@@ -1216,7 +1226,7 @@ app.post("/validateLogin", function(req, res) {
 
 app.post("/logSearchLinkData", function(req, res) {
 	const obj = {"date": Date.now(), "request": req.body};
-	fs.appendFileSync("logs/searchLinkLog.jsonl", "\n" + JSON.stringify(obj));
+	addToJsonlLog("logs/searchLinkLog.jsonl", obj);
 });
 
 app.get("/getTagData", function(req, res) {
