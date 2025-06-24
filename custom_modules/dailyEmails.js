@@ -10,7 +10,7 @@ const sqlite = require("sqlite3").verbose(),
 				"host": "smtp.zoho.com",
 				"port": 465,
 				"secure": true,
-				"auth": emailAuth.pass
+				"auth": emailAuth
 			}),
 			handleError = require("./handleError.js"),
 			getUnfinishedQuestion = require("./getUnfinishedQuestion.js");

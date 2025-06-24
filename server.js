@@ -17,7 +17,7 @@ const express = require("express"),
 				"host": "smtp.zoho.com",
 				"port": 465,
 				"secure": true,
-				"auth": emailAuth.pass
+				"auth": emailAuth
 			});
 
 app.set('trust proxy', true);
