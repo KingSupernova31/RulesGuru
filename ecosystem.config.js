@@ -13,7 +13,7 @@ module.exports = {
 			"log_date_format": "YYYY-MM-DD HH:mm",
 		},
 		{
-			"name": "RGjobs.js",
+			"name": "RGjobs",
 			"script": "regularJobScheduling.js",
 			"watch": "regularJobScheduling.js",
 			"log_date_format": "YYYY-MM-DD HH:mm",

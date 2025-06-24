@@ -248,10 +248,19 @@ const convertAllTemplates = function(question, allCards) {
 };
 
 //Update the reference question database and card object that are stored in memory.
+let referenceUpdateOngoing = false;
+let referenceUpdatePending = false;
 const updateReferenceObjects = async function(speedy) {
+	if (referenceUpdateOngoing) {
+		referenceUpdatePending = true;
+		return;
+	} else {
+		referenceUpdateOngoing = true;
+		referenceUpdatePending = false;
+	}
 
-	canonicalAllCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
-	deepFreeze(canonicalAllCards);
+	const newAllCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
+	deepFreeze(newAllCards);
 
 	const finishedQuestions = await dbAll(`SELECT json FROM questions WHERE status = "finished"`);
 
@@ -261,7 +270,7 @@ const updateReferenceObjects = async function(speedy) {
 
 	const emptyTemplates = [];
 	for (let i = 0 ; i < finishedQuestions.length ; i++) {
-		if (!speedy) {await sleep(0);}//This takes a while and would block the server thread otherwise.
+		if (!speedy) {await sleep(10);}//This takes a while and would block the server thread otherwise.
 
 		//Expand templates.
 		finishedQuestions[i] = convertAllTemplates(finishedQuestions[i], canonicalAllCards);
@@ -279,17 +288,21 @@ const updateReferenceObjects = async function(speedy) {
 			i--;
 		}
 	}
-
-	sendEmailToOwners("RulesGuru broken templates", `The following questions generate an empty template.\n\n${emptyTemplates.join(", ")}`);
+	deepFreeze(finishedQuestions);
+	if (emptyTemplates.length > 0) {
+		sendEmailToOwners("RulesGuru broken templates", `The following questions generate an empty template.\n\n${emptyTemplates.join(", ")}`);
+	}
 
 	referenceQuestionArray = finishedQuestions;
-	deepFreeze(referenceQuestionArray);
-
+	canonicalAllCards = newAllCards;
+	saveReferenceQuestionArrayToDisk();
+	updateIndexQuestionCount();
 	console.log("Reference question array generation complete");
 
-	saveReferenceQuestionArrayToDisk();
-
-	updateIndexQuestionCount();
+	referenceUpdateOngoing = false;
+	if (referenceUpdatePending) {
+		updateReferenceObjects();
+	}
 }
 
 let savedMeta = "";
@@ -684,7 +697,6 @@ app.post("/submitContactForm", function(req, res) {
 	}
 });
 
-let lastTimeReferenceArrayMismatchWarningSent = 0;
 app.get("/getQuestionCount", async function(req, res) {
 
 	const allData = await dbAll(`SELECT * FROM questions`);
