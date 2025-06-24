@@ -36,10 +36,9 @@ app.use(express.static("./public_html"));
 
 let server;
 
+//A function modifying a card's properties or deleting a question from an array would be hard to catch, so this makes sure doing so throws an error.
 function deepFreeze(object) {
-  // Retrieve the property names defined on object
   const propNames = Reflect.ownKeys(object);
-  // Freeze properties before freezing self
   for (const name of propNames) {
     const value = object[name];
     if ((value && typeof value === "object") || typeof value === "function") {
@@ -113,11 +112,11 @@ const sendEmailToOwners = function(subject, message, res) {
 }
 
 let promisifiedAll,
-		promisifiedGet,
-		promisifiedRun,
-		dbAll,
-		dbGet,
-		dbRun;
+	promisifiedGet,
+	promisifiedRun,
+	dbAll,
+	dbGet,
+	dbRun;
 
 const db = new sqlite.Database("questionDatabase.db", async function(err) {
 	if (err) {
@@ -144,25 +143,10 @@ const db = new sqlite.Database("questionDatabase.db", async function(err) {
 		try {
 			referenceQuestionArray = JSON.parse(fs.readFileSync("referenceQuestionArray.json", "utf8"));
 			deepFreeze(referenceQuestionArray);
+			updateReferenceObjects();//To update it if it's gotten out of sync with the database. Server will still run with it out of date, so we do this async.
 		} catch {
 			console.log("Generating reference question array")
-			await updateReferenceObjects();
-		}
-
-		//Check for a reference question array that's out of aync with the database.
-		const allData = await dbAll(`SELECT * FROM questions`);
-		const referenceArrayNums = referenceQuestionArray.map(question => question.id);
-		const databaseNums = allData.filter(question => question.status === "finished").map(question => question.id);
-		let problemString = "";
-		if (referenceArrayNums.filter(num => !databaseNums.includes(num)).length > 0) {
-			problemString += `Database doesn't include questions ${referenceArrayNums.filter(num => !databaseNums.includes(num))}. `;
-		}
-		if (databaseNums.filter(num => !referenceArrayNums.includes(num)).length > 0) {
-			//Disabling because it's super annoying and not a real problem. Fix this properly later.
-			//problemString += `Reference array doesn't include questions ${databaseNums.filter(num => !referenceArrayNums.includes(num))}`;
-		}
-		if (problemString !== "") {
-			handleError(new Error(`Reference array mismatch: ${problemString}`));
+			await updateReferenceObjects(true);
 		}
 
 		let totalVariations = 0;
@@ -264,7 +248,7 @@ const convertAllTemplates = function(question, allCards) {
 };
 
 //Update the reference question database and card object that are stored in memory.
-const updateReferenceObjects = async function() {
+const updateReferenceObjects = async function(speedy) {
 
 	canonicalAllCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
 	deepFreeze(canonicalAllCards);
@@ -275,7 +259,10 @@ const updateReferenceObjects = async function() {
 		finishedQuestions[index] = JSON.parse(currentValue.json);
 	});
 
+	const emptyTemplates = [];
 	for (let i = 0 ; i < finishedQuestions.length ; i++) {
+		if (!speedy) {await sleep(0);}//This takes a while and would block the server thread otherwise.
+
 		//Expand templates.
 		finishedQuestions[i] = convertAllTemplates(finishedQuestions[i], canonicalAllCards);
 
@@ -287,11 +274,13 @@ const updateReferenceObjects = async function() {
 			}
 		}
 		if (emptyTemplate) {
-			sendEmailToOwners("RulesGuru template error", `Question ${finishedQuestions[i].id} generates an empty template.\n\nhttps://rulesguru.org/question-editor/?${finishedQuestions[i].id}`);
+			emptyTemplates.push(finishedQuestions[i].id);
 			finishedQuestions.splice(i, 1);
 			i--;
 		}
 	}
+
+	sendEmailToOwners("RulesGuru broken templates", `The following questions generate an empty template.\n\n${emptyTemplates.join(", ")}`);
 
 	referenceQuestionArray = finishedQuestions;
 	deepFreeze(referenceQuestionArray);
@@ -303,7 +292,17 @@ const updateReferenceObjects = async function() {
 	updateIndexQuestionCount();
 }
 
-setInterval(updateReferenceObjects, 86400000, false);
+let savedMeta = "";
+setInterval(() => {
+	let newMeta = "";
+	if (fs.existsSync("data_files/meta.json")) {
+		newMeta = fs.readFileSync("data_files/meta.json", "utf8");
+	}
+	if (newMeta !== savedMeta) {
+		updateReferenceObjects();
+		savedMeta = newMeta;
+	}
+}, 1000);
 
 const updateIndexQuestionCount = function() {
 	let html = fs.readFileSync("public_html/index.html", "utf8");
@@ -806,31 +805,7 @@ app.post("/updateQuestion", async function(req, res) {
 				"message": `Question #${req.body.questionObj.id} updated successfully.`
 			});
 
-			//Update the reference question array
-			if (oldQuestion.status === "finished") {
-				//We have to copy the array and discard the old one since it was immutable.
-				referenceQuestionArray = referenceQuestionArray.slice(0);
-
-				for (let i in referenceQuestionArray) {
-					if (referenceQuestionArray[i].id === req.body.questionObj.id) {
-						let newQuestion = req.body.questionObj;
-						const allCards = canonicalAllCards;
-						newQuestion = convertAllTemplates(newQuestion, allCards);
-						//Check for a template that generated 0 cards.
-						let emptyTemplate = false;
-						for (let j = 0 ; j < newQuestion.cardLists.length ; j++) {
-							if (newQuestion.cardLists[j].length === 0) {
-								emptyTemplate = true;
-							}
-						}
-						if (emptyTemplate) {
-							sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.org/question-editor/?${newQuestion.id}`);
-						}
-						referenceQuestionArray[i] = newQuestion;
-					}
-				}
-				deepFreeze(referenceQuestionArray);
-			}
+			updateReferenceObjects();
 
 			//Send emails about the change.
 			if (currentAdmin.sendSelfEditLogEmails) {
@@ -961,39 +936,7 @@ app.post("/changeQuestionStatus", async function(req, res) {
 			"newVerification": verificationObject
 		});
 
-		//Update the reference question array
-		if (newStatus === "finished") {
-			let newQuestion = req.body.questionObj;
-			const allCards = canonicalAllCards;
-			newQuestion = convertAllTemplates(newQuestion, allCards);
-
-			//Check for a template that generated 0 cards.
-			let emptyTemplate = false;
-			for (let j = 0 ; j < newQuestion.cardLists.length ; j++) {
-				if (newQuestion.cardLists[j].length === 0) {
-					emptyTemplate = true;
-				}
-			}
-			if (emptyTemplate) {
-				sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.org/question-editor/?${newQuestion.id}`);
-			} else {
-				//We have to copy the array and discard the old one since it was immutable.
-				referenceQuestionArray = referenceQuestionArray.slice(0);
-				referenceQuestionArray.push(newQuestion);
-				deepFreeze(referenceQuestionArray);
-			}
-			saveReferenceQuestionArrayToDisk();
-		} else if (statusChange === "decrease") {
-			//We have to copy the array and discard the old one since it was immutable.
-			referenceQuestionArray = referenceQuestionArray.slice(0);
-			for (let i in referenceQuestionArray) {
-				if (referenceQuestionArray[i].id === req.body.questionObj.id) {
-					referenceQuestionArray.splice(i, 1);
-				}
-			}
-			deepFreeze(referenceQuestionArray);
-			saveReferenceQuestionArrayToDisk();
-		}
+		updateReferenceObjects();
 
 		//Send emails about the change.
 		if (currentAdmin.sendSelfEditLogEmails) {
@@ -1080,9 +1023,11 @@ const addQuestion = async function(question, isAdmin, adminId) {
 				if (currentAdmin.roles.grammarGuru && currentAdmin.roles.templateGuru && currentAdmin.roles.rulesGuru) {
 					newStatus = "finished";
 					await dbRun(`INSERT INTO questions ("id", "json", "status", "verification") VALUES (${newId}, '${JSON.stringify(question).replace(/'/g,"''")}', '${newStatus}', '${verificationJson.replace(/'/g,"''")}')`);
+					updateReferenceObjects();
 				} else {
 					newStatus = "awaiting verification";
 					await dbRun(`INSERT INTO questions ("id", "json", "status", "verification") VALUES (${newId}, '${JSON.stringify(question).replace(/'/g,"''")}', '${newStatus}', '${verificationJson.replace(/'/g,"''")}')`);
+					updateReferenceObjects();
 				}
 			} else {
 				verificationJson = JSON.stringify({
@@ -1093,6 +1038,7 @@ const addQuestion = async function(question, isAdmin, adminId) {
 				});
 				newStatus = "pending";
 				await dbRun(`INSERT INTO questions ("id", "json", "status", "verification") VALUES (${newId}, '${JSON.stringify(question).replace(/'/g,"''")}', '${newStatus}', '${verificationJson}')`);
+				updateReferenceObjects();
 			}
 
 			addQuestionRunning = false;
@@ -1345,39 +1291,7 @@ app.post("/updateAndForceStatus", async function(req, res) {
 
 		await dbRun(`UPDATE questions SET status = '${req.body.newStatus}', verification = '${JSON.stringify(newVerificationObject).replace(/'/g,"''")}', json = '${JSON.stringify(req.body.questionData).replace(/'/g,"''")}', id = '${req.body.newId || req.body.id}' WHERE id = ${req.body.id}`);
 
-		//Update the reference question array. We have to copy the array and discard the old one since it was immutable.
-		referenceQuestionArray = referenceQuestionArray.slice(0);
-		for (let i in referenceQuestionArray) {
-			if (referenceQuestionArray[i].id === req.body.id) {
-				referenceQuestionArray.splice(i, 1);
-				break;
-			}
-		}
-		deepFreeze(referenceQuestionArray);
-
-		if (req.body.newStatus === "finished") {
-			let newQuestion = req.body.questionData;
-			const allCards = canonicalAllCards;
-			newQuestion = convertAllTemplates(newQuestion, allCards);
-			//Check for a template that generated 0 cards.
-			let emptyTemplate = false;
-			for (let j = 0 ; j < newQuestion.cardLists.length ; j++) {
-				if (newQuestion.cardLists[j].length === 0) {
-					emptyTemplate = true;
-				}
-			}
-			if (emptyTemplate) {
-				sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.org/question-editor/?${newQuestion.id}`);
-			} else {
-				//We have to copy the array and discard the old one since it was immutable.
-				referenceQuestionArray = referenceQuestionArray.slice(0);
-				referenceQuestionArray.push(newQuestion);
-				deepFreeze(referenceQuestionArray);
-			}
-		}
-		saveReferenceQuestionArrayToDisk();
-
-		updateIndexQuestionCount();
+		updateReferenceObjects();
 
 		res.json({
 			"error": false,
@@ -1388,7 +1302,6 @@ app.post("/updateAndForceStatus", async function(req, res) {
 		});
 
 		if (req.body.newId) {
-
 			const date = Date();
 			sendEmailToOwners(`RulesGuru question ID change`, `${currentAdmin.name} has moved question #${req.body.id} to ID #${req.body.newId}.\n\nTime: ${date}`);
 		}
