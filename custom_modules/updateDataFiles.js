@@ -1,25 +1,13 @@
 "use strict";
 
-const https = require("https"),
-	fs = require("fs"),
+const fs = require("fs"),
 	JSON5 = require("json5"),
-	request = require("request"),
-	handleError = require("./handleError.js");
+	fetch = require("node-fetch"),
+	path = require("path"),
+	handleError = require("./handleError.js"),
+	lzma = require("lzma-native");
 
-const downloadFile = function(dest, source, callback) {
-	if (!fs.existsSync(dest)) {
-		fs.writeFileSync(dest, "");
-	}
-	let file = fs.createWriteStream(dest);
-	let request = https.get(source, function(response) {
-		response.pipe(file);
-		file.on('finish', function() {
-			file.close(callback);
-		});
-	}).on('error', function(err) {
-		handleError(err);
-	});
-};
+const rootDir = path.join(__dirname, "..");
 
 const replaceDoppelgangerChars = function(string) {
 	const map = {
@@ -37,7 +25,6 @@ const baseCardNamesToIgnore = JSON5.parse(fs.readFileSync("custom_modules/baseCa
 
 const additionalCards = JSON5.parse(replaceDoppelgangerChars(fs.readFileSync("custom_modules/additionalCards.json5", "utf8")));
 
-
 const colorMappings = {
 	"W": "White",
 	"U": "Blue",
@@ -46,16 +33,15 @@ const colorMappings = {
 	"G": "Green"
 }
 
-const updateAllCards = function() {
-	const verbose_updateAllCards = true;
+const updateAllCards = function(verbose = false) {
 	try {
-		if (verbose_updateAllCards) { console.log(`Updating all cards`); }
+		console.log(time() + `Updating all cards`);
 
 		const notFlatAllCards = JSON.parse(replaceDoppelgangerChars(fs.readFileSync("data_files/rawAllCards.json", "utf8"))).data;
 
 		// Patch cards with normal versions and silly variants
 		{
-			if (verbose_updateAllCards) { console.log(`-- Patching: Red Herring`); }
+			if (verbose) { console.log(`-- Patching: Red Herring`); }
 			const cards = notFlatAllCards["Red Herring"]
 			delete notFlatAllCards["Red Herring"]
 			let norm_card = cards.find((card) => card["text"].startsWith("Haste"))
@@ -66,7 +52,7 @@ const updateAllCards = function() {
 		}
 
 		{
-			if (verbose_updateAllCards) { console.log(`-- Patching: Pick Your Poison`); }
+			if (verbose) { console.log(`-- Patching: Pick Your Poison`); }
 			const cards = notFlatAllCards["Pick Your Poison"]
 			delete notFlatAllCards["Pick Your Poison"]
 			let norm_card = cards.find((card) => card["text"].startsWith("Choose one"))
@@ -77,7 +63,7 @@ const updateAllCards = function() {
 		}
 
 		{
-			if (verbose_updateAllCards) { console.log(`-- Patching: Unquenchable Fury`); }
+			if (verbose) { console.log(`-- Patching: Unquenchable Fury`); }
 			const cards = notFlatAllCards["Unquenchable Fury"]
 			delete notFlatAllCards["Unquenchable Fury"]
 			let norm_card = cards.find((card) => card["text"].startsWith("Enchant creature"))
@@ -88,7 +74,7 @@ const updateAllCards = function() {
 		}
 
 		{
-			if (verbose_updateAllCards) { console.log(`-- Patching: Fast // Furious`); }
+			if (verbose) { console.log(`-- Patching: Fast // Furious`); }
 			const cards = notFlatAllCards["Fast // Furious"]
 			delete notFlatAllCards["Fast // Furious"]
 			let norm_card_a = cards.find((card) => (card["faceName"] == "Fast"    && card["text"].startsWith("Discard a card")))
@@ -106,7 +92,7 @@ const updateAllCards = function() {
 		// Add in dungeons manually
 		{
 			for (let i in additionalCards) {
-				if (verbose_updateAllCards) { console.log(`-- Patching in additional card: ${additionalCards[i].name}`) }
+				if (verbose) { console.log(`-- Patching in additional card: ${additionalCards[i].name}`) }
 				notFlatAllCards[additionalCards[i].name] = [additionalCards[i]];
 			}
 		}
@@ -115,7 +101,7 @@ const updateAllCards = function() {
 		{
 			for (let i in notFlatAllCards) {
 				if (notFlatAllCards[i][0].type === "Dungeon") {
-					if (verbose_updateAllCards) { console.log(`-- Patching dungeon ${i} - First printing, Legalities, manaValue`) }
+					if (verbose) { console.log(`-- Patching dungeon ${i} - First printing, Legalities, manaValue`) }
 					notFlatAllCards[i][0].layout = "dungeon"
 					notFlatAllCards[i][0].manaValue = 0
 					notFlatAllCards[i][0].printings = ["AFR"]
@@ -128,7 +114,7 @@ const updateAllCards = function() {
 		{
 			for (let i in notFlatAllCards) {
 				if (notFlatAllCards[i][0].layout === "reversible_card") {
-					if (verbose_updateAllCards) { console.log(`-- Removing (Layout = reversible_card): ${i}`) }
+					if (verbose) { console.log(`-- Removing (Layout = reversible_card): ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -138,7 +124,7 @@ const updateAllCards = function() {
 		{
 			for (let i in notFlatAllCards) {
 				if (notFlatAllCards[i][0].layout === "vanguard") {
-					if (verbose_updateAllCards) { console.log(`-- Removing (Layout = vanguard): ${i}`) }
+					if (verbose) { console.log(`-- Removing (Layout = vanguard): ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -148,7 +134,7 @@ const updateAllCards = function() {
 		{
 			for (let i in notFlatAllCards) {
 				if (notFlatAllCards[i][0].layout === "planar") {
-					if (verbose_updateAllCards) { console.log(`-- Removing (Layout = planar): ${i}`) }
+					if (verbose) { console.log(`-- Removing (Layout = planar): ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -158,7 +144,7 @@ const updateAllCards = function() {
 		{
 			for (let i in notFlatAllCards) {
 				if (notFlatAllCards[i][0].type === "Stickers") {
-					if (verbose_updateAllCards) { console.log(`-- Removing (Type = Stickers): ${i}`) }
+					if (verbose) { console.log(`-- Removing (Type = Stickers): ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -168,7 +154,7 @@ const updateAllCards = function() {
 		{
 			for (let i in notFlatAllCards) {
 				if (notFlatAllCards[i][0].type === "Conspiracy") {
-					if (verbose_updateAllCards) { console.log(`-- Removing (Type = Conspiracy): ${i}`) }
+					if (verbose) { console.log(`-- Removing (Type = Conspiracy): ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -179,7 +165,7 @@ const updateAllCards = function() {
 			for (let i in notFlatAllCards) {
 				if (notFlatAllCards[i][0].type === "Scheme" ||
 				    notFlatAllCards[i][0].type === "Ongoing Scheme") {
-					if (verbose_updateAllCards) { console.log(`-- Removing (Type = Scheme): ${i}`) }
+					if (verbose) { console.log(`-- Removing (Type = Scheme): ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -189,7 +175,7 @@ const updateAllCards = function() {
 		{
 			for (let i in notFlatAllCards) {
 				if (notFlatAllCards[i][0].type.startsWith("Plane ")) {
-					if (verbose_updateAllCards) { console.log(`-- Removing (Type = Plane): ${i}`) }
+					if (verbose) { console.log(`-- Removing (Type = Plane): ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -199,7 +185,7 @@ const updateAllCards = function() {
 		{
 			for (let i in notFlatAllCards) {
 				if (i.startsWith("A-")) {
-					if (verbose_updateAllCards) { console.log(`-- Removing Arena-only card (by-name): ${i}`) }
+					if (verbose) { console.log(`-- Removing Arena-only card (by-name): ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -210,7 +196,7 @@ const updateAllCards = function() {
 			for (let i in notFlatAllCards) {
 				if (notFlatAllCards[i][0].legalities.historic &&
 				   !notFlatAllCards[i][0].legalities.vintage) {
-					if (verbose_updateAllCards) { console.log(`-- Removing Arena-only card (by-legality): ${i}`) }
+					if (verbose) { console.log(`-- Removing Arena-only card (by-legality): ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -220,7 +206,7 @@ const updateAllCards = function() {
 		{
 			for (let i in notFlatAllCards) {
 				if (notFlatAllCards[i][0].firstPrinting === "HBG") {
-					if (verbose_updateAllCards) { console.log(`-- Removing Arena-only card (by-set): ${i}`) }
+					if (verbose) { console.log(`-- Removing Arena-only card (by-set): ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -230,7 +216,7 @@ const updateAllCards = function() {
 		{
 			for (let i in notFlatAllCards) {
 				if (notFlatAllCards[i][0].firstPrinting === "UNK") {
-					if (verbose_updateAllCards) { console.log(`-- Removing Unknown Event card: ${i}`) }
+					if (verbose) { console.log(`-- Removing Unknown Event card: ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -242,7 +228,7 @@ const updateAllCards = function() {
 				if (notFlatAllCards[i][0].firstPrinting === "MB2" ||
 				    notFlatAllCards[i][0].firstPrinting === "CMB2" ||
 				    notFlatAllCards[i][0].firstPrinting === "CMB1") {
-					if (verbose_updateAllCards) { console.log(`-- Removing Mystery Booster card: ${i}`) }
+					if (verbose) { console.log(`-- Removing Mystery Booster card: ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -257,7 +243,7 @@ const updateAllCards = function() {
 				    notFlatAllCards[i][0].firstPrinting === "UND" ||
 				    (notFlatAllCards[i][0].firstPrinting === "UNF" &&
 				     Object.keys(notFlatAllCards[i][0].legalities).length === 0)) {
-					if (verbose_updateAllCards) { console.log(`-- Removing Un-set card: ${i}`) }
+					if (verbose) { console.log(`-- Removing Un-set card: ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -268,7 +254,7 @@ const updateAllCards = function() {
 			for (let i in notFlatAllCards) {
 				if ((notFlatAllCards[i][0].firstPrinting === "SLD" &&
 				     Object.keys(notFlatAllCards[i][0].legalities).length === 0)) {
-					if (verbose_updateAllCards) { console.log(`-- Removing Secret Lair Drop card: ${i}`) }
+					if (verbose) { console.log(`-- Removing Secret Lair Drop card: ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -283,7 +269,7 @@ const updateAllCards = function() {
 				    notFlatAllCards[i][0].firstPrinting === "PAST" ||
 				    notFlatAllCards[i][0].firstPrinting === "PTG" ||
 				    notFlatAllCards[i][0].firstPrinting === "HHO") {
-					if (verbose_updateAllCards) { console.log(`-- Removing Misc-Silly card: ${i}`) }
+					if (verbose) { console.log(`-- Removing Misc-Silly card: ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -296,7 +282,7 @@ const updateAllCards = function() {
 				    notFlatAllCards[i][0].firstPrinting === "THP1" ||
 				    notFlatAllCards[i][0].firstPrinting === "THP2" ||
 				    notFlatAllCards[i][0].firstPrinting === "THP3") {
-					if (verbose_updateAllCards) { console.log(`-- Removing Hero's Path card: ${i}`) }
+					if (verbose) { console.log(`-- Removing Hero's Path card: ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -312,7 +298,7 @@ const updateAllCards = function() {
 				    notFlatAllCards[i][0].firstPrinting === "PH18" ||
 				    notFlatAllCards[i][0].firstPrinting === "PH17" ||
 				    notFlatAllCards[i][0].firstPrinting === "PHTR") {
-					if (verbose_updateAllCards) { console.log(`-- Removing Heroes of the Realm card: ${i}`) }
+					if (verbose) { console.log(`-- Removing Heroes of the Realm card: ${i}`) }
 					delete notFlatAllCards[i];
 				}
 			}
@@ -322,7 +308,7 @@ const updateAllCards = function() {
 		{
 			for (let i in notFlatAllCards) {
 				if (Object.keys(notFlatAllCards[i][0].legalities).length === 0) {
-					if (verbose_updateAllCards) { console.log(`-- Removing card with empty legalities (probably unreleased): ${i}`); }
+					if (verbose) { console.log(`-- Removing card with empty legalities (probably unreleased): ${i}`); }
 					delete notFlatAllCards[i];
 					continue;
 				}
@@ -657,7 +643,7 @@ const updateAllCards = function() {
 		fs.writeFileSync("public_html/question-editor/allSubtypes.js", "const allSubtypes = " + JSON.stringify(allSubtypes));
 
 
-		console.log("Finished updating all cards.");
+		console.log(time() + "Finished updating all cards.");
 
 		const validity = allCardsProbablyValid(allCards)
 
@@ -786,7 +772,7 @@ const disperseFiles = function() {
 		//SearchLink mappings.
 		updateSearchLinkMappings();
 
-		console.log("Finished dispersing all cards");
+		console.log(time() + "Finished dispersing all cards");
 	} catch (err) {
 		handleError(err)
 	}
@@ -795,171 +781,6 @@ const disperseFiles = function() {
 if (!fs.existsSync("data_files")) {
 	fs.mkdirSync("data_files", function(err) {
 		if (err) {
-			handleError(err);
-		}
-	});
-}
-
-const downloadAllFiles = function() {
-
-	let finishedDownloads = 0;
-	downloadFile("data_files/rawAllKeywords.json", "https://api.academyruins.com/cr/keywords", function() {
-		try {
-			console.log("rawAllKeywords downloaded");
-			const allKeywords = JSON.parse(replaceDoppelgangerChars(fs.readFileSync("data_files/rawAllKeywords.json", "utf8")));
-			if (Object.keys(allKeywords).length === 3 && allKeywords.keywordAbilities.length > 30) {
-				for (let i in allKeywords.abilityWords) {
-					allKeywords.abilityWords[i] = allKeywords.abilityWords[i][0].toUpperCase() + allKeywords.abilityWords[i].slice(1);
-				}
-				for (let i in allKeywords.keywordAbilities) {
-					allKeywords.keywordAbilities[i] = allKeywords.keywordAbilities[i].toLowerCase();
-					allKeywords.keywordAbilities[i] = allKeywords.keywordAbilities[i][0].toUpperCase() + allKeywords.keywordAbilities[i].slice(1);
-				}
-				allKeywords.flavorWords = ["Acid Breath", "Animate Walking Statue", "Anitmagic Cone", "Archery", "Bardic Inspiration", "Beacon of Hope", "Bear Form", "Befriend Them", "Bewitching Whispers", "Binding Contract", "Brave the Stench", "Break Their Chains", "Charge Them", "Clever Conjurer", "Climb Over", "Combat Inspiration", "Cold Breath", "Cone of Cold", "Cunning Action", "Cure Wounds", "Dispel Magic", "Displacement", "Dissolve", "Distract the Guard", "Divine Intervention", "Dominate Monster", "Drag Below", "Engulf", "Fear Ray", "Fend Them Off", "Fight the Current", "Find a Crossing", "Flurry of Blows", "Foil Their Scheme", "Form a Party", "Gentle Repose", "Grant an Advantage", "Hide", "Interrogate Them", "Intimidate Them", "Journey On", "Keen Senses", "Learn Their Secrets", "Life Drain", "Lift the Curse", "Lightning Breath", "Magical Tinkering", "Make a Retreat", "Make Camp", "Poison Breath", "Pry It Open", "Psionic Spells", "Rappel Down", "Rejuvenation", "Rouse the Party", "Search the Body", "Search the Room", "Set Off Traps", "Siege Monster", "Smash It", "Smash the Chest", "Song of Rest", "Split", "Stand and Fight", "Start a Brawl", "Steal Its Eyes", "Stunning Strike", "Tail Spikes", "Teleport", "Tie Up", "Tragic Backstory", "Trapped!", "Two-Weapon Fighting", "Whirlwind", "Whispers of the Grave", "Wild Magic Surge"];
-				//Fix for Academy Ruins bug, remove once it's fixed.
-				allKeywords.keywordActions.push("Tap");
-				allKeywords.keywordActions.push("Untap");
-				allKeywords.keywordAbilities.push("Daybound");
-				allKeywords.keywordAbilities.push("Nightbound");
-				fs.writeFileSync("data_files/finalAllKeywords.json", JSON.stringify(allKeywords));
-				finishedDownloads++;
-				if (finishedDownloads === 7) {
-					updateAllCards();
-				}
-			} else {
-				handleError(new Error("allKeywordsUpdate keywordAbilities too short"));
-			}
-		} catch (err) {
-			handleError(err);
-		}
-	});
-
-	downloadFile("data_files/rawAllCards.json", "https://mtgjson.com/api/v5/AtomicCards.json", function() {
-		console.log("rawAllCards downloaded");
-		finishedDownloads++;
-		if (finishedDownloads === 7) {
-			updateAllCards();
-		}
-	});
-
-	const apiUrls = JSON.parse(fs.readFileSync("mostPlayedApiUrls.json", "utf8")); //URLs need to be hidden as the API is private.
-
-	//We mirror them to another file so that if cloudflare blocks the request (as happened before), we still have a saved copy.
-	downloadFile("data_files/rawMostPlayedStandard.json", apiUrls.standard, function() {
-		console.log("mostPlayedStandard downloaded");
-		try {
-			const data = JSON.parse(fs.readFileSync("data_files/rawMostPlayedStandard.json", "utf8"));
-			fs.writeFileSync("data_files/mostPlayedStandard.json", JSON.stringify(data));
-		} catch (e) {
-			handleError(e)
-		}
-		finishedDownloads++;
-		if (finishedDownloads === 7) {
-			updateAllCards();
-		}
-	});
-
-	downloadFile("data_files/rawMostPlayedPioneer.json", apiUrls.pioneer, function() {
-		console.log("mostPlayedPioneer downloaded");
-		try {
-			const data = JSON.parse(fs.readFileSync("data_files/rawMostPlayedPioneer.json", "utf8"));
-			fs.writeFileSync("data_files/mostPlayedPioneer.json", JSON.stringify(data));
-		} catch (e) {
-			handleError(e)
-		}
-		finishedDownloads++;
-		if (finishedDownloads === 7) {
-			updateAllCards();
-		}
-	});
-
-	downloadFile("data_files/rawMostPlayedModern.json", apiUrls.modern, function() {
-		console.log("mostPlayedModern downloaded");
-		try {
-			const data = JSON.parse(fs.readFileSync("data_files/rawMostPlayedModern.json", "utf8"));
-			fs.writeFileSync("data_files/mostPlayedModern.json", JSON.stringify(data));
-		} catch (e) {
-			handleError(e)
-		}
-		finishedDownloads++;
-		if (finishedDownloads === 7) {
-			updateAllCards();
-		}
-	});
-
-	downloadFile("data_files/rawAllSets.json", "https://mtgjson.com/api/v5/SetList.json", function() {
-		console.log("rawAllSets downloaded");
-		try {
-			const rawAllSets = JSON.parse(replaceDoppelgangerChars(fs.readFileSync("data_files/rawAllSets.json", "utf8"))).data;
-
-			const finalAllSets = [];
-			const properties = ["code", "name", "releaseDate"];
-
-			for (let i in rawAllSets) {
-				const newSet = {};
-
-				for (let j in properties) {
-					newSet[properties[j]] = rawAllSets[i][properties[j]];
-				}
-
-				//Happy Holidays and Celebration cards don't have a normal first printing, so we have to let their promotional printing be valid. We set the printing date to the far future so that they're always last chronologically. HarperPrism book promos were distributed over the course of only 5 months, so they're left in the chronological position of the first one to come out.
-				if (rawAllSets[i].name === "Happy Holidays" || rawAllSets[i].name === "Celebration") {
-					newSet.releaseDate = "9999-99-99";
-				}
-
-				finalAllSets.push(newSet);
-			}
-
-			//Sort the sets chronologically by release date.
-			finalAllSets.sort(function(a,b) {
-				if (a.releaseDate && !b.releaseDate) {
-					return 1;
-				} else if (!a.releaseDate && b.releaseDate) {
-					return -1;
-				} else if (!a.releaseDate && !b.releaseDate) {
-					return 0;
-				} else {
-					if (a.releaseDate.slice(0,4) !== b.releaseDate.slice(0,4)) {
-						return a.releaseDate.slice(0,4) - b.releaseDate.slice(0,4);
-					}
-					if (a.releaseDate.slice(5,7) !== b.releaseDate.slice(5,7)) {
-						return a.releaseDate.slice(5,7) - b.releaseDate.slice(5,7);
-					}
-					if (a.releaseDate.slice(8,10) !== b.releaseDate.slice(8,10)) {
-						return a.releaseDate.slice(8,10) - b.releaseDate.slice(8,10);
-					}
-				}
-			});
-
-			if (finalAllSets.length > 400) {
-				fs.writeFileSync("data_files/finalAllSets.json", JSON.stringify(finalAllSets));
-				finishedDownloads++;
-				if (finishedDownloads === 7) {
-					updateAllCards();
-				}
-			} else {
-				handleError(new Error("allSetsUpdate array too short"));
-			}
-		} catch (err) {
-			handleError(err);
-		}
-	});
-
-	downloadFile("data_files/rawAllRules.json", "https://api.academyruins.com/cr", function() {
-		console.log("rawAllRules downloaded");
-		try {
-			const rawAllRules = replaceDoppelgangerChars(fs.readFileSync("data_files/rawAllRules.json", "utf8"));
-
-			if (Object.keys(JSON.parse(rawAllRules)).length > 1000) {
-				fs.writeFileSync("data_files/finalAllRules.json", rawAllRules);
-				finishedDownloads++;
-				if (finishedDownloads === 7) {
-					updateAllCards();
-				}
-			} else {
-				handleError(new Error("allRulesUpdate rules too short"));
-			}
-		} catch (err) {
 			handleError(err);
 		}
 	});
@@ -1078,4 +899,178 @@ const getCharacteristicsFromManaCost = function(manaCost) {
 	};
 }
 
-downloadAllFiles();
+const convertAllSets = function(allSetsText) {
+	const rawAllSets = JSON.parse(replaceDoppelgangerChars(allSetsText)).data;
+
+	const finalAllSets = [];
+	const properties = ["code", "name", "releaseDate"];
+
+	for (let i in rawAllSets) {
+		const newSet = {};
+
+		for (let j in properties) {
+			newSet[properties[j]] = rawAllSets[i][properties[j]];
+		}
+
+		//Happy Holidays and Celebration cards don't have a normal first printing, so we have to let their promotional printing be valid. We set the printing date to the far future so that they're always last chronologically. HarperPrism book promos were distributed over the course of only 5 months, so they're left in the chronological position of the first one to come out.
+		if (rawAllSets[i].name === "Happy Holidays" || rawAllSets[i].name === "Celebration") {
+			newSet.releaseDate = "9999-99-99";
+		}
+
+		finalAllSets.push(newSet);
+	}
+
+	//Sort the sets chronologically by release date.
+	finalAllSets.sort(function(a,b) {
+		if (a.releaseDate && !b.releaseDate) {
+			return 1;
+		} else if (!a.releaseDate && b.releaseDate) {
+			return -1;
+		} else if (!a.releaseDate && !b.releaseDate) {
+			return 0;
+		} else {
+			if (a.releaseDate.slice(0,4) !== b.releaseDate.slice(0,4)) {
+				return a.releaseDate.slice(0,4) - b.releaseDate.slice(0,4);
+			}
+			if (a.releaseDate.slice(5,7) !== b.releaseDate.slice(5,7)) {
+				return a.releaseDate.slice(5,7) - b.releaseDate.slice(5,7);
+			}
+			if (a.releaseDate.slice(8,10) !== b.releaseDate.slice(8,10)) {
+				return a.releaseDate.slice(8,10) - b.releaseDate.slice(8,10);
+			}
+		}
+	});
+
+	if (finalAllSets.length > 400) {
+		fs.writeFileSync(path.join(rootDir, "data_files/finalAllSets.json"), JSON.stringify(finalAllSets));
+	} else {
+		throw new Error("allSetsUpdate array too short");
+	}
+}
+
+//Returns the downloaded file and, if a path is provided, saves it to disk.
+async function downloadFile(url, path) {
+  const res = await fetch(url);
+  if (!res.ok) {
+    handleError(new Error(`Failed to fetch ${url}: ${res.statusText}`));
+    return;
+  }
+
+  const buffer = await res.buffer();
+  if (path) fs.writeFileSync(path, buffer);
+  return buffer.toString('utf8');
+}
+
+//Will return true at least once a day when the MTGJSON files are rebuilt, even if the card data has not changed. This is desirable because we also need to download metagame data that may have changed in the mean time.
+const updateNeeded = async function() {
+	let oldMeta = "";
+	const metaPath = path.join(rootDir, "data_files/meta.json");
+	if (fs.existsSync(metaPath)) {
+		oldMeta = fs.readFileSync(metaPath, "utf8");
+	}
+	const newMeta = await downloadFile("https://mtgjson.com/api/v5/Meta.json", metaPath);
+	return newMeta !== oldMeta;
+}
+
+const convertAllKeywords = function(allKeywordsText) {
+	const allKeywords = JSON.parse(replaceDoppelgangerChars(allKeywordsText));
+	if (Object.keys(allKeywords).length === 3 && allKeywords.keywordAbilities.length > 30) {
+		for (let i in allKeywords.abilityWords) {
+			allKeywords.abilityWords[i] = allKeywords.abilityWords[i][0].toUpperCase() + allKeywords.abilityWords[i].slice(1);
+		}
+		for (let i in allKeywords.keywordAbilities) {
+			allKeywords.keywordAbilities[i] = allKeywords.keywordAbilities[i].toLowerCase();
+			allKeywords.keywordAbilities[i] = allKeywords.keywordAbilities[i][0].toUpperCase() + allKeywords.keywordAbilities[i].slice(1);
+		}
+		allKeywords.flavorWords = ["Acid Breath", "Animate Walking Statue", "Anitmagic Cone", "Archery", "Bardic Inspiration", "Beacon of Hope", "Bear Form", "Befriend Them", "Bewitching Whispers", "Binding Contract", "Brave the Stench", "Break Their Chains", "Charge Them", "Clever Conjurer", "Climb Over", "Combat Inspiration", "Cold Breath", "Cone of Cold", "Cunning Action", "Cure Wounds", "Dispel Magic", "Displacement", "Dissolve", "Distract the Guard", "Divine Intervention", "Dominate Monster", "Drag Below", "Engulf", "Fear Ray", "Fend Them Off", "Fight the Current", "Find a Crossing", "Flurry of Blows", "Foil Their Scheme", "Form a Party", "Gentle Repose", "Grant an Advantage", "Hide", "Interrogate Them", "Intimidate Them", "Journey On", "Keen Senses", "Learn Their Secrets", "Life Drain", "Lift the Curse", "Lightning Breath", "Magical Tinkering", "Make a Retreat", "Make Camp", "Poison Breath", "Pry It Open", "Psionic Spells", "Rappel Down", "Rejuvenation", "Rouse the Party", "Search the Body", "Search the Room", "Set Off Traps", "Siege Monster", "Smash It", "Smash the Chest", "Song of Rest", "Split", "Stand and Fight", "Start a Brawl", "Steal Its Eyes", "Stunning Strike", "Tail Spikes", "Teleport", "Tie Up", "Tragic Backstory", "Trapped!", "Two-Weapon Fighting", "Whirlwind", "Whispers of the Grave", "Wild Magic Surge"];
+		fs.writeFileSync(path.join(rootDir, "data_files/finalAllKeywords.json"), JSON.stringify(allKeywords));
+	} else {
+		throw new Error("allKeywordsUpdate keywordAbilities too short");
+	}
+}
+
+const convertAllRules = function(allRulesText) {
+	const rawAllRules = replaceDoppelgangerChars(allRulesText);
+
+	if (Object.keys(JSON.parse(rawAllRules)).length > 1000) {
+		fs.writeFileSync(path.join(rootDir, "data_files/finalAllRules.json"), rawAllRules);
+	} else {
+		throw new Error("allRulesUpdate rules too short");
+	}
+}
+
+function decompressXz(inputPath, outputPath) {
+  return new Promise((resolve, reject) => {
+    const input = fs.createReadStream(inputPath);
+    const output = fs.createWriteStream(outputPath);
+    const decompress = lzma.createDecompressor();
+
+    input.pipe(decompress).pipe(output);
+
+    output.on('finish', resolve);
+    output.on('error', reject);
+    input.on('error', reject);
+    decompress.on('error', reject);
+  });
+}
+
+const time = function() {
+	return (performance.now() - start).toFixed(1) + " ";
+}
+
+const doStuff = async function() {
+	console.log("Checking for update")
+	if (!await updateNeeded()) {
+		console.log(time() + "No update needed.");
+		return;
+	}
+	console.log(time() + "Update needed!");
+
+	//We download all the files sequentially because it makes the code cleaner and performance doesn't really matter here. For all files we download a raw file and then write to a clean one only after checking there are no errors, so that a corrupted download won't corrupt our existing files.
+
+	//All sets
+	const allSetsText = await downloadFile("https://mtgjson.com/api/v5/SetList.json", path.join(rootDir, "data_files/rawAllSets.json"));
+	console.log(time() + "rawAllSets downloaded");
+	convertAllSets(allSetsText);
+	console.log(time() + "allSets converted");
+
+	//Metagame data.
+	const mostPlayedApiUrls = JSON.parse(fs.readFileSync(path.join(rootDir, "mostPlayedApiUrls.json"), "utf8")); //URLs need to be hidden as the API is private.
+	for (let format in mostPlayedApiUrls) {
+		const upperCaseFormat = format[0].toUpperCase() + format.slice(1);
+		const data = await downloadFile(mostPlayedApiUrls[format], path.join(rootDir, `data_files/rawMostPlayed${upperCaseFormat}.json`));
+		console.log(time() + `Downloaded most played ${upperCaseFormat}`);
+
+		try {
+			const object = JSON.parse(data);
+			fs.writeFileSync(path.join(rootDir, `data_files/mostPlayed${upperCaseFormat}.json`), JSON.stringify(object));
+		} catch (e) {
+			handleError(`Could not parse most played ${upperCaseFormat}`);
+			return;
+		}
+	}
+
+	//Keywords
+	const allKeywordsText = await downloadFile("https://api.academyruins.com/cr/keywords", path.join(rootDir, "data_files/rawAllKeywords.json"));
+	console.log(time() + "rawAllKeywords downloaded");
+	convertAllKeywords(allKeywordsText);
+	console.log(time() + "allKeywords converted");
+
+	//Rules
+	const allRulesText = await downloadFile("https://api.academyruins.com/cr", path.join(rootDir, "data_files/rawAllRules.json"));
+	console.log(time() + "rawAllRules downloaded");
+	convertAllRules(allRulesText);
+	console.log(time() + "allRules converted");
+
+	//All cards. We do this download last because it's the largest, so it's a waste of bandwidth if some other file has failed.
+	await downloadFile("https://mtgjson.com/api/v5/AtomicCards.json.xz", path.join(rootDir, "data_files/rawAllCards.json.xz"));
+	console.log(time() + "rawAllCards downloaded");
+	await decompressXz(path.join(rootDir, "data_files/rawAllCards.json.xz"), path.join(rootDir, "data_files/rawAllCards.json"));
+	console.log(time() + "rawAllCards decompressed")
+
+	//Now do everything else with this data.
+	updateAllCards();
+}
+
+const start = performance.now();
+doStuff();

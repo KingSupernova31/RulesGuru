@@ -3,7 +3,7 @@
 module.exports = {
 	/**
 	 * Application configuration section
-	 * http://pm2.keymetrics.io/docs/usage/application-declaration/
+	 * 
 	 */
 	apps : [
 		{
@@ -13,16 +13,16 @@ module.exports = {
 			"log_date_format": "YYYY-MM-DD HH:mm",
 		},
 		{
-			"name": "RGregularJobScheduling.js",
+			"name": "RGjobs.js",
 			"script": "regularJobScheduling.js",
 			"watch": "regularJobScheduling.js",
-			"log_date_format": "YYYY-MM-DD HH:mm"
+			"log_date_format": "YYYY-MM-DD HH:mm",
 		},
 		{
 			"name": "RGdiscordBot",
 			"script": "discordBot.js",
 			"watch": "discordBot.js",
-			"log_date_format": "YYYY-MM-DD HH:mm"
+			"log_date_format": "YYYY-MM-DD HH:mm",
 		}
 	]
 };
