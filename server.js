@@ -76,9 +76,9 @@ const sendEmail = function(recipientEmail, subject, message, callback) {
 	});
 }
 setInterval(() => {
-	if (Date.now() - lastSent < 10000) {return;}
+	if (Date.now() - lastSent < 5000) {return;}
 	if (pendingEmails.length === 0) {return;}
-	const {recipientEmail, subject, message, callback} = pendingEmails.pop();
+	const {recipientEmail, subject, message, callback} = pendingEmails.shift();
 	console.log(`Sending email to ${recipientEmail}: ${subject}`);
 	transporter.sendMail({
 		from: emailAuth.user,
