@@ -19,7 +19,6 @@ const handleError = async function(error) {
 	console.error(error)
 	if (emailAuth.pass.trim() === "") {
 		console.log("No email credentials, aborting email.");
-		errorBeingHandled = false;
 		return;
 	}
 	const allAdmins = JSON.parse(fs.readFileSync(path.join(rootDir, "admins.json"), "utf8"));

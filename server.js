@@ -62,40 +62,52 @@ const addToJsonlLog = function(filePath, newEntry) {
 	}
 }
 
-const sendEmail = function(recipientEmail, subject, message) {
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+//Mail hosts don't like it when we send lots of emails in quick succession and sometimes lock us out, so we spread them out.
+const pendingEmails = [];
+let lastSent = 0;
+const sendEmail = function(recipientEmail, subject, message, callback) {
+	pendingEmails.push({
+		"recipientEmail": recipientEmail,
+		"subject": subject,
+		"message": message,
+		"callback": callback,
+	});
+}
+setInterval(() => {
+	if (Date.now() - lastSent < 10000) {return;}
+	if (pendingEmails.length === 0) {return;}
+	const {recipientEmail, subject, message, callback} = pendingEmails.pop();
+	console.log(`Sending email to ${recipientEmail}: ${subject}`);
 	transporter.sendMail({
 		from: emailAuth.user,
 		to: recipientEmail,
 		subject: subject,
 		text: message,
 	}, function(err) {
-			if (err) {
-				handleError(err);
-			}
+		if (callback) {
+			callback(err ? false : true);
+		}
+		if (err) {
+			handleError(err);
+		}
 	});
-}
+	lastSent = Date.now();
+}, 100);
 
 const sendEmailToOwners = function(subject, message, res) {
 	const allAdmins = JSON.parse(fs.readFileSync("admins.json", "utf8"));
 	for (let i in allAdmins) {
 		if (allAdmins[i].roles.owner) {
-			transporter.sendMail({
-				"from": emailAuth.user,
-				"to": allAdmins[i].emailAddress,
-				"subject": subject,
-				"text": message
-			}, function(err) {
-				if (err) {
-					handleError(err);
-					if (res) {
-						res.send("email error")
-					}
-				} else {
-					if (res) {
-						res.send("success")
-					}
+			const callback = function(successful) {
+				if (successful && res) {
+					res.send("success")
+				} else if (res) {
+					res.send("email error")
 				}
-			});
+			};
+			sendEmail(allAdmins[i].emailAddress, subject, message, callback);
 		}
 	}
 }
@@ -660,24 +672,14 @@ app.post("/submitContactForm", function(req, res) {
 		const message = req.body.message;
 		const num = message.match(/^Message about question #(\d+):/)?.[1];
 		sendEmailToOwners(num ? `RulesGuru contact form submission about question ${num}` : "RulesGuru contact form submission", message, res);
-		transporter.sendMail({
-			"from": emailAuth.user,
-			"to": emailAuth.user,
-			"subject": "RulesGuru contact form submission",
-			"text": message,
-			"replyTo": req.body.returnEmail
-		}, function(err) {
-			if (err) {
-				handleError(err);
-				if (res) {
-					res.send("email error")
-				}
+		const emailCallback = function(successful) {
+			if (successful) {
+				res.send("success");
 			} else {
-				if (res) {
-					res.send("success")
-				}
+				res.send("email error");
 			}
-		});
+		}
+		sendEmail(emailAuth.user, "RulesGuru contact form submission", message, emailCallback);
 	} else {
 		res.send("req.body.message was undefined.");
 	}
@@ -1029,7 +1031,7 @@ app.post("/changeQuestionStatus", async function(req, res) {
 let addQuestionRunning = false;
 const addQuestion = async function(question, isAdmin, adminId) {
 	if (addQuestionRunning) {
-		await new Promise(r => setTimeout(r, 50)); //sleep for 50 milliseconds
+		await sleep(50);
 		return await addQuestion(question, isAdmin, adminId);
 	} else {
 		addQuestionRunning = true;
