@@ -23,17 +23,15 @@ Certain files in this repository contain placeholder data as detailed below:
 
 * Several issues in this Github repo all relate to the same conceptual systems on RulesGuru. For efficiency, before embarking on one issue, check related issues and see if you can address them all at once.
 
-* Any time you edit a user-facing feature, if it's important enough, please remember to add it to the About page. Similarly, for editor-facing features, add them to the admin info documentation page.
+* Any time you edit a user-facing feature, if it's important enough, please remember to add it to the About page. Similarly, for editor features, add them to the admin info documentation page.
 
 * There are a few issues that can't be done with the code on Github and need access to the VPS, email, or other auxiliary services. Just leave those ones to me, it's not worth the effort of setting up ways for others to access those services.
 
 * Some issues, mostly those with the "discussion wanted" label, are tentative ideas with a lot of subjectivity. For those, come up with a proposal on how you think it should work, and talk it over with me before you start working on it.
 
-* All contributors to RulesGuru must agree to cede the intellectual property rights to their contributions. Please fill out [this](https://docs.google.com/forms/d/1vsJQ7-JZw098DLBAot4UJVkQX8Egf599DjlGcAu_hyw/edit) form to do so.
-
-* Several organizations have generously given us grants for development work. As such, we can sometimes afford to pay for contributions. Talk to me for the details at any given time. The easiest way to contact me is to via [our Discord server](https://discord.gg/HbBXSe7nf5).
+* Several organizations have generously given us grants for development work. As such, we can sometimes afford to pay for contributions. Talk to me for the details at any given time. I can be contacted via [email](is.aack@yahoo.com) or in the RulesGuru [Discord server](https://discord.gg/HbBXSe7nf5).
 
 
 ## Third-party usage
 
-RulesGuru is [source-available software](https://en.wikipedia.org/wiki/Source-available_software). In general, anyone is welcome to use the code here for personal projects, particularly those that benefit the Magic and Magic Judging communities. I retain all rights to this code and may ask you to stop using it if you're doing something I don't like. In particular, you may not use any RulesGuru code or data for AI training without my explicit prior approval.
+RulesGuru is [source-available software](https://en.wikipedia.org/wiki/Source-available_software). In general, anyone is welcome to use the code here for personal projects, but we have exceptions for AI training and a few other things. See our license for details.
