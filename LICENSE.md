@@ -1,7 +1,5 @@
 # RulesGuru License
 
-## Notice
-
 Copyright (c) 2018 Isaac King
 
 ## Terms and Conditions
@@ -48,10 +46,10 @@ to more than one person that:
 
 ### Redistribution
 
-The Terms and Conditions apply to all copies, modifications and derivatives of
+The Terms and Conditions apply to all copies, modifications, and derivatives of
 the Software.
 
-If you redistribute any copies, modifications or derivatives of the Software,
+If you redistribute any copies, modifications, or derivatives of the Software,
 you must include a copy of or a link to these Terms and Conditions and not
 remove any copyright notices provided in or with the Software.
 
