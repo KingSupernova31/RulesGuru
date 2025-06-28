@@ -2,7 +2,7 @@
 
 ## Notice
 
-Copyright ${2018} ${Isaac King}
+Copyright (c) 2018 Isaac King
 
 ## Terms and Conditions
 
