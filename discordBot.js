@@ -47,17 +47,25 @@ const client = new Client({
 const discordPassword = JSON.parse(fs.readFileSync("externalCredentials.json", "utf8")).discord;
 client.login(discordPassword);
 
+
 //Provide a link to questions.
 client.on("messageCreate", function(message) {
 	if (message.author.bot) return;
-	if (!["809157488863346699", "809156781284524064", "809158564861968385", "837844218986102785", "816333479527710760", "810621356467028028"].includes(message.channel.id)) {
-		return;//It should only reply in the channels that are about the website.
+
+	let url;
+	url = "https://rulesguru.org/question-editor?";
+	if (message.channel.id === "816333479527710760") {//Link to Github for convenience.
+		url = "https://github.com/KingSupernova31/RulesGuru/issues/";
 	}
+	if (["809156781284524064", "809158564861968385", "837844218986102785"].includes(message.channel.id)) {//Link to editor for editor channels.
+		url = "https://rulesguru.org/question-editor?";
+	}
+
 	const match = message.content.match(/#\d{1,4}(?![^\W_])/g);
 	if (match) {
 		for (let command of match) {
 			const questionNum = command.slice(1);
-			message.channel.send(`https://rulesguru.org/question-editor?${questionNum}`);
+			message.channel.send(url + questionNum);
 		}
 	} else {
 		return;
