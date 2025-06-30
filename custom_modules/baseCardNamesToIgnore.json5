@@ -255,4 +255,5 @@
   "Remove",       // Return target attacking creature to its owner’s hand.
   "The End",      // Exile Permanent, and any in Graveyard, Library, and Hand
   "Undo",         // Return two target creatures to their owners’ hands.
+  "Acquire",      // Get an artifact from the opponent's library.
 ]
