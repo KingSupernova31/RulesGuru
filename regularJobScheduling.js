@@ -12,7 +12,7 @@ day of week	0-6 (0 is sunday)
 //Every 5 minutes:
 cron.schedule("0 */5 * * * *", function() {
 	require('child_process').fork('custom_modules/updateDataFiles.js', [], {
-		execArgv: ['--max-old-space-size=4196'], //Needs around 1GB of memory at minimum. Current VPS only grants ~500MB by default.
+		execArgv: ['--max-old-space-size=4000'], //Needs around 1GB of memory at minimum. Current VPS only grants ~500MB by default.
 	});
 });
 
