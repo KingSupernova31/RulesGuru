@@ -131,7 +131,7 @@ const presetTemplates = [
 	{
 		"id": 16,
 		"description": "Doesn't affect only its own size",
-		"rules": [{"field":"Rules text","operator":"Does not match:","value":"(^|\\n)[^:]*(::name::|it) gets","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"(^|\\n)[^:]*(::name::|it) (becomes|is).*/","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"(^|\\n)[^:]*(::name::|it)'s power","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"(^|\\n)[^:]*(::name::|it)'s toughness","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"(^|\\n)[^:]*exchange its","orGroup":null}],
+		"rules": [{"field":"Rules text","operator":"Does not match:","value":"(^|\\n)[^:]*(::name::|it|this creature) gets","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"(^|\\n)[^:]*(::name::|it|this creature) (becomes|is).*/","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"(^|\\n)[^:]*(::name::|it|this creature)'s power","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"(^|\\n)[^:]*(::name::|it|this creature)'s toughness","orGroup":null},{"field":"Rules text","operator":"Does not match:","value":"(^|\\n)[^:]*exchange its","orGroup":null}],
 	},
 	{
 		"id": 17,
