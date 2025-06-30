@@ -1,7 +1,5 @@
 # RulesGuru
-[RulesGuru](http://rulesguru.org/) is a database of rules questions for Magic judges and rules-oriented players.
-
-If you have a bug report or feature request, feel free to open an issue or comment on an existing one. Pull requests will only be accepted if you're a member of the RulesGuru project. See [here](https://rulesguru.org/get-involved) for more information.
+[RulesGuru](http://rulesguru.org/) is a database of Magic: The Gathering rules questions. It supports procedual generation of question variations, searching by complex criteria, an API for building your own features on top of our question pool, and a user-friendly UI for Magic judges and players who wish to use it as a study resource.
 
 
 ## Setup
