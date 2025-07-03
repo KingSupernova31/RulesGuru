@@ -31,7 +31,7 @@ if (window.location.href.match(/\?\d/)) {
 const maximallyPermissiveSidebarSettings = {
 	"level": ["0", "1", "2", "3", "Corner Case"],
 	"complexity": ["Simple", "Intermediate", "Complicated"],
-	"legality": "All of Magic",
+	"legality": "all",
 	"expansions": [],
 	"playableOnly": false,
 	"tags": [],

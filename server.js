@@ -468,7 +468,7 @@ const sendAPIQuestions = function(questions, res, allCards) {
 		questionToSend.url = "https://rulesguru.org/?" + questionToSend.id + "RG" + searchLinks.convertSettingsToSearchLink({
 			"level": ["0", "1", "2", "3", "Corner Case"],
 			"complexity": ["Simple", "Intermediate", "Complicated"],
-			"legality": "All of Magic",
+			"legality": "all",
 			"expansions": [],
 			"playableOnly": false,
 			"tags": [],
@@ -520,9 +520,7 @@ API:
 
 Development:
 
-/mostPlayedStandard: Mirror since the origin API is private.
-/mostPlayedPioneer: Mirror since the origin API is private.
-/mostPlayedModern: Mirror since the origin API is private.
+/mostPlayed-[format]: Mirror since the origin API is private.
 
 */
 
@@ -558,7 +556,7 @@ app.get("/api/questions", function(req, res) {
 				"count": 1,
 				"level": ["0", "1", "2"],
 				"complexity": ["Simple", "Intermediate"],
-				"legality": "Modern",
+				"legality": "modern",
 				"expansions": [],
 				"playableOnly": false,
 				"tags": ["Unsupported answers"],
@@ -575,7 +573,7 @@ app.get("/api/questions", function(req, res) {
 					"count": 1,
 					"level": ["0", "1", "2", "3", "Corner Case"],
 					"complexity": ["Simple", "Intermediate", "Complicated"],
-					"legality": "All of Magic",
+					"legality": "all",
 					"expansions": [],
 					"playableOnly": false,
 					"tags": [],
@@ -1331,12 +1329,17 @@ app.post("/updateAndForceStatus", async function(req, res) {
 	}
 });
 
-app.get("/mostPlayedStandard", function(req, res) {
-	res.send(fs.readFileSync("data_files/mostPlayedStandard.json", "utf8"));
-});
-app.get("/mostPlayedPioneer", function(req, res) {
-	res.send(fs.readFileSync("data_files/mostPlayedPioneer.json", "utf8"));
-});
-app.get("/mostPlayedModern", function(req, res) {
-	res.send(fs.readFileSync("data_files/mostPlayedModern.json", "utf8"));
-});
+//Mirror format data for development
+const formats = JSON.parse(fs.readFileSync("formats.json", "utf8"));
+for (let format in formats) {
+	const str = "mostPlayed-" + format;
+	app.get("/" + str, function(req, res) {
+		let text;
+		try {
+			text = fs.readFileSync(`data_files/${str}.json`, "utf8");
+			res.send(text);
+		} catch (e) {
+			res.sendStatus(404);
+		}
+	});
+}

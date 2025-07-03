@@ -1,0 +1,46 @@
+{
+	"standard": {
+		"prettyName": "Standard",
+		"url": ""
+	},
+	"pioneer": {
+		"prettyName": "Pioneer",
+		"url": ""
+	},
+	"modern": {
+		"prettyName": "Modern",
+		"url": ""
+	},
+	"legacy": {
+		"prettyName": "Legacy",
+		"url": ""
+	},
+	"vintage": {
+		"prettyName": "Vintage",
+		"url": ""
+	},
+	"duelCommander": {
+		"prettyName": "Duel Commander",
+		"url": ""
+	},
+	"premodern": {
+		"prettyName": "Premodern",
+		"url": ""
+	},
+	"pauper": {
+		"prettyName": "Pauper",
+		"url": ""
+	},
+	"oldSchool": {
+		"prettyName": "Old School",
+		"url": ""
+	},
+	"explorer": {
+		"prettyName": "Explorer",
+		"url": ""
+	},
+	"cedh": {
+		"prettyName": "cEDH",
+		"url": ""
+	}
+}

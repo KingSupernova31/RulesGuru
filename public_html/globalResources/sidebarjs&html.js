@@ -24,11 +24,19 @@ document.querySelector("body").insertAdjacentHTML("beforeend", `
 		<label>
 			<h4 tooltip="Format legality of the cards involved. Use &ldquo;choose expansions&rdquo; if you want to restrict questions to specific sets.">Legality:</h4>
 			<select id="sidebarLegalityDropdown" onchange="toggleSidebarExpansionList();">
-				<option value="Standard">Standard</option>
-				<option value="Pioneer">Pioneer</option>
-				<option value="Modern" selected>Modern</option>
-				<option value="All of Magic">All of Magic</option>
-				<option value="Choose Expansions">Choose Expansions</option>
+				<option value="cedh">cEDH</option>
+				<option value="duelCommander">Duel Commander</option>
+				<option value="explorer">Explorer</option>
+				<option value="legacy">Legacy</option>
+				<option value="modern" selected>Modern</option>
+				<option value="oldSchool">Old School</option>
+				<option value="pauper">Pauper</option>
+				<option value="pioneer">Pioneer</option>
+				<option value="premodern">Premodern</option>
+				<option value="standard">Standard</option>
+				<option value="vintage">Vintage</option>
+				<option value="all">All of Magic</option>
+				<option value="custom">Choose Expansions</option>
 			</select>
 		</label>
 		<label id="sidebarExpansionListLabel">Any of:
@@ -105,7 +113,7 @@ let	sidebarOpen = false,
 		defaultSettings = {
 			"level": ["0", "1", "2"],
 			"complexity": ["Simple", "Intermediate"],
-			"legality": "Modern",
+			"legality": "modern",
 			"expansions": [],
 			"playableOnly": true,
 			"tags": ["Unsupported answers"],
@@ -141,10 +149,6 @@ if (oldSettingsValid) {
 	}
 } else {
 	sidebarSettings = defaultSettings;
-}
-//Temporary conversion for update.
-if (sidebarSettings.legality === "Choose expansions") {
-	sidebarSettings.legality = "Choose Expansions";
 }
 
 //Open and close sidebar.
@@ -222,7 +226,7 @@ let addSidebarExpansion = function(expansion) {
 };
 
 const toggleSidebarExpansionList = function() {
-	if (document.getElementById("sidebarLegalityDropdown").value === "Choose Expansions") {
+	if (document.getElementById("sidebarLegalityDropdown").value === "custom") {
 		document.getElementById("sidebarExpansionListLabel").style.display = "block";
 		document.getElementById("selectedSidebarExpansionList").style.display = "block";
 	} else {
@@ -320,7 +324,7 @@ window.onbeforeunload =	updateSidebarSettingsOnClose;
 toggleSidebarExpansionList();
 
 const togglePlayability = function() {
-	if (["All of Magic", "Choose Expansions"].includes(document.getElementById("sidebarLegalityDropdown").value)) {
+	if (["all", "custom"].includes(document.getElementById("sidebarLegalityDropdown").value)) {
 		document.getElementById("sidebarPlayabilityHide").style.display = "none";
 	} else {
 		document.getElementById("sidebarPlayabilityHide").style.display = "block";

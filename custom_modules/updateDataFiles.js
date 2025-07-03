@@ -5,9 +5,15 @@ const fs = require("fs"),
 	fetch = require("node-fetch"),
 	path = require("path"),
 	handleError = require("./handleError.js"),
-	lzma = require("lzma-native");
+	lzma = require("lzma-native"),
+	v8 = require("v8");
 
 const rootDir = path.join(__dirname, "..");
+
+//This script will crash when creating/dispersing the files if it doesn't have enough memory, so we just crash it here to not waste time downloading all the files first.
+if (v8.getHeapStatistics().heap_size_limit < 10**9) {
+	throw new Error("Not enough memory allocated.");
+}
 
 const replaceDoppelgangerChars = function(string) {
 	const map = {
@@ -568,17 +574,27 @@ const updateAllCards = function(verbose = false) {
 			}
 		}
 
+		//Standardize legalities to use the same format names RG uses internally.
+		for (let name in allCards) {
+			allCards[name].legalities.duelCommander = allCards[name].legalities.duel;
+			allCards[name].legalities.oldSchool = allCards[name].legalities.oldschool;
+			allCards[name].legalities.cedh = allCards[name].legalities.commander;
+
+			delete allCards[name].legalities.duel;
+			delete allCards[name].legalities.oldschool;
+		}
+
 		//Add in playability field.
-		const mostPlayedCards = {
-			"Standard": [],
-			"Pioneer": [],
-			"Modern": []
+		const formats = JSON.parse(fs.readFileSync(path.join(rootDir, "formats.json"), "utf8"));
+		const mostPlayedCards = {};
+		for (let format in formats) {
+			const fileText = fs.readFileSync(path.join(rootDir, `data_files/mostPlayed-${format}.json`), "utf8");
+			mostPlayedCards[format] = JSON.parse(fileText);
 		}
-		for (let format in mostPlayedCards) {
-			mostPlayedCards[format] = JSON.parse(fs.readFileSync(`data_files/mostPlayed${format}.json`, "utf8"));
-		}
+
 		for (let format in mostPlayedCards) {
 			mostPlayedCards[format] = mostPlayedCards[format].filter(function(card) {
+				//This is 0.2% in the files, parseFloat doesn't care about the % sign.
 				return parseFloat(card.metagame_relevance) >= 0.2;
 			});
 		}
@@ -952,8 +968,7 @@ const convertAllSets = function(allSetsText) {
 async function downloadFile(url, path) {
   const res = await fetch(url);
   if (!res.ok) {
-    handleError(new Error(`Failed to fetch ${url}: ${res.statusText}`));
-    return;
+    throw new Error(`Failed to fetch ${url}: ${res.statusText}`);
   }
 
   const buffer = await res.buffer();
@@ -1035,18 +1050,24 @@ const doStuff = async function() {
 	console.log(time() + "allSets converted");
 
 	//Metagame data.
-	const mostPlayedApiUrls = JSON.parse(fs.readFileSync(path.join(rootDir, "mostPlayedApiUrls.json"), "utf8")); //URLs need to be hidden as the API is private.
-	for (let format in mostPlayedApiUrls) {
-		const upperCaseFormat = format[0].toUpperCase() + format.slice(1);
-		const data = await downloadFile(mostPlayedApiUrls[format], path.join(rootDir, `data_files/rawMostPlayed${upperCaseFormat}.json`));
-		console.log(time() + `Downloaded most played ${upperCaseFormat}`);
+	const formats = JSON.parse(fs.readFileSync(path.join(rootDir, "formats.json"), "utf8"));
+	for (let format in formats) {
+		const formatData = formats[format];
+		let url = formatData.url;
+		if (url === "") {
+			//If the URL is missing that means we're likely on the dev site, since the real API is private. So we fetch cached data from the live site.
+			url = `https://rulesguru.org/mostPlayed-${format}`;
+		}
 
 		try {
-			const object = JSON.parse(data);
-			fs.writeFileSync(path.join(rootDir, `data_files/mostPlayed${upperCaseFormat}.json`), JSON.stringify(object));
+			const data = JSON.parse(await downloadFile(url, path.join(rootDir, `data_files/rawMostPlayed-${format}.json`)));
+			fs.writeFileSync(path.join(rootDir, `data_files/mostPlayed-${format}.json`), JSON.stringify(data));
+			console.log(time() + `Downloaded most played ${formatData.prettyName}`);
 		} catch (e) {
-			handleError(`Could not parse most played ${upperCaseFormat}`);
-			return;
+			handleError(e);
+			//The mtgdecks API has a tendency to change configurations and start blocking our requests, and I would like this to only email me once, not for every format.
+			console.log("Skipping remaining most played downloads.")
+			break;
 		}
 	}
 

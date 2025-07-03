@@ -90,7 +90,7 @@ Array.from(document.querySelectorAll("#sidebarComplexity input")).forEach(functi
 	}
 });
 document.getElementById("sidebarLegalityDropdown").value = sidebarSettings.legality;
-if (sidebarSettings.legality === "Choose Expansions") {
+if (sidebarSettings.legality === "custom") {
 	toggleSidebarExpansionList();
 }
 document.getElementById("sidebarPlayability").checked = sidebarSettings.playableOnly;

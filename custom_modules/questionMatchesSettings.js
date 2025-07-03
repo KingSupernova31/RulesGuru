@@ -17,14 +17,9 @@ const questionMatchesSettings = function(question, settings, allCards) {
 	}
 
 	//Check if the question is tournament viable.
-	if (["Modern", "Pioneer", "Standard"].includes(settings.legality) && settings.playableOnly) {
+	if (!["all", "custom"].includes(settings.legality) && settings.playableOnly) {
 		if (question.cardLists.length === 0) {
 			return false;
-		}
-		for (let tag of ["Multiplayer", "Commander", "Two-Headed Giant"]) {
-			if (question.tags.includes(tag)) {
-				return false;
-			}
 		}
 	}
 
@@ -98,7 +93,7 @@ const questionMatchesSettings = function(question, settings, allCards) {
 	}
 */
 	//Remove cards that don't match legality (including playable only) and return false if this causes a list to be empty.
-	if (settings.legality === "Choose Expansions") {
+	if (settings.legality === "custom") {
 		for (let list in question.cardLists) {
 			question.cardLists[list] = question.cardLists[list].filter(function(card) {
 				return settings.expansions.some(function(expansion) {
@@ -106,11 +101,11 @@ const questionMatchesSettings = function(question, settings, allCards) {
 				});
 			});
 		}
-	} else if (["Modern", "Pioneer", "Standard"].includes(settings.legality)) {
+	} else if (!["custom", "all"].includes(settings.legality)) {
 		for (let list in question.cardLists) {
 			question.cardLists[list] = question.cardLists[list].filter(function(card) {
 				if (allCards[card]) {//This check is for questions that were submitted with illegal cards.
-					if (!allCards[card].legalities[settings.legality[0].toLowerCase() + settings.legality.slice(1)]) {
+					if (!allCards[card].legalities[settings.legality]) {
 						 return false;
 					} else {
 						if (settings.playableOnly) {

@@ -62,7 +62,7 @@ function findAQuestion(){
     count: 1,
     level: ["0", "1", "2", "3", "Corner Case"],
     complexity: ["Simple", "Intermediate", "Complicated"],
-    legality: "All of Magic",
+    legality: "all",
     tags:["Unsupported answers"],
     tagsConjunc:"NOT"
   };

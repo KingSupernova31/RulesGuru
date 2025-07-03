@@ -20,7 +20,7 @@ Certain files in this repository contain placeholder data as detailed below:
 * `admins.json` contains data for a single test admin with owner permissions. If you want admins with different permissions, start the server as described above, navigate to `localhost:8080/question-editor`, log in to the owner account with password `correcthorsebatterystaple`, and use the admin editor in the top left to add the desired accounts.
 * `questionDatabase.db` contains a random 10 questions as example data. The live database has around 7000 rows currently.
 * `public_html/globalResources/searchLinkMappings.js`, `public_html/searchLinkCardNamesDiff.js`, and `public_html/globalResources/allTags.js`, are updated automatically. As such, the files in this repository are outdated versions of the live files. This may occasionally result in errors due to data mismatches when run locally. If this happens, let me know and I'll upload a newer version of them. They'll also change automatically on your local copy, so you may want to add them to your .gitignore locally.
-* The API that RulesGuru uses to fetch metagame data is private and will get blocked by Cloudflare if any other IP address tries to access it, so for development purposes we host a mirror of that data ourselves at the URLs in `mostPlayedApiUrls.json`.
+* The API that RulesGuru uses to fetch metagame data is private, so the urls in `formats.json` are left empty here. For development purposes, `updateDataFiles.js` will instead fetch a copy of the same data from the live RulesGuru site.
 
 
 ## Development guidelines
