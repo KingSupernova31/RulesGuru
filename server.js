@@ -699,24 +699,6 @@ app.get("/getQuestionCount", async function(req, res) {
 
 	const allData = await dbAll(`SELECT * FROM questions`);
 
-	//Check for a reference question array that's out of aync with the database.
-	const referenceArrayNums = referenceQuestionArray.map(question => question.id);
-	const databaseNums = allData.filter(question => question.status === "finished").map(question => question.id);
-	let problemString = "";
-	if (referenceArrayNums.filter(num => !databaseNums.includes(num)).length > 0) {
-		problemString += `Database doesn't include questions ${referenceArrayNums.filter(num => !databaseNums.includes(num))}. `;
-	}
-	if (databaseNums.filter(num => !referenceArrayNums.includes(num)).length > 0) {
-		//Disabling because it's super annoying and not a real problem. Fix this properly later.
-		//problemString += `Reference array doesn't include questions ${databaseNums.filter(num => !referenceArrayNums.includes(num))}`;
-	}
-	if (problemString !== "") {
-		if (performance.now() - lastTimeReferenceArrayMismatchWarningSent > 60000) {
-			handleError(new Error(`Reference array mismatch: ${problemString}`));
-			lastTimeReferenceArrayMismatchWarningSent = performance.now();
-		}
-	}
-
 	allData.forEach(function(question) {
 		question.verification = JSON.parse(question.verification);
 	});
