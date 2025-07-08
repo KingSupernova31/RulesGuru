@@ -209,6 +209,12 @@ const replaceExpressions = function(string, playerNamesMap, oracle, allCards, al
 		}
 	});
 
+	//Move the superscripts to after any pluralizations.
+	if (forPreview) {
+		//HTML tags leaking from my eyes like liquid pain! (They'll never be nested.)
+		string = string.replace(/<sup(.*?)<\/sup>([^ .,;<]*)/g, "$2<sup$1</sup>");
+	}
+
 	//Determine the correct article ("a" or "an") in front of card expressions and fix pluralizations of cards.
 	string = string.replace(/\b(a|A|an|An) ↔(\w+)/g, function(match, capt1, capt2) {
 		let article = AvsAnSimple.query(capt2);
@@ -245,12 +251,6 @@ const replaceExpressions = function(string, playerNamesMap, oracle, allCards, al
 	resultToReturn.plaintext = string;
 	resultToReturn.plaintextNoCitations = string;
 	resultToReturn.html = string;
-
-	//Move the superscripts to after any pluralizations.
-	if (forPreview) {
-		//HTML tags leaking from my eyes like liquid pain! (They'll never be nested.)
-		resultToReturn.html = resultToReturn.html.replace(/<sup(.*?)<\/sup>([^ .,;<]*)/g, "$2<sup$1</sup>");
-	}
 
 	//Remove rules citations or replace them with HTML.
 	resultToReturn.plaintextNoCitations = resultToReturn.plaintext.replace(/ \((\[\d{3}\.\d{1,2}[a-z]?\](\/|, )?)+\)/g, "");
