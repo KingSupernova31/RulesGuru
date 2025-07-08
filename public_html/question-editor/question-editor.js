@@ -344,7 +344,7 @@ const validateTemplate = function(inputTemplate) {
 		}
 		//Invalid mana cost
 		if (template[i].field === "Mana cost") {
-			const allowedSymbols = ["{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}", "{7}", "{8}", "{9}", "{10}", "{11}", "{12}", "{13}", "{14}", "{15}", "{16}", "{17}", "{18}", "{19}", "{20}", "{W}", "{U}", "{B}", "{R}", "{G}", "{X}", "{Y}", "{C}", "{S}", "{P}", "{W/P}", "{U/P}", "{B/P}", "{R/P}", "{G/P}", "{2/W}", "{2/U}", "{2/B}", "{2/R}", "{2/G}", "{W/U}", "{W/B}", "{U/B}", "{U/R}", "{B/R}", "{B/G}", "{R/W}", "{R/G}", "{G/W}", "{G/U}", "{W/U/P}", "{W/B/P}", "{U/B/P}", "{U/R/P}", "{B/R/P}", "{B/G/P}", "{R/W/P}", "{R/G/P}", "{G/W/P}", "{G/U/P}", "::white::", "::blue::", "::black::", "::red::", "::green::", "::hybrid::", "::generic::", "::phyrexian::"];
+			const allowedSymbols = Object.values(symbolMap).filter(symbol => symbol.type === "mana").map(symbol => symbol.symbol).concat(Object.keys(pseudoSymbolMap));
 			let workingSymbolString = template[i].value;
 			outerloop: while (workingSymbolString.length > 0) {
 				for (let symbol of allowedSymbols) {
@@ -480,7 +480,7 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 			break;
 		case "Mana cost":
 			operators = ["Includes:", "Doesn't include:", "Exactly:", "Not exactly:"];
-			tooltip = `The order of the symbols doesn't matter. You can use ::generic::, ::phyrexian::, ::hybrid::, and ::[color]:: to match multiple symbols.<br><br>If "Doesn't include" is selected, only cards that don't have <b>all</b> of those symbols are returned. If "don't have <b>any</b>" is the desired query, use multiple "Doesn't include" rules.`;
+			tooltip = `The order of the symbols doesn't matter. You can use ::generic::, ::phyrexian::, ::hybrid::, and ::[type]:: to match multiple symbols.<br><br>If "Doesn't include" is selected, only cards that don't have <b>all</b> of those symbols are returned. If "don't have <b>any</b>" is the desired query, use multiple "Doesn't include" rules.`;
 			break;
 		case "Mana value":
 			operators = ["=", "≠", ">", "<"];
@@ -2790,6 +2790,7 @@ let lastKnownPageSourceData = {
 	"allCards.js": null,
 	"allRules.js": null,
 	"cardNamesToIgnore.js": null,
+	"/globalResources/symbols.js": null,
 	"/globalResources/replaceExpressions.js": null,
 	"/globalResources/presetTemplates.js": null,
 	"/globalResources/searchLinks.js": null,

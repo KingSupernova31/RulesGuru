@@ -25,6 +25,7 @@ app.set('trust proxy', true);
 
 const templateConvert = require("./public_html/globalResources/templateConvert.js"),
 			presetTemplates = require("./public_html/globalResources/presetTemplates.js"),
+			symbolData = require("./public_html/globalResources/symbols.js"),
 			replaceExpressions = require("./public_html/globalResources/replaceExpressions.js"),
 			searchLinks = require("./public_html/globalResources/searchLinks.js"),
 			playerNames = JSON.parse(fs.readFileSync("playerNames.json", "utf8"));
@@ -236,7 +237,7 @@ const convertAllTemplates = function(question, allCards) {
 	for (let i = 0 ; i < convertedQuestion.cardGenerators.length ; i++) {
 
 		if (typeof convertedQuestion.cardGenerators[i][0] === "object") {
-			convertedQuestion.cardLists[i] = templateConvert(convertedQuestion.cardGenerators[i], allCards, presetTemplates);
+			convertedQuestion.cardLists[i] = templateConvert(convertedQuestion.cardGenerators[i], allCards, presetTemplates, symbolData.pseudoSymbolMap);
 		} else {
 			convertedQuestion.cardLists[i] = convertedQuestion.cardGenerators[i]
 		}
@@ -444,8 +445,8 @@ const sendAPIQuestions = function(questions, res, allCards) {
 
 		const chosenCards = chosenCardNames.map(cardName => allCards[cardName]);//We need to provide the cards to replaceExpressions in card generator order, not in text order like they are in includedCards.
 
-		const questionResult = replaceExpressions(questionToSend.question, playerNamesMap, chosenCards, allCards, allRules);
-		const answerResult = replaceExpressions(questionToSend.answer, playerNamesMap, chosenCards, allCards, allRules);
+		const questionResult = replaceExpressions(questionToSend.question, playerNamesMap, chosenCards, allCards, allRules, undefined, symbolData.symbolMap);
+		const answerResult = replaceExpressions(questionToSend.answer, playerNamesMap, chosenCards, allCards, allRules, undefined, symbolData.symbolMap);
 
 		questionToSend.questionSimple = questionResult.plaintextNoCitations;
 		questionToSend.questionHTML = questionResult.html;

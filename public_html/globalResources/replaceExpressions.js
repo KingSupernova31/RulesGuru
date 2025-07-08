@@ -33,108 +33,18 @@ var AvsAnSimple = (function (root) {
 	};
 })({});
 
-const symbolsToHtml = function(string) {
-	const symbolMap = {
-		"{W}": "<i class='ms ms-w ms-cost'></i>",
-		"{U}": "<i class='ms ms-u ms-cost'></i>",
-		"{B}": "<i class='ms ms-b ms-cost'></i>",
-		"{R}": "<i class='ms ms-r ms-cost'></i>",
-		"{G}": "<i class='ms ms-g ms-cost'></i>",
-		"{0}": "<i class='ms ms-0 ms-cost'></i>",
-		"{1}": "<i class='ms ms-1 ms-cost'></i>",
-		"{2}": "<i class='ms ms-2 ms-cost'></i>",
-		"{3}": "<i class='ms ms-3 ms-cost'></i>",
-		"{4}": "<i class='ms ms-4 ms-cost'></i>",
-		"{5}": "<i class='ms ms-5 ms-cost'></i>",
-		"{6}": "<i class='ms ms-6 ms-cost'></i>",
-		"{7}": "<i class='ms ms-7 ms-cost'></i>",
-		"{8}": "<i class='ms ms-8 ms-cost'></i>",
-		"{9}": "<i class='ms ms-9 ms-cost'></i>",
-		"{10}": "<i class='ms ms-10 ms-cost'></i>",
-		"{11}": "<i class='ms ms-11 ms-cost'></i>",
-		"{12}": "<i class='ms ms-12 ms-cost'></i>",
-		"{13}": "<i class='ms ms-13 ms-cost'></i>",
-		"{14}": "<i class='ms ms-14 ms-cost'></i>",
-		"{15}": "<i class='ms ms-15 ms-cost'></i>",
-		"{16}": "<i class='ms ms-16 ms-cost'></i>",
-		"{17}": "<i class='ms ms-17 ms-cost'></i>",
-		"{18}": "<i class='ms ms-18 ms-cost'></i>",
-		"{19}": "<i class='ms ms-19 ms-cost'></i>",
-		"{20}": "<i class='ms ms-20 ms-cost'></i>",
-		"{X}": "<i class='ms ms-x ms-cost'></i>",
-		"{Y}": "<i class='ms ms-y ms-cost'></i>",
-		"{W/P}": "<i class='ms ms-wp ms-cost'></i>",
-		"{U/P}": "<i class='ms ms-up ms-cost'></i>",
-		"{B/P}": "<i class='ms ms-bp ms-cost'></i>",
-		"{R/P}": "<i class='ms ms-rp ms-cost'></i>",
-		"{G/P}": "<i class='ms ms-gp ms-cost'></i>",
-		"{S}": "<i class='ms ms-s ms-cost'></i>",
-		"{C}": "<i class='ms ms-c ms-cost'></i>",
-		"{E}": "<i class='ms ms-e ms-cost'></i>",
-		"{T}": "<i class='ms ms-tap ms-cost'></i>",
-		"{Q}": "<i class='ms ms-untap ms-cost'></i>",
-		"{W/U}": "<i class='ms ms-wu ms-split ms-cost'></i>",
-		"{W/B}": "<i class='ms ms-wb ms-split ms-cost'></i>",
-		"{U/B}": "<i class='ms ms-ub ms-split ms-cost'></i>",
-		"{U/R}": "<i class='ms ms-ur ms-split ms-cost'></i>",
-		"{B/R}": "<i class='ms ms-br ms-split ms-cost'></i>",
-		"{B/G}": "<i class='ms ms-bg ms-split ms-cost'></i>",
-		"{R/W}": "<i class='ms ms-rw ms-split ms-cost'></i>",
-		"{R/G}": "<i class='ms ms-rg ms-split ms-cost'></i>",
-		"{G/W}": "<i class='ms ms-gw ms-split ms-cost'></i>",
-		"{G/U}": "<i class='ms ms-gu ms-split ms-cost'></i>",
-		"{2/W}": "<i class='ms ms-2w ms-split ms-cost'></i>",
-		"{2/U}": "<i class='ms ms-2u ms-split ms-cost'></i>",
-		"{2/B}": "<i class='ms ms-2b ms-split ms-cost'></i>",
-		"{2/R}": "<i class='ms ms-2r ms-split ms-cost'></i>",
-		"{2/G}": "<i class='ms ms-2g ms-split ms-cost'></i>",
-		"{CHAOS}": "<i class='ms ms-chaos'></i>",
-		"{W/U/P}": "<i class='ms ms-wup ms-cost'></i>",
-		"{W/B/P}": "<i class='ms ms-wbp ms-cost'></i>",
-		"{U/B/P}": "<i class='ms ms-ubp ms-cost'></i>",
-		"{U/R/P}": "<i class='ms ms-urp ms-cost'></i>",
-		"{B/R/P}": "<i class='ms ms-brp ms-cost'></i>",
-		"{B/G/P}": "<i class='ms ms-bgp ms-cost'></i>",
-		"{R/W/P}": "<i class='ms ms-rwp ms-cost'></i>",
-		"{R/G/P}": "<i class='ms ms-rgp ms-cost'></i>",
-		"{G/W/P}": "<i class='ms ms-gwp ms-cost'></i>",
-		"{G/U/P}": "<i class='ms ms-gup ms-cost'></i>",
-		"{H}": "<i class='ms ms-h ms-cost'></i>",
-		"{P}": "<i class='ms ms-paw ms-cost'></i>",
-		"{TK}": "<i class='ms ms-ticket ms-cost'></i>",
-		"{PW}": "<i class='ms ms-planeswalker'></i>",
-		"[0]": "<i class='ms ms-loyalty-zero ms-loyalty-0 ms-2x'></i>",
-		"[+1]": "<i class='ms ms-loyalty-up ms-loyalty-1 ms-2x'></i>",
-		"[+2]": "<i class='ms ms-loyalty-up ms-loyalty-2 ms-2x'></i>",
-		"[+3]": "<i class='ms ms-loyalty-up ms-loyalty-3 ms-2x'></i>",
-		"[+4]": "<i class='ms ms-loyalty-up ms-loyalty-4 ms-2x'></i>",
-		"[+5]": "<i class='ms ms-loyalty-up ms-loyalty-5 ms-2x'></i>",
-		"[-1]": "<i class='ms ms-loyalty-down ms-loyalty-1 ms-2x'></i>",
-		"[-2]": "<i class='ms ms-loyalty-down ms-loyalty-2 ms-2x'></i>",
-		"[-3]": "<i class='ms ms-loyalty-down ms-loyalty-3 ms-2x'></i>",
-		"[-4]": "<i class='ms ms-loyalty-down ms-loyalty-4 ms-2x'></i>",
-		"[-5]": "<i class='ms ms-loyalty-down ms-loyalty-5 ms-2x'></i>",
-		"[-6]": "<i class='ms ms-loyalty-down ms-loyalty-6 ms-2x'></i>",
-		"[-7]": "<i class='ms ms-loyalty-down ms-loyalty-7 ms-2x'></i>",
-		"[-8]": "<i class='ms ms-loyalty-down ms-loyalty-8 ms-2x'></i>",
-		"[-9]": "<i class='ms ms-loyalty-down ms-loyalty-9 ms-2x'></i>",
-		"[-10]": "<i class='ms ms-loyalty-down ms-loyalty-10 ms-2x'></i>",
-		"[-11]": "<i class='ms ms-loyalty-down ms-loyalty-11 ms-2x'></i>",
-		"[-12]": "<i class='ms ms-loyalty-down ms-loyalty-12 ms-2x'></i>",
-		"[-13]": "<i class='ms ms-loyalty-down ms-loyalty-13 ms-2x'></i>",
-		"[-14]": "<i class='ms ms-loyalty-down ms-loyalty-14 ms-2x'></i>",
-		"[-15]": "<i class='ms ms-loyalty-down ms-loyalty-15 ms-2x'></i>",
-		"[-16]": "<i class='ms ms-loyalty-down ms-loyalty-16 ms-2x'></i>",
-		"[-X]": "<i class='ms ms-loyalty-down ms-loyalty-x ms-2x'></i>",
-	};
+const symbolsToHtml = function(string, symbolMap) {
 	string = string.replace(/[{\[][A-Z0-9\/+-]{1,5}[}\]]/g, function(match) {
-		return symbolMap[match] || match;
+		return symbolMap[match].html || match;
 	});
 	return string;
 }
 
 //Accepts a string containing various [expressions] and {symbols} and returns a plaintext version and an HTML version.
-const replaceExpressions = function(string, playerNamesMap, oracle, allCards, allRules, forPreview) {
+const replaceExpressions = function(string, playerNamesMap, oracle, allCards, allRules, forPreview, symbols) {
+	if (symbols === undefined) {
+		symbols = symbolMap;//Sometimes it's a global var, sometimes it's passed in. Yes this is dumb.
+	}
 
 	const combineStrings = function(strings) {
 		if (typeof strings !== "object") {
@@ -339,9 +249,7 @@ const replaceExpressions = function(string, playerNamesMap, oracle, allCards, al
 	//Move the superscripts to after any pluralizations.
 	if (forPreview) {
 		//HTML tags leaking from my eyes like liquid pain! (They'll never be nested.)
-		console.log(resultToReturn.html)
 		resultToReturn.html = resultToReturn.html.replace(/<sup(.*?)<\/sup>([^ .,;<]*)/g, "$2<sup$1</sup>");
-		console.log(resultToReturn.html)
 	}
 
 	//Remove rules citations or replace them with HTML.
@@ -356,7 +264,7 @@ const replaceExpressions = function(string, playerNamesMap, oracle, allCards, al
 		return `<a href="https://yawgatog.com/resources/magic-rules/#R${capt1.replace('.', '')}" target="_blank" tooltip="${allRules[capt1] ? allRules[capt1].ruleText.replace(/"/g, "&quot") : "This rule doesn't exist."}">${capt1}</a>`;
 	});
 
-	resultToReturn.html = symbolsToHtml(resultToReturn.html);
+	resultToReturn.html = symbolsToHtml(resultToReturn.html, symbols);
 
 	resultToReturn.html = resultToReturn.html.replace(/\n/g, "<br>");
 

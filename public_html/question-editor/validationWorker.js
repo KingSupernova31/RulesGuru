@@ -1,4 +1,5 @@
 importScripts("cardNamesToIgnore.js");
+importScripts("/globalResources/symbols.js");
 importScripts("/globalResources/replaceExpressions.js");
 importScripts("allCards.js");
 importScripts("allRules.js");

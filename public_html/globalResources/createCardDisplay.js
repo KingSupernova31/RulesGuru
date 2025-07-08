@@ -70,7 +70,7 @@ const createCardDisplay = function(cardData, defaultDisplayType) {
 			const convertedBreakPos = nthIndex(manaCost, "}", breakPos) + 1;
 			manaCost = manaCost.substr(0, convertedBreakPos) + "<br>" + manaCost.substr(convertedBreakPos);
 		}
-		cost.innerHTML = symbolsToHtml(manaCost);
+		cost.innerHTML = symbolsToHtml(manaCost, symbolMap);
 	}
 	if (cardData.colorIndicator.length > 0) {
 		const map = {
@@ -89,7 +89,7 @@ const createCardDisplay = function(cardData, defaultDisplayType) {
 	typeText.textContent = cardData.type;
 	typeLine.appendChild(typeText);
 	if (cardData.rulesText) {
-		text.innerHTML = symbolsToHtml(cardData.rulesText.replace(/\n/g, "<br><br>"));
+		text.innerHTML = symbolsToHtml(cardData.rulesText.replace(/\n/g, "<br><br>"), symbolMap);
 	}
 	if (cardData.loyalty.length > 0) {
 		stats.textContent = cardData.loyalty;

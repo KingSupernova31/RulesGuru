@@ -20,6 +20,7 @@
 		<link rel="stylesheet" href="styles.css">
 		<link rel="stylesheet" href="/globalResources/mana.min.css">
 		<link rel="preload" as="image" href="editor-hover.png">
+		<script defer src="/globalResources/symbols.js"></script>
 		<script defer src="scripts.js"></script>
 	</head>
 	<body>
@@ -192,109 +193,12 @@
 			<div class="content">
 				<p>RulesGuru can render mana symbols and other symbols in the question and answer text. Those symbols can also be used in the "mana cost" and "rules text" template fields. (Including in regular expressions.) Here is the full list of possible symbols:</p>
 				<div id="symbolList">
-					<div>{W} <i class='ms ms-w ms-cost'></i></div>
-					<div>{U} <i class='ms ms-u ms-cost'></i></div>
-					<div>{B} <i class='ms ms-b ms-cost'></i></div>
-					<div>{R} <i class='ms ms-r ms-cost'></i></div>
-					<div>{G} <i class='ms ms-g ms-cost'></i></div>
-					<div>{0} <i class='ms ms-0 ms-cost'></i></div>
-					<div>{1} <i class='ms ms-1 ms-cost'></i></div>
-					<div>{2} <i class='ms ms-2 ms-cost'></i></div>
-					<div>{3} <i class='ms ms-3 ms-cost'></i></div>
-					<div>{4} <i class='ms ms-4 ms-cost'></i></div>
-					<div>{5} <i class='ms ms-5 ms-cost'></i></div>
-					<div>{6} <i class='ms ms-6 ms-cost'></i></div>
-					<div>{7} <i class='ms ms-7 ms-cost'></i></div>
-					<div>{8} <i class='ms ms-8 ms-cost'></i></div>
-					<div>{9} <i class='ms ms-9 ms-cost'></i></div>
-					<div>{10} <i class='ms ms-10 ms-cost'></i></div>
-					<div>{11} <i class='ms ms-11 ms-cost'></i></div>
-					<div>{12} <i class='ms ms-12 ms-cost'></i></div>
-					<div>{13} <i class='ms ms-13 ms-cost'></i></div>
-					<div>{14} <i class='ms ms-14 ms-cost'></i></div>
-					<div>{15} <i class='ms ms-15 ms-cost'></i></div>
-					<div>{16} <i class='ms ms-16 ms-cost'></i></div>
-					<div>{17} <i class='ms ms-17 ms-cost'></i></div>
-					<div>{18} <i class='ms ms-18 ms-cost'></i></div>
-					<div>{19} <i class='ms ms-19 ms-cost'></i></div>
-					<div>{20} <i class='ms ms-20 ms-cost'></i></div>
-					<div>{X} <i class='ms ms-x ms-cost'></i></div>
-					<div>{Y} <i class='ms ms-y ms-cost'></i></div>
-					<div>{C} <i class='ms ms-c ms-cost'></i></div>
-					<div>{S} <i class='ms ms-s ms-cost'></i></div>
-					<div>{H} <i class='ms ms-h'></i></div>
-					<div>{W/P} <i class='ms ms-wp ms-cost'></i></div>
-					<div>{U/P} <i class='ms ms-up ms-cost'></i></div>
-					<div>{B/P} <i class='ms ms-bp ms-cost'></i></div>
-					<div>{R/P} <i class='ms ms-rp ms-cost'></i></div>
-					<div>{G/P} <i class='ms ms-gp ms-cost'></i></div>
-					<div>{2/W} <i class='ms ms-2w ms-split ms-cost'></i></div>
-					<div>{2/U} <i class='ms ms-2u ms-split ms-cost'></i></div>
-					<div>{2/B} <i class='ms ms-2b ms-split ms-cost'></i></div>
-					<div>{2/R} <i class='ms ms-2r ms-split ms-cost'></i></div>
-					<div>{2/G} <i class='ms ms-2g ms-split ms-cost'></i></div>
-					<div>{W/U} <i class='ms ms-wu ms-split ms-cost'></i></div>
-					<div>{W/B} <i class='ms ms-wb ms-split ms-cost'></i></div>
-					<div>{U/B} <i class='ms ms-ub ms-split ms-cost'></i></div>
-					<div>{U/R} <i class='ms ms-ur ms-split ms-cost'></i></div>
-					<div>{B/R} <i class='ms ms-br ms-split ms-cost'></i></div>
-					<div>{B/G} <i class='ms ms-bg ms-split ms-cost'></i></div>
-					<div>{R/W} <i class='ms ms-rw ms-split ms-cost'></i></div>
-					<div>{R/G} <i class='ms ms-rg ms-split ms-cost'></i></div>
-					<div>{G/W} <i class='ms ms-gw ms-split ms-cost'></i></div>
-					<div>{G/U} <i class='ms ms-gu ms-split ms-cost'></i></div>
-					<div>{W/U/P} <i class='ms ms-wup ms-cost'></i></div>
-					<div>{W/B/P} <i class='ms ms-wbp ms-cost'></i></div>
-					<div>{U/B/P} <i class='ms ms-ubp ms-cost'></i></div>
-					<div>{B/R/P} <i class='ms ms-brp ms-cost'></i></div>
-					<div>{R/B/P} <i class='ms ms-brp ms-cost'></i></div>
-					<div>{B/G/P} <i class='ms ms-bgp ms-cost'></i></div>
-					<div>{R/W/P} <i class='ms ms-rwp ms-cost'></i></div>
-					<div>{R/G/P} <i class='ms ms-rgp ms-cost'></i></div>
-					<div>{G/W/P} <i class='ms ms-gwp ms-cost'></i></div>
-					<div>{G/U/P} <i class='ms ms-gup ms-cost'></i></div>
-					<div>{E} <i class='ms ms-e ms-cost'></i></div>
-					<div>{P} <i class='ms ms-paw ms-cost'></i></div>
-					<div>{TK} <i class='ms ms-ticket ms-cost'></i></div>
-					<div>{T} <i class='ms ms-tap ms-cost'></i></div>
-					<div>{Q} <i class='ms ms-untap ms-cost'></i></div>
-					<div>{PW} <i class='ms ms-planeswalker'></i></div>
-					<div>{CHAOS} <i class='ms ms-chaos'></i></div>
-					<div>[0] <i class='ms ms-loyalty-zero ms-loyalty-0 ms-2x'></i></div>
-					<div>[+1] <i class='ms ms-loyalty-up ms-loyalty-1 ms-2x'></i></div>
-					<div>[+2] <i class='ms ms-loyalty-up ms-loyalty-2 ms-2x'></i></div>
-					<div>[+3] <i class='ms ms-loyalty-up ms-loyalty-3 ms-2x'></i></div>
-					<div>[+4] <i class='ms ms-loyalty-up ms-loyalty-4 ms-2x'></i></div>
-					<div>[+5] <i class='ms ms-loyalty-up ms-loyalty-5 ms-2x'></i></div>
-					<div>[-1] <i class='ms ms-loyalty-down ms-loyalty-1 ms-2x'></i></div>
-					<div>[-2] <i class='ms ms-loyalty-down ms-loyalty-2 ms-2x'></i></div>
-					<div>[-3] <i class='ms ms-loyalty-down ms-loyalty-3 ms-2x'></i></div>
-					<div>[-4] <i class='ms ms-loyalty-down ms-loyalty-4 ms-2x'></i></div>
-					<div>[-5] <i class='ms ms-loyalty-down ms-loyalty-5 ms-2x'></i></div>
-					<div>[-6] <i class='ms ms-loyalty-down ms-loyalty-6 ms-2x'></i></div>
-					<div>[-7] <i class='ms ms-loyalty-down ms-loyalty-7 ms-2x'></i></div>
-					<div>[-8] <i class='ms ms-loyalty-down ms-loyalty-8 ms-2x'></i></div>
-					<div>[-9] <i class='ms ms-loyalty-down ms-loyalty-9 ms-2x'></i></div>
-					<div>[-10] <i class='ms ms-loyalty-down ms-loyalty-10 ms-2x'></i></div>
-					<div>[-11] <i class='ms ms-loyalty-down ms-loyalty-11 ms-2x'></i></div>
-					<div>[-12] <i class='ms ms-loyalty-down ms-loyalty-12 ms-2x'></i></div>
-					<div>[-13] <i class='ms ms-loyalty-down ms-loyalty-13 ms-2x'></i></div>
-					<div>[-14] <i class='ms ms-loyalty-down ms-loyalty-14 ms-2x'></i></div>
-					<div>[-15] <i class='ms ms-loyalty-down ms-loyalty-15 ms-2x'></i></div>
-					<div>[-16] <i class='ms ms-loyalty-down ms-loyalty-16 ms-2x'></i></div>
-					<div>[-X] <i class='ms ms-loyalty-down ms-loyalty-x ms-2x'></i></div>
+					<!--Generated by script-->
 				</div>
 				<br>
 				<p>In the mana cost field you also have access to the following pseudo-symbols that will match more than one symbol:</p>
 				<div id="pseudoSymbolList">
-					<span>::generic::</span><span><i class='ms ms-0 ms-cost'></i><i class='ms ms-1 ms-cost'></i><i class='ms ms-2 ms-cost'></i><i class='ms ms-3 ms-cost'></i><i class='ms ms-4 ms-cost'></i><i class='ms ms-5 ms-cost'></i><i class='ms ms-6 ms-cost'></i><i class='ms ms-7 ms-cost'></i><i class='ms ms-8 ms-cost'></i><i class='ms ms-9 ms-cost'></i><i class='ms ms-10 ms-cost'></i><i class='ms ms-11 ms-cost'></i><i class='ms ms-12 ms-cost'></i><i class='ms ms-13 ms-cost'></i><i class='ms ms-14 ms-cost'></i><i class='ms ms-15 ms-cost'></i><i class='ms ms-16 ms-cost'></i><i class='ms ms-17 ms-cost'></i><i class='ms ms-18 ms-cost'></i><i class='ms ms-19 ms-cost'></i><i class='ms ms-20 ms-cost'></i><i class='ms ms-x ms-cost'></i><i class='ms ms-y ms-cost'></i><i class='ms ms-2w ms-split ms-cost'></i><i class='ms ms-2u ms-split ms-cost'></i><i class='ms ms-2b ms-split ms-cost'></i><i class='ms ms-2r ms-split ms-cost'></i><i class='ms ms-2g ms-split ms-cost'></i></span>
-					<span>::phyrexian::</span><span><i class='ms ms-wp ms-cost'></i><i class='ms ms-up ms-cost'></i><i class='ms ms-bp ms-cost'></i><i class='ms ms-rp ms-cost'></i><i class='ms ms-gp ms-cost'></i><i class='ms ms-wup ms-cost'></i><i class='ms ms-wbp ms-cost'></i><i class='ms ms-ubp ms-cost'></i><i class='ms ms-urp ms-cost'></i><i class='ms ms-brp ms-cost'></i><i class='ms ms-bgp ms-cost'></i><i class='ms ms-rwp ms-cost'></i><i class='ms ms-rgp ms-cost'></i><i class='ms ms-gwp ms-cost'></i><i class='ms ms-gup ms-cost'></i></span>
-					<span>::hybrid::</span><span><i class='ms ms-wu ms-split ms-cost'></i><i class='ms ms-wb ms-split ms-cost'></i><i class='ms ms-ub ms-split ms-cost'></i><i class='ms ms-ur ms-split ms-cost'></i><i class='ms ms-br ms-split ms-cost'></i><i class='ms ms-bg ms-split ms-cost'></i><i class='ms ms-rw ms-split ms-cost'></i><i class='ms ms-rg ms-split ms-cost'></i><i class='ms ms-gw ms-split ms-cost'></i><i class='ms ms-gu ms-split ms-cost'></i><i class='ms ms-2w ms-split ms-cost'></i><i class='ms ms-2u ms-split ms-cost'></i><i class='ms ms-2b ms-split ms-cost'></i><i class='ms ms-2r ms-split ms-cost'></i><i class='ms ms-2g ms-split ms-cost'></i><i class='ms ms-wbp ms-cost'></i><i class='ms ms-ubp ms-cost'></i><i class='ms ms-urp ms-cost'></i><i class='ms ms-brp ms-cost'></i><i class='ms ms-bgp ms-cost'></i><i class='ms ms-rwp ms-cost'></i><i class='ms ms-rgp ms-cost'></i><i class='ms ms-gwp ms-cost'></i><i class='ms ms-gup ms-cost'></i></span>
-					<span>::white::</span><span><i class='ms ms-w ms-cost'></i><i class='ms ms-wp ms-cost'></i><i class='ms ms-wu ms-split ms-cost'></i><i class='ms ms-wb ms-split ms-cost'></i><i class='ms ms-rw ms-split ms-cost'></i><i class='ms ms-gw ms-split ms-cost'></i><i class='ms ms-2w ms-split ms-cost'></i><i class='ms ms-wup ms-cost'></i><i class='ms ms-wbp ms-cost'></i><i class='ms ms-rwp ms-cost'></i><i class='ms ms-gwp ms-cost'></i></span>
-					<span>::blue::</span><span><i class='ms ms-u ms-cost'></i><i class='ms ms-up ms-cost'></i><i class='ms ms-wu ms-split ms-cost'></i><i class='ms ms-ub ms-split ms-cost'></i><i class='ms ms-ur ms-split ms-cost'></i><i class='ms ms-gu ms-split ms-cost'></i><i class='ms ms-2u ms-split ms-cost'></i><i class='ms ms-wup ms-cost'></i><i class='ms ms-ubp ms-cost'></i><i class='ms ms-urp ms-cost'></i><i class='ms ms-gup ms-cost'></i></span>
-					<span>::black::</span><span><i class='ms ms-b ms-cost'></i><i class='ms ms-bp ms-cost'></i><i class='ms ms-wb ms-split ms-cost'></i><i class='ms ms-ub ms-split ms-cost'></i><i class='ms ms-br ms-split ms-cost'></i><i class='ms ms-bg ms-split ms-cost'></i><i class='ms ms-2b ms-split ms-cost'></i><i class='ms ms-wbp ms-cost'></i><i class='ms ms-ubp ms-cost'></i><i class='ms ms-brp ms-cost'></i><i class='ms ms-bgp ms-cost'></i></span>
-					<span>::red::</span><span><i class='ms ms-r ms-cost'></i><i class='ms ms-rp ms-cost'></i><i class='ms ms-ur ms-split ms-cost'></i><i class='ms ms-br ms-split ms-cost'></i><i class='ms ms-rw ms-split ms-cost'></i><i class='ms ms-rg ms-split ms-cost'></i><i class='ms ms-2r ms-split ms-cost'></i><i class='ms ms-urp ms-cost'></i><i class='ms ms-brp ms-cost'></i><i class='ms ms-rwp ms-cost'></i><i class='ms ms-rgp ms-cost'></i></span>
-					<span>::green::</span><span><i class='ms ms-g ms-cost'></i><i class='ms ms-gp ms-cost'></i><i class='ms ms-bg ms-split ms-cost'></i><i class='ms ms-rg ms-split ms-cost'></i><i class='ms ms-gw ms-split ms-cost'></i><i class='ms ms-gu ms-split ms-cost'></i><i class='ms ms-2g ms-split ms-cost'></i><i class='ms ms-bgp ms-cost'></i><i class='ms ms-rgp ms-cost'></i><i class='ms ms-gwp ms-cost'></i><i class='ms ms-gup ms-cost'></i></span>
+					<!--Generated by script-->
 				</div>
 			</div>
 			<h4 class="header" id="externalLinks">External Links</h4>

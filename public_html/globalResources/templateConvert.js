@@ -13,7 +13,7 @@ Object.defineProperty(Array.prototype, "includesCaseInsensitive", {
 //Somehow this takes over a second: templateConvert([{"field":"Rules text","operator":"Matches:","value":"When ::name:: enters the battlefield, exile target nonland permanent an opponent controls until ::name:: leaves the battlefield.","orGroup":null}], allCards)
 //No individual card causes the problems; longest card is about 8ms, and it's inconsistent which card it is.
 
-const templateConvert = function(template, globalCardList, presetTemplates) {
+const templateConvert = function(template, globalCardList, presetTemplates, pseudoSymbolMap) {
 	//An empty template returns no cards, not all of them.
 	if (template.length === 0) {
 		return [];
@@ -73,7 +73,7 @@ const templateConvert = function(template, globalCardList, presetTemplates) {
 				if (currentRule.orGroup !== null && orGroupsSatisfied[currentRule.orGroup]) {//If this rule is in an OR group that has already been satisfied, we can skip checking it.
 					continue;
 				}
-				let currentRuleSatisfied = templateRuleMatchesCard(currentRule, currentCard);
+				let currentRuleSatisfied = templateRuleMatchesCard(currentRule, currentCard, pseudoSymbolMap);
 
 				if (currentRule.orGroup === null) {//If it's not in a group, the rule being false invalidates the card.
 					if (!currentRuleSatisfied) {
@@ -151,7 +151,7 @@ const typicalPseudoNumericalRuleMatchesCard = function(rule, card) {
 	}
 }
 
-const templateRuleMatchesCard = function(rule, card) {
+const templateRuleMatchesCard = function(rule, card, pseudoSymbolMap) {
 	switch (rule.field) {
 		case "Layout":
 			if (rule.operator === "Is:") {
@@ -185,17 +185,7 @@ const templateRuleMatchesCard = function(rule, card) {
 			const cardManaCostArray = card.manaCost ? card.manaCost.replace(" // ", "").split(/(?={)/) : [],
 						templateSymbols = rule.value.match(/{[A-Z0-9/]{0,3}}/g) || [],
 						templatePseudoSymbols = rule.value.match(/::[a-z]+::/g) || [],
-						tempSymbolString = rule.value,
-						pseudoSymbolMap = {
-							"::generic::": ["{0}", "{1}", "{2}", "{3}", "{4}", "{5}", "{6}", "{7}", "{8}", "{9}", "{10}", "{11}", "{12}", "{13}", "{14}", "{15}", "{16}", "{17}", "{18}", "{19}", "{20}", "{X}", "{Y}", "{2/W}", "{2/U}", "{2/B}", "{2/R}", "{2/G}"],
-							"::phyrexian::": ["{W/P}", "{U/P}", "{B/P}", "{R/P}", "{G/P}", "{W/U/P}", "{W/B/P}", "{U/B/P}", "{U/R/P}", "{B/R/P}", "{B/G/P}", "{R/W/P}", "{R/G/P}", "{G/W/P}", "{G/U/P}",],
-							"::hybrid::": ["{W/U}", "{W/B}", "{U/B}", "{U/R}", "{B/R}", "{B/G}", "{R/W}", "{R/G}", "{G/W}", "{G/U}", "{2/W}", "{2/U}", "{2/B}", "{2/R}", "{2/G}"],
-							"::white::": ["{W}", "{W/P}", "{W/U}", "{W/B}", "{R/W}", "{G/W}", "{2/W}", "{W/U/P}", "{W/B/P}", "{R/W/P}", "{R/G/P}", "{G/W/P}"],
-							"::blue::": ["{U}", "{U/P}", "{W/U}", "{U/B}", "{U/R}", "{G/U}", "{2/U}", "{W/U/P}", "{U/B/P}", "{U/R/P}", "{G/U/P}"],
-							"::black::": ["{B}", "{B/P}", "{W/B}", "{U/B}", "{B/R}", "{B/G}", "{2/B}", "{W/B/P}", "{U/B/P}", "{B/R/P}", "{B/G/P}"],
-							"::red::": ["{R}", "{R/P}", "{U/R}", "{B/R}", "{R/W}", "{R/G}", "{2/R}", "{U/R/P}", "{B/R/P}", "{R/W/P}", "{R/G/P}"],
-							"::green::": ["{G}", "{G/P}", "{B/G}", "{R/G}", "{G/W}", "{G/U}", "{2/G}", "{B/G/P}", "{R/G/P}", "{G/W/P}", "{G/U/P}"]
-						};
+						tempSymbolString = rule.value;
 			const marriageTheoremMet = function(pseudoSymbols, symbols) {
 				if (pseudoSymbols.length === 0 || symbols.length === 0) {
 					return false;
