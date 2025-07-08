@@ -10,7 +10,7 @@ Object.defineProperty(Array.prototype, "includesCaseInsensitive", {
 });
 
 //Time intensive step is the regexes, focus there for optimization.
-//Somehow this takes over a second: templateConvert([{"field":"Rules text","operator":"Matches:","value":"When ::name:: enters the battlefield, exile target nonland permanent an opponent controls until ::name:: leaves the battlefield.","orGroup":null}], allCards)
+//Somehow this takes over a second: templateConvert([{"field":"Rules text","operator":"Matches","value":"When ::name:: enters the battlefield, exile target nonland permanent an opponent controls until ::name:: leaves the battlefield.","orGroup":null}], allCards)
 //No individual card causes the problems; longest card is about 8ms, and it's inconsistent which card it is.
 
 const templateConvert = function(template, globalCardList, presetTemplates, pseudoSymbolMap) {
@@ -122,9 +122,9 @@ const fieldToPropMapping = {
 
 const typicalArrayRuleMatchesCard = function(rule, card) {
 	const relevantProperty = fieldToPropMapping[rule.field];
-	if (rule.operator === "Includes:") {
+	if (rule.operator === "Includes") {
 		return card[relevantProperty].includes(rule.value);
-	} else if (rule.operator === "Doesn't include:") {
+	} else if (rule.operator === "Doesn't include") {
 		return !card[relevantProperty].includes(rule.value);
 	}
 }
@@ -154,22 +154,22 @@ const typicalPseudoNumericalRuleMatchesCard = function(rule, card) {
 const templateRuleMatchesCard = function(rule, card, pseudoSymbolMap) {
 	switch (rule.field) {
 		case "Layout":
-			if (rule.operator === "Is:") {
+			if (rule.operator === "Is") {
 				if (card.layout !== rule.value) {
 					return false;
 				}
-			} else if (rule.operator === "Not:") {
+			} else if (rule.operator === "Not") {
 				if (card.layout === rule.value) {
 					return false;
 				}
 			}
 			return true;
 		case "Multi-part side":
-			if (rule.operator === "Is:") {
+			if (rule.operator === "Is") {
 				if (!card.side || card.side !== rule.value) {
 					return false;
 				}
-			} else if (rule.operator === "Not:") {
+			} else if (rule.operator === "Not") {
 				if (card.side && card.side === rule.value) {
 					return false;
 				}
@@ -251,13 +251,13 @@ const templateRuleMatchesCard = function(rule, card, pseudoSymbolMap) {
 				return true;
 			}
 
-			if (rule.operator === "Includes:") {
+			if (rule.operator === "Includes") {
 				return includes();
-			} else if (rule.operator === "Doesn't include:") {
+			} else if (rule.operator === "Doesn't include") {
 				return !includes();
-			} else if (rule.operator === "Exactly:") {
+			} else if (rule.operator === "Exactly") {
 				return exactly();
-			} else if (rule.operator === "Not exactly:") {
+			} else if (rule.operator === "Not exactly") {
 				return !exactly();
 			}
 		case "Mana value":
@@ -270,21 +270,21 @@ const templateRuleMatchesCard = function(rule, card, pseudoSymbolMap) {
 			return typicalArrayRuleMatchesCard(rule, card);
 		case "Rules text":
 			const replacedValue = rule.value.replace(/::name::/g, card.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-			if (rule.operator === "Matches:") {
+			if (rule.operator === "Matches") {
 				let regex = new RegExp(replacedValue);
 				if (!regex.test(card.rulesText)) {
 					return false;
 				}
-			} else if (rule.operator === "Does not match:") {
+			} else if (rule.operator === "Does not match") {
 				let regex = new RegExp(replacedValue);
 				if (regex.test(card.rulesText)) {
 					return false;
 				}
-			} else if (rule.operator === "Contains:") {
+			} else if (rule.operator === "Contains") {
 				if (!card.rulesText.toLowerCase().includes(replacedValue.toLowerCase())) {
 					return false;
 				}
-			} else if (rule.operator === "Does not contain:") {
+			} else if (rule.operator === "Does not contain") {
 				if (card.rulesText.toLowerCase().includes(replacedValue.toLowerCase())) {
 					return false;
 				}

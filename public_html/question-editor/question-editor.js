@@ -360,7 +360,7 @@ const validateTemplate = function(inputTemplate) {
 		}
 		//Regexes
 		if (template[i].field === "Rules text") {
-			if (template[i].operator === "Matches:" || template[i].operator === "Does not match:") {
+			if (template[i].operator === "Matches" || template[i].operator === "Does not match") {
 				try {
 					new RegExp(template[i].value);
 				} catch (error) {
@@ -454,12 +454,12 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 	let tooltip;
 	switch (field) {
 		case "Layout":
-			operators = ["Is:", "Not:"];
+			operators = ["Is", "Not"];
 			values = ["normal", "split (half)", "split (full)", "flip", "transforming double-faced", "modal double-faced", "meld", "adventurer", "prototype"];
 			valuesText = ["Normal", "Split (half)", "Split (full)", "Flip", "Transforming Double-Faced", "Modal Double-Faced", "Meld", "Adventurer", "Prototype"];
 			break;
 		case "Multi-part side":
-			operators = ["Is:", "Not:"];
+			operators = ["Is", "Not"];
 			values = ["a", "b"];
 			valuesText = ["A", "B"];
 			tooltip = `"A": Front face of a double-faced card, unflipped flip card, left half of a split card, unmelded face of a meld card default characteristics of an adventurer card, non-prototyped prototype card.
@@ -467,42 +467,42 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 			"B": Back face of a double-faced card, flipped flip card, right half of a split card, melded face of a meld pair, alternative characteristics of an adventurer card, prototyped prototype card.`;
 			break;
 		case "Colors":
-			operators = ["Includes:", "Doesn't include:"];
+			operators = ["Includes", "Doesn't include"];
 			values = ["White", "Blue", "Black", "Red", "Green"];
 			break;
 		case "Color indicator":
-			operators = ["Includes:", "Doesn't include:"];
+			operators = ["Includes", "Doesn't include"];
 			values = ["White", "Blue", "Black", "Red", "Green"];
 			break;
 		case "Color identity":
-			operators = ["Includes:", "Doesn't include:"];
+			operators = ["Includes", "Doesn't include"];
 			values = ["White", "Blue", "Black", "Red", "Green"];
 			break;
 		case "Mana cost":
-			operators = ["Includes:", "Doesn't include:", "Exactly:", "Not exactly:"];
+			operators = ["Includes", "Doesn't include", "Exactly", "Not exactly"];
 			tooltip = `The order of the symbols doesn't matter. You can use ::generic::, ::phyrexian::, ::hybrid::, and ::[type]:: to match multiple symbols.<br><br>If "Doesn't include" is selected, only cards that don't have <b>all</b> of those symbols are returned. If "don't have <b>any</b>" is the desired query, use multiple "Doesn't include" rules.`;
 			break;
 		case "Mana value":
 			operators = ["=", "≠", ">", "<"];
 			break;
 		case "Supertypes":
-			operators = ["Includes:", "Doesn't include:"];
+			operators = ["Includes", "Doesn't include"];
 			values = ["Basic", "Legendary", "Snow", "World"];
 			break;
 		case "Types":
-			operators = ["Includes:", "Doesn't include:"];
+			operators = ["Includes", "Doesn't include"];
 			values = ["Artifact", "Battle", "Creature", "Dungeon", "Enchantment", "Instant", "Land", "Planeswalker", "Sorcery", "Kindred"];
 			break;
 		case "Subtypes":
-			operators = ["Includes:", "Doesn't include:"];
+			operators = ["Includes", "Doesn't include"];
 			values = allSubtypes;
 			break;
 		case "Rules text":
-			operators = ["Contains:", "Does not contain:", "Matches:", "Does not match:"];
+			operators = ["Contains", "Does not contain", "Matches", "Does not match"];
 			tooltip = `You can substitute "::name::" for the name of the card. Mana symbols and other symbols can be included in braces, the full list of symbols is on the admin information page. "Contains" and "Does not contain" are case-insensitive plaintext, "Matches" and "Does not match" are case-sensitive regular expressions.`;
 			break;
 		case "Keywords":
-			operators = ["Includes:", "Doesn't include:"];
+			operators = ["Includes", "Doesn't include"];
 			values = allKeywords.keywordAbilities.concat(allKeywords.keywordActions);
 			break;
 		case "Power":
