@@ -48,21 +48,14 @@ const discordPassword = JSON.parse(fs.readFileSync("externalCredentials.json", "
 client.login(discordPassword);
 
 
-//Provide a link to questions.
+//Right now only doing github links.
 client.on("messageCreate", function(message) {
 	if (message.author.bot) return;
 
-	let url;
-	url = "https://rulesguru.org/question-editor?";
-	if (message.channel.id === "816333479527710760") {//Link to Github for convenience.
-		url = "https://github.com/KingSupernova31/RulesGuru/issues/";
-	}
-	if (["809156781284524064", "809158564861968385", "837844218986102785"].includes(message.channel.id)) {//Link to editor for editor channels.
-		url = "https://rulesguru.org/question-editor?";
-	}
+	let url = "https://github.com/KingSupernova31/RulesGuru/issues/";
 
 	const match = message.content.match(/#\d{1,4}(?![^\W_])/g);
-	if (match) {
+	if (match && (message.channel.id === "816333479527710760" || message.channel.id === "810621356467028028")) {
 		for (let command of match) {
 			const questionNum = command.slice(1);
 			message.channel.send(url + questionNum);
@@ -81,7 +74,7 @@ client.on("messageCreate", function(message) {
 	const match = message.content.match(/\bsearch\b/gi);
 	if (match) {
 		if (Math.random() < 0.01) {
-			message.reply("Surprise Panglacial Wurm!");
+			message.reply("Panglacial Wurm!");
 		}
 	} else {
 		return;
