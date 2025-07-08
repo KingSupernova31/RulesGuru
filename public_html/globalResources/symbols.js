@@ -399,7 +399,7 @@ const pseudoSymbolMap = {
 	"::red::": manaSymbols.filter(symbol => symbol.includes("R")),
 	"::green::": manaSymbols.filter(symbol => symbol.includes("G")),
 	"::phyrexian::": manaSymbols.filter(symbol => symbol.includes("P") || symbol.includes("H")),
-	"::generic::": manaSymbols.filter(symbol => /[0-9]/.test(symbol)),
+	"::generic::": manaSymbols.filter(symbol => /[0-9XY]/.test(symbol)),
 	"::hybrid::": manaSymbols.filter(symbol => symbol.slice(0, symbol.indexOf("/P}")).includes("/")),
 }
 
