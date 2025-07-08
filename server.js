@@ -1128,6 +1128,7 @@ app.post("/submitQuestion", async function(req, res) {
 	req.body.complexity = "";
 	req.body.tags = [];
 	req.body.cardGenerators = [];
+	req.body.answer = "";
 	//Fix problems
 	const normalizeInput = function(text) {
 		text = text.replace(/\[+/g, "[");
@@ -1138,7 +1139,6 @@ app.post("/submitQuestion", async function(req, res) {
 		return text;
 	}
 	req.body.question = normalizeInput(req.body.question);
-	req.body.answer = normalizeInput(req.body.answer);
 
 	const addQuestionResult = await addQuestion(req.body, false);
 	if (!addQuestionResult.error) {

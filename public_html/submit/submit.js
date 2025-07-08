@@ -1,86 +1,76 @@
 "use strict";
 
-let requestObj = {};
-
-let submissionOngoing = false;
-const submit = function(question, answer, submitterName) {
-	if (submissionOngoing) {
-		return;
-	}
-	submissionOngoing = true;
-	document.getElementById("cursorStyle").innerHTML = "* {cursor: wait !important;}";
-	requestObj.question = question || document.getElementById("question").value;
-	requestObj.answer = answer || "";
-	requestObj.submitterName = submitterName || document.getElementById("name").value;
-	//Validate the submission.
-	if (requestObj.question.length < 10) {
-		alert("You must include a valid question.");
-		document.getElementById("cursorStyle").innerHTML = "";
-		submissionOngoing = false;
-		return;
-	}
-	//Send the request.
-	const httpRequest = new XMLHttpRequest();
-	httpRequest.timeout = 5000;
-	const addToSubmissionBacklog = function(question) {
-		const backlog = JSON.parse(localStorage.getItem("submissionBacklog")) || [];
-		backlog.push(question);
-		localStorage.setItem("submissionBacklog", JSON.stringify(backlog));
-	}
-	httpRequest.onabort = function() {
-		addToSubmissionBacklog(requestObj);
-		handleSubmissionBacklog(5000);
-		alert("There was an error submitting your question. (Request aborted.) Your question has been saved locally and will be automatically submitted once possible. Please report the issue using the contact form in the upper right.");
-		document.getElementById("cursorStyle").innerHTML = "";
-		clearFields();
-		submissionOngoing = false;
-	}
-	httpRequest.onerror = function() {
-		addToSubmissionBacklog(requestObj);
-		handleSubmissionBacklog(5000);
-		alert("You do not have internet access at the moment. Your question has been saved locally and will be automatically submitted once possible. If you're sure that you have an internet connection and the problem persists, please report the issue using the contact form in the upper right.");
-		document.getElementById("cursorStyle").innerHTML = "";
-		clearFields();
-		submissionOngoing = false;
-	}
-	httpRequest.ontimeout = function() {
-		addToSubmissionBacklog(requestObj);
-		handleSubmissionBacklog(5000);
-		alert("There was an error submitting your question. (Request timed out.) Your question has been saved locally and will be automatically submitted once possible. If you're sure that you have an internet connection and the problem persists, please report the issue using the contact form in the upper right.");
-		document.getElementById("cursorStyle").innerHTML = "";
-		clearFields();
-		submissionOngoing = false;
-	}
-	httpRequest.onload = function() {
-		if (httpRequest.status === 200) {
-			if (httpRequest.response) {
-				if (!question) {
-					alert(httpRequest.response);
-				} else {
-					console.log(httpRequest.response);
-				}
-				if (!httpRequest.response.includes("error")) {
-					clearFields();
-				}
-			} else {
-				alert("There was an error submitting your question. (Server returned no response.) Please report this error using the contact form in the upper right.");
-			}
-			document.getElementById("cursorStyle").innerHTML = "";
-			submissionOngoing = false;
-		} else {
-			alert(`There was an error submitting your question. (Server returned status code "${httpRequest.status}".) Please report this error using the contact form in the upper right.`);
-			document.getElementById("cursorStyle").innerHTML = "";
-			submissionOngoing = false;
-		}
-	}
-	httpRequest.open("POST", "/submitQuestion", true);
-	httpRequest.setRequestHeader("Content-Type", "application/json");
-	httpRequest.send(JSON.stringify(requestObj));
-	localStorage.setItem("contactFormName", document.getElementById("name").value);
+const sleep = function(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const clearFields = function() {
-	document.getElementById("question").value = "";
+const validateQuestion = function(question, submitterName) {
+	if (!question || question.length < 3) {
+		alert("Please include a question.");
+		return false;
+	}
+	return true;
+}
+
+const submitQuestionToServer = async function(question, submitterName) {
+	if (!currentlyHaveConnection) {
+		throw new Error("No internet connection.");
+	}
+
+	return fetch("/submitQuestion", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json"
+		},
+		signal: AbortSignal.timeout(3000),
+		body: JSON.stringify({ question, submitterName })
+	});
+}
+
+const handleSubmitButton = async function() {
+	localStorage.setItem("contactFormName", document.getElementById("name").value);
+
+	const question = document.getElementById("question").value;
+	const submitterName = document.getElementById("name").value;
+
+	if (!validateQuestion(question, submitterName)) {
+		return;
+	}
+
+	if (currentlyHaveConnection) {
+		document.getElementById("cursorStyle").innerHTML = "* {cursor: wait !important;}";
+		document.getElementById("submitButton").disabled = true;
+
+		try {
+			const response = await submitQuestionToServer(question, submitterName);
+			if (response.ok) {
+				const body = await response.text();
+				alert(body);
+				document.getElementById("question").value = "";
+			} else {
+				throw new Error(`Server responded with status ${response.status}`);
+			}
+		} catch (error) {
+			console.error(error);
+			alert(`There was an error submitting your question: ${error.message}. If this issue continues, please report it via the contact form in the upper right.`);
+		}
+	} else {
+		saveLocally(question, submitterName);
+		document.getElementById("question").value = "";
+		alert(`Could not connect to the server. Your question has been saved locally and will be automatically submitted once connection is reestablished.`);
+	}
+
+	document.getElementById("submitButton").disabled = false;
+	document.getElementById("cursorStyle").innerHTML = "";
+}
+
+const saveLocally = function(question, submitterName) {
+	const backlog = JSON.parse(localStorage.getItem("submissionBacklog")) || [];
+	backlog.push({
+		"question": question,
+		"submitterName": submitterName,
+	});
+	localStorage.setItem("submissionBacklog", JSON.stringify(backlog));
 }
 
 const compressMobileNameDescription = function() {
@@ -90,30 +80,67 @@ const compressMobileNameDescription = function() {
 		document.getElementById("name").placeholder = "Name. (Optional, if you'd like to be credited.)";
 	}
 }
-document.onload = compressMobileNameDescription;
-
-document.getElementById("name").value = localStorage.getItem("contactFormName");
 
 document.addEventListener("keypress", function(event) {
 	if (document.activeElement.tagName === "TEXTAREA" || document.activeElement.tagName === "INPUT") {
 		if (!event.shiftKey && event.key === "Enter") {
 			event.preventDefault();
-			submit();
+			handleSubmitButton();
 		}
 	}
 });
 
-//Not used normally, here for my use in the console when I want to submit a large dump of questions.
-const submitLots = function(questions) {
-	const job = setInterval(function() {
-		if (!submissionOngoing) {
-			const question = questions.pop();
-			submit(question.question, question.answer, question.submitterName);
+let currentlyHaveConnection = true;
+const connectionTest = async function() {
+	while (true) {
+		try {
+			await fetch(location.href, {
+				method: "HEAD",
+				cache: "no-cache",
+				signal: AbortSignal.timeout(5000),
+			});
+			currentlyHaveConnection = true;
+		} catch (e) {
+			currentlyHaveConnection = false;
 		}
-		if (questions.length === 0) {
-			clearInterval(job);
-		}
-	}, 1000);
+		await sleep(1000);
+	}
 };
+connectionTest();
+
+const handleBacklog = async function() {
+	while (true) {
+		if (!currentlyHaveConnection) {
+			await sleep(5000);
+			continue;
+		}
+		const backlog = JSON.parse(localStorage.getItem("submissionBacklog")) || [];
+		if (backlog.length === 0) {
+			await sleep(5000);
+			continue;
+		} else {
+			const { question, submitterName } = backlog.shift();
+			try {
+				const response = await submitQuestionToServer(question, submitterName);
+				if (response.ok) {
+					console.log(await response.text());
+				} else {
+					throw new Error(`Server responded with status ${response.status}`);
+				}
+			} catch (error) {
+				console.log(`Failed to submit backlog question`);
+				console.error(error);
+				backlog.unshift({ question, submitterName });
+			}
+			localStorage.setItem("submissionBacklog", JSON.stringify(backlog));
+		}
+		await sleep(500);
+	}
+};
+handleBacklog();
+
+compressMobileNameDescription();
+
+document.getElementById("name").value = localStorage.getItem("contactFormName");
 
 document.getElementById("question").focus();

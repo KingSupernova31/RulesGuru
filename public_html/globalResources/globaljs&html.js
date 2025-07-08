@@ -275,54 +275,6 @@ document.addEventListener("keypress", function(event) {
 	}
 })
 
-
-
-//Check for submittion backlog.
-let submissionBackLogOngoing = false;
-const handleSubmissionBacklog = function(delay) {
-	if (!submissionBackLogOngoing) {
-		submissionBackLogOngoing = true;
-		setTimeout(function() {
-			const submissionBacklog = JSON.parse(localStorage.getItem("submissionBacklog")) || [];
-			submissionBackLogOngoing = false;
-			submissionBacklog.forEach(function(question) {
-				const httpRequest = new XMLHttpRequest();
-				httpRequest.timeout = 5000;
-				httpRequest.onabort = function() {
-					alert("Something very strange happened. (Submission backlog request aborted.) Please report this error using the contact form in the upper right.");
-					submissionBackLogOngoing = false;
-				}
-				httpRequest.onerror = function() {
-					handleSubmissionBacklog((delay + 1) * 2);
-				}
-				httpRequest.ontimeout = function() {
-					handleSubmissionBacklog((delay + 1) * 2);
-				}
-				httpRequest.onload = function() {
-					if (httpRequest.status === 200) {
-						if (httpRequest.response) {
-							console.log(httpRequest.response)
-							submissionBacklog.splice(submissionBacklog.indexOf(question), 1);
-							localStorage.setItem("submissionBacklog", JSON.stringify(submissionBacklog));
-							submissionBackLogOngoing = false;
-						} else {
-							alert("Something very strange happened. (Submission backlog server returned no response.) Please report this error using the contact form in the upper right.");
-							submissionBackLogOngoing = false;
-						}
-					} else {
-						alert(`Something very strange happened. (Submission backlog server returned status code "${httpRequest.status}".) Please report this error using the contact form in the upper right.`);
-						submissionBackLogOngoing = false;
-					}
-				}
-				httpRequest.open("POST", "/submitQuestion", true);
-				httpRequest.setRequestHeader("Content-Type", "application/json");
-				httpRequest.send(JSON.stringify(question));
-			});
-		}, delay);
-	}
-}
-handleSubmissionBacklog(0);
-
 //Array radomizer. Shuffles in place.
 const shuffle = function(array) {
   var currentIndex = array.length, temporaryValue, randomIndex;

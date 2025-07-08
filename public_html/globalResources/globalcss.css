@@ -121,6 +121,12 @@ body > h1:first-of-type {
 	background-color: #282828;
 }
 
+.specialButtonBlack:disabled {
+	background-color: #474747;
+	color: #b0b0b0;
+	cursor: not-allowed;
+}
+
 .bannerLeft {
 	position: absolute;
 	margin-left: 1.5rem;
