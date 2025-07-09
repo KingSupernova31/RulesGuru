@@ -271,7 +271,7 @@ const updateReferenceObjects = async function(speedy) {
 
 	const emptyTemplates = [];
 	for (let i = 0 ; i < finishedQuestions.length ; i++) {
-		if (!speedy) {await sleep(10);}//This takes a while and would block the server thread otherwise.
+		if (!speedy) {await sleep(100);}//This takes a while and would block the server thread otherwise.
 
 		//Expand templates.
 		finishedQuestions[i] = convertAllTemplates(finishedQuestions[i], canonicalAllCards);
