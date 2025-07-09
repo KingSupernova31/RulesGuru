@@ -1140,6 +1140,8 @@ app.post("/submitQuestion", async function(req, res) {
 		return text;
 	}
 	req.body.question = normalizeInput(req.body.question);
+	//Simple way to avoid XSS attacks. Breaking formatting doesn't matter since an editor will need to rewrite the question anyway. Must be all opening brackets because some browsers will auto-close tags.
+	req.body.question = req.body.question.replace(/</g, "{less than sign}");
 
 	const addQuestionResult = await addQuestion(req.body, false);
 	if (!addQuestionResult.error) {
