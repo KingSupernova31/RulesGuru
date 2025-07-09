@@ -590,28 +590,22 @@ bindButtonAction(document.getElementById("nextQuestion"), displayNextRandomQuest
 
 //Questions list
 let questionsListOpen = false;
-bindButtonAction(document.getElementById("sidebarShowQuestionsList"), function() {
-	closeSidebar();
+const toggleQuestionsList = function() {
 	if (questionsListOpen) {
-		document.getElementById("questionsListArea").style.transform = "translate(-7.9375rem)";
+		document.getElementById("questionsListArea").style.transform = "translate(-8.3rem)";
 		document.getElementById("moveForQuestionsList").style.width = "";
 		document.getElementById("sidebarShowQuestionsList").innerHTML = "Show All";
 		questionsListOpen = false;
 	} else {
-		//getQuestionsList(displayQuestionsList);
 		document.getElementById("questionsListArea").style.transform = "translate(0)";
-		document.getElementById("moveForQuestionsList").style.width = "calc(100% - 7.9375rem)";
+		document.getElementById("moveForQuestionsList").style.width = "calc(100% - 8.3rem)";
 		document.getElementById("sidebarShowQuestionsList").innerHTML = "Hide All";
 		questionsListOpen = true;
 	}
-});
+}
+bindButtonAction(document.getElementById("sidebarShowQuestionsList"), toggleQuestionsList);
 
-bindButtonAction(document.getElementById("questionsListHideButton"), function() {
-	document.getElementById("questionsListArea").style.transform = "translate(-7.9375rem)";
-	document.getElementById("moveForQuestionsList").style.width = "";
-	document.getElementById("sidebarShowQuestionsList").innerHTML = "Show All";
-	questionsListOpen = false;
-});
+bindButtonAction(document.getElementById("questionsListHideButton"), toggleQuestionsList);
 
 //Make a request for all questions that fit the current parameters.
 let getQuestionsListTimeoutId = 0;

@@ -4,7 +4,6 @@ document.querySelector("body").insertAdjacentHTML("beforeend", `
 	<image id="settingsButton" class="bannerElement bannerLeft doNotCloseSidebarOnClick bannerImage" src="/globalResources/icons/settings.png">
 
 	<div id="sidebar" class="doNotCloseSidebarOnClick">
-		<br>
 		<div id="sidebarLevel">
 			<h4 tooltip="The amount and specificity of rules knowledge that's required.<br><br><b>0:</b> Intro-level questions that any serious Magic player will probably know the answer to.<br><br><b>1:</b> Questions about common interactions that could often occur in a tournament.<br><br><b>2:</b> Rarer interactions that could still reasonably occur in tournament games.<br><br><b>3:</b> Significantly rarer interaction that rarely, if ever, come up in real games.<br><br><b>Corner Case:</b> Only the most knowledgeable rules gurus will know the answers to these questions.">Level:</h4>
 			<label><input type="checkbox">0</label>
@@ -52,6 +51,7 @@ document.querySelector("body").insertAdjacentHTML("beforeend", `
 			</label>
 			<br>
 		</div>
+		<br>
 		<div>
 			<label>
 				<h4 tooltip="General topics the question pertains to.">Tags:</h4>
@@ -59,9 +59,11 @@ document.querySelector("body").insertAdjacentHTML("beforeend", `
 				<datalist id="tagsDatalist"></datalist>
 			</label>
 			<ul id="selectedTagsList"></ul>
-			<label class="radioLabel"><input type="radio" name="tagsConjunc">AND</label>
-			<label class="radioLabel"><input type="radio" name="tagsConjunc" checked>OR</label>
-			<label class="radioLabel"><input type="radio" name="tagsConjunc">NOT</label>
+			<div class="conjuncGroup">
+				<label class="radioLabel">AND<input type="radio" name="tagsConjunc"></label>
+				<label class="radioLabel">OR<input type="radio" name="tagsConjunc" checked></label>
+				<label class="radioLabel">NOT<input type="radio" name="tagsConjunc"></label>
+			</div>
 		</div>
 		<br>
 		<div>
@@ -71,9 +73,11 @@ document.querySelector("body").insertAdjacentHTML("beforeend", `
 				<datalist id="rulesDatalist"></datalist>
 			</label>
 			<ul id="selectedRulesList"></ul>
-			<label class="radioLabel"><input type="radio" name="rulesConjunc">AND</label>
-			<label class="radioLabel"><input type="radio" name="rulesConjunc" checked>OR</label>
-			<label class="radioLabel"><input type="radio" name="rulesConjunc">NOT</label>
+			<div class="conjuncGroup">
+				<label class="radioLabel">AND<input type="radio" name="rulesConjunc"></label>
+				<label class="radioLabel">OR<input type="radio" name="rulesConjunc" checked></label>
+				<label class="radioLabel">NOT<input type="radio" name="rulesConjunc"></label>
+			</div>
 		</div>
 		<br>
 		<div>
@@ -82,9 +86,11 @@ document.querySelector("body").insertAdjacentHTML("beforeend", `
 				<input id="sidebarCardInput" list="allCardsDatalist" onkeypress="if (event.keyCode === 13) {addSidebarCard(this.value);}">
 			</label>
 			<ul id="selectedCardsList"></ul>
-			<label class="radioLabel"><input type="radio" name="cardsConjunc">AND</label>
-			<label class="radioLabel"><input type="radio" name="cardsConjunc" checked>OR</label>
-			<label class="radioLabel"><input type="radio" name="cardsConjunc">NOT</label>
+			<div class="conjuncGroup">
+				<label class="radioLabel">AND<input type="radio" name="cardsConjunc"></label>
+				<label class="radioLabel">OR<input type="radio" name="cardsConjunc" checked></label>
+				<label class="radioLabel">NOT<input type="radio" name="cardsConjunc"></label>
+			</div>
 		</div>
 		<br>
 		<div id="sidebarExtras">

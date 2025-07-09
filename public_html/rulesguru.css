@@ -181,19 +181,28 @@ Misc.
 
 #questionsListArea {
 	background-color: white;
-	position: fixed;
-	height: calc(100vh - 2.5rem);
+	position: absolute;
 	top: 0;
+	bottom: 0;
 	left: 0;
 	transition: transform 0.33s;
-	transform: translate(-7.9375rem);
+	transform: translateX(-8.3rem);
 	padding-left: 1rem;
 	padding-right: 1rem;
 	z-index: 1;
 	overflow: auto;
+	width: 6rem;
 	border-right-color: #80a0ff;
 	border-right-style: solid;
 	border-right-width: 0.3rem;
+}
+
+#pageContent {
+	position: absolute;
+	top: 2.8rem;
+	bottom: 0;
+	left: 0;
+	right: 0;
 }
 
 #moveForQuestionsList {

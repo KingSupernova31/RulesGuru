@@ -1,13 +1,26 @@
-#sidebar label {
+#sidebarLevel label, #sidebarComplexity label {
 	display: block;
+}
+
+#sidebar label input {
+	margin-left: 0.2rem;
+}
+
+#sidebar label h4 {
+	display: inline-block;
+}
+
+.conjuncGroup {
+	margin-left: 0.5rem;
+	margin-top: 0.1rem;
 }
 
 #sidebar {
 	background-color: white;
 	position: fixed;
-	height: calc(100% - 4.8rem);
 	width: 13rem;
 	top: 2.8rem;
+	bottom: 0;
 	left: 0;
 	transition: transform 0.33s;
 	transform: translate(-14.3rem);
@@ -18,6 +31,7 @@
 	border-right-style: solid;
 	border-right-width: 0.3rem;
 	padding-bottom: 2rem;
+	padding-top: 1rem;
 }
 
 #sidebar input {
