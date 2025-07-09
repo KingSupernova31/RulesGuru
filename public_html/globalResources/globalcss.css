@@ -180,10 +180,6 @@ body > h1:first-of-type {
 	margin-right: 1rem;
 }
 
-#settingsButton:hover {
-	content:url("icons/settings-hover.png");
-}
-
 #contactFormBannerText {
 	text-align: right;
 }

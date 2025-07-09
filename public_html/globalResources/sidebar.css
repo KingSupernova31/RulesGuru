@@ -75,6 +75,10 @@
 	display: none;
 }
 
+#settingsButton:hover {
+	content:url("icons/settings-hover.png");
+}
+
 .sidebarButton {
 	background-color: #80a0ff;
 	background-size: 100% 100%;

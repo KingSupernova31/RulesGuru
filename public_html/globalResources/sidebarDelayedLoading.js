@@ -22,6 +22,7 @@ let addSidebarRule = function(rule) {
 		}
 	}
 
+	//Exception for the editor to allow searches for invalid rules, just in case a question has gotten them somehow.
 	if (rule.charAt(rule.length - 1) === ".") {
 		if (allRuleNumbers.includes(rule.slice(0, rule.length - 1)) || (window.location.href.includes("/question-editor") && rule !== "")) {
 			actuallyAddTheRule(rule);
