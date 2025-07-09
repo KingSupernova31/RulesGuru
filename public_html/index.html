@@ -44,9 +44,10 @@
 	<body>
 		<div id="pageContent">
 			<div id="questionsListArea" class="doNotCloseSidebarOnClick">
-				<h4 id="questionsListCount">0 Matching Questions</h4>
-				<p>Click on a question to view it.</p>
-				<textarea id="questionsListDisplay" readonly></textarea>
+				<div id="questionsListLoadingArea">
+					<h4 id="questionsListCount">0 Matching Questions</h4>
+					<div id="questionsListDisplay"></div>
+				</div>
 				<button class="sidebarButton" id="questionsListHideButton">Hide</button>
 			</div>
 			<div id="moveForQuestionsList">

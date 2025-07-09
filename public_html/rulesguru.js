@@ -592,13 +592,13 @@ bindButtonAction(document.getElementById("nextQuestion"), displayNextRandomQuest
 let questionsListOpen = false;
 const toggleQuestionsList = function() {
 	if (questionsListOpen) {
-		document.getElementById("questionsListArea").style.transform = "translate(-8.3rem)";
+		document.getElementById("questionsListArea").style.transform = "translate(-9.3rem)";
 		document.getElementById("moveForQuestionsList").style.width = "";
 		document.getElementById("sidebarShowQuestionsList").innerHTML = "Show All";
 		questionsListOpen = false;
 	} else {
 		document.getElementById("questionsListArea").style.transform = "translate(0)";
-		document.getElementById("moveForQuestionsList").style.width = "calc(100% - 8.3rem)";
+		document.getElementById("moveForQuestionsList").style.width = "calc(100% - 9.3rem)";
 		document.getElementById("sidebarShowQuestionsList").innerHTML = "Hide All";
 		questionsListOpen = true;
 	}
@@ -613,7 +613,9 @@ const getQuestionsList = function(callback, timeout) {
 	if (currentPendingQuestionsListRequest) {
 		currentPendingQuestionsListRequest.abort();
 	}
-	document.getElementById("questionsListDisplay").classList.add("awaitingUpdate");
+	toggleAnimation("start", "questionsListArea");
+	document.getElementById("questionsListLoadingArea").style.transform = "scale(0)";
+
 	let response;
 	clearTimeout(getQuestionsListTimeoutId);
 
@@ -641,6 +643,8 @@ const getQuestionsList = function(callback, timeout) {
 				const response = JSON.parse(httpRequest.response)
 				if (!response.error && callback) {
 					callback(response);
+					toggleAnimation("stop", "questionsListArea");
+					document.getElementById("questionsListLoadingArea").style.transform = "scale(1)";
 				}
 			} else {
 				if (!timeout) {
@@ -662,37 +666,61 @@ const getQuestionsList = function(callback, timeout) {
 };
 
 const displayQuestionsList = function(questionsList) {
-	//document.getElementById("questionsListDisplay").style.height = `${1.13 * questionsList.length}rem`;
-	document.getElementById("questionsListDisplay").value = questionsList.join("\n");
-	document.getElementById("questionsListDisplay").value += "\n"; //Newline to make the click detenction work.
+	const container = document.getElementById("questionsListDisplay");
+	container.innerHTML = "";
+	// Determine the currently open question ID
+	const currentId = loadedQuestions.currentQuestion && loadedQuestions.currentQuestion.id;
+	questionsList.forEach(function(qId) {
+		const numDiv = document.createElement("div");
+		numDiv.className = "question-number-item";
+		numDiv.textContent = qId;
+		numDiv.setAttribute("data-question-id", qId);
+		if (currentId && Number(qId) === Number(currentId)) {
+			numDiv.classList.add('active');
+		}
+		container.appendChild(numDiv);
+	});
 	document.getElementById("questionsListCount").textContent = questionsList.length + " Matching Questions";
 }
 
 //Load a question when clicked in the questions list.
-document.getElementById("questionsListDisplay").addEventListener("mouseup", function(event) {
- if (event.offsetX < this.clientWidth){ // Ignore a click on scrollbar
-	  const lineNum = this.value.substr(0, this.selectionStart).split("\n").length;
-		const questionIdToNavigateTo = parseInt(this.value.split("\n")[lineNum - 1]);
-	  if (!isNaN(questionIdToNavigateTo)) {
-		  document.getElementById("questionPage").style.transform = "scale(0)";
-		  document.getElementById("startPage").style.transform = "scale(0)";
-			history.pushState({}, ""); //Add the current page url to the history.
-			history.replaceState({}, "", "?" + questionIdToNavigateTo);//Set the current url to the new question, replacing old state that we didn't want to get added twice.
-			document.querySelector("title").textContent = "RulesGuru #" + questionIdToNavigateTo;//This needs to happen after history is edited.
-		  goToQuestion(questionIdToNavigateTo);
-	  }
- }
-});
+const loadQuestionsListQuestion = function(id) {
+	if (id === undefined || isNaN(id)) {
+		throw new Error("Invalid question ID: " + id);
+	}
 
-//Prevent double-clicking in the questions list from selecting text.
-document.getElementById("questionsListDisplay").addEventListener("mousedown", function(event) {
-	if (event.detail > 1) {
-		event.preventDefault();
+	document.getElementById("questionPage").style.transform = "scale(0)";
+	document.getElementById("startPage").style.transform = "scale(0)";
+	history.pushState({}, ""); //Add the current page url to the history.
+	history.replaceState({}, "", "?" + id);//Set the current url to the new question, replacing old state that we didn't want to get added twice.
+	document.querySelector("title").textContent = "RulesGuru #" + id;//This needs to happen after history is edited.
+	goToQuestion(id);
+}
+
+document.getElementById("questionsListDisplay").addEventListener("click", function(event) {
+	const target = event.target.closest('.question-number-item');
+	if (target && !target.classList.contains('active')) {
+		const questionIdToNavigateTo = parseInt(target.getAttribute('data-question-id'));
+		if (!isNaN(questionIdToNavigateTo)) {
+			loadQuestionsListQuestion(questionIdToNavigateTo)
+		}
 	}
 });
+
+//Periodically check to see which is active.
+setInterval(function() {
+	document.querySelectorAll('.question-number-item').forEach(el => el.classList.remove('active'));
+	if (loadedQuestions.currentQuestion && loadedQuestions.currentQuestion.id) {
+		const activeItem = document.querySelector(`.question-number-item[data-question-id="${loadedQuestions.currentQuestion.id}"]`);
+		if (activeItem) {
+			activeItem.classList.add('active');
+		}
+	}
+}, 10);
+
 getQuestionsList(displayQuestionsList)
 
-//Secret booth mode.
+//Booth mode.
 let boothKeysPressed = "";
 let boothActive = false;
 let testLength;

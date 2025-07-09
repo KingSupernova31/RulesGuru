@@ -179,24 +179,6 @@ Misc.
 	position: relative;
 }
 
-#questionsListArea {
-	background-color: white;
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	transition: transform 0.33s;
-	transform: translateX(-8.3rem);
-	padding-left: 1rem;
-	padding-right: 1rem;
-	z-index: 1;
-	overflow: auto;
-	width: 6rem;
-	border-right-color: #80a0ff;
-	border-right-style: solid;
-	border-right-width: 0.3rem;
-}
-
 #pageContent {
 	position: absolute;
 	top: 2.8rem;
@@ -212,30 +194,78 @@ Misc.
 	right: 0;
 }
 
-#questionsListCount {
-	margin-bottom: 0.5rem;
-	margin-top: 0.8rem;
-	max-width: 5.5rem;
-}
-
-#questionsListArea p {
-	max-width: 5.5rem;
+#questionsListArea {
+	background-color: white;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	transition: transform 0.33s;
+	transform: translateX(-9.3rem);
+	z-index: 1;
+	overflow: auto;
+	width: 9rem;
+	border-right-color: #80a0ff;
+	border-right-style: solid;
+	border-right-width: 0.3rem;
+	text-align: center;
 }
 
 #questionsListDisplay {
-	resize: none;
-	height: calc(100vh - 14rem);
-	width: 5.5rem;
-	cursor: pointer;
-	margin-top: 0.5rem;
-	margin-bottom: 0.5rem;
-	display: block;
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.15em 0;
+	align-items: start;
+	justify-items: center;
+	padding: 0;
+	flex: 1 1 auto;
 }
 
-.awaitingUpdate {
-	cursor: wait !important;
-	filter: brightness(50%);
-	pointer-events: none !important;
+.question-number-item {
+	display: inline-block;
+	text-align: center;
+	margin-bottom: 0.25em;
+	font-size: 0.95em;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background 0.2s, color 0.2s, font-weight 0.2s;
+	border: 1px solid transparent;
+	padding: 0.10em 0.35em;
+	border-radius: 0.8rem;
+	background: #dee5ff;
+	width: 2.5rem;
+	user-select: none;
+}
+
+.question-number-item:hover {
+	background: #80a0ff;
+	color: white;
+	font-weight: bold;
+	border-radius: 0.8rem;
+}
+
+.question-number-item.active {
+	background: #dcdcdc;
+	font-weight: normal;
+	color: black;
+	cursor: not-allowed;
+}
+
+#questionsListHideButton {
+	position: absolute;
+	bottom: 1rem;
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+#questionsListLoadingArea {
+	height: calc(100% - 3rem);
+	overflow: auto;
+	width: auto;
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+	transition: transform 0.5s;
+	transform-origin: center center;
 }
 
 #boothInfo {

@@ -126,12 +126,15 @@ const morph = function() {
 let loadingAnimationIds = [],
 		loadingAnimationCount = 0;
 const toggleAnimation = function(status, location) {
+	const animation = document.getElementById("loadingAnimationBox");
 	if (status === "start") {
 		if (loadingAnimationIds.length === 0) {
 			if (location === "body") {
-				document.body.appendChild(document.getElementById("loadingAnimationBox"));
+				document.body.appendChild(animation);
 			} else if (location === "moveForQuestionsList") {
-				document.getElementById("moveForQuestionsList").appendChild(document.getElementById("loadingAnimationBox"));
+				document.getElementById("moveForQuestionsList").appendChild(animation);
+			} else {
+				document.getElementById(location).appendChild(animation);
 			}
 			loadingAnimationIds.forEach((id, i) => {
 				window.clearInterval(id);
@@ -145,14 +148,16 @@ const toggleAnimation = function(status, location) {
 					loadingAnimationIds.push(setInterval(morph, 700));
 				}
 			},500));
-			document.getElementById("loadingAnimationBox").style.transform = "scale(1)";
+			setTimeout(function() {
+				animation.style.transform = "scale(1)";
+			}, 0);
 		}
 	} else {
 		loadingAnimationIds.forEach((id, i) => {
 			window.clearInterval(id);
 		});
 		loadingAnimationIds = [];
-		document.getElementById("loadingAnimationBox").style.transform = "scale(0)";
+		animation.style.transform = "scale(0)";
 	}
 };
 
