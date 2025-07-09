@@ -189,7 +189,6 @@ const validateAdmin = function(password) {
 const sendQuestion = function(question, res, allCards) {
 	const questionToSend = JSON.parse(JSON.stringify(question));
 	questionToSend.oracle = [];
-	let chosenCards = [];
 	if (questionToSend.cardLists.length > 0) {
 
 		//Randomly pick cards for the question.
