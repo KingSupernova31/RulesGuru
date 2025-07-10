@@ -58,7 +58,7 @@ client.on("messageCreate", function(message) {
 	if (match && (message.channel.id === "816333479527710760" || message.channel.id === "810621356467028028")) {
 		for (let command of match) {
 			const questionNum = command.slice(1);
-			message.channel.send(url + questionNum);
+			message.channel.send("<" + url + questionNum + ">");
 		}
 	} else {
 		return;
