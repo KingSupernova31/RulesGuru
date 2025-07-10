@@ -144,10 +144,10 @@ const db = new sqlite.Database("questionDatabase.db", async function(err) {
 		try {
 			referenceQuestionArray = JSON.parse(fs.readFileSync("referenceQuestionArray.json", "utf8"));
 			deepFreeze(referenceQuestionArray);
-			updateReferenceObjects();//To update it if it's gotten out of sync with the database. Server will still run with it out of date, so we do this async.
+			updateAllReferenceQuestions();//To update it if it's gotten out of sync with the database. Server will still run with it out of date, so we do this async.
 		} catch {
 			console.log("Generating reference question array")
-			await updateReferenceObjects(true);
+			await updateAllReferenceQuestions(true);
 		}
 
 		let totalVariations = 0;
@@ -247,10 +247,56 @@ const convertAllTemplates = function(question, allCards) {
 	return convertedQuestion;
 };
 
-//Update the reference question database and card object that are stored in memory.
+const findReferenceQuestionIndex = function(id) {
+	for (let i = 0 ; i < referenceQuestionArray.length ; i++) {
+		if (referenceQuestionArray[i].id === id) {
+			return i;
+		}
+	}
+	return null;
+}
+
+//Rebuild an in-memory question from the database.
+const updateReferenceQuestion = async function(id) {
+	const question = await dbGet(`SELECT json FROM questions WHERE id = ${id} AND status = "finished"`);
+	const newReferenceQuestionArray = referenceQuestionArray.slice(0);
+
+	const index = findReferenceQuestionIndex(id);
+	if (index !== null) {
+		newReferenceQuestionArray.splice(index, 1);
+	}
+
+	if (question) {
+		const questionObj = convertAllTemplates(JSON.parse(question.json), canonicalAllCards);
+		let emptyTemplate = false;
+		for (let i = 0 ; i < questionObj.cardLists.length ; i++) {
+			if (questionObj.cardLists[i].length === 0) {
+				emptyTemplate = true;
+				break;
+			}
+		}
+		if (emptyTemplate) {
+			sendEmailToOwners("RulesGuru broken templates", `Question ${id} generates an empty template.`);
+		} else {
+			newReferenceQuestionArray.push(questionObj);
+		}
+	}
+
+	referenceQuestionArray = newReferenceQuestionArray;
+	deepFreeze(referenceQuestionArray);
+	saveReferenceQuestionArrayToDisk();
+	updateIndexQuestionCount();
+}
+
+const updateReferenceCards = function() {
+	const newAllCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
+	deepFreeze(newAllCards);
+	canonicalAllCards = newAllCards;
+}
+
 let referenceUpdateOngoing = false;
 let referenceUpdatePending = false;
-const updateReferenceObjects = async function(speedy) {
+const updateAllReferenceQuestions = async function(speedy) {
 	if (referenceUpdateOngoing) {
 		referenceUpdatePending = true;
 		return;
@@ -258,9 +304,6 @@ const updateReferenceObjects = async function(speedy) {
 		referenceUpdateOngoing = true;
 		referenceUpdatePending = false;
 	}
-
-	const newAllCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
-	deepFreeze(newAllCards);
 
 	const finishedQuestions = await dbAll(`SELECT json FROM questions WHERE status = "finished"`);
 
@@ -270,7 +313,7 @@ const updateReferenceObjects = async function(speedy) {
 
 	const emptyTemplates = [];
 	for (let i = 0 ; i < finishedQuestions.length ; i++) {
-		if (!speedy) {await sleep(100);}//This takes a while and would block the server thread otherwise.
+		if (!speedy) {await sleep(50);}//This takes a while and would block the server thread otherwise.
 
 		//Expand templates.
 		finishedQuestions[i] = convertAllTemplates(finishedQuestions[i], canonicalAllCards);
@@ -288,32 +331,36 @@ const updateReferenceObjects = async function(speedy) {
 			i--;
 		}
 	}
-	deepFreeze(finishedQuestions);
+
 	if (emptyTemplates.length > 0) {
 		sendEmailToOwners("RulesGuru broken templates", `The following questions generate an empty template.\n\n${emptyTemplates.join(", ")}`);
 	}
 
 	referenceQuestionArray = finishedQuestions;
-	canonicalAllCards = newAllCards;
+	deepFreeze(referenceQuestionArray);
 	saveReferenceQuestionArrayToDisk();
 	updateIndexQuestionCount();
 	console.log("Reference question array generation complete");
 
 	referenceUpdateOngoing = false;
 	if (referenceUpdatePending) {
-		updateReferenceObjects();
+		updateAllReferenceQuestions();
 	}
 }
 
 let savedMeta = "";
+if (fs.existsSync("data_files/meta.json")) {
+	savedMeta = fs.readFileSync("data_files/meta.json", "utf8");
+}
 setInterval(() => {
-	let newMeta = "";
 	if (fs.existsSync("data_files/meta.json")) {
-		newMeta = fs.readFileSync("data_files/meta.json", "utf8");
-	}
-	if (newMeta !== savedMeta) {
-		updateReferenceObjects();
-		savedMeta = newMeta;
+		const newMeta = fs.readFileSync("data_files/meta.json", "utf8");
+		if (newMeta !== savedMeta) {
+			console.log("Meta file changed, updating reference cards and questions.");
+			updateReferenceCards();
+			updateAllReferenceQuestions();
+			savedMeta = newMeta;
+		}
 	}
 }, 1000);
 
@@ -728,32 +775,6 @@ app.post("/submitAdminQuestion", async function(req, res) {
 		const addQuestionResult = await addQuestion(req.body.questionObj, true, currentAdmin.id);
 
 		if (!addQuestionResult.error) {
-
-			//Update the reference question array
-			if (addQuestionResult.newStatus === "finished") {
-				let newQuestion = req.body.questionObj;
-				const allCards = canonicalAllCards;
-				newQuestion = convertAllTemplates(newQuestion, allCards);
-
-				//Check for a template that generated 0 cards.
-				let emptyTemplate = false;
-				for (let j = 0 ; j < newQuestion.cardLists.length ; j++) {
-					if (newQuestion.cardLists[j].length === 0) {
-						emptyTemplate = true;
-					}
-				}
-				if (emptyTemplate) {
-					sendEmailToOwners("RulesGuru template error", `Question ${newQuestion.id} generates an empty template.\n\nhttps://rulesguru.org/question-editor/?${newQuestion.id}`);
-				} else {
-					//We have to copy the array and discard the old one since it was immutable.
-					referenceQuestionArray = referenceQuestionArray.slice(0);
-					referenceQuestionArray.push(newQuestion);
-					deepFreeze(referenceQuestionArray);
-				}
-				saveReferenceQuestionArrayToDisk();
-				updateIndexQuestionCount();
-			}
-
 			res.json({
 				"error": false,
 				"message": `Question #${addQuestionResult.newId} submitted successfully.`,
@@ -797,7 +818,7 @@ app.post("/updateQuestion", async function(req, res) {
 				"message": `Question #${req.body.questionObj.id} updated successfully.`
 			});
 
-			updateReferenceObjects();
+			updateReferenceQuestion(req.body.questionObj.id);
 
 			//Send emails about the change.
 			if (currentAdmin.sendSelfEditLogEmails) {
@@ -928,7 +949,7 @@ app.post("/changeQuestionStatus", async function(req, res) {
 			"newVerification": verificationObject
 		});
 
-		updateReferenceObjects();
+		updateReferenceQuestion(request.body.questionObj.id);
 
 		//Send emails about the change.
 		if (currentAdmin.sendSelfEditLogEmails) {
@@ -958,8 +979,6 @@ app.post("/changeQuestionStatus", async function(req, res) {
 			recentlyDistributedQuestionIds.splice(index, 1);
 		}
 		fs.writeFileSync("recentlyDistributedQuestionIds.json", JSON.stringify(recentlyDistributedQuestionIds));
-
-		updateIndexQuestionCount();
 	}
 });
 
@@ -1015,11 +1034,9 @@ const addQuestion = async function(question, isAdmin, adminId) {
 				if (currentAdmin.roles.grammarGuru && currentAdmin.roles.templateGuru && currentAdmin.roles.rulesGuru) {
 					newStatus = "finished";
 					await dbRun(`INSERT INTO questions ("id", "json", "status", "verification") VALUES (${newId}, '${JSON.stringify(question).replace(/'/g,"''")}', '${newStatus}', '${verificationJson.replace(/'/g,"''")}')`);
-					updateReferenceObjects();
 				} else {
 					newStatus = "awaiting verification";
 					await dbRun(`INSERT INTO questions ("id", "json", "status", "verification") VALUES (${newId}, '${JSON.stringify(question).replace(/'/g,"''")}', '${newStatus}', '${verificationJson.replace(/'/g,"''")}')`);
-					updateReferenceObjects();
 				}
 			} else {
 				verificationJson = JSON.stringify({
@@ -1030,8 +1047,9 @@ const addQuestion = async function(question, isAdmin, adminId) {
 				});
 				newStatus = "pending";
 				await dbRun(`INSERT INTO questions ("id", "json", "status", "verification") VALUES (${newId}, '${JSON.stringify(question).replace(/'/g,"''")}', '${newStatus}', '${verificationJson}')`);
-				updateReferenceObjects();
 			}
+
+			updateReferenceQuestion(newId);
 
 			addQuestionRunning = false;
 			return {
@@ -1285,7 +1303,10 @@ app.post("/updateAndForceStatus", async function(req, res) {
 
 		await dbRun(`UPDATE questions SET status = '${req.body.newStatus}', verification = '${JSON.stringify(newVerificationObject).replace(/'/g,"''")}', json = '${JSON.stringify(req.body.questionData).replace(/'/g,"''")}', id = '${req.body.newId || req.body.id}' WHERE id = ${req.body.id}`);
 
-		updateReferenceObjects();
+		updateReferenceQuestion(req.body.id);
+		if (req.body.newId) {
+			updateReferenceQuestion(req.body.newId);
+		}
 
 		res.json({
 			"error": false,
