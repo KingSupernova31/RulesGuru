@@ -1348,3 +1348,12 @@ for (let format in formats) {
 		}
 	});
 }
+
+
+
+
+//The error handler must be last. https://expressjs.com/en/guide/error-handling.html
+app.use((err, req, res, next) => {
+	handleError(err, true);
+	next(err);
+});

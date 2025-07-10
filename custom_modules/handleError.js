@@ -15,10 +15,12 @@ const sendMail = util.promisify(transporter.sendMail.bind(transporter));
 const rootDir = path.join(__dirname, "..");
 
 //General error handling function- puts the error in the console and emails it to me.
-const handleError = async function(error) {
-	console.error(error)
+const handleError = async function(error, silent = false) {
+	if (!silent) {
+		console.error(error)
+	}
 	if (emailAuth.pass.trim() === "") {
-		console.log("No email credentials, aborting email.");
+		console.log("No email credentials, aborting error email.");
 		return;
 	}
 	const allAdmins = JSON.parse(fs.readFileSync(path.join(rootDir, "admins.json"), "utf8"));
