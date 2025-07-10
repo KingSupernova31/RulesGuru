@@ -5,19 +5,20 @@ const sqlite = require("sqlite3").verbose(),
 			util = require("util"),
 			nodemailer = require("nodemailer"),
 			path = require("path"),
-			emailAuth = JSON.parse(fs.readFileSync(path.join(__dirname, "../externalCredentials.json"), "utf8")).email,
+			handleError = require("./handleError.js"),
+			emailAuth = JSON.parse(fs.readFileSync(path.join(__dirname, "../privateData.json"), "utf8")).email,
 			transporter = nodemailer.createTransport({
 				"host": "smtp.zoho.com",
 				"port": 465,
 				"secure": true,
 				"auth": emailAuth
 			}),
-			handleError = require("./handleError.js"),
 			getUnfinishedQuestion = require("./getUnfinishedQuestion.js");
 
+const rootDir = path.join(__dirname, "..");
 
 const handleEmails = function(peopleToEmail) {
-	const db = new sqlite.Database("questionDatabase.db", async function(err) {
+	const db = new sqlite.Database(path.join(rootDir, "data_files/questions.db"), async function(err) {
 		if (err) {
 			handleError(err);
 		} else {
@@ -68,7 +69,8 @@ const handleEmails = function(peopleToEmail) {
 }
 
 try {
-	const allAdmins = JSON.parse(fs.readFileSync("admins.json", "utf8"));
+	const adminsFilePath = path.join(rootDir, "data_files/admins.json");
+	const allAdmins = fs.existsSync(adminsFilePath) ? JSON.parse(fs.readFileSync(adminsFilePath, "utf8")) : [];
 	const peopleToEmail = [];
 	for (let i in allAdmins) {
 		let sendEmail = false;

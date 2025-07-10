@@ -1,8 +1,8 @@
-importScripts("cardNamesToIgnore.js");
+importScripts("/public_data_files/cardNamesToIgnore.js");
 importScripts("/globalResources/symbols.js");
 importScripts("/globalResources/replaceExpressions.js");
-importScripts("allCards.js");
-importScripts("allRules.js");
+importScripts("/public_data_files/allCardsSimple.js");
+importScripts("/public_data_files/allRules.js");
 importScripts("validateQuestion.js");
 allCardNames = Object.keys(allCards);
 let allSubtypes = [];

@@ -80,7 +80,7 @@ const updateString = function(stringToUpdate) {
 const fs = require("fs"),
 	sqlite = require("sqlite3").verbose();
 
-var db = new sqlite.Database("questionDatabase.db", function(err) {
+var db = new sqlite.Database("data_files/questions.db", function(err) {
 	if (err) {
 		console.log(err);
 	}

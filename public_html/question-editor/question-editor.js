@@ -2787,14 +2787,14 @@ const addPresetRulesToTemplate = function() {
 
 let lastKnownPageSourceData = {
 	"/globalResources/allTags.js": null,
-	"allCards.js": null,
-	"allRules.js": null,
-	"cardNamesToIgnore.js": null,
+	"/public_data_files/allCardsSimple.js": null,
+	"/public_data_files/allRules.js": null,
+	"/public_data_files/cardNamesToIgnore.js": null,
 	"/globalResources/symbols.js": null,
 	"/globalResources/replaceExpressions.js": null,
 	"/globalResources/presetTemplates.js": null,
 	"/globalResources/searchLinks.js": null,
-	"/globalResources/allKeywords.js": null,
+	"/public_data_files/allKeywords.js": null,
 	"/globalResources/templateConvert.js": null,
 	"validateQuestion.js": null,
 	"question-editor.js": null,

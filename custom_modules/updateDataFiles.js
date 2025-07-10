@@ -39,6 +39,14 @@ const colorMappings = {
 	"G": "Green"
 }
 
+if (!fs.existsSync(path.join(rootDir, "public_html/public_data_files"))) {
+	fs.mkdirSync(path.join(rootDir, "public_html/public_data_files"));
+}
+
+if (!fs.existsSync(path.join(rootDir, "data_files"))) {
+	fs.mkdirSync(path.join(rootDir, "data_files"));
+}
+
 const updateAllCards = function(verbose = false) {
 	try {
 		console.log(time() + `Updating all cards`);
@@ -523,7 +531,7 @@ const updateAllCards = function(verbose = false) {
 		}
 
 		//Change "printings" to "printingsCode" and add "printingsName".
-		const allSets = JSON.parse(fs.readFileSync("data_files/finalAllSets.json", "utf8"));
+		const allSets = JSON.parse(fs.readFileSync("data_files/allSets.json", "utf8"));
 		for (let i in allCards) {
 			allCards[i].printingsCode = allCards[i].printings;
 			delete allCards[i].printings;
@@ -542,7 +550,7 @@ const updateAllCards = function(verbose = false) {
 		}
 
 		//Add a rulesText field without reminder text or ability words or flavor words.
-		const allKeywords = JSON.parse(fs.readFileSync("data_files/finalAllKeywords.json", "utf8"));
+		const allKeywords = JSON.parse(fs.readFileSync("data_files/allKeywords.json", "utf8"));
 		const abilityWordRegex = new RegExp("(" + allKeywords.abilityWords.join("|") + ") — ", "g");
 		const flavorWordRegex = new RegExp("(" + allKeywords.flavorWords.join("|") + ") — ", "g");
 		for (let i in allCards) {
@@ -561,7 +569,7 @@ const updateAllCards = function(verbose = false) {
 		}
 
 		//Fix subtype CDAs. (MTGJSON gets all the color CDAs and color indicators correct.)
-		const allRules = JSON.parse(fs.readFileSync("data_files/finalAllRules.json"));
+		const allRules = JSON.parse(fs.readFileSync("data_files/allRules.json"));
 		const allCreatureTypes = getSubtypesFromRuleText(allRules["205.3m"].ruleText);
 		const subtypeRules = ["205.3g", "205.3h", "205.3i", "205.3j", "205.3k", "205.3m", "205.3q"];
 		const allSubtypes = subtypeRules.map(ruleNum => getSubtypesFromRuleText(allRules[ruleNum].ruleText)).flat(1);
@@ -650,13 +658,13 @@ const updateAllCards = function(verbose = false) {
 			allCards[i].keywords = allCards[i].keywords.filter(keyword => allKeywords.keywordAbilities.includes(keyword) || allKeywords.keywordActions.includes(keyword));
 		}
 
-		fs.writeFileSync("data_files/finalAllCards.json", JSON.stringify(allCards));
+		fs.writeFileSync("data_files/allCards.json", JSON.stringify(allCards));
 
 		//Write the card names to ignore file.
 		fs.writeFileSync("data_files/cardNamesToIgnore.json", JSON.stringify(baseCardNamesToIgnore.concat(allKeywords.keywordAbilities).concat(allKeywords.keywordActions).concat(allSubtypes)));
 
 		//Give the editor a list of subtypes for the dropdown.
-		fs.writeFileSync("public_html/question-editor/allSubtypes.js", "const allSubtypes = " + JSON.stringify(allSubtypes));
+		fs.writeFileSync("public_html/public_data_files/allSubtypes.js", "const allSubtypes = " + JSON.stringify(allSubtypes));
 
 
 		console.log(time() + "Finished updating all cards.");
@@ -666,7 +674,7 @@ const updateAllCards = function(verbose = false) {
 		if (validity === true) {
 			disperseFiles();
 		} else {
-			handleError(new Error(`allCards probably not valid. Issue: ${validity}`));
+			throw new Error(`allCards probably not valid. Issue: ${validity}`);
 		}
 	} catch (err) {
 		handleError(err);
@@ -717,9 +725,20 @@ const writeCardList = function(allCards, path, properties, format) {
 }
 
 const updateSearchLinkMappings = function() {
-	const searchLinkMappings = JSON.parse(fs.readFileSync("public_html/globalResources/searchLinkMappings.js", "utf8").slice(27));
+	let searchLinkMappings;
+	if (fs.existsSync("public_html/public_data_files/searchLinkMappings.js")) {
+		searchLinkMappings = JSON.parse(fs.readFileSync("public_html/public_data_files/searchLinkMappings.js", "utf8").slice(27));
+	} else {
+		console.log("No search link mappings file found, creating a new one.");
+		searchLinkMappings = {
+			"rules": [],
+			"expansions": [],
+			"cards": [],
+			"tags": []
+		};
+	}
 
-	const allRules = JSON.parse(fs.readFileSync("data_files/finalAllRules.json"));
+	const allRules = JSON.parse(fs.readFileSync("data_files/allRules.json"));
 	for (let i in allRules) {
 		if (!searchLinkMappings.rules.includes(allRules[i].ruleNumber)) {
 			searchLinkMappings.rules.push(allRules[i].ruleNumber);
@@ -729,23 +748,22 @@ const updateSearchLinkMappings = function() {
 		}
 	}
 
-	const allSets = JSON.parse(fs.readFileSync("data_files/finalAllSets.json"));
+	const allSets = JSON.parse(fs.readFileSync("data_files/allSets.json"));
 	for (let i in allSets) {
 		if (!searchLinkMappings.expansions.includes(allSets[i].name)) {
 			searchLinkMappings.expansions.push(allSets[i].name);
 		}
 	}
-	const allCards = JSON.parse(fs.readFileSync("data_files/finalAllCards.json"));
+	const allCards = JSON.parse(fs.readFileSync("data_files/allCards.json"));
 	for (let i in allCards) {
 		if (!searchLinkMappings.cards.includes(allCards[i].name)) {
 			searchLinkMappings.cards.push(allCards[i].name);
 		}
 	}
 
-	fs.writeFileSync("public_html/globalResources/searchLinkMappings.js", "const searchLinkMappings = " + JSON.stringify(searchLinkMappings));
+	fs.writeFileSync("public_html/public_data_files/searchLinkMappings.js", "const searchLinkMappings = " + JSON.stringify(searchLinkMappings));
 
-
-	const allCardNames = Object.values(JSON.parse(fs.readFileSync("data_files/finalAllCards.json", "utf8"))).map(function(card) {
+	const allCardNames = Object.values(JSON.parse(fs.readFileSync("data_files/allCards.json", "utf8"))).map(function(card) {
 		return card.name;
 	});
 	const differenceIndices = [];
@@ -755,35 +773,33 @@ const updateSearchLinkMappings = function() {
 		}
 	}
 
-	fs.writeFileSync("public_html/searchLinkCardNamesDiff.js", "const searchLinkCardNamesDiff = " + JSON.stringify(differenceIndices));
+	fs.writeFileSync("public_html/public_data_files/searchLinkCardNamesDiff.js", "const searchLinkCardNamesDiff = " + JSON.stringify(differenceIndices));
 }
 
 const disperseFiles = function() {
 	try{
 		//Update rule object.
-		const allRules = fs.readFileSync("data_files/finalAllRules.json", "utf8");
-		fs.writeFileSync("public_html/question-editor/allRules.js", "const allRules = " + allRules);
-		fs.writeFileSync("allRules.json", allRules);
+		const allRules = fs.readFileSync("data_files/allRules.json", "utf8");
+		fs.writeFileSync("public_html/public_data_files/allRules.js", "const allRules = " + allRules);
 
 		//Update rule numbers.
-		fs.writeFileSync("public_html/allRuleNumbers.js", "const allRuleNumbers = " + JSON.stringify(Object.keys(JSON.parse(allRules))));
+		fs.writeFileSync("public_html/public_data_files/allRuleNumbers.js", "const allRuleNumbers = " + JSON.stringify(Object.keys(JSON.parse(allRules))));
 
 		//Update keywords.
-		const allKeywords = fs.readFileSync("data_files/finalAllKeywords.json", "utf8");
-		fs.writeFileSync("public_html/globalResources/allKeywords.js", "const allKeywords = " + allKeywords);
+		const allKeywords = fs.readFileSync("data_files/allKeywords.json", "utf8");
+		fs.writeFileSync("public_html/public_data_files/allKeywords.js", "const allKeywords = " + allKeywords);
 
 		//Update sets.
-		const allSets = fs.readFileSync("data_files/finalAllSets.json", "utf8");
-		fs.writeFileSync("public_html/globalResources/allSets.js", "const allSets = " + allSets);
+		const allSets = fs.readFileSync("data_files/allSets.json", "utf8");
+		fs.writeFileSync("public_html/public_data_files/allSets.js", "const allSets = " + allSets);
 
-		//Update cards.
-		const allCards = JSON.parse(fs.readFileSync("data_files/finalAllCards.json", "utf8"));
-		writeCardList(allCards, "allCards.json", ["name", "names", "manaCost", "type", "rulesText", "power", "toughness", "loyalty", "layout", "legalities", "printingsName", "types", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "keywords", "playability", "colorIdentity", "defense"], "json");
-		writeCardList(allCards, "public_html/question-editor/allCards.js", ["name", "names", "rulesText", "power", "toughness", "loyalty", "layout", "types", "type", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "manaCost", "keywords", "colorIdentity", "defense"], "js");
+		//Update cards. This file leaves out some properties like printings since they're not necessary on the editor.
+		const allCards = JSON.parse(fs.readFileSync("data_files/allCards.json", "utf8"));
+		writeCardList(allCards, "public_html/public_data_files/allCardsSimple.js", ["name", "names", "rulesText", "power", "toughness", "loyalty", "layout", "types", "type", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "manaCost", "keywords", "colorIdentity", "defense"], "js");
 
 		//Update cards to ignore
 		const cardNamesToIgnore = fs.readFileSync("data_files/cardNamesToIgnore.json", "utf8");
-		fs.writeFileSync("public_html/question-editor/cardNamesToIgnore.js", "const cardNamesToIgnore = " + cardNamesToIgnore);
+		fs.writeFileSync("public_html/public_data_files/cardNamesToIgnore.js", "const cardNamesToIgnore = " + cardNamesToIgnore);
 
 		//SearchLink mappings.
 		updateSearchLinkMappings();
@@ -792,14 +808,6 @@ const disperseFiles = function() {
 	} catch (err) {
 		handleError(err)
 	}
-}
-
-if (!fs.existsSync("data_files")) {
-	fs.mkdirSync("data_files", function(err) {
-		if (err) {
-			handleError(err);
-		}
-	});
 }
 
 const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to break things, so we perform some checks on the data to try and prevent these errors from making it into RulesGuru data.
@@ -958,7 +966,7 @@ const convertAllSets = function(allSetsText) {
 	});
 
 	if (finalAllSets.length > 400) {
-		fs.writeFileSync(path.join(rootDir, "data_files/finalAllSets.json"), JSON.stringify(finalAllSets));
+		fs.writeFileSync(path.join(rootDir, "data_files/allSets.json"), JSON.stringify(finalAllSets));
 	} else {
 		throw new Error("allSetsUpdate array too short");
 	}
@@ -966,6 +974,7 @@ const convertAllSets = function(allSetsText) {
 
 //Returns the downloaded file and, if a path is provided, saves it to disk.
 async function downloadFile(url, path) {
+	//10 second timeout.
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Failed to fetch ${url}: ${res.statusText}`);
@@ -998,7 +1007,7 @@ const convertAllKeywords = function(allKeywordsText) {
 			allKeywords.keywordAbilities[i] = allKeywords.keywordAbilities[i][0].toUpperCase() + allKeywords.keywordAbilities[i].slice(1);
 		}
 		allKeywords.flavorWords = ["Acid Breath", "Animate Walking Statue", "Anitmagic Cone", "Archery", "Bardic Inspiration", "Beacon of Hope", "Bear Form", "Befriend Them", "Bewitching Whispers", "Binding Contract", "Brave the Stench", "Break Their Chains", "Charge Them", "Clever Conjurer", "Climb Over", "Combat Inspiration", "Cold Breath", "Cone of Cold", "Cunning Action", "Cure Wounds", "Dispel Magic", "Displacement", "Dissolve", "Distract the Guard", "Divine Intervention", "Dominate Monster", "Drag Below", "Engulf", "Fear Ray", "Fend Them Off", "Fight the Current", "Find a Crossing", "Flurry of Blows", "Foil Their Scheme", "Form a Party", "Gentle Repose", "Grant an Advantage", "Hide", "Interrogate Them", "Intimidate Them", "Journey On", "Keen Senses", "Learn Their Secrets", "Life Drain", "Lift the Curse", "Lightning Breath", "Magical Tinkering", "Make a Retreat", "Make Camp", "Poison Breath", "Pry It Open", "Psionic Spells", "Rappel Down", "Rejuvenation", "Rouse the Party", "Search the Body", "Search the Room", "Set Off Traps", "Siege Monster", "Smash It", "Smash the Chest", "Song of Rest", "Split", "Stand and Fight", "Start a Brawl", "Steal Its Eyes", "Stunning Strike", "Tail Spikes", "Teleport", "Tie Up", "Tragic Backstory", "Trapped!", "Two-Weapon Fighting", "Whirlwind", "Whispers of the Grave", "Wild Magic Surge"];
-		fs.writeFileSync(path.join(rootDir, "data_files/finalAllKeywords.json"), JSON.stringify(allKeywords));
+		fs.writeFileSync(path.join(rootDir, "data_files/allKeywords.json"), JSON.stringify(allKeywords));
 	} else {
 		throw new Error("allKeywordsUpdate keywordAbilities too short");
 	}
@@ -1008,7 +1017,7 @@ const convertAllRules = function(allRulesText) {
 	const rawAllRules = replaceDoppelgangerChars(allRulesText);
 
 	if (Object.keys(JSON.parse(rawAllRules)).length > 1000) {
-		fs.writeFileSync(path.join(rootDir, "data_files/finalAllRules.json"), rawAllRules);
+		fs.writeFileSync(path.join(rootDir, "data_files/allRules.json"), rawAllRules);
 	} else {
 		throw new Error("allRulesUpdate rules too short");
 	}
@@ -1050,17 +1059,30 @@ const doStuff = async function() {
 	console.log(time() + "allSets converted");
 
 	//Metagame data.
+	let apiUrlPrefix = null,
+		apiUrlSuffix = null,
+		nameType = null;
+	if (fs.existsSync(path.join(rootDir, "privateData.json"))) {
+		const privateData = JSON.parse(fs.readFileSync(path.join(rootDir, "privateData.json"), "utf8"));
+		apiUrlPrefix = privateData.apiUrlPrefix;
+		apiUrlSuffix = privateData.apiUrlSuffix;
+		nameType = "apiName";
+	}
+	//If the API URL is missing that means we're likely on the dev site, since the real API is private. So we fetch from a mirror on the live site.
+	if (!apiUrlPrefix) {
+		apiUrlPrefix = "https://rulesguru.org/mostPlayed-";
+		apiUrlSuffix = ".json";
+		nameType = "rgName";
+	}
+
 	const formats = JSON.parse(fs.readFileSync(path.join(rootDir, "formats.json"), "utf8"));
 	for (let format in formats) {
 		const formatData = formats[format];
-		let url = formatData.url;
-		if (url === "") {
-			//If the URL is missing that means we're likely on the dev site, since the real API is private. So we fetch cached data from the live site.
-			url = `https://rulesguru.org/mostPlayed-${format}`;
-		}
+
+		const formatUrl = apiUrlPrefix + formatData[nameType] + apiUrlSuffix;
 
 		try {
-			const data = JSON.parse(await downloadFile(url, path.join(rootDir, `data_files/rawMostPlayed-${format}.json`)));
+			const data = JSON.parse(await downloadFile(formatUrl, path.join(rootDir, `data_files/rawMostPlayed-${format}.json`)));
 			fs.writeFileSync(path.join(rootDir, `data_files/mostPlayed-${format}.json`), JSON.stringify(data));
 			console.log(time() + `Downloaded most played ${formatData.prettyName}`);
 		} catch (e) {
@@ -1069,6 +1091,12 @@ const doStuff = async function() {
 			console.log("Skipping remaining most played downloads.")
 			break;
 		}
+	}
+
+	//If the downloads were skipped we need to make sure we have cached versions, otherwise we can't continue.
+	const allMostPlayedCached = Object.keys(formats).every(format => fs.existsSync(path.join(rootDir, `data_files/mostPlayed-${format}.json`)));
+	if (!allMostPlayedCached) {
+		throw new Error("Could not obtain most played files, halting update.");
 	}
 
 	//Keywords

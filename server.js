@@ -12,14 +12,30 @@ const express = require("express"),
 			getUnfinishedQuestion = require("./custom_modules/getUnfinishedQuestion.js"),
 			shuffle = require("./custom_modules/shuffle.js"),
 			questionMatchesSettings = require("./custom_modules/questionMatchesSettings.js"),
-			nodemailer = require("nodemailer"),
-			emailAuth = JSON.parse(fs.readFileSync("externalCredentials.json", "utf8")).email,
-			transporter = nodemailer.createTransport({
-				"host": "smtp.zoho.com",
-				"port": 465,
-				"secure": true,
-				"auth": emailAuth
-			});
+			nodemailer = require("nodemailer");
+
+//Create a privateData file if one is missing, so that devs can easily see the format.
+if (!fs.existsSync("privateData.json")) {
+	console.log("No private data file; creating a blank one.")
+	const privateData = {
+		"email": {
+				"user": "",
+				"pass": ""
+			},
+		"discordPassword": "",
+		"apiUrlPrefix": null,
+		"apiUrlSuffix": null
+	}
+	fs.writeFileSync("privateData.json", JSON.stringify(privateData));
+}
+
+const emailAuth = JSON.parse(fs.readFileSync("privateData.json", "utf8")).email;
+const transporter = nodemailer.createTransport({
+	"host": "smtp.zoho.com",
+	"port": 465,
+	"secure": true,
+	"auth": emailAuth
+});
 
 app.set('trust proxy', true);
 
@@ -49,9 +65,15 @@ function deepFreeze(object) {
   return Object.freeze(object);
 }
 
+const updateReferenceCards = function() {
+	const newAllCards = JSON.parse(fs.readFileSync("./data_files/allCards.json", "utf8"));
+	deepFreeze(newAllCards);
+	canonicalAllCards = newAllCards;
+}
+
 let referenceQuestionArray;
-let canonicalAllCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
-deepFreeze(canonicalAllCards);
+let canonicalAllCards;
+updateReferenceCards();
 
 const addToJsonlLog = function(filePath, newEntry) {
 	if (fs.existsSync(filePath)) {
@@ -59,6 +81,17 @@ const addToJsonlLog = function(filePath, newEntry) {
 	} else {
 		fs.mkdirSync(path.dirname(filePath), {recursive:true});
 		fs.writeFileSync(filePath, JSON.stringify(newEntry));
+	}
+}
+
+const getAdmins = function() {
+	if (fs.existsSync("./data_files/admins.json")) {
+		return JSON.parse(fs.readFileSync("./data_files/admins.json", "utf8"));
+	} else {
+		handleError("No admins; creating one with default password 'correcthorsebatterystaple'.")
+		const admins = [{"id":0,"name":"Onar","password":"correcthorsebatterystaple","roles":{"editor":true,"grammarGuru":true,"templateGuru":true,"rulesGuru":true,"owner":true},"emailAddress":"notarealemail@yahoo.com","reminderEmailFrequency":"Never","sendSelfEditLogEmails":false}];
+		fs.writeFileSync("./data_files/admins.json", JSON.stringify(admins));
+		return admins;
 	}
 }
 
@@ -97,7 +130,7 @@ setInterval(() => {
 }, 100);
 
 const sendEmailToOwners = function(subject, message, res) {
-	const allAdmins = JSON.parse(fs.readFileSync("admins.json", "utf8"));
+	const allAdmins = getAdmins();
 	for (let i in allAdmins) {
 		if (allAdmins[i].roles.owner) {
 			const callback = function(successful) {
@@ -119,12 +152,10 @@ let promisifiedAll,
 	dbGet,
 	dbRun;
 
-const db = new sqlite.Database("questionDatabase.db", async function(err) {
+const db = new sqlite.Database("data_files/questions.db", async function(err) {
 	if (err) {
 		handleError(err);
 	} else {
-		console.log("Database created");
-
 		promisifiedAll = util.promisify(db.all),
 		promisifiedGet = util.promisify(db.get),
 		promisifiedRun = util.promisify(db.run),
@@ -141,8 +172,20 @@ const db = new sqlite.Database("questionDatabase.db", async function(err) {
 			return result;
 		};
 
+		const dbExists = await dbGet("SELECT name FROM sqlite_master WHERE type='table' AND name='questions'");
+
+		if (!dbExists) {
+			console.log("No questions database found; creating an empty one.");
+			await dbRun(`CREATE TABLE questions (
+				id INTEGER,
+				json TEXT,
+				status TEXT,
+				verification TEXT
+			)`);
+		}
+
 		try {
-			referenceQuestionArray = JSON.parse(fs.readFileSync("referenceQuestionArray.json", "utf8"));
+			referenceQuestionArray = JSON.parse(fs.readFileSync("./data_files/referenceQuestionArray.json", "utf8"));
 			deepFreeze(referenceQuestionArray);
 			updateAllReferenceQuestions();//To update it if it's gotten out of sync with the database. Server will still run with it out of date, so we do this async.
 		} catch {
@@ -168,7 +211,7 @@ const db = new sqlite.Database("questionDatabase.db", async function(err) {
 });
 
 const validateAdmin = function(password) {
-	const allAdmins = JSON.parse(fs.readFileSync("admins.json", "utf8"));
+	const allAdmins = getAdmins();
 	let currentAdmin;
 	for (let i in allAdmins) {
 		if (password === allAdmins[i].password) {
@@ -214,7 +257,7 @@ const sendQuestion = function(question, res, allCards) {
 	//Don't send the cardLists since they're not needed.
 	delete questionToSend.cardLists;
 
-	const allRules = JSON.parse(fs.readFileSync("allRules.json"));
+	const allRules = JSON.parse(fs.readFileSync("./data_files/allRules.json"));
 	const allNeededRuleNumbers = (questionToSend.question + questionToSend.answer).match(/(?<=\[)(\d{3}(\.\d{1,3}([a-z])?)?)(?=\])/g) || [];
 	const allNeededRules = Object.values(allRules).filter(function(rule) {
 		return allNeededRuleNumbers.includes(rule.ruleNumber);
@@ -286,12 +329,6 @@ const updateReferenceQuestion = async function(id) {
 	deepFreeze(referenceQuestionArray);
 	saveReferenceQuestionArrayToDisk();
 	updateIndexQuestionCount();
-}
-
-const updateReferenceCards = function() {
-	const newAllCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
-	deepFreeze(newAllCards);
-	canonicalAllCards = newAllCards;
 }
 
 let referenceUpdateOngoing = false;
@@ -381,7 +418,7 @@ const saveReferenceQuestionArrayToDisk = async function() {
 	saveReferenceQuestionArrayToDiskRunning = true;
 	saveReferenceQuestionArrayToDiskPending = false;
 	await Promise.resolve();//Cut off synchroous execution so the stringify doesn't block the outer function.
-	fs.writeFile("referenceQuestionArray.json", JSON.stringify(referenceQuestionArray), function() {
+	fs.writeFile("./data_files/referenceQuestionArray.json", JSON.stringify(referenceQuestionArray), function() {
 		saveReferenceQuestionArrayToDiskRunning = false;
 		if (saveReferenceQuestionArrayToDiskPending) {
 			saveReferenceQuestionArrayToDisk();
@@ -486,7 +523,7 @@ const sendAPIQuestions = function(questions, res, allCards) {
 		delete questionToSend.cardLists;
 
 		//Handle formatting.
-		const allRules = JSON.parse(fs.readFileSync("allRules.json"));
+		const allRules = JSON.parse(fs.readFileSync("./data_files/allRules.json"));
 		const playerNamesMap = getPlayerNamesMap();
 
 		const chosenCards = chosenCardNames.map(cardName => allCards[cardName]);//We need to provide the cards to replaceExpressions in card generator order, not in text order like they are in includedCards.
@@ -511,7 +548,7 @@ const sendAPIQuestions = function(questions, res, allCards) {
 		}
 
 		//Add a link to the question on RG
-		const searchLinkMappings = JSON.parse(fs.readFileSync("public_html/globalResources/searchLinkMappings.js", "utf8").slice(27));
+		const searchLinkMappings = JSON.parse(fs.readFileSync("public_html/public_data_files/searchLinkMappings.js", "utf8").slice(27));
 		questionToSend.url = "https://rulesguru.org/?" + questionToSend.id + "RG" + searchLinks.convertSettingsToSearchLink({
 			"level": ["0", "1", "2", "3", "Corner Case"],
 			"complexity": ["Simple", "Intermediate", "Complicated"],
@@ -567,7 +604,7 @@ API:
 
 Development:
 
-/mostPlayed-[format]: Mirror since the origin API is private.
+/mostPlayed-[format].json: Mirror since the origin API is private.
 
 */
 
@@ -959,7 +996,7 @@ app.post("/changeQuestionStatus", async function(req, res) {
 		sendEmailToOwners(`RulesGuru admin ${action2} (${currentAdmin.name})`, `${currentAdmin.name} has ${action} question #${req.body.questionObj.id}(${newStatus}).\n\nhttps://rulesguru.org/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 
 		if (typeof req.body.changes === "string") {
-			const allAdmins = JSON.parse(fs.readFileSync("admins.json", "utf8"));
+			const allAdmins = getAdmins();
 			sendEmailToOwners("RulesGuru admin verification with changes", `${currentAdmin.name} has verified question #${req.body.questionObj.id} (originally approved by ${allAdmins[verificationObject.editor] ? allAdmins[verificationObject.editor].name : `an unknown admin with ID ${verificationObject.editor}`}) with the following changes:\n\n${req.body.changes}`);
 
 			if (allAdmins[verificationObject.editor]) {
@@ -968,8 +1005,8 @@ app.post("/changeQuestionStatus", async function(req, res) {
 		}
 
 		let recentlyDistributedQuestionIds;
-		if (fs.existsSync("recentlyDistributedQuestionIds.json")) {
-			recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
+		if (fs.existsSync("./data_files/recentlyDistributedQuestionIds.json")) {
+			recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("./data_files/recentlyDistributedQuestionIds.json", "utf8"));
 		} else {
 			recentlyDistributedQuestionIds = [];
 		}
@@ -978,7 +1015,7 @@ app.post("/changeQuestionStatus", async function(req, res) {
 			const index = recentlyDistributedQuestionIds.indexOf(req.body.questionObj.id);
 			recentlyDistributedQuestionIds.splice(index, 1);
 		}
-		fs.writeFileSync("recentlyDistributedQuestionIds.json", JSON.stringify(recentlyDistributedQuestionIds));
+		fs.writeFileSync("./data_files/recentlyDistributedQuestionIds.json", JSON.stringify(recentlyDistributedQuestionIds));
 	}
 });
 
@@ -1022,7 +1059,7 @@ const addQuestion = async function(question, isAdmin, adminId) {
 			question.submissionDate = Date.now();
 
 			if (isAdmin) {
-				const allAdmins = JSON.parse(fs.readFileSync("admins.json", "utf8"));
+				const allAdmins = getAdmins();
 				const currentAdmin = allAdmins[adminId];
 				verificationJson = JSON.stringify({
 					"editor": currentAdmin.id,
@@ -1211,14 +1248,14 @@ app.post("/getAdminData", function(req, res) {
 	if (req.body.includeSensitiveData) {
 		const validateAdminResult = validateAdmin(req.body.password);
 		if (typeof validateAdminResult === "object" && validateAdminResult.roles.owner) {
-			const adminData = JSON.parse(fs.readFileSync("admins.json", "utf8"));
+			const adminData = getAdmins();
 			res.send(JSON.stringify(adminData));
 		} else {
 			res.send("Unauthorized");
 		}
 	} else {
 		const dataToSend = [];
-		const adminData = JSON.parse(fs.readFileSync("admins.json", "utf8"));
+		const adminData = getAdmins();
 		for (let i in adminData) {
 			dataToSend.push({
 				"name": adminData[i].name,
@@ -1233,7 +1270,7 @@ app.post("/getAdminData", function(req, res) {
 app.post("/updateAdminData", function(req, res) {
 	const validateAdminResult = validateAdmin(req.body.password);
 	if (typeof validateAdminResult === "object" && validateAdminResult.roles.owner) {
-		fs.writeFileSync("admins.json", req.body.adminData);
+		fs.writeFileSync("./data_files/admins.json", req.body.adminData);
 		res.send("Updated");
 	} else {
 		res.send("Unauthorized");
@@ -1321,8 +1358,8 @@ app.post("/updateAndForceStatus", async function(req, res) {
 			sendEmailToOwners(`RulesGuru question ID change`, `${currentAdmin.name} has moved question #${req.body.id} to ID #${req.body.newId}.\n\nTime: ${date}`);
 		}
 		let recentlyDistributedQuestionIds;
-		if (fs.existsSync("recentlyDistributedQuestionIds.json")) {
-			recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
+		if (fs.existsSync("./data_files/recentlyDistributedQuestionIds.json")) {
+			recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("./data_files/recentlyDistributedQuestionIds.json", "utf8"));
 		} else {
 			recentlyDistributedQuestionIds = [];
 		}
@@ -1330,14 +1367,14 @@ app.post("/updateAndForceStatus", async function(req, res) {
 			const index = recentlyDistributedQuestionIds.indexOf(req.body.id);
 			recentlyDistributedQuestionIds.splice(index, 1);
 		}
-		fs.writeFileSync("recentlyDistributedQuestionIds.json", JSON.stringify(recentlyDistributedQuestionIds));
+		fs.writeFileSync("./data_files/recentlyDistributedQuestionIds.json", JSON.stringify(recentlyDistributedQuestionIds));
 	}
 });
 
-//Mirror format data for development
+//Mirror format data for development. (The actual API is private.)
 const formats = JSON.parse(fs.readFileSync("formats.json", "utf8"));
 for (let format in formats) {
-	const str = "mostPlayed-" + format;
+	const str = "mostPlayed-" + format + ".json";
 	app.get("/" + str, function(req, res) {
 		let text;
 		try {

@@ -15,7 +15,7 @@ const path = require('path');
 const cron = require('node-cron');
 const Stream = require('stream').Transform;
 const Twitterv2 = require('twitter-v2');
-const Twitter = new Twitterv2(JSON.parse(fs.readFileSync("externalCredentials.json", "utf8")).twitter);
+const Twitter = new Twitterv2("[key]");
 const handleError = require("./custom_modules/handleError.js");
 // Constants
 const tmp_dir = path.normalize('./twitter-tmp') // Temporary files directory

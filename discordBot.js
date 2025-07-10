@@ -44,7 +44,13 @@ const client = new Client({
 		GatewayIntentBits.GuildMembers,
 	],
 });
-const discordPassword = JSON.parse(fs.readFileSync("externalCredentials.json", "utf8")).discord;
+let discordPassword;
+
+discordPassword = JSON.parse(fs.readFileSync("privateData.json", "utf8")).discordPassword;
+if (!discordPassword) {
+	throw new Error("Missing discord password.");
+}
+
 client.login(discordPassword);
 
 

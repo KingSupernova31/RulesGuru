@@ -1,46 +1,57 @@
 {
 	"standard": {
 		"prettyName": "Standard",
-		"url": ""
+		"apiName": "Standard",
+		"rgName": "standard"
 	},
 	"pioneer": {
 		"prettyName": "Pioneer",
-		"url": ""
+		"apiName": "Pioneer",
+		"rgName": "pioneer"
 	},
 	"modern": {
 		"prettyName": "Modern",
-		"url": ""
+		"apiName": "Modern",
+		"rgName": "modern"
 	},
 	"legacy": {
 		"prettyName": "Legacy",
-		"url": ""
+		"apiName": "Legacy",
+		"rgName": "legacy"
 	},
 	"vintage": {
 		"prettyName": "Vintage",
-		"url": ""
+		"apiName": "Vintage",
+		"rgName": "vintage"
 	},
 	"duelCommander": {
 		"prettyName": "Duel Commander",
-		"url": ""
+		"apiName": "Duel-Commander",
+		"rgName": "duelCommander"
 	},
 	"premodern": {
 		"prettyName": "Premodern",
-		"url": ""
+		"apiName": "Premodern",
+		"rgName": "premodern"
 	},
 	"pauper": {
 		"prettyName": "Pauper",
-		"url": ""
+		"apiName": "Pauper",
+		"rgName": "pauper"
 	},
 	"oldSchool": {
 		"prettyName": "Old School",
-		"url": ""
+		"apiName": "Old-school",
+		"rgName": "oldSchool"
 	},
 	"explorer": {
 		"prettyName": "Explorer",
-		"url": ""
+		"apiName": "Explorer",
+		"rgName": "explorer"
 	},
 	"cedh": {
 		"prettyName": "cEDH",
-		"url": ""
+		"apiName": "Commander",
+		"rgName": "cedh"
 	}
 }

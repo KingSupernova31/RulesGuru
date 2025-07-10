@@ -5,7 +5,7 @@ const	fs = require("fs"),
 
 let questionArr = [];
 
-const db = new sqlite.Database("questionDatabase.db", function(err) {});
+const db = new sqlite.Database("./data_files/questions.db", function(err) {});
 
 Object.defineProperty(Array.prototype, "caseInsensitiveIncludes", {
 	"value": function(value) {
@@ -40,7 +40,7 @@ db.serialize(function() {
 	});
 });
 
-const allCards = JSON.parse(fs.readFileSync("allCards.json", "utf8"));
+const allCards = JSON.parse(fs.readFileSync("./data_files/allCards.json", "utf8"));
 
 const convertAllTemplates = function(questionObj, allCards) {
 	const convertedQuestion = JSON.parse(JSON.stringify(questionObj.json))

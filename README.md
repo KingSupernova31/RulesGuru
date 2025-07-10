@@ -9,23 +9,23 @@ To run a local version of RulesGuru, you'll need [Node.js](https://nodejs.org/en
 2. `cd RulesGuru` to enter the directory.
 3. `npm ci` to install the required dependencies.
 4. `node custom_modules/updateDataFiles.js` to download and generate RulesGuru's data files. This may take several minutes.
-5. `node server.js` to start the webserver. This also may take several minutes, but only the first time.
+5. `node server.js` to start the webserver.
 6. Navigate to `http://localhost:8080` in your browser to view the site.
 
 You can also use `npm start` and `npm stop` to run the entire environment including scheduled background tasks and auxilliary programs, but for 99% of development you won't need those.
 
-Certain files in this repository contain placeholder data as detailed below:
+The server will create dummy data files to make your development environment function correctly. There are still a few differences between these and the production files however:
 
-* `externalCredentials.json` does not contain real credentials, and your local application will encounter an error if it tries to use them. If you want to test any of the external API functionality, you'll need to supply your own credentials.
-* `admins.json` contains data for a single test admin with owner permissions. If you want admins with different permissions, start the server as described above, navigate to `localhost:8080/question-editor`, log in to the owner account with password `correcthorsebatterystaple`, and use the admin editor in the top left to add the desired accounts.
-* `questionDatabase.db` contains a random 10 questions as example data. The live database has around 7000 rows currently.
-* `public_html/globalResources/searchLinkMappings.js`, `public_html/searchLinkCardNamesDiff.js`, and `public_html/globalResources/allTags.js`, are updated automatically. As such, the files in this repository are outdated versions of the live files. This may occasionally result in errors due to data mismatches when run locally. If this happens, let me know and I'll upload a newer version of them. They'll also change automatically on your local copy, so you may want to add them to your .gitignore locally.
-* The API that RulesGuru uses to fetch metagame data is private, so the urls in `formats.json` are left empty here. For development purposes, `updateDataFiles.js` will instead fetch a copy of the same data from the live RulesGuru site.
-
+* The server creates one admin account with owner permissions and a fake email address. If you want to edit this account or add other admins with different permissions, start the server, navigate to `localhost:8080/question-editor`, log in to the owner account with password `correcthorsebatterystaple`, and use the admin editor in the top left to add the desired accounts.
+* All credentials in `privateData.json` will be blank. To use the email, discord bot, or other private functionality, you'll need to provide your own credentials.
+* `questions.db` will contain no questions. (The live database has around 7000 rows currently.) You can add some questions yourself on the local question editor.
+* `public_html/globalResources/searchLinkMappings.js` and `public_html/searchLinkCardNamesDiff.js` are generated to be backwards-compatible with previous versions of themselves, so the live versions will be slightly different from ones that get created from scratch.
 
 ## Development guidelines
 
 * Wizards is constantly coming out with new cards, layouts, mechanics, formats, oracle text, and more. All RulesGuru features should be designed with future compatibility and maintainability in mind. Categorization systems should be broad and easily-extensible. Systems should automatically check for changes from upstream data sources and update RulesGuru's data accordingly. Any part of the code that interfaces with such data should have automated checks for data that falls outside of the supported bounds, and send out an admin warning email if this is detected.
+
+* The `data_files` and `public_data_files` directories are *only* for files that are automatically generated; i.e. ones that can be deleted without causing an error. (Though doing so might lose important production data, like the question database or the admin accounts.) Hardcoded data files should be placed elsewhere.
 
 * I made this project as a way to teach myself programming, so you will come across a number of ideosyncratic or downright bad choices in the codebase. Feel free to fix these as you come across them, and I would also love to hear general feedback on how I should improve my programming style and general archetecture. However I would prefer to avoid doing large refactors unless they're needed for some relevant feature; I think RulesGuru is too small a project for that to be worth the time.
 

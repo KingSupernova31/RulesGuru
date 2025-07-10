@@ -8,7 +8,8 @@ const rootDir = path.join(__dirname, "..");
 
 //Relative to RulesGuru root directory
 const filesToBackUp = {
-	"questionDatabase.db": "backups/questionDatabase",
+	"data_files/questions.db": "backups/questionDatabase",
+	"data_files/admins.json": "backups/admins",
 	"logs/questionCountLog.jsonl": "backups/questionCount",
 	"logs/questionRequestLog.jsonl": "backups/questionRequest",
 	"logs/searchLinkLog.jsonl": "backups/searchLink",

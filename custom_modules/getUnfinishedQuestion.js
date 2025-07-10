@@ -50,8 +50,8 @@ const getUnfinishedQuestion = function(admin, allQuestions) {
 
 	const getAQuestionToSend = function(listOfQuestions) {
 		let recentlyDistributedQuestionIds;
-		if (fs.existsSync("recentlyDistributedQuestionIds.json")) {
-			recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("recentlyDistributedQuestionIds.json", "utf8"));
+		if (fs.existsSync("./data_files/recentlyDistributedQuestionIds.json")) {
+			recentlyDistributedQuestionIds = JSON.parse(fs.readFileSync("./data_files/recentlyDistributedQuestionIds.json", "utf8"));
 		} else {
 			recentlyDistributedQuestionIds = [];
 		}
@@ -70,7 +70,7 @@ const getUnfinishedQuestion = function(admin, allQuestions) {
 		if (recentlyDistributedQuestionIds.length >= 500) {
 			recentlyDistributedQuestionIds = recentlyDistributedQuestionIds.slice(recentlyDistributedQuestionIds.length - 500);
 		}
-		fs.writeFileSync("recentlyDistributedQuestionIds.json", JSON.stringify(recentlyDistributedQuestionIds));
+		fs.writeFileSync("./data_files/recentlyDistributedQuestionIds.json", JSON.stringify(recentlyDistributedQuestionIds));
 		return foundQuestion;
 	}
 

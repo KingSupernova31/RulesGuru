@@ -9,7 +9,7 @@ Q: `;
 
 //The following is some Javascript code that will call the GPT-3 API for the Davinci model with a certain prompt and return a promise for the result.
 const https = require('https');
-const apiKey = JSON.parse(fs.readFileSync("externalCredentials.json", "utf8")).openAI;
+const apiKey = "";
 
 async function callDavinci(prompt) {
   return new Promise((resolve, reject) => {
