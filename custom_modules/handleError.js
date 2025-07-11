@@ -7,13 +7,14 @@ const rootDir = path.join(__dirname, "..");
 
 let emailAuth;
 try {
-	const emailAuth = JSON.parse(fs.readFileSync(path.join(rootDir, "privateData.json"), "utf8")).email;
+	emailAuth = JSON.parse(fs.readFileSync(path.join(rootDir, "privateData.json"), "utf8")).email;
 	if (emailAuth.user.trim().length === 0 || emailAuth.pass.trim().length === 0) {
 		throw new Error("No email credentials");
 	}
 } catch (e) {
 	emailAuth = null;
 }
+
 const transporter = nodemailer.createTransport({
 	"host": "smtp.zoho.com",
 	"port": 465,
@@ -47,7 +48,7 @@ const handleError = async function(error, silent = false) {
 		for (let owner of allOwners) {
 			const mailOptions = {
 				from: emailAuth.user,
-				to: admin.emailAddress,
+				to: owner.emailAddress,
 				subject: "Disaster!",
 				text: error.stack
 			};

@@ -1378,7 +1378,7 @@ for (let format in formats) {
 	app.get("/" + str, function(req, res) {
 		let text;
 		try {
-			text = fs.readFileSync(`data_files/${str}.json`, "utf8");
+			text = fs.readFileSync(`data_files/${str}`, "utf8");
 			res.send(text);
 		} catch (e) {
 			res.sendStatus(404);
