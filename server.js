@@ -705,6 +705,11 @@ app.get("/api/questions", function(req, res) {
 			}
 			sendAPIQuestions([result], res, allCards);
 		} else {
+			if (questionArray.length === 0) {
+				res.json({"status": 404, "error":`There are no questions that fit your settings.`});
+				console.log("Finished at " + performance.now());
+				return;
+			}
 			let locationToStartSearch;
 			if (requestSettings.previousId !== undefined) {
 				if (typeof requestSettings.previousId !== "number" || !Number.isInteger(requestSettings.previousId) || requestSettings.previousId < 1) {
@@ -712,7 +717,7 @@ app.get("/api/questions", function(req, res) {
 					return;
 				}
 				questionArray.sort((a, b) => a.id - b.id);
-				for (let i = 0 ; i < questionArray.length ; i++) {
+				for (let i = requestSettings.previousId ; i < questionArray.length ; i++) {
 					if (questionArray[i].id > requestSettings.previousId) {
 						locationToStartSearch = i;
 						break;
@@ -732,8 +737,7 @@ app.get("/api/questions", function(req, res) {
 			while (true) {
 				loopCounter++;
 				if (loopCounter > 9999) {
-					handleError(new Error(`While loop not terminating.`))
-					break;
+					throw new Error(`While loop not terminating.`);
 				}
 				const result = questionMatchesSettings(questionArray[currentSearchLocation], requestSettings, allCards);
 				if (result) {
