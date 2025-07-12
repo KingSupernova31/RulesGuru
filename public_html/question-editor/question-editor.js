@@ -677,6 +677,69 @@ const processTemplateBox = function() {
 	selectingORGroup = false;
 }
 
+const showPresetNamingBox = function () {
+	document.getElementById("templateNameBox").style.display = "block";
+	document.getElementById("templateEditorGreyout").style.display = "block";
+	document.getElementById("templateName").focus();
+}
+
+const saveTemplateAsPreset = function () {
+	let template = createTemplate();
+	//let's attempt to validate the template same as if we were applying it
+	let validatedTemplate = validateTemplate(template);
+	if (validatedTemplate.templateErrors.length !== 0) {
+		//error case
+		alert(validatedTemplate.templateErrors.join("\n"));
+		return;
+	}
+	const description = document.getElementById("templateName").value;
+	if (description === "") {
+		alert("Empty descriptions are not allowed");
+		return;
+	}
+	if (presetTemplates.map(existingTemplate => existingTemplate.description).includes(description)) {
+		alert("That description is already in use");
+		return;
+	}
+	//working case
+	saveAsPreset(template, description);
+	//because I can't figure out how to get saveAsPreset to return a value based on what
+	//the server returns, instead, the rest of the logic is found *inside* that function
+}
+
+const saveAsPreset = function (template, description) {
+	setTimeout(function() {//This forces the cursor to update immediately since it waits for all synchronous code to finish.
+		const requestObj = {
+			rules: template,
+			description
+		}
+		//Send the request.
+		const httpRequest = new XMLHttpRequest();
+		httpRequest.timeout = 5000;
+		httpRequest.responseType = "string";
+		httpRequest.addEventListener("load", () => {
+			//sorry for confusing control-flow here; this logically speaking comes last
+			const text = httpRequest.responseText;
+			const match = text.match(/assigned id: #(.*)/); //HACK
+			if (match) {
+				const id = Number.parseInt(match[1]);
+				presetTemplates.push({ ...requestObj, id });
+				//the preset templates box won't update automatically -- we need
+				//to update it here as well
+				document.getElementById("presetTemplates").innerHTML +=
+					`<option>${description}</option>`
+				closeTemplateNamingBox();
+			} else {
+				//presumably, it's an error
+				alert(text);
+			}
+		});
+		httpRequest.open("POST", "/savePreset", true);
+		httpRequest.setRequestHeader("Content-Type", "application/json");
+		httpRequest.send(JSON.stringify(requestObj));
+	}, 0);
+}
+
 const closeTemplateBox = function() {
 	document.querySelector("html").style.overflow = "";
 	document.getElementById("cardGeneratorgreyout").style.display = "none";
@@ -687,6 +750,12 @@ const closeTemplateBox = function() {
 		previewWindow.parentData.currentGeneratorStatusChanged = true;
 	}
 	selectingORGroup = false;
+}
+
+const closeTemplateNamingBox = function() {
+	document.getElementById("templateNameBox").style.display = "none";
+	document.getElementById("templateEditorGreyout").style.display = "none";
+	document.getElementById("templateName").value = ""; //reset this so not saved for next time
 }
 
 const createQuestionObj = function() {
@@ -2735,7 +2804,6 @@ let lastKnownPageSourceData = {
 	"/public_data_files/cardNamesToIgnore.js": null,
 	"/globalResources/symbols.js": null,
 	"/globalResources/replaceExpressions.js": null,
-	"/globalResources/presetTemplates.js": null,
 	"/globalResources/searchLinks.js": null,
 	"/public_data_files/allKeywords.js": null,
 	"/globalResources/templateConvert.js": null,
