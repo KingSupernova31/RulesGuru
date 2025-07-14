@@ -18,7 +18,7 @@ The server will create dummy data files to make your development environment fun
 
 * The server creates one admin account with owner permissions and a fake email address. If you want to edit this account or add other admins with different permissions, start the server, navigate to `localhost:8080/question-editor`, log in to the owner account with password `correcthorsebatterystaple`, and use the admin editor in the top left to add the desired accounts.
 * All credentials in `privateData.json` will be blank. To use the email, discord bot, or other private functionality, you'll need to provide your own credentials.
-* `questions.db` will contain one placeholder question at ID=1. (The live database has around 7000 rows currently.) You can view and modify this question, or add new ones, on your [local question editor](http://localhost:8080/question-editor).
+* `questions.db` will contain one placeholder question at ID=1. (The live database has around 7000 rows currently.) You can view and modify this question, or add new ones, on [your local question editor](http://localhost:8080/question-editor).
 * `public_html/globalResources/searchLinkMappings.js` and `public_html/searchLinkCardNamesDiff.js` are generated to be backwards-compatible with previous versions of themselves, so the live versions will be slightly different from ones that get created from scratch.
 
 ## Development guidelines
