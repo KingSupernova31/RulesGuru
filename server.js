@@ -182,6 +182,9 @@ const db = new sqlite.Database("data_files/questions.db", async function(err) {
 				status TEXT,
 				verification TEXT
 			)`);
+			const question = {"level":"1","complexity":"Intermediate","tags":["Miscellaneous"],"question":"This is a card generator, which is set to a list: [card 1]. The question will randomly pick one of those two cards. You can also make card generators that are templates, like so: [card 2]. This one will randomly pick from any card that can be a permanent and is white or blue. You can view and modify these generators in the bottom right.\n\nYou can reference characteristics of card generators, like how [card 1:power] displays the power of the generated creature when you open the preview in the top right corner. (As you may notice, the preview shows you the bracketed card expression that's generating any text in the preview. This won't appear on the live site, it's just an editing aid.)\n\nPlayers, of course, are represented with [AP] and [NAP]. You can also use symbols, like {G}, [+1], or {U/B/P}.\n\nThe preview will update live as you edit the question. It will also display errors at the top of the page.","answer":"The answer to the question will generally cite the rules that address the question. ([100.1])\n\nYou can reference cards in the answer in case you want to [card 3], which won't display while the answer box is closed.\n\nFor a full explanation of this editor's features, see <a href=\"/admin-information\">the admin info page</a>.","cardGenerators":[["Storm Crow","Hill Giant"],[{"preset":2,"orGroup":null},{"field":"Colors","operator":"Includes","value":"White","orGroup":0},{"field":"Colors","operator":"Includes","value":"Blue","orGroup":0}],["Teach by Example"]],"id":1,"submitterName":"Onar"};
+
+			await dbRun(`INSERT INTO questions ("id", "json", "status", "verification") VALUES (1, '${JSON.stringify(question).replace(/'/g,"''")}', 'unfinished', '{}')`);
 		}
 
 		try {
