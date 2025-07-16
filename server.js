@@ -993,7 +993,7 @@ app.post("/changeQuestionStatus", async function(req, res) {
 			"newVerification": verificationObject
 		});
 
-		updateReferenceQuestion(request.body.questionObj.id);
+		updateReferenceQuestion(req.body.questionObj.id);
 
 		//Send emails about the change.
 		if (currentAdmin.sendSelfEditLogEmails) {
@@ -1006,7 +1006,7 @@ app.post("/changeQuestionStatus", async function(req, res) {
 			const allAdmins = getAdmins();
 			sendEmailToOwners("RulesGuru admin verification with changes", `${currentAdmin.name} has verified question #${req.body.questionObj.id} (originally approved by ${allAdmins[verificationObject.editor] ? allAdmins[verificationObject.editor].name : `an unknown admin with ID ${verificationObject.editor}`}) with the following changes:\n\n${req.body.changes}`);
 
-			if (allAdmins[verificationObject.editor]) {
+			if (allAdmins[verificationObject.editor] && Object.values(allAdmins[verificationObject.editor].roles).some(r => r)) {
 				sendEmail(allAdmins[verificationObject.editor].emailAddress, `RulesGuru question verification feedback`, `Your question https://rulesguru.org/question-editor/?${req.body.questionObj.id} has been verified with the following feedback:\n\n${req.body.changes}`);
 			}
 		}
