@@ -590,7 +590,7 @@ const updateAllCards = function(verbose = false) {
 			for (let format in formats) {
 				const formatData = formats[format];
 				if (formatData.rgName !== formatData.mtgjsonName) {
-					card.legalities[rgName] = formatData.mtgjsonName;
+					card.legalities[formatData.rgName] = formatData.mtgjsonName;
 					delete card.legalities[formatData.mtgjsonName];
 				}
 			}
