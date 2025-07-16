@@ -583,17 +583,20 @@ const updateAllCards = function(verbose = false) {
 		}
 
 		//Standardize legalities to use the same format names RG uses internally.
+		const formats = JSON.parse(fs.readFileSync(path.join(rootDir, "formats.json"), "utf8"));
 		for (let name in allCards) {
-			allCards[name].legalities.duelCommander = allCards[name].legalities.duel;
-			allCards[name].legalities.oldSchool = allCards[name].legalities.oldschool;
-			allCards[name].legalities.cedh = allCards[name].legalities.commander;
+			const card = allCards[name];
 
-			delete allCards[name].legalities.duel;
-			delete allCards[name].legalities.oldschool;
+			for (let format in formats) {
+				const formatData = formats[format];
+				if (formatData.rgName !== formatData.mtgjsonName) {
+					card.legalities[rgName] = formatData.mtgjsonName;
+					delete card.legalities[formatData.mtgjsonName];
+				}
+			}
 		}
 
 		//Add in playability field.
-		const formats = JSON.parse(fs.readFileSync(path.join(rootDir, "formats.json"), "utf8"));
 		const mostPlayedCards = {};
 		for (let format in formats) {
 			const fileText = fs.readFileSync(path.join(rootDir, `data_files/mostPlayed-${format}.json`), "utf8");

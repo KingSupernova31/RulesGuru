@@ -2,56 +2,67 @@
 	"standard": {
 		"prettyName": "Standard",
 		"apiName": "Standard",
-		"rgName": "standard"
+		"rgName": "standard",
+		"mtgjsonName": "standard"
 	},
 	"pioneer": {
 		"prettyName": "Pioneer",
 		"apiName": "Pioneer",
-		"rgName": "pioneer"
+		"rgName": "pioneer",
+		"mtgjsonName": "pioneer"
 	},
 	"modern": {
 		"prettyName": "Modern",
 		"apiName": "Modern",
-		"rgName": "modern"
+		"rgName": "modern",
+		"mtgjsonName": "modern"
 	},
 	"legacy": {
 		"prettyName": "Legacy",
 		"apiName": "Legacy",
-		"rgName": "legacy"
+		"rgName": "legacy",
+		"mtgjsonName": "legacy"
 	},
 	"vintage": {
 		"prettyName": "Vintage",
 		"apiName": "Vintage",
-		"rgName": "vintage"
+		"rgName": "vintage",
+		"mtgjsonName": "vintage"
 	},
 	"duelCommander": {
 		"prettyName": "Duel Commander",
 		"apiName": "Duel-Commander",
-		"rgName": "duelCommander"
+		"rgName": "duelCommander",
+		"mtgjsonName": "duel"
 	},
 	"premodern": {
 		"prettyName": "Premodern",
 		"apiName": "Premodern",
-		"rgName": "premodern"
+		"rgName": "premodern",
+		"mtgjsonName": "premodern"
 	},
 	"pauper": {
 		"prettyName": "Pauper",
 		"apiName": "Pauper",
-		"rgName": "pauper"
+		"rgName": "pauper",
+		"mtgjsonName": "pauper"
 	},
 	"oldSchool": {
 		"prettyName": "Old School",
 		"apiName": "Old-school",
-		"rgName": "oldSchool"
+		"rgName": "oldSchool",
+		"mtgjsonName": "oldschool"
 	},
 	"explorer": {
 		"prettyName": "Explorer",
 		"apiName": "Explorer",
-		"rgName": "explorer"
+		"rgName": "explorer",
+		"mtgjsonName": "explorer"
 	},
-	"cedh": {
-		"prettyName": "cEDH",
+	"commander": {
+		"prettyName": "Commander",
 		"apiName": "Commander",
-		"rgName": "cedh"
+		"rgName": "commander",
+		"mtgjsonName": "commander"
 	}
 }

@@ -23,7 +23,7 @@ document.querySelector("body").insertAdjacentHTML("beforeend", `
 		<label>
 			<h4 tooltip="Format legality of the cards involved. Use &ldquo;choose expansions&rdquo; if you want to restrict questions to specific sets.">Legality:</h4>
 			<select id="sidebarLegalityDropdown" onchange="toggleSidebarExpansionList();">
-				<option value="cedh">cEDH</option>
+				<option value="commander">Commander</option>
 				<option value="duelCommander">Duel Commander</option>
 				<option value="explorer">Explorer</option>
 				<option value="legacy">Legacy</option>
