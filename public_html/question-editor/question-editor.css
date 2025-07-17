@@ -37,7 +37,8 @@ h1 {
 	transition: transform 0.2s ease;
 }
 
-#question, #answer {
+#question,
+#answer {
 	width: 100%;
 	height: 15rem;
 	resize: vertical;
@@ -58,55 +59,69 @@ h1 {
 		margin-top: 2rem;
 		text-align: center;
 	}
-	#questionStuffDiv > label {
+
+	#questionStuffDiv>label {
 		margin: auto;
 	}
+
 	#question {
 		margin-bottom: 1rem;
 		margin-top: -4rem;
 	}
+
 	#clearFields {
 		justify-self: center !important;
 		margin-bottom: 1rem;
 	}
+
 	#cardGenerators {
 		margin-bottom: 1rem;
 	}
+
 	#tagList * {
 		margin: auto;
 	}
-	#questionStuffDiv > button {
+
+	#questionStuffDiv>button {
 		margin: auto;
 	}
+
 	#questionEditButtons button {
 		margin: auto;
 	}
+
 	#templateScrollContainer {
 		width: 19.5rem !important;
 		height: 24.33rem !important;
 	}
+
 	#templateScrollContainer * {
 		font-size: 0.75rem;
 	}
+
 	#templateScrollContainer .specialButtonBlack {
 		width: 9rem;
 	}
+
 	#multiEntryDiv {
 		width: 19.5rem !important;
 		height: 24.33rem !important;
 	}
+
 	#multiEntryDiv * {
 		font-size: 0.75rem;
 	}
+
 	#multiEntryDiv .specialButtonBlack {
 		width: 9rem;
 	}
+
 	#previewButton {
 		width: 6rem;
 	}
 }
 
-#questionStuffDiv > label {
+#questionStuffDiv>label {
 	width: fit-content;
 }
 
@@ -129,7 +144,7 @@ li {
 	list-style-type: none;
 }
 
-.cardGenerator > *:not(ul) {
+.cardGenerator>*:not(ul) {
 	margin-right: 0.3rem;
 	display: inline;
 }
@@ -184,7 +199,7 @@ li {
 	transition: transform 0.2s ease;
 }
 
-.cardGenerator > .templateButton {
+.cardGenerator>.templateButton {
 	display: none;
 }
 
@@ -263,7 +278,7 @@ li {
 	margin: 0.5rem;
 }
 
-.templateRule > * {
+.templateRule>* {
 	margin: 0.2rem;
 	display: inline;
 }
@@ -312,10 +327,11 @@ li {
 	grid-template-columns: 4% 23% 28% 10% 35% !important;
 }
 
-textarea.templateInput, input.templateInput {
+textarea.templateInput,
+input.templateInput {
 	-webkit-appearance: textfield;
-  -moz-appearance: textfield;
-  appearance: textfield;
+	-moz-appearance: textfield;
+	appearance: textfield;
 	transition: 0.25s;
 	resize: none;
 	height: 1.35rem;
@@ -332,7 +348,8 @@ textarea.templateInput, input.templateInput {
 	float: left;
 }
 
-#ownerOnly button, #ownerOnly label {
+#ownerOnly button,
+#ownerOnly label {
 	display: block;
 	margin-bottom: 0.4rem;
 }
@@ -369,7 +386,7 @@ textarea.templateInput, input.templateInput {
 	text-align: center;
 }
 
-#topCenterDiv > * {
+#topCenterDiv>* {
 	margin-top: 0.2rem;
 	margin-bottom: 0.2rem;
 	display: block;
@@ -377,7 +394,7 @@ textarea.templateInput, input.templateInput {
 	margin-right: auto;
 }
 
-#topCenterDiv > h1 {
+#topCenterDiv>h1 {
 	margin-bottom: 0.5rem;
 }
 
@@ -421,7 +438,8 @@ textarea.templateInput, input.templateInput {
 	font-weight: bold;
 }
 
-#questionSubmitterNameFieldOwner, #questionSubmitterNameFieldEditor {
+#questionSubmitterNameFieldOwner,
+#questionSubmitterNameFieldEditor {
 	display: none;
 	font-weight: bold;
 }
@@ -434,7 +452,8 @@ textarea.templateInput, input.templateInput {
 	margin-right: 2rem;
 }
 
-#approveOrUnapprove, #updateButton {
+#approveOrUnapprove,
+#updateButton {
 	display: none !important;
 }
 
@@ -442,6 +461,43 @@ textarea.templateInput, input.templateInput {
 	width: 13rem;
 	margin-bottom: 0.4rem;
 	display: block;
+}
+
+#updateCitationsDiv {
+	position: fixed;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	width: 26rem;
+	z-index: 4;
+	display: none;
+	background-color: white;
+	padding: 1rem;
+	text-align: center;
+	overflow: auto;
+}
+
+#updateCitationsDiv input {
+	margin: 3px;
+	width: 60px;
+}
+
+.updateCitationsTab {
+	border-style: none;
+	border-top-left-radius: 0.3rem;
+	border-top-right-radius: 0.3rem;
+	padding: 0.2rem 0.4rem;
+	outline: none;
+}
+
+.inputError {
+	border: 1px solid red !important;
+}
+
+.inputErrorMessage {
+	color: red;
+	font-size: 0.8rem;
+	margin-top: 2px;
 }
 
 #tagEditor {
@@ -504,7 +560,8 @@ textarea.templateInput, input.templateInput {
 	outline: none;
 }
 
-.tagEditorTab:hover, .tagEditorTab:focus {
+.tagEditorTab:hover,
+.tagEditorTab:focus {
 	filter: brightness(70%);
 }
 
@@ -660,16 +717,19 @@ textarea.templateInput, input.templateInput {
 	left: 0;
 }
 
-#donations, #openContactFormButton, #followLink, #aboutLink {
+#donations,
+#openContactFormButton,
+#followLink,
+#aboutLink {
 	display: none;
 }
 
 #adminAboutLink:hover img {
-	content:url("../globalResources/icons/about-hover.png");
+	content: url("../globalResources/icons/about-hover.png");
 }
 
 #rulesLink:hover img {
-	content:url("cr-hover.png");
+	content: url("cr-hover.png");
 }
 
 #informationEditorSelect {
