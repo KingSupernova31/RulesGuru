@@ -55,6 +55,7 @@
 			<div id="ownerOnly">
 				<button class="specialButtonBlack" id="showQuestionsListButton">Show Questions List</button>
 				<div id="hideWhenQuestionsListOpen">
+					<button class="specialButtonBlack" id="updateCitationsButton">Update Citations</button>
 					<button class="specialButtonBlack" id="showTagEditorButton">Show Tag Editor</button>
 					<button class="specialButtonBlack" id="showAdminEditorButton">Show Admin Editor</button>
 					<button class="specialButtonBlack" id="forceUpdateButton">Update and Force to:</button>
@@ -62,6 +63,26 @@
 					<label>Finished <input type="radio" name="forceStatus" id="forceStatusFinished" checked></label>
 					<label id="newIdLabel">New ID: <input id="forceStatusNewId" maxlength="4" autocomplete="off" type="number" min="1" max="9999"></label>
 				</div>
+			</div>
+			<div id="updateCitationsDiv" class="roundedCorners">
+				<div>
+					<h3>Update Citations</h3>
+					<button class="updateCitationsTab activeTab" id="updateCitationsTabAdd">Add</button>
+					<button class="updateCitationsTab" id="updateCitationsTabRemove">Remove</button>
+					<button class="updateCitationsTab" id="updateCitationsTabMove">Move</button>
+
+				</div>
+				<div id="removeCitationsDiv" style="display: none;">
+					<label id="removeCitationsLabel">Remove</label><input id="removeCitationsInput" disabled />
+					<div id="removeError" class="inputErrorMessage" style="display: none;"></div>
+
+				</div>
+				<div id="addCitationsDiv">
+					<label id="addCitationsLabel">Add</label><input id="addCitationsInput" />
+					<div id="addError" class="inputErrorMessage" style="display: none;"></div>
+				</div>
+			<button class="specialButtonBlack" id="updateCitationsConfirmButton">Confirm</button>
+				<button class="specialButtonBlack" id="updateCitationsCancelButton">Cancel</button>
 			</div>
 			<div id="tagEditor" class="roundedCorners">
 				<h3>Edit Tags</h3>
