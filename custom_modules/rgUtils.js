@@ -25,6 +25,16 @@ const transporter = nodemailer.createTransport({
 //Mail hosts don't like it when we send lots of emails in quick succession and sometimes lock us out, so we spread them out.
 const pendingEmails = [];
 const sendEmail = function(recipientEmail, subject, message, callback) {
+	if (emailAuth === null) {
+		console.log("No email credentials, dumping email:");
+		console.log(recipientEmail);
+		console.log(subject);
+		console.log(message);
+		if (callback) {
+			callback(false);
+		}
+		return;
+	}
 	pendingEmails.push({
 		"recipientEmail": recipientEmail,
 		"subject": subject,
@@ -77,17 +87,10 @@ const getAdmins = function() {
 	}
 }
 
-const sendEmailToOwners = function(subject, message, res) {
+const sendEmailToOwners = function(subject, message, callback) {
 	const allAdmins = getAdmins();
 	for (let i in allAdmins) {
 		if (allAdmins[i].roles.owner) {
-			const callback = function(successful) {
-				if (successful && res) {
-					res.send("success")
-				} else if (res) {
-					res.send("email error")
-				}
-			};
 			sendEmail(allAdmins[i].emailAddress, subject, message, callback);
 		}
 	}
@@ -97,10 +100,6 @@ const sendEmailToOwners = function(subject, message, res) {
 const handleError = async function(error, silent = false) {
 	if (!silent) {
 		console.error(error)
-	}
-	if (emailAuth === null) {
-		console.log("No RulesGuru email credentials, aborting error email.");
-		return;
 	}
 	let allAdmins = getAdmins();
 

@@ -706,7 +706,7 @@ app.post("/submitContactForm", function(req, res) {
 	if (req.body.message !== undefined) {
 		const message = req.body.message;
 		const num = message.match(/^Message about question #(\d+):/)?.[1];
-		rgUtils.emailOwners(num ? `RulesGuru contact form submission about question ${num}` : "RulesGuru contact form submission", message, res);
+		rgUtils.emailOwners(num ? `RulesGuru contact form submission about question ${num}` : "RulesGuru contact form submission", message);
 		const emailCallback = function(successful) {
 			if (successful) {
 				res.send("success");
@@ -714,6 +714,7 @@ app.post("/submitContactForm", function(req, res) {
 				res.send("email error");
 			}
 		}
+		const emailAuth = JSON.parse(fs.readFileSync("privateData.json", "utf8")).email;
 		rgUtils.email(emailAuth.user, "RulesGuru contact form submission", message, emailCallback);
 	} else {
 		res.send("req.body.message was undefined.");
