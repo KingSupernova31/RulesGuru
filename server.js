@@ -52,7 +52,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("./public_html"));
 
 let server;
-
+//test
 //A function modifying a card's properties or deleting a question from an array would be hard to catch, so this makes sure doing so throws an error.
 function deepFreeze(object) {
 	const propNames = Reflect.ownKeys(object);
