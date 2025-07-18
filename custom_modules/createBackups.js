@@ -1,10 +1,11 @@
 "use strict";
 
 const fs = require("fs"),
-	path = require("path"),
-	handleError = require("./handleError.js");
+	path = require("path");
 
 const rootDir = path.join(__dirname, "..");
+const rgUtils = require(path.join(rootDir, "custom_modules/rgUtils.js"));
+rgUtils.setUpErrorHandling();
 
 //Relative to RulesGuru root directory
 const filesToBackUp = {
@@ -30,4 +31,5 @@ for (let file in filesToBackUp) {
 	if (fs.existsSync(filePath)) {
 		fs.createReadStream(filePath).pipe(fs.createWriteStream(backupFilePath));
 	}
+	console.log(`Backed up ${file}`);
 }

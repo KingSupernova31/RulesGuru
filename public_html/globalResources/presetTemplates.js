@@ -147,10 +147,10 @@ for (let preset of presetTemplates) {
 	presetDescriptions.push(preset.id)
 }
 if (presetIds.length !== Array.from(new Set(presetIds)).length) {
-	handleError("Duplicate preset IDs");
+	throw new Error("Duplicate preset IDs");
 }
 if (presetDescriptions.length !== Array.from(new Set(presetDescriptions)).length) {
-	handleError("Duplicate preset descriptions");
+	throw new Error("Duplicate preset descriptions");
 }
 
 if (typeof module === "object") {

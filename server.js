@@ -1,18 +1,19 @@
 "use strict";
 
 const express = require("express"),
-			app = express(),
-			bodyParser = require("body-parser"),
-			compression = require("compression"),
-			fs = require("fs"),
-			util = require("util"),
-			path = require("path"),
-			sqlite = require("sqlite3").verbose(),
-			handleError = require("./custom_modules/handleError.js"),
-			getUnfinishedQuestion = require("./custom_modules/getUnfinishedQuestion.js"),
-			shuffle = require("./custom_modules/shuffle.js"),
-			questionMatchesSettings = require("./custom_modules/questionMatchesSettings.js"),
-			nodemailer = require("nodemailer");
+		app = express(),
+		bodyParser = require("body-parser"),
+		compression = require("compression"),
+		fs = require("fs"),
+		util = require("util"),
+		path = require("path"),
+		sqlite = require("sqlite3").verbose(),
+		getUnfinishedQuestion = require("./custom_modules/getUnfinishedQuestion.js"),
+		rgUtils = require("./custom_modules/rgUtils.js"),
+		shuffle = require("./custom_modules/shuffle.js"),
+		questionMatchesSettings = require("./custom_modules/questionMatchesSettings.js");
+
+rgUtils.setUpErrorHandling();
 
 //Create a privateData file if one is missing, so that devs can easily see the format.
 if (!fs.existsSync("privateData.json")) {
@@ -29,22 +30,14 @@ if (!fs.existsSync("privateData.json")) {
 	fs.writeFileSync("privateData.json", JSON.stringify(privateData));
 }
 
-const emailAuth = JSON.parse(fs.readFileSync("privateData.json", "utf8")).email;
-const transporter = nodemailer.createTransport({
-	"host": "smtp.zoho.com",
-	"port": 465,
-	"secure": true,
-	"auth": emailAuth
-});
-
 app.set('trust proxy', true);
 
 const templateConvert = require("./public_html/globalResources/templateConvert.js"),
-			presetTemplates = require("./public_html/globalResources/presetTemplates.js"),
-			symbolData = require("./public_html/globalResources/symbols.js"),
-			replaceExpressions = require("./public_html/globalResources/replaceExpressions.js"),
-			searchLinks = require("./public_html/globalResources/searchLinks.js"),
-			playerNames = JSON.parse(fs.readFileSync("playerNames.json", "utf8"));
+		presetTemplates = require("./public_html/globalResources/presetTemplates.js"),
+		symbolData = require("./public_html/globalResources/symbols.js"),
+		replaceExpressions = require("./public_html/globalResources/replaceExpressions.js"),
+		searchLinks = require("./public_html/globalResources/searchLinks.js"),
+		playerNames = JSON.parse(fs.readFileSync("playerNames.json", "utf8"));
 
 app.use(compression());
 app.use(bodyParser.json({"limit":"1mb"}));
@@ -84,66 +77,7 @@ const addToJsonlLog = function(filePath, newEntry) {
 	}
 }
 
-const getAdmins = function() {
-	if (fs.existsSync("./data_files/admins.json")) {
-		return JSON.parse(fs.readFileSync("./data_files/admins.json", "utf8"));
-	} else {
-		handleError("No admins; creating one with default password 'correcthorsebatterystaple'.")
-		const admins = [{"id":0,"name":"Onar","password":"correcthorsebatterystaple","roles":{"editor":true,"grammarGuru":true,"templateGuru":true,"rulesGuru":true,"owner":true},"emailAddress":"notarealemail@yahoo.com","reminderEmailFrequency":"Never","sendSelfEditLogEmails":false}];
-		fs.writeFileSync("./data_files/admins.json", JSON.stringify(admins));
-		return admins;
-	}
-}
-
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-//Mail hosts don't like it when we send lots of emails in quick succession and sometimes lock us out, so we spread them out.
-const pendingEmails = [];
-let lastSent = 0;
-const sendEmail = function(recipientEmail, subject, message, callback) {
-	pendingEmails.push({
-		"recipientEmail": recipientEmail,
-		"subject": subject,
-		"message": message,
-		"callback": callback,
-	});
-}
-setInterval(() => {
-	if (Date.now() - lastSent < 5000) {return;}
-	if (pendingEmails.length === 0) {return;}
-	const {recipientEmail, subject, message, callback} = pendingEmails.shift();
-	console.log(`Sending email to ${recipientEmail}: ${subject}`);
-	transporter.sendMail({
-		from: emailAuth.user,
-		to: recipientEmail,
-		subject: subject,
-		text: message,
-	}, function(err) {
-		if (callback) {
-			callback(err ? false : true);
-		}
-		if (err) {
-			handleError(err);
-		}
-	});
-	lastSent = Date.now();
-}, 100);
-
-const sendEmailToOwners = function(subject, message, res) {
-	const allAdmins = getAdmins();
-	for (let i in allAdmins) {
-		if (allAdmins[i].roles.owner) {
-			const callback = function(successful) {
-				if (successful && res) {
-					res.send("success")
-				} else if (res) {
-					res.send("email error")
-				}
-			};
-			sendEmail(allAdmins[i].emailAddress, subject, message, callback);
-		}
-	}
-}
 
 let promisifiedAll,
 	promisifiedGet,
@@ -154,7 +88,7 @@ let promisifiedAll,
 
 const db = new sqlite.Database("data_files/questions.db", async function(err) {
 	if (err) {
-		handleError(err);
+		rgUtils.handleError(err);
 	} else {
 		promisifiedAll = util.promisify(db.all),
 		promisifiedGet = util.promisify(db.get),
@@ -214,7 +148,7 @@ const db = new sqlite.Database("data_files/questions.db", async function(err) {
 });
 
 const validateAdmin = function(password) {
-	const allAdmins = getAdmins();
+	const allAdmins = rgUtils.getAdmins();
 	let currentAdmin;
 	for (let i in allAdmins) {
 		if (password === allAdmins[i].password) {
@@ -322,7 +256,7 @@ const updateReferenceQuestion = async function(id) {
 			}
 		}
 		if (emptyTemplate) {
-			sendEmailToOwners("RulesGuru broken templates", `Question ${id} generates an empty template.`);
+			rgUtils.emailOwners("RulesGuru broken templates", `Question ${id} generates an empty template.`);
 		} else {
 			newReferenceQuestionArray.push(questionObj);
 		}
@@ -373,7 +307,7 @@ const updateAllReferenceQuestions = async function(speedy) {
 	}
 
 	if (emptyTemplates.length > 0) {
-		sendEmailToOwners("RulesGuru broken templates", `The following questions generate an empty template.\n\n${emptyTemplates.join(", ")}`);
+		rgUtils.emailOwners("RulesGuru broken templates", `The following questions generate an empty template.\n\n${emptyTemplates.join(", ")}`);
 	}
 
 	referenceQuestionArray = finishedQuestions;
@@ -680,7 +614,7 @@ app.get("/api/questions", function(req, res) {
 				}
 			}
 	} catch (error) {
-		handleError(error);
+		rgUtils.handleError(error);
 		res.json({"status": 400, "error":"Incorrectly formatted query string."});
 		return;
 	}
@@ -772,7 +706,7 @@ app.post("/submitContactForm", function(req, res) {
 	if (req.body.message !== undefined) {
 		const message = req.body.message;
 		const num = message.match(/^Message about question #(\d+):/)?.[1];
-		sendEmailToOwners(num ? `RulesGuru contact form submission about question ${num}` : "RulesGuru contact form submission", message, res);
+		rgUtils.emailOwners(num ? `RulesGuru contact form submission about question ${num}` : "RulesGuru contact form submission", message, res);
 		const emailCallback = function(successful) {
 			if (successful) {
 				res.send("success");
@@ -780,7 +714,7 @@ app.post("/submitContactForm", function(req, res) {
 				res.send("email error");
 			}
 		}
-		sendEmail(emailAuth.user, "RulesGuru contact form submission", message, emailCallback);
+		rgUtils.email(emailAuth.user, "RulesGuru contact form submission", message, emailCallback);
 	} else {
 		res.send("req.body.message was undefined.");
 	}
@@ -827,10 +761,10 @@ app.post("/submitAdminQuestion", async function(req, res) {
 				"verification": addQuestionResult.newVerification
 			});
 			if (currentAdmin.sendSelfEditLogEmails) {
-				sendEmail(currentAdmin.emailAddress, "You submitted a RulesGuru question", `You submitted question #${addQuestionResult.newId}.\n\nhttps://rulesguru.org/question-editor/?${addQuestionResult.newId}\n\nTime: ${date}\n\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
+				rgUtils.email(currentAdmin.emailAddress, "You submitted a RulesGuru question", `You submitted question #${addQuestionResult.newId}.\n\nhttps://rulesguru.org/question-editor/?${addQuestionResult.newId}\n\nTime: ${date}\n\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 			}
 			if (!currentAdmin.roles.owner) {
-				sendEmailToOwners(`RulesGuru admin submission (${currentAdmin.name})`, `${currentAdmin.name} has submitted question #${addQuestionResult.newId}.\n\nhttps://rulesguru.org/question-editor/?${addQuestionResult.newId}\n\nTime: ${date}\n\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
+				rgUtils.emailOwners(`RulesGuru admin submission (${currentAdmin.name})`, `${currentAdmin.name} has submitted question #${addQuestionResult.newId}.\n\nhttps://rulesguru.org/question-editor/?${addQuestionResult.newId}\n\nTime: ${date}\n\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 			}
 		} else {
 			res.json({
@@ -867,10 +801,10 @@ app.post("/updateQuestion", async function(req, res) {
 			//Send emails about the change.
 			if (currentAdmin.sendSelfEditLogEmails) {
 
-				sendEmail(currentAdmin.emailAddress, `Your RulesGuru admin update`, `You've updated question #${req.body.questionObj.id} (${oldQuestion.status}).\n\nhttps://rulesguru.org/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
+				rgUtils.email(currentAdmin.emailAddress, `Your RulesGuru admin update`, `You've updated question #${req.body.questionObj.id} (${oldQuestion.status}).\n\nhttps://rulesguru.org/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 			}
 			if (!currentAdmin.roles.owner) {
-				sendEmailToOwners(`RulesGuru admin update (${currentAdmin.name})`, `${currentAdmin.name} has updated question #${req.body.questionObj.id} (${oldQuestion.status}).\n\nhttps://rulesguru.org/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
+				rgUtils.emailOwners(`RulesGuru admin update (${currentAdmin.name})`, `${currentAdmin.name} has updated question #${req.body.questionObj.id} (${oldQuestion.status}).\n\nhttps://rulesguru.org/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 			}
 		} else {
 			res.json({"message": "That question doesn't exist."});
@@ -997,17 +931,17 @@ app.post("/changeQuestionStatus", async function(req, res) {
 
 		//Send emails about the change.
 		if (currentAdmin.sendSelfEditLogEmails) {
-			sendEmail(currentAdmin.emailAddress, `Your RulesGuru admin ${action2}`, `You've ${action} question #${req.body.questionObj.id} (${newStatus}).\n\nhttps://rulesguru.org/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
+			rgUtils.email(currentAdmin.emailAddress, `Your RulesGuru admin ${action2}`, `You've ${action} question #${req.body.questionObj.id} (${newStatus}).\n\nhttps://rulesguru.org/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 		}
 
-		sendEmailToOwners(`RulesGuru admin ${action2} (${currentAdmin.name})`, `${currentAdmin.name} has ${action} question #${req.body.questionObj.id}(${newStatus}).\n\nhttps://rulesguru.org/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
+		rgUtils.emailOwners(`RulesGuru admin ${action2} (${currentAdmin.name})`, `${currentAdmin.name} has ${action} question #${req.body.questionObj.id}(${newStatus}).\n\nhttps://rulesguru.org/question-editor/?${req.body.questionObj.id}\n\nTime: ${date}\n\n\nOld question:\n\n${JSON.stringify(JSON.parse(oldQuestion.json), null, 2)}\n\n\nNew question:\n\n${JSON.stringify(req.body.questionObj, null, 2)}`);
 
 		if (typeof req.body.changes === "string") {
-			const allAdmins = getAdmins();
-			sendEmailToOwners("RulesGuru admin verification with changes", `${currentAdmin.name} has verified question #${req.body.questionObj.id} (originally approved by ${allAdmins[verificationObject.editor] ? allAdmins[verificationObject.editor].name : `an unknown admin with ID ${verificationObject.editor}`}) with the following changes:\n\n${req.body.changes}`);
+			const allAdmins = rgUtils.getAdmins();
+			rgUtils.emailOwners("RulesGuru admin verification with changes", `${currentAdmin.name} has verified question #${req.body.questionObj.id} (originally approved by ${allAdmins[verificationObject.editor] ? allAdmins[verificationObject.editor].name : `an unknown admin with ID ${verificationObject.editor}`}) with the following changes:\n\n${req.body.changes}`);
 
 			if (allAdmins[verificationObject.editor] && Object.values(allAdmins[verificationObject.editor].roles).some(r => r)) {
-				sendEmail(allAdmins[verificationObject.editor].emailAddress, `RulesGuru question verification feedback`, `Your question https://rulesguru.org/question-editor/?${req.body.questionObj.id} has been verified with the following feedback:\n\n${req.body.changes}`);
+				rgUtils.email(allAdmins[verificationObject.editor].emailAddress, `RulesGuru question verification feedback`, `Your question https://rulesguru.org/question-editor/?${req.body.questionObj.id} has been verified with the following feedback:\n\n${req.body.changes}`);
 			}
 		}
 
@@ -1038,7 +972,7 @@ const addQuestion = async function(question, isAdmin, adminId) {
 			existingIds = existingIds.map(entry => entry.id);
 			existingIds.sort((a, b) => a - b);
 			if (existingIds.length !== Array.from(new Set(existingIds)).length) {
-				handleError(new Error("Duplicate IDs in array."));
+				rgUtils.handleError(new Error("Duplicate IDs in array."));
 				return;
 			}
 			const validNewIds = [];
@@ -1047,7 +981,7 @@ const addQuestion = async function(question, isAdmin, adminId) {
 			while (validNewIds.length < 1000) {
 				loopCounter++;
 					if (loopCounter > 9999) {
-						handleError(new Error(`While loop not terminating.`));
+						rgUtils.handleError(new Error(`While loop not terminating.`));
 						break;
 					}
 				if (existingIds[0] === count) {
@@ -1066,7 +1000,7 @@ const addQuestion = async function(question, isAdmin, adminId) {
 			question.submissionDate = Date.now();
 
 			if (isAdmin) {
-				const allAdmins = getAdmins();
+				const allAdmins = rgUtils.getAdmins();
 				const currentAdmin = allAdmins[adminId];
 				verificationJson = JSON.stringify({
 					"editor": currentAdmin.id,
@@ -1102,7 +1036,7 @@ const addQuestion = async function(question, isAdmin, adminId) {
 				"newVerification": JSON.parse(verificationJson)
 			};
 		} catch (error) {
-			handleError(error);
+			rgUtils.handleError(error);
 			addQuestionRunning = false;
 			return {
 				"error": error.message
@@ -1207,7 +1141,7 @@ app.post("/submitQuestion", async function(req, res) {
 	const addQuestionResult = await addQuestion(req.body, false);
 	if (!addQuestionResult.error) {
 		res.send(`Question #${addQuestionResult.newId} submitted successfully. Thanks!`);
-		sendEmailToOwners(`New question submission (${addQuestionResult.newId})`, `${JSON.stringify(req.body, null, 2)}`);
+		rgUtils.emailOwners(`New question submission (${addQuestionResult.newId})`, `${JSON.stringify(req.body, null, 2)}`);
 	} else {
 		res.send(`Your question encountered an error being submitted. (${addQuestionResult.error}) Please report this issue using the contact form in the upper right.`);
 	}
@@ -1255,14 +1189,14 @@ app.post("/getAdminData", function(req, res) {
 	if (req.body.includeSensitiveData) {
 		const validateAdminResult = validateAdmin(req.body.password);
 		if (typeof validateAdminResult === "object" && validateAdminResult.roles.owner) {
-			const adminData = getAdmins();
+			const adminData = rgUtils.getAdmins();
 			res.send(JSON.stringify(adminData));
 		} else {
 			res.send("Unauthorized");
 		}
 	} else {
 		const dataToSend = [];
-		const adminData = getAdmins();
+		const adminData = rgUtils.getAdmins();
 		for (let i in adminData) {
 			dataToSend.push({
 				"name": adminData[i].name,
@@ -1362,7 +1296,7 @@ app.post("/updateAndForceStatus", async function(req, res) {
 
 		if (req.body.newId) {
 			const date = Date();
-			sendEmailToOwners(`RulesGuru question ID change`, `${currentAdmin.name} has moved question #${req.body.id} to ID #${req.body.newId}.\n\nTime: ${date}`);
+			rgUtils.emailOwners(`RulesGuru question ID change`, `${currentAdmin.name} has moved question #${req.body.id} to ID #${req.body.newId}.\n\nTime: ${date}`);
 		}
 		let recentlyDistributedQuestionIds;
 		if (fs.existsSync("./data_files/recentlyDistributedQuestionIds.json")) {
@@ -1398,6 +1332,6 @@ for (let format in formats) {
 
 //The error handler must be last. https://expressjs.com/en/guide/error-handling.html
 app.use((err, req, res, next) => {
-	handleError(err, true);
+	rgUtils.handleError(err, true);
 	next(err);
 });

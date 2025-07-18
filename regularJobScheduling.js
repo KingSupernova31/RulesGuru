@@ -1,5 +1,6 @@
 const cron = require("node-cron");
-
+const rgUtils = require("./custom_modules/rgUtils.js");
+rgUtils.setUpErrorHandling();
 /*
 second	0-59
 minute	0-59

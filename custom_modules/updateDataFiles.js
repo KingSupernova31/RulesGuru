@@ -4,11 +4,12 @@ const fs = require("fs"),
 	JSON5 = require("json5"),
 	fetch = require("node-fetch"),
 	path = require("path"),
-	handleError = require("./handleError.js"),
 	lzma = require("lzma-native"),
 	v8 = require("v8");
 
 const rootDir = path.join(__dirname, "..");
+const rgUtils = require(path.join(rootDir, "custom_modules/rgUtils.js"));
+rgUtils.setUpErrorHandling();
 
 //This script will crash when creating/dispersing the files if it doesn't have enough memory, so we just crash it here to not waste time downloading all the files first.
 if (v8.getHeapStatistics().heap_size_limit < 10**9) {
@@ -48,639 +49,635 @@ if (!fs.existsSync(path.join(rootDir, "data_files"))) {
 }
 
 const updateAllCards = function(verbose = false) {
-	try {
-		console.log(time() + `Updating all cards`);
+	console.log(time() + `Updating all cards`);
 
-		const notFlatAllCards = JSON.parse(replaceDoppelgangerChars(fs.readFileSync("data_files/rawAllCards.json", "utf8"))).data;
+	const notFlatAllCards = JSON.parse(replaceDoppelgangerChars(fs.readFileSync("data_files/rawAllCards.json", "utf8"))).data;
 
-		// Patch cards with normal versions and silly variants
-		{
-			if (verbose) { console.log(`-- Patching: Red Herring`); }
-			const cards = notFlatAllCards["Red Herring"]
-			delete notFlatAllCards["Red Herring"]
-			let norm_card = cards.find((card) => card["text"].startsWith("Haste"))
-			let alt__card = cards.find((card) => card["text"].startsWith("{1}{U}"))
-			alt__card["name"] = "Sketchy Red Herring"
-			notFlatAllCards["Red Herring"]         = [norm_card]
-			notFlatAllCards["Sketchy Red Herring"] = [alt__card]
+	// Patch cards with normal versions and silly variants
+	{
+		if (verbose) { console.log(`-- Patching: Red Herring`); }
+		const cards = notFlatAllCards["Red Herring"]
+		delete notFlatAllCards["Red Herring"]
+		let norm_card = cards.find((card) => card["text"].startsWith("Haste"))
+		let alt__card = cards.find((card) => card["text"].startsWith("{1}{U}"))
+		alt__card["name"] = "Sketchy Red Herring"
+		notFlatAllCards["Red Herring"]         = [norm_card]
+		notFlatAllCards["Sketchy Red Herring"] = [alt__card]
+	}
+
+	{
+		if (verbose) { console.log(`-- Patching: Pick Your Poison`); }
+		const cards = notFlatAllCards["Pick Your Poison"]
+		delete notFlatAllCards["Pick Your Poison"]
+		let norm_card = cards.find((card) => card["text"].startsWith("Choose one"))
+		let alt__card = cards.find((card) => card["text"].startsWith("Choose any"))
+		alt__card["name"] = "Pick Your Sketchy Poison"
+		notFlatAllCards["Pick Your Poison"]         = [norm_card]
+		notFlatAllCards["Pick Your Sketchy Poison"] = [alt__card]
+	}
+
+	{
+		if (verbose) { console.log(`-- Patching: Unquenchable Fury`); }
+		const cards = notFlatAllCards["Unquenchable Fury"]
+		delete notFlatAllCards["Unquenchable Fury"]
+		let norm_card = cards.find((card) => card["text"].startsWith("Enchant creature"))
+		let alt__card = cards.find((card) => card["text"].startsWith("Each Minotaur"))
+		alt__card["name"] = "Horde's Unquenchable Fury"
+		notFlatAllCards["Unquenchable Fury"]         = [norm_card]
+		notFlatAllCards["Horde's Unquenchable Fury"] = [alt__card]
+	}
+
+	{
+		if (verbose) { console.log(`-- Patching: Fast // Furious`); }
+		const cards = notFlatAllCards["Fast // Furious"]
+		delete notFlatAllCards["Fast // Furious"]
+		let norm_card_a = cards.find((card) => (card["faceName"] == "Fast"    && card["text"].startsWith("Discard a card")))
+		let norm_card_b = cards.find((card) => (card["faceName"] == "Furious" && card["text"].startsWith("Furious deals")))
+		let alt__card_a = cards.find((card) => (card["faceName"] == "Fast"    && card["text"].startsWith("Target creature")))
+		let alt__card_b = cards.find((card) => (card["faceName"] == "Furious" && card["text"].startsWith("Target creature")))
+		alt__card_a["name"] = "Fasto // Furiouso"
+		alt__card_b["name"] = "Fasto // Furiouso"
+		alt__card_a["faceName"] = "Fasto"
+		alt__card_b["faceName"] = "Furiouso"
+		notFlatAllCards["Fast // Furious"]   = [norm_card_a, norm_card_b]
+		notFlatAllCards["Fasto // Furiouso"] = [alt__card_a, alt__card_b]
+	}
+
+	// Add in dungeons manually
+	{
+		for (let i in additionalCards) {
+			if (verbose) { console.log(`-- Patching in additional card: ${additionalCards[i].name}`) }
+			notFlatAllCards[additionalCards[i].name] = [additionalCards[i]];
 		}
+	}
 
-		{
-			if (verbose) { console.log(`-- Patching: Pick Your Poison`); }
-			const cards = notFlatAllCards["Pick Your Poison"]
-			delete notFlatAllCards["Pick Your Poison"]
-			let norm_card = cards.find((card) => card["text"].startsWith("Choose one"))
-			let alt__card = cards.find((card) => card["text"].startsWith("Choose any"))
-			alt__card["name"] = "Pick Your Sketchy Poison"
-			notFlatAllCards["Pick Your Poison"]         = [norm_card]
-			notFlatAllCards["Pick Your Sketchy Poison"] = [alt__card]
-		}
-
-		{
-			if (verbose) { console.log(`-- Patching: Unquenchable Fury`); }
-			const cards = notFlatAllCards["Unquenchable Fury"]
-			delete notFlatAllCards["Unquenchable Fury"]
-			let norm_card = cards.find((card) => card["text"].startsWith("Enchant creature"))
-			let alt__card = cards.find((card) => card["text"].startsWith("Each Minotaur"))
-			alt__card["name"] = "Horde's Unquenchable Fury"
-			notFlatAllCards["Unquenchable Fury"]         = [norm_card]
-			notFlatAllCards["Horde's Unquenchable Fury"] = [alt__card]
-		}
-
-		{
-			if (verbose) { console.log(`-- Patching: Fast // Furious`); }
-			const cards = notFlatAllCards["Fast // Furious"]
-			delete notFlatAllCards["Fast // Furious"]
-			let norm_card_a = cards.find((card) => (card["faceName"] == "Fast"    && card["text"].startsWith("Discard a card")))
-			let norm_card_b = cards.find((card) => (card["faceName"] == "Furious" && card["text"].startsWith("Furious deals")))
-			let alt__card_a = cards.find((card) => (card["faceName"] == "Fast"    && card["text"].startsWith("Target creature")))
-			let alt__card_b = cards.find((card) => (card["faceName"] == "Furious" && card["text"].startsWith("Target creature")))
-			alt__card_a["name"] = "Fasto // Furiouso"
-			alt__card_b["name"] = "Fasto // Furiouso"
-			alt__card_a["faceName"] = "Fasto"
-			alt__card_b["faceName"] = "Furiouso"
-			notFlatAllCards["Fast // Furious"]   = [norm_card_a, norm_card_b]
-			notFlatAllCards["Fasto // Furiouso"] = [alt__card_a, alt__card_b]
-		}
-
-		// Add in dungeons manually
-		{
-			for (let i in additionalCards) {
-				if (verbose) { console.log(`-- Patching in additional card: ${additionalCards[i].name}`) }
-				notFlatAllCards[additionalCards[i].name] = [additionalCards[i]];
-			}
-		}
-
-		// Fix dungeons to have a first printing
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].type === "Dungeon") {
-					if (verbose) { console.log(`-- Patching dungeon ${i} - First printing, Legalities, manaValue`) }
-					notFlatAllCards[i][0].layout = "dungeon"
-					notFlatAllCards[i][0].manaValue = 0
-					notFlatAllCards[i][0].printings = ["AFR"]
-					notFlatAllCards[i][0].legalities = { "commander": "Legal" }
-				}
-			}
-		}
-
-		// Remove reversible cards
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].layout === "reversible_card") {
-					if (verbose) { console.log(`-- Removing (Layout = reversible_card): ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Remove Vanguards
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].layout === "vanguard") {
-					if (verbose) { console.log(`-- Removing (Layout = vanguard): ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Remove Planar
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].layout === "planar") {
-					if (verbose) { console.log(`-- Removing (Layout = planar): ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Remove sticker sheets
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].type === "Stickers") {
-					if (verbose) { console.log(`-- Removing (Type = Stickers): ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Remove Conspiracies
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].type === "Conspiracy") {
-					if (verbose) { console.log(`-- Removing (Type = Conspiracy): ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Remove Schemes
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].type === "Scheme" ||
-				    notFlatAllCards[i][0].type === "Ongoing Scheme") {
-					if (verbose) { console.log(`-- Removing (Type = Scheme): ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Remove Planes
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].type.startsWith("Plane ")) {
-					if (verbose) { console.log(`-- Removing (Type = Plane): ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Remove Arena only cards (by name)
-		{
-			for (let i in notFlatAllCards) {
-				if (i.startsWith("A-")) {
-					if (verbose) { console.log(`-- Removing Arena-only card (by-name): ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Remove Arena only cards (by legality)
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].legalities.historic &&
-				   !notFlatAllCards[i][0].legalities.vintage) {
-					if (verbose) { console.log(`-- Removing Arena-only card (by-legality): ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Remove Arena only cards (by set)
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].firstPrinting === "HBG") {
-					if (verbose) { console.log(`-- Removing Arena-only card (by-set): ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Remove Unknown Event cards
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].firstPrinting === "UNK") {
-					if (verbose) { console.log(`-- Removing Unknown Event card: ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Remove Mystery Booster cards
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].firstPrinting === "MB2" ||
-				    notFlatAllCards[i][0].firstPrinting === "CMB2" ||
-				    notFlatAllCards[i][0].firstPrinting === "CMB1") {
-					if (verbose) { console.log(`-- Removing Mystery Booster card: ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Remove Un-set cards
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].firstPrinting === "UGL" ||
-				    notFlatAllCards[i][0].firstPrinting === "UNH" ||
-				    notFlatAllCards[i][0].firstPrinting === "UST" ||
-				    notFlatAllCards[i][0].firstPrinting === "UND" ||
-				    (notFlatAllCards[i][0].firstPrinting === "UNF" &&
-				     Object.keys(notFlatAllCards[i][0].legalities).length === 0)) {
-					if (verbose) { console.log(`-- Removing Un-set card: ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Remove Secret Lair Drop cards
-		{
-			for (let i in notFlatAllCards) {
-				if ((notFlatAllCards[i][0].firstPrinting === "SLD" &&
-				     Object.keys(notFlatAllCards[i][0].legalities).length === 0)) {
-					if (verbose) { console.log(`-- Removing Secret Lair Drop card: ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Removing Miscellaneous Silly cards
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].firstPrinting === "PSSC" ||
-				    notFlatAllCards[i][0].firstPrinting === "PCEL" ||
-				    notFlatAllCards[i][0].firstPrinting === "PSDG" ||
-				    notFlatAllCards[i][0].firstPrinting === "PAST" ||
-				    notFlatAllCards[i][0].firstPrinting === "PTG" ||
-				    notFlatAllCards[i][0].firstPrinting === "HHO") {
-					if (verbose) { console.log(`-- Removing Misc-Silly card: ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Removing Hero's Path cards
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].firstPrinting === "TBTH" ||
-				    notFlatAllCards[i][0].firstPrinting === "THP1" ||
-				    notFlatAllCards[i][0].firstPrinting === "THP2" ||
-				    notFlatAllCards[i][0].firstPrinting === "THP3") {
-					if (verbose) { console.log(`-- Removing Hero's Path card: ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Removing Heroes of the Realm cards
-		{
-			for (let i in notFlatAllCards) {
-				if (notFlatAllCards[i][0].firstPrinting === "PH22" ||
-				    notFlatAllCards[i][0].firstPrinting === "PH21" ||
-				    notFlatAllCards[i][0].firstPrinting === "PH20" ||
-				    notFlatAllCards[i][0].firstPrinting === "PH19" ||
-				    notFlatAllCards[i][0].firstPrinting === "PH18" ||
-				    notFlatAllCards[i][0].firstPrinting === "PH17" ||
-				    notFlatAllCards[i][0].firstPrinting === "PHTR") {
-					if (verbose) { console.log(`-- Removing Heroes of the Realm card: ${i}`) }
-					delete notFlatAllCards[i];
-				}
-			}
-		}
-
-		// Remove remaining cards with no legalities
-		{
-			for (let i in notFlatAllCards) {
-				if (Object.keys(notFlatAllCards[i][0].legalities).length === 0) {
-					if (verbose) { console.log(`-- Removing card with empty legalities (probably unreleased): ${i}`); }
-					delete notFlatAllCards[i];
-					continue;
-				}
-			}
-		}
-
-		//Flatten subarrays from multipart cards and change both names and object keys to be individual.
-		const allCards = {};
+	// Fix dungeons to have a first printing
+	{
 		for (let i in notFlatAllCards) {
-			if (notFlatAllCards[i].length === 1) {
-				allCards[notFlatAllCards[i][0].name] = notFlatAllCards[i][0];
+			if (notFlatAllCards[i][0].type === "Dungeon") {
+				if (verbose) { console.log(`-- Patching dungeon ${i} - First printing, Legalities, manaValue`) }
+				notFlatAllCards[i][0].layout = "dungeon"
+				notFlatAllCards[i][0].manaValue = 0
+				notFlatAllCards[i][0].printings = ["AFR"]
+				notFlatAllCards[i][0].legalities = { "commander": "Legal" }
+			}
+		}
+	}
+
+	// Remove reversible cards
+	{
+		for (let i in notFlatAllCards) {
+			if (notFlatAllCards[i][0].layout === "reversible_card") {
+				if (verbose) { console.log(`-- Removing (Layout = reversible_card): ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Remove Vanguards
+	{
+		for (let i in notFlatAllCards) {
+			if (notFlatAllCards[i][0].layout === "vanguard") {
+				if (verbose) { console.log(`-- Removing (Layout = vanguard): ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Remove Planar
+	{
+		for (let i in notFlatAllCards) {
+			if (notFlatAllCards[i][0].layout === "planar") {
+				if (verbose) { console.log(`-- Removing (Layout = planar): ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Remove sticker sheets
+	{
+		for (let i in notFlatAllCards) {
+			if (notFlatAllCards[i][0].type === "Stickers") {
+				if (verbose) { console.log(`-- Removing (Type = Stickers): ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Remove Conspiracies
+	{
+		for (let i in notFlatAllCards) {
+			if (notFlatAllCards[i][0].type === "Conspiracy") {
+				if (verbose) { console.log(`-- Removing (Type = Conspiracy): ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Remove Schemes
+	{
+		for (let i in notFlatAllCards) {
+			if (notFlatAllCards[i][0].type === "Scheme" ||
+				notFlatAllCards[i][0].type === "Ongoing Scheme") {
+				if (verbose) { console.log(`-- Removing (Type = Scheme): ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Remove Planes
+	{
+		for (let i in notFlatAllCards) {
+			if (notFlatAllCards[i][0].type.startsWith("Plane ")) {
+				if (verbose) { console.log(`-- Removing (Type = Plane): ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Remove Arena only cards (by name)
+	{
+		for (let i in notFlatAllCards) {
+			if (i.startsWith("A-")) {
+				if (verbose) { console.log(`-- Removing Arena-only card (by-name): ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Remove Arena only cards (by legality)
+	{
+		for (let i in notFlatAllCards) {
+			if (notFlatAllCards[i][0].legalities.historic &&
+				!notFlatAllCards[i][0].legalities.vintage) {
+				if (verbose) { console.log(`-- Removing Arena-only card (by-legality): ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Remove Arena only cards (by set)
+	{
+		for (let i in notFlatAllCards) {
+			if (notFlatAllCards[i][0].firstPrinting === "HBG") {
+				if (verbose) { console.log(`-- Removing Arena-only card (by-set): ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Remove Unknown Event cards
+	{
+		for (let i in notFlatAllCards) {
+			if (notFlatAllCards[i][0].firstPrinting === "UNK") {
+				if (verbose) { console.log(`-- Removing Unknown Event card: ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Remove Mystery Booster cards
+	{
+		for (let i in notFlatAllCards) {
+			if (notFlatAllCards[i][0].firstPrinting === "MB2" ||
+				notFlatAllCards[i][0].firstPrinting === "CMB2" ||
+				notFlatAllCards[i][0].firstPrinting === "CMB1") {
+				if (verbose) { console.log(`-- Removing Mystery Booster card: ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Remove Un-set cards
+	{
+		for (let i in notFlatAllCards) {
+			if (notFlatAllCards[i][0].firstPrinting === "UGL" ||
+				notFlatAllCards[i][0].firstPrinting === "UNH" ||
+				notFlatAllCards[i][0].firstPrinting === "UST" ||
+				notFlatAllCards[i][0].firstPrinting === "UND" ||
+				(notFlatAllCards[i][0].firstPrinting === "UNF" &&
+					Object.keys(notFlatAllCards[i][0].legalities).length === 0)) {
+				if (verbose) { console.log(`-- Removing Un-set card: ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Remove Secret Lair Drop cards
+	{
+		for (let i in notFlatAllCards) {
+			if ((notFlatAllCards[i][0].firstPrinting === "SLD" &&
+					Object.keys(notFlatAllCards[i][0].legalities).length === 0)) {
+				if (verbose) { console.log(`-- Removing Secret Lair Drop card: ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Removing Miscellaneous Silly cards
+	{
+		for (let i in notFlatAllCards) {
+			if (notFlatAllCards[i][0].firstPrinting === "PSSC" ||
+				notFlatAllCards[i][0].firstPrinting === "PCEL" ||
+				notFlatAllCards[i][0].firstPrinting === "PSDG" ||
+				notFlatAllCards[i][0].firstPrinting === "PAST" ||
+				notFlatAllCards[i][0].firstPrinting === "PTG" ||
+				notFlatAllCards[i][0].firstPrinting === "HHO") {
+				if (verbose) { console.log(`-- Removing Misc-Silly card: ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Removing Hero's Path cards
+	{
+		for (let i in notFlatAllCards) {
+			if (notFlatAllCards[i][0].firstPrinting === "TBTH" ||
+				notFlatAllCards[i][0].firstPrinting === "THP1" ||
+				notFlatAllCards[i][0].firstPrinting === "THP2" ||
+				notFlatAllCards[i][0].firstPrinting === "THP3") {
+				if (verbose) { console.log(`-- Removing Hero's Path card: ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Removing Heroes of the Realm cards
+	{
+		for (let i in notFlatAllCards) {
+			if (notFlatAllCards[i][0].firstPrinting === "PH22" ||
+				notFlatAllCards[i][0].firstPrinting === "PH21" ||
+				notFlatAllCards[i][0].firstPrinting === "PH20" ||
+				notFlatAllCards[i][0].firstPrinting === "PH19" ||
+				notFlatAllCards[i][0].firstPrinting === "PH18" ||
+				notFlatAllCards[i][0].firstPrinting === "PH17" ||
+				notFlatAllCards[i][0].firstPrinting === "PHTR") {
+				if (verbose) { console.log(`-- Removing Heroes of the Realm card: ${i}`) }
+				delete notFlatAllCards[i];
+			}
+		}
+	}
+
+	// Remove remaining cards with no legalities
+	{
+		for (let i in notFlatAllCards) {
+			if (Object.keys(notFlatAllCards[i][0].legalities).length === 0) {
+				if (verbose) { console.log(`-- Removing card with empty legalities (probably unreleased): ${i}`); }
+				delete notFlatAllCards[i];
+				continue;
+			}
+		}
+	}
+
+	//Flatten subarrays from multipart cards and change both names and object keys to be individual.
+	const allCards = {};
+	for (let i in notFlatAllCards) {
+		if (notFlatAllCards[i].length === 1) {
+			allCards[notFlatAllCards[i][0].name] = notFlatAllCards[i][0];
+		} else {
+			let names = [];
+			for (let j in notFlatAllCards[i]) {
+				names.push(notFlatAllCards[i][j].faceName || notFlatAllCards[i][j].name);
+			}
+			for (let j in notFlatAllCards[i]) {
+				notFlatAllCards[i][j].name = notFlatAllCards[i][j].faceName || notFlatAllCards[i][j].name;
+				notFlatAllCards[i][j].names = names;
+				allCards[notFlatAllCards[i][j].faceName] = notFlatAllCards[i][j];
+			}
+		}
+	}
+
+	//Add in missing values.
+	let missingArrays = ["colors", "colorIdentity", "types", "subtypes", "supertypes", "keywords", "playability", "colorIndicator"];
+	let missingStrings = ["power", "toughness", "loyalty", "defense", "manaCost", "text"];
+	for (let i in allCards) {
+		missingArrays.forEach(function(element) {
+			if (!allCards[i].hasOwnProperty(element)) {
+				allCards[i][element] = [];
+			}
+		})
+		missingStrings.forEach(function(element) {
+			if (!allCards[i].hasOwnProperty(element)) {
+				allCards[i][element] = "";
+			}
+		})
+		if (!allCards[i].hasOwnProperty("layout")) {
+			allCards[i].layout = "normal"
+		}
+		if (!allCards[i].hasOwnProperty("legalities")) {
+			allCards[i].legalities = {};
+		}
+	}
+
+	//Remove cards that rulesguru doesn't allow.
+	const disallowedCards = ["Chaos Orb", "Falling Star", "Goblin Game"];
+	for (let i in allCards) {
+		if (disallowedCards.includes(allCards[i].name)) {
+			delete allCards[i];
+		}
+	}
+
+	//Change colors from letters to color names.
+	for (let i in allCards) {
+		for (let j in allCards[i].colors) {
+			allCards[i].colors[j] = colorMappings[allCards[i].colors[j]];
+		}
+		for (let j in allCards[i].colorIdentity) {
+			allCards[i].colorIdentity[j] = colorMappings[allCards[i].colorIdentity[j]];
+		}
+		for (let j in allCards[i].colorIndicator) {
+			allCards[i].colorIndicator[j] = colorMappings[allCards[i].colorIndicator[j]];
+		}
+	}
+
+	//Remove redundant layouts and fix incorrect layouts. Left over afterwards: "normal", "split (half)", "split (full)", "flip", "transforming double-faced", "modal double-faced" "meld", "adventurer", "prototype", "other".
+	for (let i in allCards) {
+		if (["leveler", "saga", "class"].includes(allCards[i].layout)) {
+			allCards[i].layout = "normal";
+		}
+		if (["phenomenon", "plane", "scheme", "vanguard", "dungeon"].includes(allCards[i].layout)) {
+			allCards[i].layout = "other";
+		}
+		if (allCards[i].layout === "aftermath") {
+			allCards[i].layout = "split";
+		}
+		if (allCards[i].layout === "transform") {
+			allCards[i].layout = "transforming double-faced";
+		}
+		if (allCards[i].layout === "modal_dfc") {
+			allCards[i].layout = "modal double-faced";
+		}
+		if (allCards[i].layout === "adventure") {
+			allCards[i].layout = "adventurer";
+		}
+	}
+
+	//Fix split card mana value.
+	for (let i in allCards) {
+		if (allCards[i].layout === "split") {
+			allCards[i].manaValue = allCards[i].faceManaValue;
+		}
+	}
+
+	//Fix flip card mana cost.
+	for (let i in allCards) {
+		if (allCards[i].layout === "flip" && allCards[i].side === "b") {
+			allCards[i].manaCost = allCards[allCards[i].names[0]].manaCost;
+		}
+	}
+
+	//Fix adventurer card mana value.
+	for (let i in allCards) {
+		if (allCards[i].layout === "adventurer" && allCards[i].side === "b") {
+			allCards[i].manaValue = allCards[i].faceManaValue;
+		}
+	}
+
+	//Fix mdfc mana value.
+	for (let i in allCards) {
+		if (allCards[i].layout === "modal double-faced" && allCards[i].side === "b") {
+			allCards[i].manaValue = getCharacteristicsFromManaCost(allCards[i].manaCost).manaValue;
+		}
+	}
+
+	//Create combined split card entries with layout "split (full)".
+	let propsToCombine = ["colorIdentity", "colors", "types"],
+			combinedCards = {};
+	for (let i in allCards) {
+		if ((allCards[i].layout === "split" || allCards[i].layout === "aftermath") && allCards[i].side === "a") {
+			let aName = allCards[i].name;
+			// bName is the element of names that aName isn't
+			let bName = allCards[i].names[0];
+			if(bName === aName){
+				bName = allCards[i].names[1];
+			}
+			let combinedProps = {};
+			combinedProps.name = aName + " // " + bName;
+			combinedProps.type = allCards[aName].type + " // " + allCards[bName].type;
+			combinedProps.manaCost = allCards[aName].manaCost + " // " + allCards[bName].manaCost;
+			combinedProps.manaValue = allCards[aName].manaValue + allCards[bName].manaValue;
+			combinedProps.text = allCards[aName].text + "\n//\n" + allCards[bName].text;
+			for (let j in propsToCombine) {
+				combinedProps[propsToCombine[j]] = allCards[aName][propsToCombine[j]].concat(allCards[bName][propsToCombine[j]]);
+				combinedProps[propsToCombine[j]] = Array.from(new Set(combinedProps[propsToCombine[j]]));
+			}
+			let currentCard = JSON.parse(JSON.stringify(allCards[i]));
+			currentCard.name = combinedProps.name;
+			for (let j in combinedProps) {
+				currentCard[j] = combinedProps[j];
+			}
+			currentCard.layout = "split (full)";
+			delete currentCard.side;
+			combinedCards[currentCard.name] = currentCard;
+		}
+	}
+	Object.assign(allCards, combinedCards);
+	for (let i in allCards) {
+		if (allCards[i].layout === "split") {
+			allCards[i].layout = "split (half)";
+		}
+	}
+
+	//Fix meld cards
+	const backFaces = [];
+	const frontFaces = [];
+	for (let i in allCards) {
+		if (allCards[i].layout === "meld") {
+			if (allCards[i].name.includes("//")) {
+				frontFaces.push(allCards[i].name);
 			} else {
-				let names = [];
-				for (let j in notFlatAllCards[i]) {
-					names.push(notFlatAllCards[i][j].faceName || notFlatAllCards[i][j].name);
-				}
-				for (let j in notFlatAllCards[i]) {
-					notFlatAllCards[i][j].name = notFlatAllCards[i][j].faceName || notFlatAllCards[i][j].name;
-					notFlatAllCards[i][j].names = names;
-					allCards[notFlatAllCards[i][j].faceName] = notFlatAllCards[i][j];
-				}
+				backFaces.push(allCards[i].name)
 			}
 		}
-
-		//Add in missing values.
-		let missingArrays = ["colors", "colorIdentity", "types", "subtypes", "supertypes", "keywords", "playability", "colorIndicator"];
-		let missingStrings = ["power", "toughness", "loyalty", "defense", "manaCost", "text"];
-		for (let i in allCards) {
-			missingArrays.forEach(function(element) {
-				if (!allCards[i].hasOwnProperty(element)) {
-					allCards[i][element] = [];
-				}
-			})
-			missingStrings.forEach(function(element) {
-				if (!allCards[i].hasOwnProperty(element)) {
-					allCards[i][element] = "";
-				}
-			})
-			if (!allCards[i].hasOwnProperty("layout")) {
-				allCards[i].layout = "normal"
-			}
-			if (!allCards[i].hasOwnProperty("legalities")) {
-				allCards[i].legalities = {};
+	}
+	const fullNameArrays = [];
+	for (let backFace of backFaces) {
+		const nameArray = [];
+		for (let frontFace of frontFaces) {
+			if (frontFace.includes(backFace)) {
+				const frontFaceName = frontFace.slice(0, frontFace.indexOf(" //"));
+				nameArray.push(frontFaceName);
 			}
 		}
-
-		//Remove cards that rulesguru doesn't allow.
-		const disallowedCards = ["Chaos Orb", "Falling Star", "Goblin Game"];
-		for (let i in allCards) {
-			if (disallowedCards.includes(allCards[i].name)) {
+		nameArray.push(backFace);
+		fullNameArrays.push(nameArray);
+	}
+	for (let i in allCards) {
+		if (allCards[i].layout === "meld") {
+			allCards[i].name = allCards[i].faceName;
+			allCards[i].names = fullNameArrays.filter(array => array.includes(allCards[i].name))[0];
+			if (i.includes("//")) {
+				allCards[allCards[i].name] = allCards[i];
 				delete allCards[i];
 			}
 		}
+	}
 
-		//Change colors from letters to color names.
-		for (let i in allCards) {
-			for (let j in allCards[i].colors) {
-				allCards[i].colors[j] = colorMappings[allCards[i].colors[j]];
-			}
-			for (let j in allCards[i].colorIdentity) {
-				allCards[i].colorIdentity[j] = colorMappings[allCards[i].colorIdentity[j]];
-			}
-			for (let j in allCards[i].colorIndicator) {
-				allCards[i].colorIndicator[j] = colorMappings[allCards[i].colorIndicator[j]];
-			}
-		}
+	//Add layout = prototype, and create a second card object for each one.
+	for (let i in allCards) {
+		if (allCards[i].layout === "prototype") {
+			allCards[i].side = "a";
 
-		//Remove redundant layouts and fix incorrect layouts. Left over afterwards: "normal", "split (half)", "split (full)", "flip", "transforming double-faced", "modal double-faced" "meld", "adventurer", "prototype", "other".
-		for (let i in allCards) {
-			if (["leveler", "saga", "class"].includes(allCards[i].layout)) {
-				allCards[i].layout = "normal";
-			}
-			if (["phenomenon", "plane", "scheme", "vanguard", "dungeon"].includes(allCards[i].layout)) {
-				allCards[i].layout = "other";
-			}
-			if (allCards[i].layout === "aftermath") {
-				allCards[i].layout = "split";
-			}
-			if (allCards[i].layout === "transform") {
-				allCards[i].layout = "transforming double-faced";
-			}
-			if (allCards[i].layout === "modal_dfc") {
-				allCards[i].layout = "modal double-faced";
-			}
-			if (allCards[i].layout === "adventure") {
-				allCards[i].layout = "adventurer";
-			}
+			const copy = Object.assign({}, allCards[i]);
+			copy.side = "b";
+			copy.manaCost = copy.text.match(/Prototype (.+) — \d+\/\d+/)[1];
+			copy.power = copy.text.match(/Prototype .* — (\d+)\/\d+/)[1];
+			copy.toughness = copy.text.match(/Prototype .* — \d+\/(\d+)/)[1];
+			copy.colors = getCharacteristicsFromManaCost(copy.manaCost).colors;
+			copy.manaValue = getCharacteristicsFromManaCost(copy.manaCost).manaValue;
+			copy.name = copy.name + " (prototyped)";
+			allCards[copy.name] = copy;
 		}
+	}
 
-		//Fix split card mana value.
-		for (let i in allCards) {
-			if (allCards[i].layout === "split") {
-				allCards[i].manaValue = allCards[i].faceManaValue;
-			}
-		}
+	//Change "printings" to "printingsCode" and add "printingsName".
+	const allSets = JSON.parse(fs.readFileSync("data_files/allSets.json", "utf8"));
+	for (let i in allCards) {
+		allCards[i].printingsCode = allCards[i].printings;
+		delete allCards[i].printings;
 
-		//Fix flip card mana cost.
-		for (let i in allCards) {
-			if (allCards[i].layout === "flip" && allCards[i].side === "b") {
-				allCards[i].manaCost = allCards[allCards[i].names[0]].manaCost;
-			}
-		}
-
-		//Fix adventurer card mana value.
-		for (let i in allCards) {
-			if (allCards[i].layout === "adventurer" && allCards[i].side === "b") {
-				allCards[i].manaValue = allCards[i].faceManaValue;
-			}
-		}
-
-		//Fix mdfc mana value.
-		for (let i in allCards) {
-			if (allCards[i].layout === "modal double-faced" && allCards[i].side === "b") {
-				allCards[i].manaValue = getCharacteristicsFromManaCost(allCards[i].manaCost).manaValue;
-			}
-		}
-
-		//Create combined split card entries with layout "split (full)".
-		let propsToCombine = ["colorIdentity", "colors", "types"],
-			 combinedCards = {};
-		for (let i in allCards) {
-			if ((allCards[i].layout === "split" || allCards[i].layout === "aftermath") && allCards[i].side === "a") {
-			    let aName = allCards[i].name;
-			    // bName is the element of names that aName isn't
-			    let bName = allCards[i].names[0];
-			    if(bName === aName){
-			        bName = allCards[i].names[1];
-			    }
-				let combinedProps = {};
-				combinedProps.name = aName + " // " + bName;
-				combinedProps.type = allCards[aName].type + " // " + allCards[bName].type;
-				combinedProps.manaCost = allCards[aName].manaCost + " // " + allCards[bName].manaCost;
-				combinedProps.manaValue = allCards[aName].manaValue + allCards[bName].manaValue;
-				combinedProps.text = allCards[aName].text + "\n//\n" + allCards[bName].text;
-				for (let j in propsToCombine) {
-					combinedProps[propsToCombine[j]] = allCards[aName][propsToCombine[j]].concat(allCards[bName][propsToCombine[j]]);
-					combinedProps[propsToCombine[j]] = Array.from(new Set(combinedProps[propsToCombine[j]]));
-				}
-				let currentCard = JSON.parse(JSON.stringify(allCards[i]));
-				currentCard.name = combinedProps.name;
-				for (let j in combinedProps) {
-					currentCard[j] = combinedProps[j];
-				}
-				currentCard.layout = "split (full)";
-				delete currentCard.side;
-				combinedCards[currentCard.name] = currentCard;
-			}
-		}
-		Object.assign(allCards, combinedCards);
-		for (let i in allCards) {
-			if (allCards[i].layout === "split") {
-				allCards[i].layout = "split (half)";
-			}
-		}
-
-		//Fix meld cards
-		const backFaces = [];
-		const frontFaces = [];
-		for (let i in allCards) {
-			if (allCards[i].layout === "meld") {
-				if (allCards[i].name.includes("//")) {
-					frontFaces.push(allCards[i].name);
-				} else {
-					backFaces.push(allCards[i].name)
-				}
-			}
-		}
-		const fullNameArrays = [];
-		for (let backFace of backFaces) {
-			const nameArray = [];
-			for (let frontFace of frontFaces) {
-				if (frontFace.includes(backFace)) {
-					const frontFaceName = frontFace.slice(0, frontFace.indexOf(" //"));
-					nameArray.push(frontFaceName);
-				}
-			}
-			nameArray.push(backFace);
-			fullNameArrays.push(nameArray);
-		}
-		for (let i in allCards) {
-			if (allCards[i].layout === "meld") {
-				allCards[i].name = allCards[i].faceName;
-				allCards[i].names = fullNameArrays.filter(array => array.includes(allCards[i].name))[0];
-				if (i.includes("//")) {
-					allCards[allCards[i].name] = allCards[i];
-					delete allCards[i];
-				}
-			}
-		}
-
-		//Add layout = prototype, and create a second card object for each one.
-		for (let i in allCards) {
-			if (allCards[i].layout === "prototype") {
-				allCards[i].side = "a";
-
-				const copy = Object.assign({}, allCards[i]);
-				copy.side = "b";
-				copy.manaCost = copy.text.match(/Prototype (.+) — \d+\/\d+/)[1];
-				copy.power = copy.text.match(/Prototype .* — (\d+)\/\d+/)[1];
-				copy.toughness = copy.text.match(/Prototype .* — \d+\/(\d+)/)[1];
-				copy.colors = getCharacteristicsFromManaCost(copy.manaCost).colors;
-				copy.manaValue = getCharacteristicsFromManaCost(copy.manaCost).manaValue;
-				copy.name = copy.name + " (prototyped)";
-				allCards[copy.name] = copy;
-			}
-		}
-
-		//Change "printings" to "printingsCode" and add "printingsName".
-		const allSets = JSON.parse(fs.readFileSync("data_files/allSets.json", "utf8"));
-		for (let i in allCards) {
-			allCards[i].printingsCode = allCards[i].printings;
-			delete allCards[i].printings;
-
-			if (!allCards[i].printingsCode) {
-				handleError(new Error("Map problem: " + allCards[i]));
-			} else {
-				allCards[i].printingsName = allCards[i].printingsCode.map(function(value) {
-					for (let j in allSets) {
-						if (allSets[j].code === value) {
-							return allSets[j].name;
-						}
+		if (!allCards[i].printingsCode) {
+			throw new Error("Map problem: " + allCards[i]);
+		} else {
+			allCards[i].printingsName = allCards[i].printingsCode.map(function(value) {
+				for (let j in allSets) {
+					if (allSets[j].code === value) {
+						return allSets[j].name;
 					}
-				});
-			}
-		}
-
-		//Add a rulesText field without reminder text or ability words or flavor words.
-		const allKeywords = JSON.parse(fs.readFileSync("data_files/allKeywords.json", "utf8"));
-		const abilityWordRegex = new RegExp("(" + allKeywords.abilityWords.join("|") + ") — ", "g");
-		const flavorWordRegex = new RegExp("(" + allKeywords.flavorWords.join("|") + ") — ", "g");
-		for (let i in allCards) {
-			allCards[i].rulesText = allCards[i].text.replace(/ ?\(.+?\)/g, function(match) {
-				return "";
-			});
-			allCards[i].rulesText = allCards[i].rulesText.replace(/^\n/g, function(match) {
-				return "";
-			});
-			allCards[i].rulesText = allCards[i].rulesText.replace(abilityWordRegex, function(match) {
-				return "";
-			});
-			allCards[i].rulesText = allCards[i].rulesText.replace(flavorWordRegex, function(match) {
-				return "";
-			});
-		}
-
-		//Fix subtype CDAs. (MTGJSON gets all the color CDAs and color indicators correct.)
-		const allRules = JSON.parse(fs.readFileSync("data_files/allRules.json"));
-		const allCreatureTypes = getSubtypesFromRuleText(allRules["205.3m"].ruleText);
-		const subtypeRules = ["205.3g", "205.3h", "205.3i", "205.3j", "205.3k", "205.3m", "205.3q"];
-		const allSubtypes = subtypeRules.map(ruleNum => getSubtypesFromRuleText(allRules[ruleNum].ruleText)).flat(1);
-		for (let i in allCards) {
-			if (allCards[i].rulesText.startsWith(`${allCards[i].name} is every creature type.`) || allCards[i].keywords.includes("Changeling")) {
-				allCards[i].subtypes = Array.from(new Set (allCards[i].subtypes.concat(allCreatureTypes))); //We need to not overwrite noncreature subtypes.
-			}
-			if (allCards[i].rulesText.startsWith(`${allCards[i].name} is also a Cleric, Rogue, Warrior, and Wizard.`)) {
-				allCards[i].subtypes = Array.from(new Set (allCards[i].subtypes.concat(["Cleric", "Rogue", "Warrior", "Wizard"]))); //We need to not overwrite their printed creature subtypes.
-			}
-		}
-
-		//Standardize legalities to use the same format names RG uses internally.
-		const formats = JSON.parse(fs.readFileSync(path.join(rootDir, "formats.json"), "utf8"));
-		for (let name in allCards) {
-			const card = allCards[name];
-
-			for (let format in formats) {
-				const formatData = formats[format];
-				if (formatData.rgName !== formatData.mtgjsonName) {
-					card.legalities[formatData.rgName] = formatData.mtgjsonName;
-					delete card.legalities[formatData.mtgjsonName];
 				}
-			}
+			});
 		}
+	}
 
-		//Add in playability field.
-		const mostPlayedCards = {};
+	//Add a rulesText field without reminder text or ability words or flavor words.
+	const allKeywords = JSON.parse(fs.readFileSync("data_files/allKeywords.json", "utf8"));
+	const abilityWordRegex = new RegExp("(" + allKeywords.abilityWords.join("|") + ") — ", "g");
+	const flavorWordRegex = new RegExp("(" + allKeywords.flavorWords.join("|") + ") — ", "g");
+	for (let i in allCards) {
+		allCards[i].rulesText = allCards[i].text.replace(/ ?\(.+?\)/g, function(match) {
+			return "";
+		});
+		allCards[i].rulesText = allCards[i].rulesText.replace(/^\n/g, function(match) {
+			return "";
+		});
+		allCards[i].rulesText = allCards[i].rulesText.replace(abilityWordRegex, function(match) {
+			return "";
+		});
+		allCards[i].rulesText = allCards[i].rulesText.replace(flavorWordRegex, function(match) {
+			return "";
+		});
+	}
+
+	//Fix subtype CDAs. (MTGJSON gets all the color CDAs and color indicators correct.)
+	const allRules = JSON.parse(fs.readFileSync("data_files/allRules.json"));
+	const allCreatureTypes = getSubtypesFromRuleText(allRules["205.3m"].ruleText);
+	const subtypeRules = ["205.3g", "205.3h", "205.3i", "205.3j", "205.3k", "205.3m", "205.3q"];
+	const allSubtypes = subtypeRules.map(ruleNum => getSubtypesFromRuleText(allRules[ruleNum].ruleText)).flat(1);
+	for (let i in allCards) {
+		if (allCards[i].rulesText.startsWith(`${allCards[i].name} is every creature type.`) || allCards[i].keywords.includes("Changeling")) {
+			allCards[i].subtypes = Array.from(new Set (allCards[i].subtypes.concat(allCreatureTypes))); //We need to not overwrite noncreature subtypes.
+		}
+		if (allCards[i].rulesText.startsWith(`${allCards[i].name} is also a Cleric, Rogue, Warrior, and Wizard.`)) {
+			allCards[i].subtypes = Array.from(new Set (allCards[i].subtypes.concat(["Cleric", "Rogue", "Warrior", "Wizard"]))); //We need to not overwrite their printed creature subtypes.
+		}
+	}
+
+	//Standardize legalities to use the same format names RG uses internally.
+	const formats = JSON.parse(fs.readFileSync(path.join(rootDir, "formats.json"), "utf8"));
+	for (let name in allCards) {
+		const card = allCards[name];
+
 		for (let format in formats) {
-			const fileText = fs.readFileSync(path.join(rootDir, `data_files/mostPlayed-${format}.json`), "utf8");
-			mostPlayedCards[format] = JSON.parse(fileText);
-		}
-
-		for (let format in mostPlayedCards) {
-			mostPlayedCards[format] = mostPlayedCards[format].filter(function(card) {
-				//This is 0.2% in the files, parseFloat doesn't care about the % sign.
-				return parseFloat(card.metagame_relevance) >= 0.2;
-			});
-		}
-
-		for (let format in mostPlayedCards) {
-			for (let j in mostPlayedCards[format]) {
-				mostPlayedCards[format][j] = mostPlayedCards[format][j].card_id;
+			const formatData = formats[format];
+			if (formatData.rgName !== formatData.mtgjsonName) {
+				card.legalities[formatData.rgName] = formatData.mtgjsonName;
+				delete card.legalities[formatData.mtgjsonName];
 			}
 		}
+	}
 
-		//Fix names
-		for (let i in allCards) {
-			let properName;
-			if (allCards[i].names) {
-				if (allCards[i].layout === "split (full)") {
+	//Add in playability field.
+	const mostPlayedCards = {};
+	for (let format in formats) {
+		const fileText = fs.readFileSync(path.join(rootDir, `data_files/mostPlayed-${format}.json`), "utf8");
+		mostPlayedCards[format] = JSON.parse(fileText);
+	}
+
+	for (let format in mostPlayedCards) {
+		mostPlayedCards[format] = mostPlayedCards[format].filter(function(card) {
+			//This is 0.2% in the files, parseFloat doesn't care about the % sign.
+			return parseFloat(card.metagame_relevance) >= 0.2;
+		});
+	}
+
+	for (let format in mostPlayedCards) {
+		for (let j in mostPlayedCards[format]) {
+			mostPlayedCards[format][j] = mostPlayedCards[format][j].card_id;
+		}
+	}
+
+	//Fix names
+	for (let i in allCards) {
+		let properName;
+		if (allCards[i].names) {
+			if (allCards[i].layout === "split (full)") {
+				properName = allCards[i].name;
+			} else  if (allCards[i].layout === "split (half)") {
+				properName = allCards[i].names[0] + " // " + allCards[i].names[1];
+			} else if (allCards[i].layout === "meld") {
+				if (allCards[i].side === "a") {
 					properName = allCards[i].name;
-				} else  if (allCards[i].layout === "split (half)") {
-					properName = allCards[i].names[0] + " // " + allCards[i].names[1];
-				} else if (allCards[i].layout === "meld") {
-					if (allCards[i].side === "a") {
-						properName = allCards[i].name;
-					} else {
-						properName = allCards[i].names[0];
-					}
 				} else {
 					properName = allCards[i].names[0];
 				}
 			} else {
-				properName = allCards[i].name;
+				properName = allCards[i].names[0];
 			}
-
-			properName = properName.replace(" // ", "/");
-
-			for (let format in mostPlayedCards) {
-				if (mostPlayedCards[format].includes(properName)) {
-					allCards[i].playability.push(format);
-				}
-			}
-		}
-
-		const relevantProps = ["colorIdentity", "colorIndicator", "colors", "manaValue", "layout", "legalities", "loyalty", "manaCost", "name", "names", "power", "side", "subtypes", "supertypes", "text", "toughness", "type", "types", "rulesText", "printingsName", "printingsCode", "keywords", "playability", "defense"];
-		for (let i in allCards) {
-			const allProps = Object.keys(allCards[i]);
-			for (let j in allProps) {
-				if (!relevantProps.includes(allProps[j])) {
-					delete allCards[i][allProps[j]];
-				}
-			}
-		}
-
-		//Remove MTGJSON's hallucinatory keywords.
-		for (let i in allCards) {
-			allCards[i].keywords = allCards[i].keywords.filter(keyword => allKeywords.keywordAbilities.includes(keyword) || allKeywords.keywordActions.includes(keyword));
-		}
-
-		fs.writeFileSync("data_files/allCards.json", JSON.stringify(allCards));
-
-		//Write the card names to ignore file.
-		fs.writeFileSync("data_files/cardNamesToIgnore.json", JSON.stringify(baseCardNamesToIgnore.concat(allKeywords.keywordAbilities).concat(allKeywords.keywordActions).concat(allSubtypes)));
-
-		//Give the editor a list of subtypes for the dropdown.
-		fs.writeFileSync("public_html/public_data_files/allSubtypes.js", "const allSubtypes = " + JSON.stringify(allSubtypes));
-
-
-		console.log(time() + "Finished updating all cards.");
-
-		const validity = allCardsProbablyValid(allCards)
-
-		if (validity === true) {
-			disperseFiles();
 		} else {
-			throw new Error(`allCards probably not valid. Issue: ${validity}`);
+			properName = allCards[i].name;
 		}
-	} catch (err) {
-		handleError(err);
+
+		properName = properName.replace(" // ", "/");
+
+		for (let format in mostPlayedCards) {
+			if (mostPlayedCards[format].includes(properName)) {
+				allCards[i].playability.push(format);
+			}
+		}
+	}
+
+	const relevantProps = ["colorIdentity", "colorIndicator", "colors", "manaValue", "layout", "legalities", "loyalty", "manaCost", "name", "names", "power", "side", "subtypes", "supertypes", "text", "toughness", "type", "types", "rulesText", "printingsName", "printingsCode", "keywords", "playability", "defense"];
+	for (let i in allCards) {
+		const allProps = Object.keys(allCards[i]);
+		for (let j in allProps) {
+			if (!relevantProps.includes(allProps[j])) {
+				delete allCards[i][allProps[j]];
+			}
+		}
+	}
+
+	//Remove MTGJSON's hallucinatory keywords.
+	for (let i in allCards) {
+		allCards[i].keywords = allCards[i].keywords.filter(keyword => allKeywords.keywordAbilities.includes(keyword) || allKeywords.keywordActions.includes(keyword));
+	}
+
+	fs.writeFileSync("data_files/allCards.json", JSON.stringify(allCards));
+
+	//Write the card names to ignore file.
+	fs.writeFileSync("data_files/cardNamesToIgnore.json", JSON.stringify(baseCardNamesToIgnore.concat(allKeywords.keywordAbilities).concat(allKeywords.keywordActions).concat(allSubtypes)));
+
+	//Give the editor a list of subtypes for the dropdown.
+	fs.writeFileSync("public_html/public_data_files/allSubtypes.js", "const allSubtypes = " + JSON.stringify(allSubtypes));
+
+
+	console.log(time() + "Finished updating all cards.");
+
+	const validity = allCardsProbablyValid(allCards)
+
+	if (validity === true) {
+		disperseFiles();
+	} else {
+		throw new Error(`allCards probably not valid. Issue: ${validity}`);
 	}
 };
 
@@ -780,37 +777,33 @@ const updateSearchLinkMappings = function() {
 }
 
 const disperseFiles = function() {
-	try{
-		//Update rule object.
-		const allRules = fs.readFileSync("data_files/allRules.json", "utf8");
-		fs.writeFileSync("public_html/public_data_files/allRules.js", "const allRules = " + allRules);
+	//Update rule object.
+	const allRules = fs.readFileSync("data_files/allRules.json", "utf8");
+	fs.writeFileSync("public_html/public_data_files/allRules.js", "const allRules = " + allRules);
 
-		//Update rule numbers.
-		fs.writeFileSync("public_html/public_data_files/allRuleNumbers.js", "const allRuleNumbers = " + JSON.stringify(Object.keys(JSON.parse(allRules))));
+	//Update rule numbers.
+	fs.writeFileSync("public_html/public_data_files/allRuleNumbers.js", "const allRuleNumbers = " + JSON.stringify(Object.keys(JSON.parse(allRules))));
 
-		//Update keywords.
-		const allKeywords = fs.readFileSync("data_files/allKeywords.json", "utf8");
-		fs.writeFileSync("public_html/public_data_files/allKeywords.js", "const allKeywords = " + allKeywords);
+	//Update keywords.
+	const allKeywords = fs.readFileSync("data_files/allKeywords.json", "utf8");
+	fs.writeFileSync("public_html/public_data_files/allKeywords.js", "const allKeywords = " + allKeywords);
 
-		//Update sets.
-		const allSets = fs.readFileSync("data_files/allSets.json", "utf8");
-		fs.writeFileSync("public_html/public_data_files/allSets.js", "const allSets = " + allSets);
+	//Update sets.
+	const allSets = fs.readFileSync("data_files/allSets.json", "utf8");
+	fs.writeFileSync("public_html/public_data_files/allSets.js", "const allSets = " + allSets);
 
-		//Update cards. This file leaves out some properties like printings since they're not necessary on the editor.
-		const allCards = JSON.parse(fs.readFileSync("data_files/allCards.json", "utf8"));
-		writeCardList(allCards, "public_html/public_data_files/allCardsSimple.js", ["name", "names", "rulesText", "power", "toughness", "loyalty", "layout", "types", "type", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "manaCost", "keywords", "colorIdentity", "defense"], "js");
+	//Update cards. This file leaves out some properties like printings since they're not necessary on the editor.
+	const allCards = JSON.parse(fs.readFileSync("data_files/allCards.json", "utf8"));
+	writeCardList(allCards, "public_html/public_data_files/allCardsSimple.js", ["name", "names", "rulesText", "power", "toughness", "loyalty", "layout", "types", "type", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "manaCost", "keywords", "colorIdentity", "defense"], "js");
 
-		//Update cards to ignore
-		const cardNamesToIgnore = fs.readFileSync("data_files/cardNamesToIgnore.json", "utf8");
-		fs.writeFileSync("public_html/public_data_files/cardNamesToIgnore.js", "const cardNamesToIgnore = " + cardNamesToIgnore);
+	//Update cards to ignore
+	const cardNamesToIgnore = fs.readFileSync("data_files/cardNamesToIgnore.json", "utf8");
+	fs.writeFileSync("public_html/public_data_files/cardNamesToIgnore.js", "const cardNamesToIgnore = " + cardNamesToIgnore);
 
-		//SearchLink mappings.
-		updateSearchLinkMappings();
+	//SearchLink mappings.
+	updateSearchLinkMappings();
 
-		console.log(time() + "Finished dispersing all cards");
-	} catch (err) {
-		handleError(err)
-	}
+	console.log(time() + "Finished dispersing all cards");
 }
 
 const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to break things, so we perform some checks on the data to try and prevent these errors from making it into RulesGuru data.
@@ -1089,7 +1082,7 @@ const doStuff = async function() {
 			fs.writeFileSync(path.join(rootDir, `data_files/mostPlayed-${format}.json`), JSON.stringify(data));
 			console.log(time() + `Downloaded most played ${formatData.prettyName}`);
 		} catch (e) {
-			handleError(e);
+			rgUtils.handleError(e);
 			//The mtgdecks API has a tendency to change configurations and start blocking our requests, and I would like this to only email me once, not for every format.
 			console.log("Skipping remaining most played downloads.")
 			break;
