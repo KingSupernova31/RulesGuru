@@ -1010,12 +1010,26 @@ const convertAllKeywords = function(allKeywordsText) {
 }
 
 const convertAllRules = function(allRulesText) {
-	const rawAllRules = replaceDoppelgangerChars(allRulesText);
+	try {
+		allRulesText = replaceDoppelgangerChars(allRulesText);
+		const allRules = JSON.parse(allRulesText);
+		if (Object.keys(allRules).length < 1000) {
+			//An issue that can happen sometimes with upstream data.
+			throw new Error("allRulesUpdate rules too short");
+		}
 
-	if (Object.keys(JSON.parse(rawAllRules)).length > 1000) {
-		fs.writeFileSync(path.join(rootDir, "data_files/allRules.json"), rawAllRules);
-	} else {
-		throw new Error("allRulesUpdate rules too short");
+		if (fs.existsSync(path.join(rootDir, "data_files/allRules.json"))) {
+			const oldRulesText = fs.readFileSync(path.join(rootDir, "data_files/allRules.json"), "utf8");
+			if (oldRulesText !== allRulesText) {
+				rgUtils.emailOwners("RulesGuru: Rules changed", "The CR has changed.");
+				fs.writeFileSync(path.join(rootDir, "data_files/allRules.json"), allRulesText);
+			}
+		} else {
+			fs.writeFileSync(path.join(rootDir, "data_files/allRules.json"), allRulesText);
+		}
+	} catch (e) {
+		//We can still update the rest of the files without the new rules, so this doesn't need to halt the script.
+		rgUtils.handleError(e);
 	}
 }
 
