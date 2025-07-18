@@ -1572,70 +1572,55 @@ document.getElementById("password").addEventListener("keypress", function(event)
 		login();
 	}
 })
-const login = function() {
+const login = async function() {
 	document.getElementById("cursorStyle").innerHTML = "* {cursor: wait !important;}";
 
-	const httpRequest = new XMLHttpRequest();
-	httpRequest.timeout = 5000;
-	httpRequest.onabort = function() {
-			document.getElementById("cursorStyle").innerHTML = "";
-			alert("There was an error validating your login. (Request aborted.) Please check your internet connection and try again. If the problem persists, please report the issue.");
-	}
-	httpRequest.onerror = function() {
-			document.getElementById("cursorStyle").innerHTML = "";
-			alert("There was an unknown error validating your login. Please check your internet connection and try again. If the problem persists, please report the issue.");
-	}
-	httpRequest.ontimeout = function() {
-			document.getElementById("cursorStyle").innerHTML = "";
-			alert("There was an error validating your login. (Request timed out.) Please check your internet connection and try again. If the problem persists, please report the issue.");
-	}
-	httpRequest.onload = function() {
-		document.getElementById("cursorStyle").innerHTML = "";
-		if (httpRequest.status === 200) {
-			if (httpRequest.response) {
-				try {
-					const response = JSON.parse(httpRequest.response);
-					currentLoggedInAdmin = {
-						"name": response.name,
-						"roles": response.roles,
-						"id": response.id
-					};
-					document.getElementById("passwordLabel").style.display = "none";
-					document.getElementById("loginButton").style.display = "none";
-					document.getElementById("logOutButton").style.display = "block";
-					document.getElementById("welcomeText").innerHTML = `Welcome ${response.name.split(" ")[0]}!`;
-					document.getElementById("welcomeText").style.display = "inline";
-					if (currentLoggedInAdmin.roles.owner) {
-						document.getElementById("ownerOnly").style.display = "block";
-					}
-					if (document.getElementById("questionInfo").style.display === "block") {
-						if (currentLoggedInAdmin.roles.owner) {
-							document.getElementById("questionSubmitterNameFieldOwner").style.display = "block";
-						} else {
-							document.getElementById("questionSubmitterNameFieldEditor").style.display = "block";
-						}
-					}
-					if (thereIsAUrlQuestion) {
-						document.getElementById("getQuestionIdInput").value = thereIsAUrlQuestion;
-						document.getElementById("getQuestionButton").click();
-					}
-					getQuestionCount();
-				} catch (e) {
-					alert(httpRequest.response);
-				}
-				if (thereIsASavedQuestion) {
-					populateFields(savedQuestionState);
-				}
+	const response = await fetch("/validateLogin", {
+		method: "POST",
+		headers: {"Content-Type": "application/json"},
+		body: JSON.stringify({"password": document.getElementById("password").value})
+	});
+	if (response.ok) {
+		const data = await response.json();
+		currentLoggedInAdmin = {
+			"name": data.name,
+			"roles": data.roles,
+			"id": data.id
+		};
+		document.getElementById("passwordLabel").style.display = "none";
+		document.getElementById("loginButton").style.display = "none";
+		document.getElementById("logOutButton").style.display = "block";
+		document.getElementById("welcomeText").innerHTML = `Welcome ${currentLoggedInAdmin.name.split(" ")[0]}!`;
+		document.getElementById("welcomeText").style.display = "inline";
+		if (currentLoggedInAdmin.roles.owner) {
+			document.getElementById("ownerOnly").style.display = "block";
+		}
+		if (document.getElementById("questionInfo").style.display === "block") {
+			if (currentLoggedInAdmin.roles.owner) {
+				document.getElementById("questionSubmitterNameFieldOwner").style.display = "block";
 			} else {
-				alert("There was an error validating your login. (Server returned no response.) Please check your internet connection and try again. If the problem persists, please report the issue.");
+				document.getElementById("questionSubmitterNameFieldEditor").style.display = "block";
 			}
+		}
+		if (thereIsAUrlQuestion) {
+			document.getElementById("getQuestionIdInput").value = thereIsAUrlQuestion;
+			document.getElementById("getQuestionButton").click();
+		}
+		getQuestionCount();
+	} else {
+		const text = await response.text();
+		if (text) {
+			alert(text);
 		} else {
-			alert(`There was an error validating your login. (Server returned status code ${httpRequest.status}.) Please check your internet connection and try again. If the problem persists, please report the issue.`)
+			throw new Error(response.statusText);
 		}
 	}
-	httpRequest.open("POST", "/validateLogin", true);
-	httpRequest.setRequestHeader("Content-Type", "application/json");
-	httpRequest.send(JSON.stringify({"password": document.getElementById("password").value}));
+
+	if (thereIsASavedQuestion) {
+		populateFields(savedQuestionState);
+	}
+
+	document.getElementById("cursorStyle").innerHTML = "";
 }
 
 //Change the approve/unapprove button if the question is updated.
@@ -2202,42 +2187,21 @@ const populateTagsEditorList = function() {
 		tagName.appendChild(tagNum);
 	}
 }
-let allTagNames = [];//This shouldn't be here.
+
 let tagData = {};
-const getTagData = function() {
+const getTagData = async function() {
 	document.getElementById("tagEditorList").classList.add("awaitingUpdate");
-	const httpRequest = new XMLHttpRequest();
-	httpRequest.timeout = 10000;
-	httpRequest.onabort = function() {
-		alert("getTagData aborted");
-		document.getElementById("tagEditorList").classList.remove("awaitingUpdate");
-	};
-	httpRequest.onerror = function() {
-		alert("getTagData errored");
-		document.getElementById("tagEditorList").classList.remove("awaitingUpdate");
-	};
-	httpRequest.ontimeout = function() {
-		alert("getTagData timeout");
-		document.getElementById("tagEditorList").classList.remove("awaitingUpdate");
-	};
-	httpRequest.onload = function() {
-		if (httpRequest.status === 200) {
-			tagData = JSON.parse(httpRequest.response);
-			allTagNames = Object.keys(tagData);
-			allTagNames.sort();
-			turnOffQuestionStuffObserver();
-			populateTagsEditorList();
-			populateSidebarTagsDropdown();
-			populateAdminTagsDropdown();
-			turnOnQuestionStuffObserver();
-		} else {
-			alert("getTagData status code " + httpRequest.status)
-		}
-		document.getElementById("tagEditorList").classList.remove("awaitingUpdate");
-	};
-	httpRequest.open("GET", "/getTagData", true);
-	httpRequest.setRequestHeader("Content-Type", "application/json");
-	httpRequest.send();
+
+	const response = await fetch("/getTagData");
+	if (!response.ok) {throw new Error(response.statusText)}
+	tagData = await response.json();
+	turnOffQuestionStuffObserver();
+	populateTagsEditorList();
+	populateSidebarTagsDropdown();
+	populateAdminTagsDropdown();
+	turnOnQuestionStuffObserver();
+
+	document.getElementById("tagEditorList").classList.remove("awaitingUpdate");
 };
 getTagData();
 
@@ -2286,34 +2250,20 @@ const populateAdminNamesDropdown = function(adminData) {
 
 let newAdminData = [];
 
-const getAdminData = function() {
-	const httpRequest = new XMLHttpRequest();
-	httpRequest.timeout = 10000;
-	httpRequest.onabort = getAdminData;
-	httpRequest.onerror = getAdminData;
-	httpRequest.ontimeout = getAdminData;
-	httpRequest.onload = function() {
-		if (httpRequest.status === 200) {
-			if (httpRequest.response) {
-				if (httpRequest.response === "Unauthorized") {
-					throw new Error("Unauthorized")
-				} else {
-					newAdminData = JSON.parse(httpRequest.response);
-					populateAdminNamesDropdown(newAdminData);
-				}
-			} else {
-				getAdminData();
-			}
-		} else {
-			getAdminData();
-		}
-	}
-	httpRequest.open("POST", "/getAdminData", true);
-	httpRequest.setRequestHeader("Content-Type", "application/json");
-	httpRequest.send(JSON.stringify({
-		"includeSensitiveData": true,
-		"password": document.getElementById("password").value
-	}));
+const getAdminData = async function() {
+	const response = await fetch("/getAdminData", {
+		method: "POST",
+		headers: {"Content-Type": "application/json"},
+		signal: AbortSignal.timeout(10000),
+		body: JSON.stringify({
+			"includeSensitiveData": true,
+			"password": document.getElementById("password").value
+		})
+	});
+	if (!response.ok) {throw new Error(response.statusText);}
+	newAdminData = await response.json();
+
+	populateAdminNamesDropdown(newAdminData);
 }
 
 const populateAdminEditorFields = function(admin) {
@@ -2650,62 +2600,55 @@ bindButtonAction(document.getElementById("forceUpdateButton"), function() {
 });
 
 const getQuestionCount = async function() {
-	const httpRequest = new XMLHttpRequest();
-	httpRequest.onload = function() {
-		if (httpRequest.status === 200) {
-			if (httpRequest.response) {
-				const questionCount = JSON.parse(httpRequest.response);
 
-				const descriptionMapping = {
-					"pending": "pending questions",
-					"awaitingVerificationGrammar": "questions awaiting grammar verification",
-					"awaitingVerificationTemplates": "questions awaiting template verification",
-					"awaitingVerificationRules": "questions awaiting rules verification",
-				}
+	const response = await fetch("/getQuestionCount");
+	if (!response.ok) {throw new Error(response.statusText)}
+	const questionCount = await response.json();
 
-				const roleMapping = {
-					"editor": "pending",
-					"templateGuru": "awaitingVerificationTemplates",
-					"grammarGuru": "awaitingVerificationGrammar",
-					"rulesGuru": "awaitingVerificationRules",
-				}
+	const descriptionMapping = {
+		"pending": "pending questions",
+		"awaitingVerificationGrammar": "questions awaiting grammar verification",
+		"awaitingVerificationTemplates": "questions awaiting template verification",
+		"awaitingVerificationRules": "questions awaiting rules verification",
+	}
 
-				let roles = [];
-				Object.entries(currentLoggedInAdmin.roles).forEach(function(role) {
-					if (role[1] && role[0] !== "owner") {
-						roles.push(role[0]);
-					}
-				});
+	const roleMapping = {
+		"editor": "pending",
+		"templateGuru": "awaitingVerificationTemplates",
+		"grammarGuru": "awaitingVerificationGrammar",
+		"rulesGuru": "awaitingVerificationRules",
+	}
 
-				roles = roles.map(role => roleMapping[role]);
+	let roles = [];
+	Object.entries(currentLoggedInAdmin.roles).forEach(function(role) {
+		if (role[1] && role[0] !== "owner") {
+			roles.push(role[0]);
+		}
+	});
 
-				const combineStrings = function(strings) {
-					if (strings.length === 1) {
-						return strings[0];
-					}
-					if (strings.length === 2) {
-						return strings[0] + " and " + strings[1];
-					}
-					let result = "";
-					for (let i = 0 ; i < strings.length ; i++) {
-						if (i === strings.length - 1) {
-							result += "and " + strings[i];
-						} else {
-							result += strings[i] + ", ";
-						}
-					}
-					return result;
-				}
+	roles = roles.map(role => roleMapping[role]);
 
-				const roleStrings = roles.map(role => questionCount[role] + " " + descriptionMapping[role]);
-
-				document.getElementById("count").textContent = "There are " + combineStrings(roleStrings) + ".";
+	const combineStrings = function(strings) {
+		if (strings.length === 1) {
+			return strings[0];
+		}
+		if (strings.length === 2) {
+			return strings[0] + " and " + strings[1];
+		}
+		let result = "";
+		for (let i = 0 ; i < strings.length ; i++) {
+			if (i === strings.length - 1) {
+				result += "and " + strings[i];
+			} else {
+				result += strings[i] + ", ";
 			}
 		}
-	};
-	httpRequest.open("GET", "/getQuestionCount", true);
-	httpRequest.setRequestHeader("Content-Type", "application/json");
-	httpRequest.send();
+		return result;
+	}
+
+	const roleStrings = roles.map(role => questionCount[role] + " " + descriptionMapping[role]);
+
+	document.getElementById("count").textContent = "There are " + combineStrings(roleStrings) + ".";
 }
 setInterval(getQuestionCount, 60000);
 

@@ -199,53 +199,49 @@ bindButtonAction(document.getElementById("donations"), function() {
 	document.getElementById('donateForm').submit();
 });
 document.getElementById("openContactFormButton").addEventListener("click", openContactForm);
-bindButtonAction(document.getElementById("contactFormSubmitButton"), function(event) {
+bindButtonAction(document.getElementById("contactFormSubmitButton"), async function(event) {
 	document.getElementById("contactFormPopup").style.display = "none";
 	if (document.getElementById("contactFormContent").value && !/^Message about question #\d+:\n*$/.test(document.getElementById("contactFormContent").value)) {
 		localStorage.setItem("contactFormEmail", document.getElementById("contactFormEmailField").value);
-		var httpRequest = new XMLHttpRequest();
-		httpRequest.timeout = 8000;
-		httpRequest.onabort = function() {
+		try {
+			const response = await fetch("/submitContactForm", {
+				method: "POST",
+				headers: {"Content-Type": "application/json"},
+				signal: AbortSignal.timeout(6000),
+				body: JSON.stringify({
+					"returnEmail": document.getElementById("contactFormEmailField").value,
+					"message": document.getElementById("contactFormContent").value
+				})
+			});
+			if (!response.ok) {throw new Error(response.statusText);}
+			displayContactFormSuccessMessage();
+		} catch (e) {
+			console.error(e);
 			document.getElementById("contactFormSubmissionFailure").style.display = "block";
 		}
-		httpRequest.onerror = function() {
-			document.getElementById("contactFormSubmissionFailure").style.display = "block";
-		}
-		httpRequest.ontimeout = function() {
-			document.getElementById("contactFormSubmissionFailure").style.display = "block";
-		}
-		httpRequest.onload = function() {
-			if (httpRequest.status === 200 && httpRequest.response === "success") {
-				let counter = 0;
-				let intervalId = setInterval(function() {
-					if (counter === 0) {
-						document.getElementById("contactFormSubmissionSuccess").style.display = "block";
-					}
-					if (counter <= 100) {
-						document.getElementById("contactFormSubmissionSuccess").style.opacity = counter / 100;
-					}
-					if (counter >= 400) {
-						document.getElementById("contactFormSubmissionSuccess").style.opacity = (500 - counter) / 100;
-					}
-					if (counter === 500) {
-						document.getElementById("contactFormSubmissionSuccess").style.display = "none";
-						clearInterval(intervalId);
-					}
-					counter++;
-				}, 10);
-				document.getElementById("contactFormContent").value = "";
-			} else {
-				document.getElementById("contactFormSubmissionFailure").style.display = "block";
-			}
-		}
-		httpRequest.open("POST", "/submitContactForm", true);
-		httpRequest.setRequestHeader("Content-Type", "application/json");
-		httpRequest.send(JSON.stringify({
-			"returnEmail": document.getElementById("contactFormEmailField").value,
-			"message": document.getElementById("contactFormContent").value
-		}));
 	}
 });
+
+const displayContactFormSuccessMessage = function() {
+	let counter = 0;
+	let intervalId = setInterval(function() {
+		if (counter === 0) {
+			document.getElementById("contactFormSubmissionSuccess").style.display = "block";
+		}
+		if (counter <= 100) {
+			document.getElementById("contactFormSubmissionSuccess").style.opacity = counter / 100;
+		}
+		if (counter >= 400) {
+			document.getElementById("contactFormSubmissionSuccess").style.opacity = (500 - counter) / 100;
+		}
+		if (counter === 500) {
+			document.getElementById("contactFormSubmissionSuccess").style.display = "none";
+			clearInterval(intervalId);
+		}
+		counter++;
+	}, 10);
+	document.getElementById("contactFormContent").value = "";
+}
 
 //Returns true if the element or one of its parents has the class "classname".
 const hasParentWithClass = function(element, className) {

@@ -157,9 +157,19 @@ const validateAdmin = function(password) {
 		}
 	}
 	if (!currentAdmin) {
-		return "Incorrect password.";
+		return {
+			"error": {
+				"code": 401,
+				"text": "Incorrect password."
+			}
+		}			
 	} else if (!Object.values(currentAdmin.roles).includes(true)) {
-		return "Your account is disabled. Please contact the site owner if you think this is in error.";
+		return {
+			"error": {
+				"code": 403,
+				"text": "Your account is disabled. Please contact the site owner if you think this is in error."
+			}
+		}
 	} else {
 		return JSON.parse(JSON.stringify(currentAdmin));
 	}
@@ -709,15 +719,15 @@ app.post("/submitContactForm", function(req, res) {
 		rgUtils.emailOwners(num ? `RulesGuru contact form submission about question ${num}` : "RulesGuru contact form submission", message);
 		const emailCallback = function(successful) {
 			if (successful) {
-				res.send("success");
+				res.sendStatus(200);
 			} else {
-				res.send("email error");
+				res.sendStatus(500);
 			}
 		}
 		const emailAuth = JSON.parse(fs.readFileSync("privateData.json", "utf8")).email;
 		rgUtils.email(emailAuth.user, "RulesGuru contact form submission", message, emailCallback);
 	} else {
-		res.send("req.body.message was undefined.");
+		res.sendStatus(400);
 	}
 });
 
@@ -744,10 +754,10 @@ app.post("/submitAdminQuestion", async function(req, res) {
 	const date = Date();
 	const validateAdminResult = validateAdmin(req.body.password);
 	let currentAdmin;
-	if (typeof validateAdminResult === "string") {
+	if (validateAdminResult.error) {
 		res.json({
 			"error": true,
-			"message": validateAdminResult
+			"message": validateAdminResult.error.text
 		});
 	} else {
 		currentAdmin = validateAdminResult;
@@ -779,8 +789,8 @@ app.post("/submitAdminQuestion", async function(req, res) {
 app.post("/updateQuestion", async function(req, res) {
 	const validateAdminResult = validateAdmin(req.body.password);
 	let currentAdmin;
-	if (typeof validateAdminResult === "string") {
-		res.send(validateAdminResult);
+	if (validateAdminResult.error) {
+		res.send(validateAdminResult.error.text);
 	} else {
 		currentAdmin = validateAdminResult;
 		let error = false;
@@ -816,10 +826,10 @@ app.post("/updateQuestion", async function(req, res) {
 app.post("/changeQuestionStatus", async function(req, res) {
 	const validateAdminResult = validateAdmin(req.body.password);
 	let currentAdmin;
-	if (typeof validateAdminResult === "string") {
+	if (validateAdminResult.error) {
 		res.json({
 			"error": true,
-			"message": validateAdminResult
+			"message": validateAdminResult.error.text
 		});
 		return;
 	} else {
@@ -1049,10 +1059,10 @@ const addQuestion = async function(question, isAdmin, adminId) {
 app.post("/getUnfinishedQuestion", async function(req, res) {
 	const validateAdminResult = validateAdmin(req.body.password);
 	let currentAdmin;
-	if (typeof validateAdminResult === "string") {
+	if (validateAdminResult.error) {
 		res.json({
 			"error": true,
-			"message": validateAdminResult
+			"message": validateAdminResult.error.text
 		});
 		return;
 	} else {
@@ -1081,8 +1091,8 @@ app.post("/getUnfinishedQuestion", async function(req, res) {
 app.post("/getSpecificAdminQuestion", async function(req, res) {
 	const validateAdminResult = validateAdmin(req.body.password);
 	let currentAdmin;
-	if (typeof validateAdminResult === "string") {
-		res.send(validateAdminResult);
+	if (validateAdminResult.error) {
+		res.send(validateAdminResult.error.text);
 	} else {
 		currentAdmin = validateAdminResult;
 
@@ -1150,15 +1160,13 @@ app.post("/submitQuestion", async function(req, res) {
 
 app.post("/validateLogin", function(req, res) {
 	const validateAdminResult = validateAdmin(req.body.password);
-	let currentAdmin;
-	if (typeof validateAdminResult === "string") {
-		res.send(validateAdminResult);
+	if (validateAdminResult.error) {
+		res.status(validateAdminResult.error.code).send(validateAdminResult.error.text);
 	} else {
-		currentAdmin = validateAdminResult;
 		res.json({
-			"name": currentAdmin.name,
-			"roles": currentAdmin.roles,
-			"id": currentAdmin.id
+			"name": validateAdminResult.name,
+			"roles": validateAdminResult.roles,
+			"id": validateAdminResult.id
 		});
 	}
 });
@@ -1183,17 +1191,21 @@ app.get("/getTagData", function(req, res) {
 		})
 	}
 
-	res.send(tagData);
+	res.json(tagData);
 });
 
 app.post("/getAdminData", function(req, res) {
 	if (req.body.includeSensitiveData) {
 		const validateAdminResult = validateAdmin(req.body.password);
-		if (typeof validateAdminResult === "object" && validateAdminResult.roles.owner) {
-			const adminData = rgUtils.getAdmins();
-			res.send(JSON.stringify(adminData));
+		if (validateAdminResult.error) {
+			res.status(validateAdminResult.error.code).send(validateAdminResult.error.text);
 		} else {
-			res.send("Unauthorized");
+			if (validateAdminResult.roles.owner) {
+				const adminData = rgUtils.getAdmins();
+				res.json(adminData);
+			} else {
+				res.status(403).send("Your account does not have owner permissions.");
+			}
 		}
 	} else {
 		const dataToSend = [];
@@ -1205,13 +1217,13 @@ app.post("/getAdminData", function(req, res) {
 				"id": adminData[i].id
 			});
 		}
-		res.send(JSON.stringify(dataToSend));
+		res.json(dataToSend);
 	}
 });
 
 app.post("/updateAdminData", function(req, res) {
 	const validateAdminResult = validateAdmin(req.body.password);
-	if (typeof validateAdminResult === "object" && validateAdminResult.roles.owner) {
+	if (!validateAdminResult.error && validateAdminResult.roles.owner) {
 		fs.writeFileSync("./data_files/admins.json", req.body.adminData);
 		res.send("Updated");
 	} else {
@@ -1221,10 +1233,10 @@ app.post("/updateAdminData", function(req, res) {
 
 app.post("/updateAndForceStatus", async function(req, res) {
 	const validateAdminResult = validateAdmin(req.body.password);
-	if (typeof validateAdminResult === "string") {
+	if (validateAdminResult.error) {
 		res.json({
 			"error": true,
-			"message": validateAdminResult
+			"message": validateAdminResult.error.text
 		});
 	} else if (!validateAdminResult.roles.owner) {
 		res.json({
@@ -1321,7 +1333,7 @@ for (let format in formats) {
 		let text;
 		try {
 			text = fs.readFileSync(`data_files/${str}`, "utf8");
-			res.send(text);
+			res.status(203).send(text);
 		} catch (e) {
 			res.sendStatus(404);
 		}
