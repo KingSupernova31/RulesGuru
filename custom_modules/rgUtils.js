@@ -51,7 +51,7 @@ const createEmailCheck = function() {
 	emailCheckActive = true;
 
 	const interval = setInterval(() => {
-		if (Date.now() - lastSent < 5000) {return;}
+		if (Date.now() - lastSent < 500) {return;}
 		if (pendingEmails.length === 0) {return;}
 		const {recipientEmail, subject, message, callback} = pendingEmails.shift();
 		console.log(`Sending email to ${recipientEmail}: ${subject}`);
