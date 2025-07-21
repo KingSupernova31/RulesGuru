@@ -1,7 +1,9 @@
 "use strict";
 
+//Mobile browsers sometimes "helpfully" zoom out when the page size changes, like when the sidebar opens, so the minimum scale prevents that. No maximum because we still want the user to be able to zoom in manually.
 document.querySelector("head").insertAdjacentHTML("beforeend", `
 <title>RulesGuru</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
 <link rel="apple-touch-icon" sizes="180x180" href="/favicons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicons/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicons/favicon-16x16.png">
