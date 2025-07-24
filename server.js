@@ -69,14 +69,23 @@ let canonicalAllCards;
 updateReferenceCards();
 
 //set up the presets file
-const defaultPresetsJson = fs.readFileSync("./defaultPresetTemplates.json", "utf8");
-const defaultPresetsJs = preparePresetLoader(defaultPresetsJson);
-fs.writeFileSync("./public_html/public_data_files/presetTemplates.js", defaultPresetsJs);
-//also, set up our copy of the presets
-const presets = JSON.parse(defaultPresetsJson);
+let presetsJson;
+const presetsPath = "./data_files/presetTemplates.json";
+const presetsLoaderPath = "./public_html/public_data_files/presetTemplates.js";
+if (fs.existsSync(presetsPath)) {
+	//if a presets file already exists, just load it
+	presetsJson = fs.readFileSync(presetsPath, "utf8");
+} else {
+	//otherwise, use the default one, and make a presets file based on it
+	presetsJson = fs.readFileSync("./defaultPresetTemplates.json", "utf8");
+	fs.writeFileSync(presetsPath, presetsJson);
+}
+const presetsJs = preparePresetLoader(presetsJson);
+fs.writeFileSync(presetsLoaderPath, presetsJs); //HACK
+//also, set up our in-memory copy of the presets
+const presets = JSON.parse(presetsJson);
 
 function preparePresetLoader(presetsJson) {
-	//HACK
 	return `
 const presetTemplates = ${presetsJson};
 
@@ -1216,8 +1225,10 @@ function addPreset(preset) {
 	const presetWithId = { ...preset, id: maxId + 1 };
 	presets.push(presetWithId);
 	//now, update the relevant files
-	const presetsJs = preparePresetLoader(JSON.stringify(presets));
-	fs.writeFileSync("./public_html/public_data_files/presetTemplates.js", presetsJs);
+	const presetsJson = JSON.stringify(presets);
+	const presetsJs = preparePresetLoader(presetsJson);
+	fs.writeFileSync(presetsPath, presetsJson);
+	fs.writeFileSync(presetsLoaderPath, presetsJs); //HACK
 	return presetWithId;
 }
 
