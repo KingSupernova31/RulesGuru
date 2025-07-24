@@ -296,7 +296,7 @@ const createTemplate = function() {
 		let rule;
 		if (rules[i].childNodes.length === 2) {//Presets
 			rule = {
-				"preset": presetTemplates.filter(preset => preset.description === rules[i].childNodes[1].textContent)[0].id,
+				"preset": presetTemplates.find(preset => preset.description === rules[i].childNodes[1].textContent).id,
 				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
 			}
 		} else if (rules[i].childNodes.length === 4) {//Normal rules
@@ -2701,7 +2701,7 @@ const addPresetTemplateRule = function(id, ignoreShift) {
 	rule.setAttribute("class", "templateRule presetTemplateRule");
 
 	let content = document.createElement("p");
-	content.textContent = presetTemplates.filter(preset => preset.id === id)[0].description;
+	content.textContent = presetTemplates.find(preset => preset.id === id).description;
 
 	rule.appendChild(deleteButton);
 	rule.appendChild(content);
@@ -2717,7 +2717,7 @@ const addPresetRulesToTemplate = function() {
 	const numOrGroupsAlreadyInUse = allOrGroupsInUse.length;
 
 	const presetDesc = document.getElementById('presetTemplates').value;
-	let presetRules = presetTemplates.filter(presetTemplate => presetTemplate.description === presetDesc)[0].rules;
+	let presetRules = presetTemplates.find(presetTemplate => presetTemplate.description === presetDesc).rules;
 	for (let rule of presetRules) {
 		if (typeof rule.preset === "number") {
 			addPresetTemplateRule(rule.preset, true);

@@ -31,7 +31,7 @@ const templateConvert = function(template, globalCardList, presetTemplates, pseu
 				if (typeof rule.preset === "number") {
 					presetOrGroupNum += 100;
 					//We have to duplicate the object so that modifying its or groups doesn't modify the saved preset permanently.
-					const presetTemplate = JSON.parse(JSON.stringify(presetTemplates.filter(presetTemplate => presetTemplate.id === rule.preset)[0])).rules;
+					const presetTemplate = JSON.parse(JSON.stringify(presetTemplates.find(presetTemplate => presetTemplate.id === rule.preset))).rules;
 					const presetRules = generateExpandedTemplate(presetTemplate);
 					for (let rule of presetRules) {
 						if (rule.orGroup !== null) {
