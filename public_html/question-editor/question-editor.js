@@ -425,10 +425,6 @@ const switchModes = function(generatorId) {
 
 let datalistNum = 0;
 const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
-	if (orGroup > 4) {
-		alert("This question appears to be corrupted, please don't edit it and inform the site owner of the issue. (>5 'or' groups.)");
-		return;
-	}
 	let deleteButton = document.createElement("img");
 	deleteButton.setAttribute("src", "/globalResources/icons/red-x.png");
 	deleteButton.setAttribute("class", "templateRuleDeleteButton");
