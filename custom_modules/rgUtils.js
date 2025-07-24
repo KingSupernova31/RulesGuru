@@ -15,6 +15,12 @@ try {
 	emailAuth = null;
 }
 
+const makeDirIfNeeded = function(path) {
+	if (!fs.existsSync(path)) {
+		fs.mkdirSync(path, {recursive:true});
+	}
+};
+
 const transporter = nodemailer.createTransport({
 	"host": "smtp.zoho.com",
 	"port": 465,
@@ -81,6 +87,7 @@ const getAdmins = function() {
 		return JSON.parse(fs.readFileSync(path.join(rootDir, "data_files/admins.json"), "utf8"));
 	} else {
 		console.log("No admins; creating one with default password 'correcthorsebatterystaple'.")
+		makeDirIfNeeded(path.join(rootDir, "data_files"));
 		const admins = [{"id":0,"name":"Onar","password":"correcthorsebatterystaple","roles":{"editor":true,"grammarGuru":true,"templateGuru":true,"rulesGuru":true,"owner":true},"emailAddress":"notarealemail@yahoo.com","reminderEmailFrequency":"Never","sendSelfEditLogEmails":false}];
 		fs.writeFileSync(path.join(rootDir, "data_files/admins.json"), JSON.stringify(admins));
 		return admins;
