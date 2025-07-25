@@ -312,6 +312,10 @@ li {
 	text-align: center;
 }
 
+#savePreset {
+	margin-bottom: 0.15rem;
+}
+
 .templateRuleDeleteButton {
 	margin-left: 0.2rem;
 	transform: translateY(30%);

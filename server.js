@@ -104,7 +104,7 @@ let presetIds = [];
 let presetDescriptions = [];
 for (let preset of presetTemplates) {
 	presetIds.push(preset.id);
-	presetDescriptions.push(preset.id)
+	presetDescriptions.push(preset.description);
 }
 if (presetIds.length !== Array.from(new Set(presetIds)).length) {
 	handleError("Duplicate preset IDs");
@@ -1201,28 +1201,23 @@ app.post("/submitQuestion", async function(req, res) {
 });
 
 app.post("/savePreset", async function(req, res) {
-	const { rules, description } = req.body;
-	let presetWithId;
-	try {
-		presetWithId = addPreset({ rules, description }); //unlike with questions, we're handling this synchronously
-	} catch (error) {
-		res.send(`Your template encountered an error being saved. (${error.message}) Please report this issue using the contact form in the upper right.`);
-	}
-	if (presetWithId) {
-		res.send(`Preset submitted successfully, assigned id: #${presetWithId.id}`);
-	}
-});
 
-function addPreset(preset) {
-	if (preset.description === "") {
-		throw new Error(`Preset description was empty`);
+	const validateAdminResult = validateAdmin(req.body.password);
+	if (validateAdminResult.error) {
+		res.status(validateAdminResult.error.code).send(validateAdminResult.error.text);
+		return;
 	}
-	const descriptions = presetTemplates.map(existingPreset => existingPreset.description);
-	if (descriptions.includes(presetTemplates.description)) {
-		throw new Error(`Existing preset with description ${description}`);
+
+	const preset = req.body;
+	if (preset.description.trim() === "") {
+		res.status(400).send(`Preset description was empty`);
+		return;
 	}
-	//I'm going to assume that, due to node's single-threadedness, we don't need to
-	//worry about TOCTOU bugs resulting in ID collisions...?  Hopefully that's correct!
+	if (presetTemplates.find(p => p.description === preset.description)) {
+		res.status(400).send(`Existing preset with description ${preset.description}`);
+		return;
+	}
+
 	const maxId = Math.max(-1, ...presetTemplates.map(existingPreset => existingPreset.id));
 	const presetWithId = { ...preset, id: maxId + 1 };
 	presetTemplates.push(presetWithId);
@@ -1231,8 +1226,9 @@ function addPreset(preset) {
 	const presetsJs = preparePresetLoader(presetsJson);
 	fs.writeFileSync(presetsPath, presetsJson);
 	fs.writeFileSync(presetsLoaderPath, presetsJs); //HACK
-	return presetWithId;
-}
+
+	res.send(presetWithId.id);
+});
 
 app.post("/validateLogin", function(req, res) {
 	const validateAdminResult = validateAdmin(req.body.password);

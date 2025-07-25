@@ -679,7 +679,7 @@ const showPresetNamingBox = function () {
 	document.getElementById("templateName").focus();
 }
 
-const saveTemplateAsPreset = function () {
+const saveTemplateAsPreset = async function () {
 	let template = createTemplate();
 	//let's attempt to validate the template same as if we were applying it
 	let validatedTemplate = validateTemplate(template);
@@ -689,7 +689,7 @@ const saveTemplateAsPreset = function () {
 		return;
 	}
 	const description = document.getElementById("templateName").value;
-	if (description === "") {
+	if (description.trim() === "") {
 		alert("Empty descriptions are not allowed");
 		return;
 	}
@@ -698,42 +698,48 @@ const saveTemplateAsPreset = function () {
 		return;
 	}
 	//working case
-	saveAsPreset(template, description);
-	//because I can't figure out how to get saveAsPreset to return a value based on what
-	//the server returns, instead, the rest of the logic is found *inside* that function
+	const result = await saveAsPreset(template, description);
+
+	if (result) {
+		presetTemplates.push(result);
+		//the preset templates box won't update automatically -- we need
+		//to update it here as well
+		document.getElementById("presetTemplates").innerHTML += `<option>${description}</option>`;
+		closeTemplateNamingBox();
+		alert(`Preset #${result.id} saved successfully.`)
+	}
 }
 
-const saveAsPreset = function (template, description) {
-	setTimeout(function() {//This forces the cursor to update immediately since it waits for all synchronous code to finish.
-		const requestObj = {
-			rules: template,
-			description
-		}
-		//Send the request.
-		const httpRequest = new XMLHttpRequest();
-		httpRequest.timeout = 5000;
-		httpRequest.responseType = "string";
-		httpRequest.addEventListener("load", () => {
-			//sorry for confusing control-flow here; this logically speaking comes last
-			const text = httpRequest.responseText;
-			const match = text.match(/assigned id: #(.*)/); //HACK
-			if (match) {
-				const id = Number.parseInt(match[1]);
-				presetTemplates.push({ ...requestObj, id });
-				//the preset templates box won't update automatically -- we need
-				//to update it here as well
-				document.getElementById("presetTemplates").innerHTML +=
-					`<option>${description}</option>`
-				closeTemplateNamingBox();
-			} else {
-				//presumably, it's an error
-				alert(text);
-			}
+const saveAsPreset = async function (template, description) {
+	const requestObj = {
+		"rules": template,
+		"description": description,
+		"password": document.getElementById("password").value,
+	}
+	let response;
+	try {
+		response = await fetch("/savePreset", {
+			"method": "POST",
+			"headers": {"Content-Type": "application/json"},
+			"body": JSON.stringify(requestObj),
+			"signal": AbortSignal.timeout(5000),
 		});
-		httpRequest.open("POST", "/savePreset", true);
-		httpRequest.setRequestHeader("Content-Type", "application/json");
-		httpRequest.send(JSON.stringify(requestObj));
-	}, 0);
+	} catch (e) {
+		alert(`Failed to reach server. Please check your internet connection and try again.`);
+		console.error(e);
+	}
+
+	const text = await response.text();
+	if (!response.ok) {
+		alert(text);
+		return false;
+	}
+	const id = Number(text);
+	if (Number.isNaN(id) || id === 0) {
+		alert(`Received invalid id from server: ${text}.`);
+		return false;
+	}
+	return { ...requestObj, id };
 }
 
 const closeTemplateBox = function() {
