@@ -33,7 +33,6 @@ if (!fs.existsSync("privateData.json")) {
 app.set('trust proxy', true);
 
 const templateConvert = require("./public_html/globalResources/templateConvert.js"),
-		presetTemplates = require("./public_html/globalResources/presetTemplates.js"),
 		symbolData = require("./public_html/globalResources/symbols.js"),
 		replaceExpressions = require("./public_html/globalResources/replaceExpressions.js"),
 		searchLinks = require("./public_html/globalResources/searchLinks.js"),
@@ -83,7 +82,7 @@ if (fs.existsSync(presetsPath)) {
 const presetsJs = preparePresetLoader(presetsJson);
 fs.writeFileSync(presetsLoaderPath, presetsJs); //HACK
 //also, set up our in-memory copy of the presets
-const presets = JSON.parse(presetsJson);
+const presetTemplates = JSON.parse(presetsJson);
 
 function preparePresetLoader(presetsJson) {
 	return `
@@ -1215,17 +1214,17 @@ function addPreset(preset) {
 	if (preset.description === "") {
 		throw new Error(`Preset description was empty`);
 	}
-	const descriptions = presets.map(existingPreset => existingPreset.description);
-	if (descriptions.includes(preset.description)) {
+	const descriptions = presetTemplates.map(existingPreset => existingPreset.description);
+	if (descriptions.includes(presetTemplates.description)) {
 		throw new Error(`Existing preset with description ${description}`);
 	}
 	//I'm going to assume that, due to node's single-threadedness, we don't need to
 	//worry about TOCTOU bugs resulting in ID collisions...?  Hopefully that's correct!
-	const maxId = Math.max(-1, ...presets.map(existingPreset => existingPreset.id));
+	const maxId = Math.max(-1, ...presetTemplates.map(existingPreset => existingPreset.id));
 	const presetWithId = { ...preset, id: maxId + 1 };
-	presets.push(presetWithId);
+	presetTemplates.push(presetWithId);
 	//now, update the relevant files
-	const presetsJson = JSON.stringify(presets);
+	const presetsJson = JSON.stringify(presetTemplates);
 	const presetsJs = preparePresetLoader(presetsJson);
 	fs.writeFileSync(presetsPath, presetsJson);
 	fs.writeFileSync(presetsLoaderPath, presetsJs); //HACK
