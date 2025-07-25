@@ -30,7 +30,7 @@
 		<script defer src="/globalResources/sidebarjs&html.js"></script>
 		<script defer src="/globalResources/symbols.js"></script>
 		<script defer src="/globalResources/replaceExpressions.js"></script>
-		<script defer src="/globalResources/presetTemplates.js"></script>
+		<script defer src="/public_data_files/presetTemplates.js"></script>
 		<script defer src="/globalResources/searchLinks.js"></script>
 		<script defer src="/globalResources/sidebarDelayedLoading.js"></script>
 		<script defer src="/public_data_files/allKeywords.js"></script>
@@ -301,11 +301,21 @@
 					<div id="templateBottomDiv">
 						<button class="specialButtonBlack" onclick="processTemplateBox();">Confirm</button>
 						<button class="specialButtonBlack" id="cancelTemplateBox">Cancel</button>
+						<button class="specialButtonBlack" onclick="showPresetNamingBox();">Save as preset</button> 
 					</div>
+				</div>
+			</div>
+			<div id="templateNameBox" class="roundedCorners">
+				<div id="templateNameBoxContexts">
+					<label for="templateName">Please name this preset</label>
+					<input type="text" id="templateName"></input>
+					<button class="specialButtonBlack" onclick="saveTemplateAsPreset();">Confirm</button> 
+					<button class="specialButtonBlack" id="cancelTemplateNameBox" onclick="closeTemplateNamingBox();">Cancel</button> 
 				</div>
 			</div>
 			<div id="ownerOptionsGreyout"></div>
 			<div id="cardGeneratorgreyout"></div>
+			<div id="templateEditorGreyout"></div>
 		</div>
 
 		<div id="FOUCOverlay"></div>
