@@ -1122,7 +1122,7 @@ app.post("/getQuestionsList", function(req, res) {
 	const validQuestionsList = [];
 
 	for (let i = 0 ; i < referenceQuestionArray.length ; i++) {
-		if (questionMatchesSettings(referenceQuestionArray[i], req.body.settings, allCards)) {
+		if (questionMatchesSettings(referenceQuestionArray[i], req.body, allCards)) {
 			validQuestionsList.push(referenceQuestionArray[i].id);
 		}
 	}
