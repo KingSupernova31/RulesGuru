@@ -41,6 +41,18 @@ const templateConvert = require("./public_html/globalResources/templateConvert.j
 app.use(compression());
 app.use(bodyParser.json({"limit":"1mb"}));
 app.use(bodyParser.urlencoded({"extended": true}));
+
+//We intercept the homepage request to inject the question count. (Doing it via AJAX results in it taking too long.)
+app.use((req, res, next) => {
+	if (["/", "/index.html"].includes(req.path)) {
+		let html = fs.readFileSync("public_html/index.html", "utf8");
+		html = html.replace(/\[replaceMe\]/g, referenceQuestionArray.length);
+		res.send(html);
+	} else {
+		next();
+	}
+});
+
 app.use(express.static("./public_html"));
 
 let server;
@@ -314,7 +326,6 @@ const updateReferenceQuestion = async function(id) {
 	referenceQuestionArray = newReferenceQuestionArray;
 	deepFreeze(referenceQuestionArray);
 	saveReferenceQuestionArrayToDisk();
-	updateIndexQuestionCount();
 }
 
 let referenceUpdateOngoing = false;
@@ -362,7 +373,6 @@ const updateAllReferenceQuestions = async function(speedy) {
 	referenceQuestionArray = finishedQuestions;
 	deepFreeze(referenceQuestionArray);
 	saveReferenceQuestionArrayToDisk();
-	updateIndexQuestionCount();
 	console.log("Reference question array generation complete");
 
 	referenceUpdateOngoing = false;
@@ -386,13 +396,6 @@ setInterval(() => {
 		}
 	}
 }, 1000);
-
-const updateIndexQuestionCount = function() {
-	let html = fs.readFileSync("public_html/index.html", "utf8");
-	html = html.replace(/(?<=\<span id=\"questionCount\"\>)\d+(?=\<\/span\>)/, referenceQuestionArray.length);
-	html = html.replace(/(?<=\<span id=\"questionCountMobile\"\>)\d+(?=\<\/span\>)/, referenceQuestionArray.length);
-	fs.writeFileSync("public_html/index.html", html);
-}
 
 let saveReferenceQuestionArrayToDiskRunning = false;
 let saveReferenceQuestionArrayToDiskPending = false;
@@ -1158,7 +1161,7 @@ app.post("/getQuestionsList", function(req, res) {
 	const validQuestionsList = [];
 
 	for (let i = 0 ; i < referenceQuestionArray.length ; i++) {
-		if (questionMatchesSettings(referenceQuestionArray[i], req.body.settings, allCards)) {
+		if (questionMatchesSettings(referenceQuestionArray[i], req.body, allCards)) {
 			validQuestionsList.push(referenceQuestionArray[i].id);
 		}
 	}

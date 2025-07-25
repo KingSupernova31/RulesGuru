@@ -505,7 +505,7 @@ const updateAllCards = function(verbose = false) {
 	for (let i in allCards) {
 		if (allCards[i].layout === "meld") {
 			allCards[i].name = allCards[i].faceName;
-			allCards[i].names = fullNameArrays.filter(array => array.includes(allCards[i].name))[0];
+			allCards[i].names = fullNameArrays.find(array => array.includes(allCards[i].name));
 			if (i.includes("//")) {
 				allCards[allCards[i].name] = allCards[i];
 				delete allCards[i];

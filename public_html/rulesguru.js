@@ -2,23 +2,23 @@
 
 let mostRecentQuestionId;
 
-/*
-//Live update the question count.
-setInterval(function() {
-	const httpRequest = new XMLHttpRequest();
-	httpRequest.onload = function() {
-		if (httpRequest.status === 200) {
-			if (httpRequest.response) {
-				document.getElementById("questionCount").innerHTML = JSON.parse(httpRequest.response).finished;
-				document.getElementById("questionCountMobile").innerHTML = JSON.parse(httpRequest.response).finished;
-			}
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+
+const updateQuestionCount = async function() {
+	while (true) {
+		const response = await fetch("/getQuestionCount");
+		if (response.ok) {
+			const data = await response.json();
+			document.getElementById("questionCount").innerHTML = data.finished;
+			document.getElementById("questionCountMobile").innerHTML = data.finished;
 		}
-	};
-	httpRequest.open("GET", "/getQuestionCount", true);
-	httpRequest.setRequestHeader("Content-Type", "application/json");
-	httpRequest.send();
-}, 10000);
-*/
+		await sleep(1000);
+	}
+}
+updateQuestionCount();
+
+
 let getQuestionError = null;
 
 const loadedQuestions = {
@@ -100,6 +100,7 @@ let goToQuestionPendingRequest = null;
 let goToQuestion = function(questionId, callback, settingsToUse) {
 	document.querySelector("title").textContent = "RulesGuru #" + questionId;
 	if (goToQuestionPendingRequest) {
+		console.log("aborting")
 		goToQuestionPendingRequest.abort();
 	}
 	toggleAnimation("start", "moveForQuestionsList");
@@ -138,58 +139,49 @@ let goToQuestion = function(questionId, callback, settingsToUse) {
 	}, settingsToUse);
 };
 
-const getSpecificQuestion = function(questionId, callback, settingsToUse) {
-	let response;
+const getSpecificQuestion = async function(questionId, callback, settingsToUse) {
 	clearTimeout(getQuestionTimeoutId);
 
-	const httpRequest = new XMLHttpRequest();
-	httpRequest.timeout = 10000;
-	httpRequest.onerror = function() {
-		getQuestionError = "There was an unknown error. Please check your internet connection and try again. If the problem persists, please report the issue using the contact form in the upper right.";
-		if (callback) {
-				callback(response);
-		}
-	};
-	httpRequest.ontimeout = function() {
-		getQuestionError = "Failed to load question. Please check your internet connection and try again. If the problem persists, please report the issue using the contact form in the upper right.";
-		if (callback) {
-				callback(response);
-		}
-	};
-	httpRequest.onload = function() {
-		if (httpRequest.status === 200) {
-			if (httpRequest.response) {
-				response = JSON.parse(httpRequest.response);
-				if (response.error) {
-					getQuestionError = response.error;
-				} else {
-					getQuestionError = null;
-				}
-			} else {
-				getQuestionError = "You should never see this error. (Server returned status code 200, but with no response.) If you do, please let me know exactly what happened using the contact form in the upper right.";
-			}
-			if (callback) {
-				callback(response);
-			}
-		} else {
-			getQuestionError = `There was an error loading the question (server returned status code ${httpRequest.status}). Please wait a few minutes and try again. If the problem persists, please report the issue using the contact form in the upper right.`;
-			if (callback) {
-				callback(response);
-			}
-		}
-	};
 	if (settingsToUse === undefined) {
 		settingsToUse = JSON.parse(JSON.stringify(sidebarSettings));
 	}
 	settingsToUse.id = questionId;
 	settingsToUse.from = "homePage";
-	settingsToUse.avoidRateLimiting = true;//If you find this and use it to get around my rate limiting, go ahead, you deserve it. But I'll be fixing it eventually.
+	settingsToUse.avoidRateLimiting = true;//If you find this and use it to get around my rate limiting, go ahead, you deserve it. But if you cause problems I'll fix it.
 
 	const queryString = encodeURIComponent(JSON.stringify(settingsToUse));
 
-	httpRequest.open("GET", `/api/questions/?json=${queryString}`, true);
-	httpRequest.send();
-	return httpRequest;
+	const controller = new AbortController();
+
+	let response;
+
+	try {
+		response = await fetch(`/api/questions/?json=${queryString}`, {
+			"signal": controller.signal
+		});
+	} catch (e) {
+		console.error(e);
+		getQuestionError = "Failed to load question. Please check your internet connection and try again. If the problem persists, please report the issue using the contact form in the upper right.";
+		if (callback) {
+			callback(null);
+		}
+	}
+
+	if (!response.ok) {
+		console.error("getSpecificQuestion failed");
+		console.log(response);
+		getQuestionError = "There was an unknown error. If the problem persists, please report the issue using the contact form in the upper right.";
+		if (callback) {
+			callback(null);
+		}
+		return;
+	}
+
+	const json = await response.json();
+	getQuestionError = null;
+	callback(json);
+
+	return controller;
 }
 
 //Returns a random map of player names and genders for each possible player tag.
@@ -500,7 +492,6 @@ setInterval(function() {
 	}
 }, 500);
 
-let currentPendingQuestionsListRequest = null;
 const doSomethingOnSidebarSettingsUpdate = function() {
 	loadedQuestions.futureQuestions = [];
 	mostRecentQuestionId = null;
@@ -608,61 +599,29 @@ bindButtonAction(document.getElementById("sidebarShowQuestionsList"), toggleQues
 bindButtonAction(document.getElementById("questionsListHideButton"), toggleQuestionsList);
 
 //Make a request for all questions that fit the current parameters.
-let getQuestionsListTimeoutId = 0;
-const getQuestionsList = function(callback, timeout) {
-	if (currentPendingQuestionsListRequest) {
-		currentPendingQuestionsListRequest.abort();
-	}
+const getQuestionsList = async function(callback) {
 	toggleAnimation("start", "questionsListArea");
 	document.getElementById("questionsListLoadingArea").style.transform = "scale(0)";
 
-	let response;
-	clearTimeout(getQuestionsListTimeoutId);
+	while (true) {
+		const response = await fetch("/getQuestionsList", {
+			method: "POST",
+			headers: {"Content-Type": "application/json"},
+			signal: AbortSignal.timeout(10000),
+			body: JSON.stringify(sidebarSettings)
+		});
+		if (!response.ok) {
+			await sleep(200);
+			continue;
+		}
 
-	const httpRequest = new XMLHttpRequest();
-	httpRequest.timeout = timeout;
-	httpRequest.onabort = function() {
-		if (!timeout) {
-			getQuestionsListTimeoutId = setTimeout(getQuestionsList, 1000, callback);
-		}
-	};
-	httpRequest.onerror = function() {
-		if (!timeout) {
-			getQuestionsListTimeoutId = setTimeout(getQuestionsList, 1000, callback);
-		}
-	};
-	httpRequest.ontimeout = function() {
-		if (!timeout) {
-			getQuestionsListTimeoutId = setTimeout(getQuestionsList, 1000, callback);
-		}
-	};
-	httpRequest.onload = function() {
-		document.getElementById("questionsListDisplay").classList.remove("awaitingUpdate");
-		if (httpRequest.status === 200) {
-			if (httpRequest.response) {
-				const response = JSON.parse(httpRequest.response)
-				if (!response.error && callback) {
-					callback(response);
-					toggleAnimation("stop", "questionsListArea");
-					document.getElementById("questionsListLoadingArea").style.transform = "scale(1)";
-				}
-			} else {
-				if (!timeout) {
-					getQuestionsListTimeoutId = setTimeout(getQuestionsList, 1000, callback);
-				}
-			}
-		} else {
-			if (!timeout) {
-				getQuestionsListTimeoutId = setTimeout(getQuestionsList, 1000, callback);
-			}
-		}
-	};
-	httpRequest.open("POST", "/getQuestionsList", true);
-	httpRequest.setRequestHeader("Content-Type", "application/json");
-	httpRequest.send(JSON.stringify({
-		"settings": sidebarSettings
-	}));
-	currentPendingQuestionsListRequest = httpRequest;
+		const list = await response.json();
+		callback(list);
+		toggleAnimation("stop", "questionsListArea");
+		document.getElementById("questionsListLoadingArea").style.transform = "scale(1)";
+
+		return;
+	}
 };
 
 const displayQuestionsList = function(questionsList) {

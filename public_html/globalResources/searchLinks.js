@@ -376,10 +376,12 @@ if (goToSearchLink) {
 		//Log this request so we know how often people are using searchLinks.
 		const dataToLog = JSON.parse(JSON.stringify(newSidebarSettings));
 		dataToLog.goToQuestionNum = goToQuestionNum;
-		const httpRequest = new XMLHttpRequest();
-		httpRequest.open("POST", "/logSearchLinkData", true);
-		httpRequest.setRequestHeader("Content-Type", "application/json");
-		httpRequest.send(JSON.stringify(dataToLog));
+
+		fetch("/logSearchLinkData", {
+			method: "POST",
+			headers: {"Content-Type": "application/json"},
+			body: JSON.stringify(dataToLog)
+		});
 
 	  if ((typeof goToQuestionNum === "number")){ // Search link + specific question
 	    document.getElementById("FOUCOverlay").style.display = "none";
