@@ -460,10 +460,7 @@ const getPlayerNamesMap = function() {
 //Format a question to be sent to the browser and send it.
 const sendAPIQuestions = function(questions, res, allCards) {
 
-	const allQuestionsToSend = {
-		"status": 200,
-		"questions": []
-	};
+	const allQuestionsToSend = [];
 	outerQuestionLoop: for (let question of questions) {
 		const questionToSend = JSON.parse(JSON.stringify(question));
 
@@ -557,7 +554,7 @@ const sendAPIQuestions = function(questions, res, allCards) {
 		delete questionToSend.answer;
 
 		//Add this question to the array of all questions to send to the client.
-		allQuestionsToSend.questions.push(questionToSend);
+		allQuestionsToSend.push(questionToSend);
 	}
 
 	res.json(allQuestionsToSend);
@@ -604,13 +601,13 @@ app.get("/api/questions", function(req, res) {
 	try {
 		requestSettings = JSON.parse(decodeURIComponent(req.query.json));
 	} catch (error) {
-		res.json({"status": 400, "error":"json parameter is not valid JSON."});
+		res.status(400).send("json parameter is not valid JSON.");
 		return;
 	}
 	//When a request is received, update recentIPs to include only ones from within the last 2 seconds.
 	recentIPs = recentIPs.filter(ip => performance.now() - ip.date < 2000);
-	if (recentIPs.filter(ip => ip.ip).length > 0 && !requestSettings.avoidRateLimiting) {//If you find this and use it to get around my rate limiting, go ahead, you deserve it. But I'll be fixing this eventally.
-		res.json({"status": 429, "error":"Please don't send more than one request every 2 seconds."});
+	if (recentIPs.filter(ip => ip.ip).length > 0 && !requestSettings.avoidRateLimiting) {//If you find this and use it to get around my rate limiting, go ahead, you deserve it. But if you use it to cause problems I'll fix it.
+		res.status(429).send("Please don't send more than one request every 2 seconds.");
 		recentIPs.push({"ip": req.ip, "date": performance.now()});
 		return;
 	} else {
@@ -667,13 +664,13 @@ app.get("/api/questions", function(req, res) {
 			}
 	} catch (error) {
 		rgUtils.handleError(error);
-		res.json({"status": 400, "error":"Incorrectly formatted query string."});
+		res.status(400).send("Incorrectly formatted query string.");
 		return;
 	}
 	try {
 		if (requestSettings.id !== undefined) {
 			if (typeof requestSettings.id !== "number" || requestSettings.id < 1) {
-				res.json({"status": 400, "error":"Invalid ID provided."});
+				res.status(400).send("Invalid ID provided.");
 				return;
 			}
 			let questionToReturn;
@@ -684,72 +681,56 @@ app.get("/api/questions", function(req, res) {
 				}
 			}
 			if (!questionToReturn) {
-				res.json({"status": 404, "error":"A question with that ID does not exist."});
+				res.status(404).send("A question with that ID does not exist.");
 				return;
 			}
 			const result = questionMatchesSettings(questionToReturn, requestSettings, allCards);
 			if (!result) {
-				res.json({"status": 400, "error":`Question ${requestSettings.id} cannot match the chosen settings.`});
+				res.status(400).send(`Question ${requestSettings.id} cannot match the chosen settings.`);
 				return;
 			}
 			sendAPIQuestions([result], res, allCards);
 		} else {
 			if (questionArray.length === 0) {
-				res.json({"status": 404, "error":`There are no questions that fit your settings.`});
+				res.status(404).send(`There are no questions that fit your settings.`);
 				console.log("Finished at " + performance.now());
 				return;
 			}
-			let locationToStartSearch;
 			if (requestSettings.previousId !== undefined) {
 				if (typeof requestSettings.previousId !== "number" || !Number.isInteger(requestSettings.previousId) || requestSettings.previousId < 1) {
-					res.json({"status": 400, "error":`${requestSettings.previousId} is not a valid previous ID.`});
+					res.status(400).send(`${requestSettings.previousId} is not a valid previous ID.`);
 					return;
 				}
-				questionArray.sort((a, b) => a.id - b.id);
-				for (let i = requestSettings.previousId ; i < questionArray.length ; i++) {
-					if (questionArray[i].id > requestSettings.previousId) {
-						locationToStartSearch = i;
-						break;
+				//Equivalent to a normal sort and rotation until the desired next ID is at the beginning, but more efficient.
+				questionArray.sort((a, b) => {
+					//If both are on the same side of the break, the smaller goes in front.
+					if ((a.id <= requestSettings.previousId && b.id <= requestSettings.previousId) || (a.id > requestSettings.previousId && b.id > requestSettings.previousId)) {
+						return a.id - b.id;
+					} else {//Otherwise the larger goes in front.
+						return b.id - a.id;
 					}
-				}
-				if (locationToStartSearch === undefined) {
-					locationToStartSearch = 0;
-				}
+				});
 			} else {
-				locationToStartSearch = 0;
 				shuffle(questionArray);
 			}
 
 			const questionsToReturn = [];
-			let currentSearchLocation = locationToStartSearch;
-			let loopCounter = 0;
-			while (true) {
-				loopCounter++;
-				if (loopCounter > 9999) {
-					throw new Error(`While loop not terminating.`);
-				}
-				const result = questionMatchesSettings(questionArray[currentSearchLocation], requestSettings, allCards);
+			for (let question of questionArray) {
+				const result = questionMatchesSettings(question, requestSettings, allCards);
 				if (result) {
 					questionsToReturn.push(result);
 				}
-
 				if (questionsToReturn.length === requestSettings.count) {
 					sendAPIQuestions(questionsToReturn, res, allCards);
-					break;
-				}
-				currentSearchLocation++;
-				if (currentSearchLocation === questionArray.length) {
-					currentSearchLocation = 0;
-				}
-				if (currentSearchLocation === locationToStartSearch) {
-					res.json({"status": 404, "error":`There are ${requestSettings.count === 1 ? "no" : "not enough"} questions that fit your settings.`});
-					break;
+					console.log("Finished at " + performance.now());
+					return;
 				}
 			}
+			res.status(404).send(`There are ${requestSettings.count === 1 ? "no" : "not enough"} questions that fit your settings.`);
 		}
 	} catch (error) {
 		console.log(error)
-		res.json({"status": 400, "error":"Incorrectly formatted json."});
+		res.status(400).send("Incorrectly formatted json.");
 	}
 	console.log("Finished at " + performance.now());
 });

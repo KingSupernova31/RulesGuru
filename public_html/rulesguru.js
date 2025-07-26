@@ -29,71 +29,38 @@ const loadedQuestions = {
 
 //Make a request for a new random question that fits the current parameters.
 let getQuestionTimeoutId = 0;
-const getRandomQuestion = function(callback) {
-	//console.log("Logging for issue #104 on Github. (Section 4)")
-	//console.log(JSON.stringify(sidebarSettings))
-	let response;
+const getRandomQuestion = async function() {
 	clearTimeout(getQuestionTimeoutId);
-
-	const httpRequest = new XMLHttpRequest();
-	httpRequest.timeout = 15000;
-	httpRequest.onerror = function() {
-		getQuestionError = "There was an unknown error. Please check your internet connection and try again. If the problem persists, please report the issue using the contact form in the upper right.";
-		if (!timeout) {
-			getQuestionTimeoutId = setTimeout(getRandomQuestion, callback);
-		}
-		if (callback) {
-				callback(response, httpRequest);
-		}
-	};
-	httpRequest.ontimeout = function() {
-		getQuestionError = "Failed to load question. Please check your internet connection and try again. If the problem persists, please report the issue using the contact form in the upper right.";
-		if (callback) {
-				callback(response, httpRequest);
-		}
-	};
-	httpRequest.onload = function() {
-		if (httpRequest.status === 200) {
-			if (httpRequest.response) {
-				//console.log("Logging for issue #104 on Github. (Section 5)")
-				//console.log(httpRequest.response)
-				response = JSON.parse(httpRequest.response);
-				if (response.error) {
-					getQuestionError = response.error;
-				} else {
-					getQuestionError = null;
-				}
-			} else {
-				getQuestionError = "You should never see this error. (Server returned status code 200, but with no response.) If you do, please let me know exactly what happened using the contact form in the upper right.";
-				if (!timeout) {
-					getQuestionTimeoutId = setTimeout(getRandomQuestion, callback);
-				}
-			}
-			if (callback) {
-				callback(response, httpRequest);
-			}
-		} else {
-			getQuestionError = `There was an error loading the question (server returned status code ${httpRequest.status}). Please wait a few minutes and try again. If the problem persists, please report the issue using the contact form in the upper right.`;
-			if (!timeout) {
-				getQuestionTimeoutId = setTimeout(getRandomQuestion, callback);
-			}
-			if (callback) {
-				callback(response, httpRequest);
-			}
-		}
-	};
 
 	const settings = JSON.parse(JSON.stringify(sidebarSettings));
 	settings.previousId = mostRecentQuestionId || undefined;
 	settings.from = "homePage";
-	settings.avoidRateLimiting = true;//If you find this and use it to get around my rate limiting, go ahead, you deserve it. But I'll be fixing it eventually.
+	settings.avoidRateLimiting = true;//If you find this and use it to get around my rate limiting, go ahead, you deserve it. But if you use it to cause problems I will fix it.
 
 	const queryString = encodeURIComponent(JSON.stringify(settings));
 
-	httpRequest.open("GET", `/api/questions/?json=${queryString}`, true);
-	httpRequest.setRequestHeader("Content-Type", "application/json");
-	httpRequest.send();
-	return httpRequest;
+	let response;
+	try {
+		response = await fetch(`/api/questions/?json=${queryString}`, {
+			"headers": {"Content-Type": "application/json"}
+		});
+	} catch (e) {
+		return {
+			"error": true,
+			"message": "Failed to load question. Please check your internet connection and try again. If the problem persists, please report the issue using the contact form in the upper right.",
+		}
+	}
+	if (!response.ok) {
+		return {
+			"error": true,
+			"message": await response.text() || "There was an unknown error. If the problem persists, please report the issue using the contact form in the upper right.",
+		}
+	}
+	const questions = await response.json();
+	return {
+		"error": false,
+		"question": questions[0],
+	};
 };
 
 let goToQuestionPendingRequest = null;
@@ -111,7 +78,7 @@ let goToQuestion = function(questionId, callback, settingsToUse) {
 			if (sidebarOpen) {
 				closeSidebar();
 			}
-			loadedQuestions.currentQuestion = response.questions[0];
+			loadedQuestions.currentQuestion = response[0];
 			mostRecentQuestionId = loadedQuestions.currentQuestion.id;
 			if (pendingRequest) {
 				pendingRequest.abort();
@@ -445,52 +412,57 @@ const toggleAnswer = function() {
 let pendingRequest = null;
 let awaitingQuestion = false;
 window.preloadedImages = [];
-setInterval(function() {
-	if (loadedQuestions.futureQuestions.length < 2 && !pendingRequest && !getQuestionError) {
-		pendingRequest = getRandomQuestion(function(response, request) {
-			if (response && !response.error) {
-				loadedQuestions.futureQuestions.push(response.questions[0]);
-				mostRecentQuestionId = response.questions[0].id;
-				/*for (let card of response.oracle) {
-					if (["transforming double-faced", "modal double-faced"].includes(card.layout) && card.side === "b") {
-						const image = new Image();
-						image.src = `https://api.scryfall.com/cards/named?format=image&version=medium&fuzzy=${card.name}&face=back`;
-						window.preloadedImages.push(image);
-					} else {
-						const image = new Image();
-						image.src = `https://api.scryfall.com/cards/named?format=image&version=medium&fuzzy=${card.name}`;
-						window.preloadedImages.push(image);
-					}
-				}*/
-				getQuestionError = null;
-			} else if (response && response.status !== 429) {
-				getQuestionError = response.error;
-			} else {
-				getQuestionError = "There was an unknown error. Please check your internet connection and try again. If the problem persists, please report the issue using the contact form in the upper right.";
-			}
-			pendingRequest = null;
-		});
-	}
+const keepQuestionsLoaded = async function() {
+	while (true) {
+		if (loadedQuestions.futureQuestions.length < 2 && !getQuestionError) {
+			const randomQuestion = await getRandomQuestion();
 
-	if (awaitingQuestion) {
-		if (loadedQuestions.futureQuestions.length > 0) {
-			loadedQuestions.currentQuestion = loadedQuestions.futureQuestions[0];
-			loadedQuestions.futureQuestions.splice(0, 1);
-			history.pushState({}, ""); //Add the current page url to the history.
-			history.replaceState({}, "", "?" + loadedQuestions.currentQuestion.id);//Set the current url to the new question, replacing old state that we didn't want to get added twice.
-			document.querySelector("title").textContent = "RulesGuru #" + loadedQuestions.currentQuestion.id;//This needs to happen after history is edited.
-			displayCurrentQuestion();
-			awaitingQuestion = false;
-		} else if (getQuestionError) {
-			awaitingQuestion = false;
-			toggleAnimation("stop");
-			document.getElementById("questionPage").style.transform = "";
-			alert(getQuestionError);
+			if (randomQuestion.error) {
+				getQuestionError = randomQuestion.message;
+				continue;
+			}
+
+			pendingRequest = null;
+
+			loadedQuestions.futureQuestions.push(randomQuestion.question);
+			mostRecentQuestionId = randomQuestion.question.id;
+			/*for (let card of response.oracle) {
+				if (["transforming double-faced", "modal double-faced"].includes(card.layout) && card.side === "b") {
+					const image = new Image();
+					image.src = `https://api.scryfall.com/cards/named?format=image&version=medium&fuzzy=${card.name}&face=back`;
+					window.preloadedImages.push(image);
+				} else {
+					const image = new Image();
+					image.src = `https://api.scryfall.com/cards/named?format=image&version=medium&fuzzy=${card.name}`;
+					window.preloadedImages.push(image);
+				}
+			}*/
 			getQuestionError = null;
-			returnToHome(false);
+
 		}
+				
+		if (awaitingQuestion) {
+			if (loadedQuestions.futureQuestions.length > 0) {
+				loadedQuestions.currentQuestion = loadedQuestions.futureQuestions[0];
+				loadedQuestions.futureQuestions.splice(0, 1);
+				history.pushState({}, ""); //Add the current page url to the history.
+				history.replaceState({}, "", "?" + loadedQuestions.currentQuestion.id);//Set the current url to the new question, replacing old state that we didn't want to get added twice.
+				document.querySelector("title").textContent = "RulesGuru #" + loadedQuestions.currentQuestion.id;//This needs to happen after history is edited.
+				displayCurrentQuestion();
+				awaitingQuestion = false;
+			} else if (getQuestionError) {
+				awaitingQuestion = false;
+				toggleAnimation("stop");
+				document.getElementById("questionPage").style.transform = "";
+				alert(getQuestionError);
+				getQuestionError = null;
+				returnToHome(false);
+			}
+		}
+		await sleep(100);
 	}
-}, 500);
+}
+keepQuestionsLoaded();
 
 const doSomethingOnSidebarSettingsUpdate = function() {
 	loadedQuestions.futureQuestions = [];
@@ -522,9 +494,6 @@ const moveToNextQuestion = function() {
 
 //Function to display the next random question.
 const displayNextRandomQuestion = function() {
-	//console.log("Logging for issue #104 on Github. (Section 3)")
-	//console.log(JSON.stringify(sidebarSettings))
-	//console.log(JSON.stringify(loadedQuestions))
 	document.getElementById("questionPageBackgroundBox").style.height = "";
 	if (sidebarOpen) {
 		updateSidebarSettingsOnClose();
