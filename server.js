@@ -596,7 +596,6 @@ Development:
 
 let recentIPs = [];
 app.get("/api/questions", function(req, res) {
-	console.log("Request received at " + performance.now());
 	let requestSettings;
 	try {
 		requestSettings = JSON.parse(decodeURIComponent(req.query.json));
@@ -693,7 +692,6 @@ app.get("/api/questions", function(req, res) {
 		} else {
 			if (questionArray.length === 0) {
 				res.status(404).send(`There are no questions that fit your settings.`);
-				console.log("Finished at " + performance.now());
 				return;
 			}
 			if (requestSettings.previousId !== undefined) {
@@ -722,7 +720,6 @@ app.get("/api/questions", function(req, res) {
 				}
 				if (questionsToReturn.length === requestSettings.count) {
 					sendAPIQuestions(questionsToReturn, res, allCards);
-					console.log("Finished at " + performance.now());
 					return;
 				}
 			}
@@ -732,7 +729,6 @@ app.get("/api/questions", function(req, res) {
 		console.log(error)
 		res.status(400).send("Incorrectly formatted json.");
 	}
-	console.log("Finished at " + performance.now());
 });
 
 app.post("/submitContactForm", function(req, res) {

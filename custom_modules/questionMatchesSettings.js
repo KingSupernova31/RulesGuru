@@ -2,7 +2,7 @@ const shuffle = require("./shuffle.js");
 
 //Modifies the original question to matches the settings specified and returns it, or returns false if it can't match.
 
-//Takes about 200ms to run this on 1159 questions with long-taking settings, so probably not worth optimizing.
+//Takes about 200ms to run this on 1159 questions with long-taking settings.
 const questionMatchesSettings = function(question, settings, allCards) {
 
 	//We don't want to modify the original question when returning one that matches the settings.
