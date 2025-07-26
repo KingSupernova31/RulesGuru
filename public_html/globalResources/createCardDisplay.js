@@ -1,5 +1,6 @@
+
 //Add card picture and oracle text displays.
-const createCardDisplay = function(cardData, defaultDisplayType) {
+const createCardDisplay = function(cardData, defaultDisplayType, imgRequestTimeout = 0) {
 	if (!["image", "text"].includes(defaultDisplayType)) {
 		throw new Error(`invalid defaultDisplayType "${defaultDisplayType}"`);
 	}
@@ -12,16 +13,18 @@ const createCardDisplay = function(cardData, defaultDisplayType) {
 
 	//Display pictures correctly for various layouts.
 	if (["transforming double-faced", "modal double-faced"].includes(cardData.layout) && cardData.side === "b") {
-		imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.name}&face=back`);
+		setTimeout(() => imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.name}&face=back`), imgRequestTimeout);
 	} else if (cardData.layout === "flip" && cardData.side === "b") {
-		imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.name}`);
-		imageElement.style.transform = "rotate(180deg)";
+		setTimeout(() => {
+			imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.name}`);
+			imageElement.style.transform = "rotate(180deg)";
+		}, imgRequestTimeout);
 	} else if (cardData.layout === "split (half)") {
-		imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.names[0] + " // " + cardData.names[1]}`);
+		setTimeout(() => imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.names[0] + " // " + cardData.names[1]}`), imgRequestTimeout);
 	} else if (cardData.layout === "prototype" && cardData.name.includes(" (prototyped)")) {
-		imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.name.replace(" (prototyped)", "")}`);
+		setTimeout(() => imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.name.replace(" (prototyped)", "")}`), imgRequestTimeout);
 	} else {
-		imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.name}`);
+		setTimeout(() => imageElement.setAttribute("src",`https://api.scryfall.com/cards/named?format=image&version=normal&exact=${cardData.name}`), imgRequestTimeout);
 	}
 
 	imageElement.setAttribute("class", "cardImage");

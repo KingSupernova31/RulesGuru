@@ -357,6 +357,8 @@ setInterval(checkForUpdate, 10);
 
 //Display the pictures for the generator preview.
 const displayGeneratorPictures = function(inputCardNamesArray) {
+	let scryfallDelayMs = 0; // scryfall recommends waiting 50-100ms per request
+
 	if (window.parentData.currentGeneratorErrors.length > 0) {
 		document.getElementById("generatorError").style.display = "block";
 		document.getElementById("generatorError").innerHTML = window.parentData.currentGeneratorErrors.join("<br>");
@@ -372,7 +374,8 @@ const displayGeneratorPictures = function(inputCardNamesArray) {
 
 	//Add pictures to the display.
 	for (let i in cardNames) {
-		document.getElementById("generatorPictures").appendChild(createCardDisplay(window.parentData.allCards[cardNames[i]], defaultCardDisplayFormat));
+		document.getElementById("generatorPictures").appendChild(createCardDisplay(window.parentData.allCards[cardNames[i]], defaultCardDisplayFormat, scryfallDelayMs));
+		scryfallDelayMs += 50;
 	}
 }
 

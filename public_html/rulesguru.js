@@ -240,17 +240,24 @@ const populateCardDisplayArea = function(oracle) {
 
 	const defaultDisplayType = document.getElementById("cardDisplayFormat").value.toLowerCase();
 	const answerOnlyCards = loadedQuestions.currentQuestion.includedCards.filter(card => !loadedQuestions.currentQuestion.questionSimple.includes(card.name) && loadedQuestions.currentQuestion.answerSimple.includes(card.name));
+	let scryfallDelayMs = 0; // scryfall recommends waiting 50-100ms per request
+
 
 	for (let card of oracle) {
 		if (answerOnlyCards.includes(card)) {
 			continue;
-		}
-		if (defaultDisplayType !== "none") {
-			document.getElementById("picturesUnsorted").appendChild(createCardDisplay(card, defaultDisplayType));
-		} else {
-			document.getElementById("picturesUnsorted").appendChild(createCardDisplay(card, "image"));
+		} else 
+		{
+			if (defaultDisplayType !== "none") {
+				document.getElementById("picturesUnsorted").appendChild(createCardDisplay(card, defaultDisplayType, scryfallDelayMs));
+			} else {
+				document.getElementById("picturesUnsorted").appendChild(createCardDisplay(card, "image", scryfallDelayMs));
+			}
+
+			scryfallDelayMs += 50;
 		}
 	}
+
 }
 
 //Properly format the card displays based on screen size.
