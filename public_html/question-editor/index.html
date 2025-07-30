@@ -55,6 +55,7 @@
 				<div id="hideWhenQuestionsListOpen">
 					<button class="specialButtonBlack" id="showTagEditorButton">Show Tag Editor</button>
 					<button class="specialButtonBlack" id="showAdminEditorButton">Show Admin Editor</button>
+					<button class="specialButtonBlack" id="bulkUpdateCitationsButton">Bulk Update Citations</button>
 					<button class="specialButtonBlack" id="forceUpdateButton">Update and Force to:</button>
 					<label>Pending <input type="radio" name="forceStatus" id="forceStatusPending"></label>
 					<label>Finished <input type="radio" name="forceStatus" id="forceStatusFinished" checked></label>
@@ -188,6 +189,27 @@
 				<div id="adminEditorBottomDiv">
 					<button class="specialButtonBlack" id="adminEditorConfirmButton" onclick="performAdminEdit();">Confirm</button>
 					<button class="specialButtonBlack" id="adminEditorCancelButton">Cancel</button>
+				</div>
+			</div>
+			<div id="bulkCitationsEditor" class="roundedCorners">
+				<h3>Bulk Update Citations</h3>
+				<div id="bulkCitationsTextareas">
+					<div>
+						<label>Removed</label>
+						<textarea id="bulkCitationsRemovedText"></textarea>
+					</div>
+					<div>
+						<label>Added</label>
+						<textarea id="bulkCitationsAddedText"></textarea>
+					</div>
+					<div>
+						<label>Moved</label>
+						<textarea id="bulkCitationsMovedText"></textarea>
+					</div>
+				</div>
+				<div id="bulkCitationsEditorBottomDiv">
+					<button class="specialButtonBlack" id="bulkCitationsConfirmButton">Confirm</button>
+					<button class="specialButtonBlack" id="bulkCitationsCancelButton">Cancel</button>
 				</div>
 			</div>
 			<button class="specialButtonBlack" id="previewButton">Preview</button>

@@ -266,8 +266,7 @@ let addSidebarTag = function(tag) {
 
 //Populate sidebar rules dropdown.
 const populateSidebarRulesDropdown = function() {
-	let allRulesForDropdown = allRuleNumbers.concat(allRuleHeaders);
-	allRulesForDropdown = allRulesForDropdown.concat(allRulesForDropdown.map(element => element + "."));
+	const allRulesForDropdown = allRuleNumbers.concat(allRuleNumbers.map(element => element + "."));
 	allRulesForDropdown.sort();
 	let ruleOptions = "";
 	for (let i in allRulesForDropdown) {

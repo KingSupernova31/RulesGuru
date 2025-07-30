@@ -4,11 +4,6 @@
 if (typeof allRuleNumbers === "undefined") {
 	window.allRuleNumbers = Object.keys(allRules);
 }
-let allRuleHeaders = new Set;
-for (let i in allRuleNumbers) {
-	allRuleHeaders.add(allRuleNumbers[i].slice(0,3))
-}
-allRuleHeaders = Array.from(allRuleHeaders);
 let currentSidebarRules = [];
 let addSidebarRule = function(rule) {
 	const actuallyAddTheRule = function(rule) {
@@ -28,7 +23,7 @@ let addSidebarRule = function(rule) {
 			actuallyAddTheRule(rule);
 		}
 	} else {
-		if (allRuleNumbers.includes(rule) || allRuleHeaders.includes(rule) || (window.location.href.includes("/question-editor") && rule !== "")) {
+		if (allRuleNumbers.includes(rule) || (window.location.href.includes("/question-editor") && rule !== "")) {
 			actuallyAddTheRule(rule);
 		}
 	}

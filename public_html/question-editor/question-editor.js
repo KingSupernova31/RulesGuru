@@ -2228,6 +2228,151 @@ bindButtonAction(document.getElementById("adminEditorCancelButton"), function() 
 	clearAdminEditorFields();
 });
 
+bindButtonAction(document.getElementById("bulkUpdateCitationsButton"), function() {
+	document.getElementById("bulkCitationsEditor").style.display = "block";
+	document.getElementById("ownerOptionsGreyout").style.display = "block";
+});
+
+const getBulkCitationData = function() {
+	const removedText = document.getElementById("bulkCitationsRemovedText").value.trim();
+	const addedText = document.getElementById("bulkCitationsAddedText").value.trim();
+	const movedText = document.getElementById("bulkCitationsMovedText").value.trim();
+
+	// Validate rule numbers (allows "120" or "120.1" or "120.1a")
+	const rulePattern = /^\d+(\.\d+[a-z]*)?$/;
+	const errors = [];
+	
+	// Parse and validate removed rules
+	const removedRules = removedText ? removedText.split('\n').map(line => line.trim()).filter(line => line) : [];
+	for (const rule of removedRules) {
+		if (!rulePattern.test(rule)) {
+			errors.push(`Invalid removed rule: "${rule}"`);
+		}
+	}
+
+	// Parse and validate added rules
+	const addedRules = addedText ? addedText.split('\n').map(line => line.trim()).filter(line => line) : [];
+	for (const rule of addedRules) {
+		if (!rulePattern.test(rule)) {
+			errors.push(`Invalid added rule: "${rule}"`);
+		}
+	}
+	
+	// Parse and validate moved rules (two rules per line separated by space)
+	const movedRules = [];
+	if (movedText) {
+		const movedLines = movedText.split('\n').map(line => line.trim()).filter(line => line);
+		for (const line of movedLines) {
+			const parts = line.split(' ');
+			if (parts.length !== 2) {
+				errors.push(`Invalid moved rule line: "${line}" (should be two rules separated by space)`);
+				continue;
+			}
+			if (!rulePattern.test(parts[0]) || !rulePattern.test(parts[1])) {
+				errors.push(`Invalid moved rule: "${line}"`);
+				continue;
+			}
+			movedRules.push({ from: parts[0], to: parts[1] });
+		}
+	}
+
+	if (removedRules.concat(addedRules).concat(movedRules).length === 0) {
+		errors.push("No changes entered.");
+	}
+	
+	if (errors.length > 0) {
+		alert("Validation errors:\n" + errors.join('\n'));
+		return false;
+	}
+	return {
+		"removed": removedRules,
+		"added": addedRules,
+		"moved": movedRules,
+	}
+}
+
+bindButtonAction(document.getElementById("bulkCitationsConfirmButton"), async function() {
+	
+	const value = getBulkCitationData();
+
+	if (!value) {return;}
+	
+	// Disable buttons during request
+	document.getElementById("bulkCitationsConfirmButton").disabled = true;
+	document.getElementById("bulkCitationsCancelButton").disabled = true;
+	
+	// Make fetch request
+	const requestData = value;
+	requestData.password = document.getElementById("password").value;
+	
+	let response;
+	try {
+		response = await fetch('/bulkUpdateCitations', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(requestData)
+		});
+	} catch (e) {
+		console.error(e);
+		alert(e);
+		// Re-enable buttons
+		document.getElementById("bulkCitationsConfirmButton").disabled = false;
+		document.getElementById("bulkCitationsCancelButton").disabled = false;
+		return;
+	}
+		
+	const responseText = await response.text();
+	
+	if (!response.ok) {
+		alert(`Error code ${response.status}: ${responseText}`);
+		// Re-enable buttons
+		document.getElementById("bulkCitationsConfirmButton").disabled = false;
+		document.getElementById("bulkCitationsCancelButton").disabled = false;
+		return;
+	}
+
+	const data = JSON.parse(responseText);
+	
+	console.log('Bulk citation update results:', data);
+	
+	let message = `${data.updatedQuestionIds.length} questions successfully updated.\n`;
+	
+	if (data.questionIdsCitingRemovedRules && data.questionIdsCitingRemovedRules.length > 0) {
+		message += `\nQuestions that cited removed rules: ${data.questionIdsCitingRemovedRules.length}\n`;
+		message += `Question IDs: ${data.questionIdsCitingRemovedRules.join(', ')}`;
+	}
+	
+	alert(message);
+	document.getElementById("bulkCitationsEditor").style.display = "none";
+	document.getElementById("ownerOptionsGreyout").style.display = "none";
+	// Re-enable buttons
+	document.getElementById("bulkCitationsConfirmButton").disabled = false;
+	document.getElementById("bulkCitationsCancelButton").disabled = false;
+	clearBulkCitationsFields();
+});
+
+bindButtonAction(document.getElementById("bulkCitationsCancelButton"), function() {
+	const hasContent = document.getElementById("bulkCitationsRemovedText").value.trim() !== "" ||
+		document.getElementById("bulkCitationsAddedText").value.trim() !== "" ||
+		document.getElementById("bulkCitationsMovedText").value.trim() !== "";
+	
+	if (hasContent && !confirm("Are you sure you want to cancel? Any unsaved changes will be lost.")) {
+		return;
+	}
+	
+	document.getElementById("bulkCitationsEditor").style.display = "none";
+	document.getElementById("ownerOptionsGreyout").style.display = "none";
+	clearBulkCitationsFields();
+});
+
+const clearBulkCitationsFields = function() {
+	document.getElementById("bulkCitationsRemovedText").value = "";
+	document.getElementById("bulkCitationsAddedText").value = "";
+	document.getElementById("bulkCitationsMovedText").value = "";
+}
+
 const switchTabs = function(event) {
 	const tagEditorTabs = document.getElementsByClassName("tagEditorTab");
 	for (let i = 0 ; i < tagEditorTabs.length ; i++) {

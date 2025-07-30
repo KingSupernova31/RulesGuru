@@ -11,6 +11,7 @@ const express = require("express"),
 		getUnfinishedQuestion = require("./custom_modules/getUnfinishedQuestion.js"),
 		rgUtils = require("./custom_modules/rgUtils.js"),
 		shuffle = require("./custom_modules/shuffle.js"),
+		bulkUpdateCitations = require("./custom_modules/bulkUpdateCitations.js"),
 		questionMatchesSettings = require("./custom_modules/questionMatchesSettings.js");
 
 rgUtils.setUpErrorHandling();
@@ -807,11 +808,10 @@ app.post("/submitAdminQuestion", async function(req, res) {
 
 app.post("/updateQuestion", async function(req, res) {
 	const validateAdminResult = validateAdmin(req.body.password);
-	let currentAdmin;
 	if (validateAdminResult.error) {
-		res.send(validateAdminResult.error.text);
+		res.status(validateAdminResult.error.code).send(validateAdminResult.error.text);
 	} else {
-		currentAdmin = validateAdminResult;
+		const currentAdmin = validateAdminResult;
 		let error = false;
 		if (!(Number.isInteger(req.body.questionObj.id) && req.body.questionObj.id > 0)) {
 			res.send("That question doesn't exist.");
@@ -1111,7 +1111,7 @@ app.post("/getSpecificAdminQuestion", async function(req, res) {
 	const validateAdminResult = validateAdmin(req.body.password);
 	let currentAdmin;
 	if (validateAdminResult.error) {
-		res.send(validateAdminResult.error.text);
+		res.status(validateAdminResult.error.code).send(validateAdminResult.error.text);
 	} else {
 		currentAdmin = validateAdminResult;
 
@@ -1374,6 +1374,29 @@ app.post("/updateAndForceStatus", async function(req, res) {
 	}
 });
 
+app.post("/bulkUpdateCitations", async function(req, res) {
+
+	const validateAdminResult = validateAdmin(req.body.password);
+	if (validateAdminResult.error) {
+		res.status(validateAdminResult.error.code).send(validateAdminResult.error.text);
+		return;
+	}
+	
+	const currentAdmin = validateAdminResult;
+	if (!currentAdmin.roles.owner) {
+		res.status(403).send("Access denied. Owner role required.");
+		return;
+	}
+
+	const allRuleNums = Object.keys(JSON.parse(fs.readFileSync("./data_files/allRules.json")));
+
+	const result = await bulkUpdateCitations(req.body.removed, req.body.added, req.body.moved, db, allRuleNums);
+	res.json(result);
+
+	//Would be much faster to only update the questions that changed, but this whole system needs redoing anyway.
+	updateAllReferenceQuestions();
+});
+
 //Mirror format data for development. (The actual API is private.)
 const formats = JSON.parse(fs.readFileSync("formats.json", "utf8"));
 for (let format in formats) {
@@ -1390,10 +1413,13 @@ for (let format in formats) {
 }
 
 
-
-
 //The error handler must be last. https://expressjs.com/en/guide/error-handling.html
 app.use((err, req, res, next) => {
 	rgUtils.handleError(err, true);
-	next(err);
+	if (res.headersSent) {
+		return next(err)
+	} else {
+		//The default error handler sends a full HTML page rather than just the error string.
+		res.status(500).send(err.message);
+	}
 });

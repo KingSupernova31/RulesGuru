@@ -1009,24 +1009,50 @@ const convertAllKeywords = function(allKeywordsText) {
 	}
 }
 
-const convertAllRules = function(allRulesText) {
+const convertAllRules = function(crText, crTocText) {
 	try {
-		allRulesText = replaceDoppelgangerChars(allRulesText);
-		const allRules = JSON.parse(allRulesText);
+		crText = replaceDoppelgangerChars(crText);
+		const allRules = JSON.parse(crText);
 		if (Object.keys(allRules).length < 1000) {
 			//An issue that can happen sometimes with upstream data.
 			throw new Error("allRulesUpdate rules too short");
 		}
 
+		crTocText = replaceDoppelgangerChars(crTocText);
+		const toc = JSON.parse(crTocText);
+		if (Object.keys(toc).length < 9) {
+			throw new Error("cr table of contents too short");
+		}
+
+		//We don't use this information
+		for (let r in allRules) {
+			const rule = allRules[r];
+			delete rule.fragment;
+			delete rule.navigation;
+		}
+
+		//https://github.com/lunakv/academyruins/issues/39
+		for (let section of toc) {
+			for (let subsection of section.subsections) {
+				const ruleNum = subsection.number.toString();
+				allRules[ruleNum] = {
+					"ruleNumber": ruleNum,
+					"examples": null,
+					"ruleText": subsection.title,
+				}
+			}
+		}
+
+		const newRulesText = JSON.stringify(allRules);
+
 		if (fs.existsSync(path.join(rootDir, "data_files/allRules.json"))) {
 			const oldRulesText = fs.readFileSync(path.join(rootDir, "data_files/allRules.json"), "utf8");
-			if (oldRulesText !== allRulesText) {
+			if (oldRulesText !== newRulesText) {
 				rgUtils.emailOwners("RulesGuru: Rules changed", "The CR has changed.");
-				fs.writeFileSync(path.join(rootDir, "data_files/allRules.json"), allRulesText);
 			}
-		} else {
-			fs.writeFileSync(path.join(rootDir, "data_files/allRules.json"), allRulesText);
 		}
+
+		fs.writeFileSync(path.join(rootDir, "data_files/allRules.json"), newRulesText);
 	} catch (e) {
 		//We can still update the rest of the files without the new rules, so this doesn't need to halt the script.
 		rgUtils.handleError(e);
@@ -1116,9 +1142,10 @@ const doStuff = async function() {
 	console.log(time() + "allKeywords converted");
 
 	//Rules
-	const allRulesText = await downloadFile("https://api.academyruins.com/cr", path.join(rootDir, "data_files/rawAllRules.json"));
+	const crText = await downloadFile("https://api.academyruins.com/cr", path.join(rootDir, "data_files/rawCr.json"));
+	const crTocText = await downloadFile("https://api.academyruins.com/cr/toc", path.join(rootDir, "data_files/rawCrToc.json"));
 	console.log(time() + "rawAllRules downloaded");
-	convertAllRules(allRulesText);
+	convertAllRules(crText, crTocText);
 	console.log(time() + "allRules converted");
 
 	//All cards. We do this download last because it's the largest, so it's a waste of bandwidth if some other file has failed.
