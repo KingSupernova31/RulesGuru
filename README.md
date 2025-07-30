@@ -23,7 +23,7 @@ The server will create dummy data files to make your development environment fun
 
 ## Development guidelines
 
-* We love contributions! Feel free to leave a comment and start working on any issue that interests you. (Avoid any issue that someone else is already assigned to.) This is mostly a volunteer/nonprofit project, but we sometimes get grants from various Magic-related organizations, which allow me to pay for more in-depth development work. Talk to me for the details; I can be contacted via [email](is.aack@yahoo.com) or in the RulesGuru [Discord server](https://discord.gg/HbBXSe7nf5). If you want to help out consistently I'm also happy to add you on Github as a collaberator.
+* We love contributions! Feel free to leave a comment (or ask me to add you as a collaberator and assign yourself) and start working on any issue that interests you. (Avoid any issue that someone else is already assigned to.) Issues are marked with "effort" labels for convenience: "low" = <3 hours, "medium" >3 hours & <1 day, "high" >1 day. (Rough estimates only, and it will likely take you a bit longer at first while you're unfamiliar with the codebase.) This is mostly a volunteer project, but we sometimes get grants from various Magic-related organizations, which allow me to pay for more in-depth development work. Talk to me for the details; I can be contacted via [email](is.aack@yahoo.com) or in the RulesGuru [Discord server](https://discord.gg/HbBXSe7nf5).
 
 * Several of the issues on this repo were written back when it was just me on the project, so they're less "description" and more "cryptic hints that assume you know everything I do". If you have questions about what something actually means, please don't hesitate to ask and I'll rewrite the description so it actually explains what needs doing.
 
@@ -36,6 +36,8 @@ The server will create dummy data files to make your development environment fun
 * The `data_files` and `public_data_files` directories are *only* for files that are automatically generated; i.e. ones that can be deleted without causing an error. (Though doing so might lose important production data, like the question database or the admin accounts.) Hardcoded data files should be placed elsewhere.
 
 * If it matters for the issue you're working on, our hosting solution is basically a clone of this repo on a small Ubuntu DigitalOcean VPS. (1 CPU, 1GB memory + 5GB swap, and another ~10GB of free disk space, so keep things reasonably efficient.) Nginx reverse-proxies the local port out to the internet and certbot handles https, but other than that pretty much all information about the live site is reflected in this repo.
+
+* I don't mind if you use AI coding tools to help you (in fact I encourage it if it makes you faster), but I am getting really tired of people submitting fully AI-written [garbage PRs](https://github.com/KingSupernova31/RulesGuru/pull/228) that are full of useless bloat and don't solve the issue properly or at all. Please do not waste my time and I won't waste yours.
 
 
 ## Third-party usage
