@@ -1536,7 +1536,7 @@ const displayTemplateCardSet = function(template, num) {
 }
 
 let questionsListOpen = false;
-bindButtonAction(document.getElementById("showQuestionsListButton"), function() {
+bindButtonAction(document.getElementById("showQuestionsListButton"), async function() {
 	if (questionsListOpen) {
 		document.getElementById("questionsListCount").style.display = "none";
 		document.getElementById("questionsListDisplay").style.display = "none";
@@ -1545,7 +1545,8 @@ bindButtonAction(document.getElementById("showQuestionsListButton"), function() 
 		questionsListOpen = false;
 		document.getElementById("hideWhenQuestionsListOpen").style.display = "block";
 	} else {
-		getQuestionsList(displayQuestionsList);
+		const questions = await	getQuestionsList();
+		displayQuestionsList(questions);
 		document.getElementById("questionsListCount").style.display = "block";
 		document.getElementById("questionsListDisplay").style.display = "block";
 		document.getElementById("settingsButton").style.display = "block";
@@ -1555,63 +1556,49 @@ bindButtonAction(document.getElementById("showQuestionsListButton"), function() 
 	}
 });
 
-const doSomethingOnSidebarSettingsUpdate = function() {
-	getQuestionsList(displayQuestionsList);
+const doSomethingOnSidebarSettingsUpdate = async function() {
+	const questions = await getQuestionsList();
+	displayQuestionsList(questions);
 }
 
 //Make a request for all questions that fit the current parameters.
-let getQuestionTimeoutId = 0;
-let currentPendingQuestionsListRequest = null;
-const getQuestionsList = function(callback, timeout) {
-	if (currentPendingQuestionsListRequest) {
-		currentPendingQuestionsListRequest.abort();
-	}
-	document.getElementById("questionsListDisplay").classList.add("awaitingUpdate");
-	let response;
-	clearTimeout(getQuestionTimeoutId);
+let getQuestionsListController = null;
+const getQuestionsList = async function() {
 
-	const httpRequest = new XMLHttpRequest();
-	httpRequest.timeout = timeout;
-	httpRequest.onabort = function() {
-		if (!timeout) {
-			getQuestionTimeoutId = setTimeout(getQuestionsList, 1000, callback);
-		}
-	};
-	httpRequest.onerror = function() {
-		if (!timeout) {
-			getQuestionTimeoutId = setTimeout(getQuestionsList, 1000, callback);
-		}
-	};
-	httpRequest.ontimeout = function() {
-		if (!timeout) {
-			getQuestionTimeoutId = setTimeout(getQuestionsList, 1000, callback);
-		}
-	};
-	httpRequest.onload = function() {
+	//Abort previous request if it's still in progress.
+	if (getQuestionsListController) {
+		getQuestionsListController.abort();
+	}
+
+	document.getElementById("questionsListDisplay").classList.add("awaitingUpdate");
+
+	getQuestionsListController = new AbortController();
+	let response;
+	try {
+		response = await fetch("/getQuestionsList", {
+			"method": "POST",
+			"headers": {"Content-Type": "application/json"},
+			"signal": getQuestionsListController.signal,
+			"body": JSON.stringify(sidebarSettings)
+		});
+	} catch (e) {
+		console.error(e);
 		document.getElementById("questionsListDisplay").classList.remove("awaitingUpdate");
-		if (httpRequest.status === 200) {
-			if (httpRequest.response) {
-				const response = JSON.parse(httpRequest.response)
-				if (!response.error && callback) {
-					callback(response);
-				}
-			} else {
-				if (!timeout) {
-					getQuestionTimeoutId = setTimeout(getQuestionsList, 1000, callback);
-				}
-			}
-		} else {
-			if (!timeout) {
-				getQuestionTimeoutId = setTimeout(getQuestionsList, 1000, callback);
-			}
-		}
-	};
-	httpRequest.open("POST", "/getQuestionsList", true);
-	httpRequest.setRequestHeader("Content-Type", "application/json");
-	httpRequest.send(JSON.stringify({
-		"settings": sidebarSettings
-	}));
-	currentPendingQuestionsListRequest = httpRequest;
+		return;
+	}
+
+	if (!response.ok) {
+		alert(await response.text());
+		document.getElementById("questionsListDisplay").classList.remove("awaitingUpdate");
+		return;
+	}
+
+	const questions = await response.json();
+
+	document.getElementById("questionsListDisplay").classList.remove("awaitingUpdate");
+	getQuestionsListController = null;
+
+	return questions;
 };
 
 const displayQuestionsList = function(questionsList) {
