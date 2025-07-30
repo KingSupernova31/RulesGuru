@@ -342,20 +342,8 @@
 		</div>
 
 		<div id="FOUCOverlay"></div>
-		<div id="jsDisabled">
-			<h1>Welcome to RulesGuru!</h1>
-			<p>It looks like your Javascript is disabled. You'll need to enable it in order for the site to work.</p>
-		</div>
-		<div id="jsOutOfDate">
-			<h1>Welcome to RulesGuru!</h1>
-			<p>It looks like your browser is out of date. You'll need to update it to a newer version in order for the site to work.</p>
-		</div>
-		<script>
-			//Check for Javascript
-			document.getElementById("jsDisabled").style.display = "none";
-			eval("const foo = 'bar'");
-			document.getElementById("jsOutOfDate").style.display = "none";
 
+		<script>
 			//Handle sites that append garbage to the url.
 			if (window.location.href !== window.location.href.match(/https?:\/\/.+?\/(\?\d+)?/)[0]) {
 				if (window.location.href.match(/https?:\/\/.+\/\?\d+/)) {

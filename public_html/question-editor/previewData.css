@@ -86,41 +86,6 @@ p, label, button, a, li {
 Reset
 */
 
-#jsDisabled {
-	z-index: 6;
-	position: fixed;
-	height: 100%;
-	top: 0;
-	left: 0;
-	right: 0;
-	text-align: center;
-	padding-top: 20%;
-	opacity: 100;
-	background: linear-gradient(white, #d8d8d8);
-	background-repeat: repeat-x;
-	background-attachment: fixed;
-}
-
-#jsOutOfDate {
-	z-index: 5;
-	position: fixed;
-	height: 100%;
-	top: 0;
-	left: 0;
-	right: 0;
-	text-align: center;
-	padding-top: 20%;
-	opacity: 100;
-	background: linear-gradient(white, #d8d8d8);
-	background-repeat: repeat-x;
-	background-attachment: fixed;
-}
-
-#jsDisabled > *, #jsOutOfDate > * {
-	margin-left: 1rem;
-	margin-right: 1rem;
-}
-
 #FOUCOverlay {
 	z-index: 4;
 	position: fixed;
