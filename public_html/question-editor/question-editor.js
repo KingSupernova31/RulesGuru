@@ -936,7 +936,7 @@ const update = function() {
 					const response = JSON.parse(httpRequest.response);
 					if (response.message === "Incorrect password." || response.message === "That question doesn't exist.") {
 					} else {
-						setTimeout(getQuestionsList, 50, displayQuestionsList);
+						setTimeout(updateQuestionsList, 50);
 					}
 					if (response.message === `Question #${requestObj.questionObj.id} updated successfully.`) {
 						lastKnownServerQuestionState = createQuestionObj();
@@ -1012,7 +1012,7 @@ const submit = function() {
 						lastKnownServerQuestionState = createQuestionObj();
 						updateButtons();
 						alert(response.message);
-						setTimeout(getQuestionsList, 50, displayQuestionsList);
+						setTimeout(updateQuestionsList, 50);
 					}
 				} else {
 					alert("There was an error submitting your question. (Server returned no response.) Please report this error.");
@@ -1545,25 +1545,23 @@ bindButtonAction(document.getElementById("showQuestionsListButton"), async funct
 		questionsListOpen = false;
 		document.getElementById("hideWhenQuestionsListOpen").style.display = "block";
 	} else {
-		const questions = await	getQuestionsList();
-		displayQuestionsList(questions);
 		document.getElementById("questionsListCount").style.display = "block";
 		document.getElementById("questionsListDisplay").style.display = "block";
 		document.getElementById("settingsButton").style.display = "block";
 		document.getElementById("showQuestionsListButton").innerHTML = "Hide Questions List";
 		questionsListOpen = true;
 		document.getElementById("hideWhenQuestionsListOpen").style.display = "none";
+		updateQuestionsList();
 	}
 });
 
 const doSomethingOnSidebarSettingsUpdate = async function() {
-	const questions = await getQuestionsList();
-	displayQuestionsList(questions);
+	updateQuestionsList();
 }
 
 //Make a request for all questions that fit the current parameters.
 let getQuestionsListController = null;
-const getQuestionsList = async function() {
+const updateQuestionsList = async function() {
 
 	//Abort previous request if it's still in progress.
 	if (getQuestionsListController) {
@@ -1598,7 +1596,7 @@ const getQuestionsList = async function() {
 	document.getElementById("questionsListDisplay").classList.remove("awaitingUpdate");
 	getQuestionsListController = null;
 
-	return questions;
+	displayQuestionsList(questions);
 };
 
 const displayQuestionsList = function(questionsList) {
@@ -1755,7 +1753,7 @@ const changeStatusUpwards = function() {
 						lastKnownServerQuestionState = createQuestionObj();
 						updateButtons();
 						alert(response.message);
-						setTimeout(getQuestionsList, 50, displayQuestionsList);
+						setTimeout(updateQuestionsList, 50);
 					} else {
 						alert(response.message);
 					}
@@ -1812,7 +1810,7 @@ const changeStatusDownwards = function() {
 						lastKnownServerQuestionState = createQuestionObj();
 						updateButtons();
 						alert(response.message);
-						setTimeout(getQuestionsList, 50, displayQuestionsList);
+						setTimeout(updateQuestionsList, 50);
 					} else {
 						alert(response.message);
 					}
@@ -2766,7 +2764,7 @@ const updateAndForceStatus = function(newStatus, newId) {
 						lastKnownServerQuestionState = createQuestionObj();
 						updateButtons();
 						alert(response.message);
-						setTimeout(getQuestionsList, 50, displayQuestionsList);
+						setTimeout(updateQuestionsList, 50);
 					} else {
 						alert(response.message);
 					}
