@@ -30,7 +30,7 @@ const transporter = nodemailer.createTransport({
 
 //Mail hosts don't like it when we send lots of emails in quick succession and sometimes lock us out, so we spread them out.
 const pendingEmails = [];
-const sendEmail = function(recipientEmail, subject, message, callback) {
+const sendEmail = function(recipientEmail, subject, message, callback, replyTo) {
 	if (emailAuth === null) {
 		console.log("No email credentials, dumping email:");
 		console.log(recipientEmail);
@@ -46,6 +46,7 @@ const sendEmail = function(recipientEmail, subject, message, callback) {
 		"subject": subject,
 		"message": message,
 		"callback": callback,
+		"replyTo": replyTo,
 	});
 	createEmailCheck();
 }
@@ -59,13 +60,14 @@ const createEmailCheck = function() {
 	const interval = setInterval(() => {
 		if (Date.now() - lastSent < 500) {return;}
 		if (pendingEmails.length === 0) {return;}
-		const {recipientEmail, subject, message, callback} = pendingEmails.shift();
+		const {recipientEmail, subject, message, callback, replyTo} = pendingEmails.shift();
 		console.log(`Sending email to ${recipientEmail}: ${subject}`);
 		transporter.sendMail({
 			from: emailAuth.user,
 			to: recipientEmail,
 			subject: subject,
 			text: message,
+			replyTo: replyTo,
 		}, function(err) {
 			if (callback) {
 				callback(err ? false : true);

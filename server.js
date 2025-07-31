@@ -745,7 +745,7 @@ app.post("/submitContactForm", function(req, res) {
 			}
 		}
 		const emailAuth = JSON.parse(fs.readFileSync("privateData.json", "utf8")).email;
-		rgUtils.email(emailAuth.user, "RulesGuru contact form submission", message, emailCallback);
+		rgUtils.email(emailAuth.user, "RulesGuru contact form submission", message, emailCallback, req.body.returnEmail);
 	} else {
 		res.sendStatus(400);
 	}
