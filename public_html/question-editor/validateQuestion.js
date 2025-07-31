@@ -217,7 +217,7 @@ const validateQuestion = function(questionObj, templateEmptyness, convertedTempl
 			}
 		}
 		if (/\byou\b/.test(questionObj.question.toLowerCase()) || /\byou\b/.test(questionObj.answer.toLowerCase())) {
-			errors.push(`"You" aren't a player in the game. Please replace this with a reference to a player in the third person.`);
+			warnings.push(`Please ensure that the word "you" is only used as part of a card text quote.`);
 		}
 		if (/\bwe\b/.test(questionObj.question.toLowerCase()) || /\bwe\b/.test(questionObj.answer.toLowerCase())) {
 			errors.push(`"We" aren't in the game. Please replace this with a reference to "the game" or similar.`);
