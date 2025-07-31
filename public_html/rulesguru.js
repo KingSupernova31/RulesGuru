@@ -426,7 +426,7 @@ const keepQuestionsLoaded = async function() {
 
 			loadedQuestions.futureQuestions.push(randomQuestion.question);
 			mostRecentQuestionId = randomQuestion.question.id;
-			for (let card of response.oracle) {
+			for (let card of randomQuestion.question.includedCards) {
 				if (["transforming double-faced", "modal double-faced"].includes(card.layout) && card.side === "b") {
 					const image = new Image();
 					image.src = `https://api.scryfall.com/cards/named?format=image&version=medium&fuzzy=${encodeURIComponent(card.name)}&face=back`;
@@ -438,9 +438,8 @@ const keepQuestionsLoaded = async function() {
 				}
 			}
 			getQuestionError = null;
-
 		}
-				
+
 		if (awaitingQuestion) {
 			if (loadedQuestions.futureQuestions.length > 0) {
 				loadedQuestions.currentQuestion = loadedQuestions.futureQuestions[0];
