@@ -112,7 +112,8 @@ const doStuff = async function() {
 
 	//If there's a question from yesterday, post the answer.
 	if (savedQuestionData.liveQuestion) {
-		const result = await post(savedQuestionData.liveQuestion.question.answerSimple, [], savedQuestionData.liveQuestion.replyToIds);
+		const answerText = `Answer: ${savedQuestionData.liveQuestion.question.answerSimple}`;
+		const result = await post(answerText, [], savedQuestionData.liveQuestion.replyToIds);
 
 		for (let platformName in result) {
 			const data = result[platformName];
