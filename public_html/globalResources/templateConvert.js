@@ -269,23 +269,52 @@ const templateRuleMatchesCard = function(rule, card, pseudoSymbolMap) {
 		case "Subtypes":
 			return typicalArrayRuleMatchesCard(rule, card);
 		case "Rules text":
-			const replacedValue = rule.value.replace(/::name::/g, card.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+			const escapedName = card.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+			const namePattern = new RegExp(`\\b${escapedName}\\b`, 'i');
+			const namedDisqualifier = new RegExp(`\\bnamed\\s+${escapedName}\\b`, 'i');
+			const validThisRefs = [
+				'card', 'spell', 'permanent', 'creature', 'artifact', 'enchantment',
+				'planeswalker', 'land', 'aura', 'equipment', 'vehicle', 'saga',
+				'battle', 'token'
+			];
+			const validThisRegex = new RegExp(`\\bthis\\s+(${validThisRefs.join('|')})\\b`, 'i');
+
+			let replacedValue = rule.value
+			.replace(/::name::/g, escapedName)
+			.replace(/::this::/g, (() => {
+				// Use a placeholder for ::this:: matching:
+				const selfRefs = [];
+	
+				// Case 1: name match but not following "named"
+				if (namePattern.test(card.rulesText) && !namedDisqualifier.test(card.rulesText)) {
+					selfRefs.push(escapedName);
+				}
+	
+				// Case 2: valid "this [type]" phrases
+				if (validThisRegex.test(card.rulesText)) {
+					selfRefs.push("this");
+				}
+	
+				// De-duplicate and join with OR for regex
+				return selfRefs.length ? `(?:${[...new Set(selfRefs)].join("|")})` : "⸺NO_MATCH⸺";
+			})());
+
+			let regex = new RegExp(replacedValue, 'i');
+
 			if (rule.operator === "Matches") {
-				let regex = new RegExp(replacedValue);
 				if (!regex.test(card.rulesText)) {
 					return false;
 				}
 			} else if (rule.operator === "Does not match") {
-				let regex = new RegExp(replacedValue);
 				if (regex.test(card.rulesText)) {
 					return false;
 				}
 			} else if (rule.operator === "Contains") {
-				if (!card.rulesText.toLowerCase().includes(replacedValue.toLowerCase())) {
+				if (!regex.test(card.rulesText)) {
 					return false;
 				}
 			} else if (rule.operator === "Does not contain") {
-				if (card.rulesText.toLowerCase().includes(replacedValue.toLowerCase())) {
+				if (regex.test(card.rulesText)) {
 					return false;
 				}
 			}
