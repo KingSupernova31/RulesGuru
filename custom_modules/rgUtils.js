@@ -8,7 +8,7 @@ const rootDir = path.join(__dirname, "..");
 let emailAuth;
 try {
 	emailAuth = JSON.parse(fs.readFileSync(path.join(rootDir, "privateData.json"), "utf8")).email;
-	if (emailAuth.user.trim().length === 0 || emailAuth.pass.trim().length === 0) {
+	if (!emailAuth.user || !emailAuth.pass) {
 		throw new Error("No email credentials");
 	}
 } catch (e) {
@@ -96,6 +96,55 @@ const getAdmins = function() {
 	}
 }
 
+function errorToString(err) {
+  if (!(err instanceof Error)) return String(err);
+
+  const result = {
+    name: err.name,
+    message: err.message,
+    stack: err.stack,
+  };
+
+  const seen = new WeakSet();
+  seen.add(err);
+
+  const allKeys = Reflect.ownKeys(err);
+  for (const key of allKeys) {
+    if (!(key in result)) {
+      try {
+        const value = err[key];
+        result[key] = serialize(value, seen);
+      } catch (_) {
+        result[key] = '[unreadable]';
+      }
+    }
+  }
+
+  return JSON.stringify(result, null, 2);
+}
+
+function serialize(value, seen) {
+  if (value && typeof value === 'object') {
+    if (seen.has(value)) {
+      return '[circular reference omitted]';
+    }
+    seen.add(value);
+    if (Array.isArray(value)) {
+      return value.map(v => serialize(v, seen));
+    }
+    const copy = {};
+    for (const key of Reflect.ownKeys(value)) {
+      try {
+        copy[key] = serialize(value[key], seen);
+      } catch (_) {
+        copy[key] = '[unreadable]';
+      }
+    }
+    return copy;
+  }
+  return value;
+}
+
 const sendEmailToOwners = function(subject, message, callback) {
 	const allAdmins = getAdmins();
 	for (let i in allAdmins) {
@@ -123,7 +172,7 @@ const handleError = async function(error, silent = false) {
 					const emailCallback = function() {
 						resolve();
 					}
-					sendEmail(owner.emailAddress, "Disaster!", error.stack, emailCallback);
+					sendEmail(owner.emailAddress, "Disaster!", errorToString(error), emailCallback);
 				})
 			);
 		}
@@ -132,6 +181,9 @@ const handleError = async function(error, silent = false) {
 }
 
 const setUpErrorHandling = function() {
+	if (globalThis.errorHandlingSetUp) {
+		return;
+	}
 	process.on("warning", (err) => {
 		handleError(err);
 	});
@@ -143,6 +195,7 @@ const setUpErrorHandling = function() {
 		await handleError(reason);
 		process.exit(1);
 	});
+	globalThis.errorHandlingSetUp = true;
 }
 
 module.exports = {
