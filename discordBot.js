@@ -1,6 +1,8 @@
 const { Client, GatewayIntentBits, SlashCommandBuilder } = require('discord.js'),
 			fs = require("fs"),
 			https = require("https");
+const rgUtils = require("./custom_modules/rgUtils.js");
+rgUtils.setUpErrorHandling();
 
 async function post(url, data) {
   const dataString = JSON.stringify(data)
