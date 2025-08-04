@@ -616,6 +616,41 @@ const updateAllCards = function(verbose = false) {
 		}
 	}
 
+	//Add in shortenedName field.
+	//Shortened names are determined on a best-effort basis.
+	function getShortenedName(card) {
+		// assumption: only permanents have shortened names
+		if ("Instant" in card.types || "Sorcery" in card.types) {
+			return null;
+		}
+
+		const name = card.name;
+
+		// assumption: if name contains a comma, shortened name is everything before the comma.
+		if (name.includes(",")) {
+			return name.split(",")[0];
+		}
+
+		// assumption: only legendary creatures and planeswalkers have shortened names without a comma
+		if (!card.supertypes.includes("Legendary") || !(card.types.includes("Creature") || card.types.includes("Planeswalker"))) {
+			return null;
+		}
+
+		// assumption: shortened names follow the pattern "<name> of ..." or "<name> the ..."
+		// the "of" pattern assigns incorrect shortened names to several cards such as Child of Alara, the Go-Shintai cycle
+		// but is a good heuristic for cards like Daxos of Meletis
+		// it's not clear that there's a principled way to distinguish these, we may just need manual tagging to get exact results
+		const match = name.match(/^(.+?) (of|the) /);
+		if (match) {
+			return match[1];
+		}
+
+		return null;
+	}
+	for (let i in allCards) {
+		allCards[i].shortenedName = getShortenedName(allCards[i]);
+	}
+
 	//Fix names
 	for (let i in allCards) {
 		let properName;
@@ -646,7 +681,7 @@ const updateAllCards = function(verbose = false) {
 		}
 	}
 
-	const relevantProps = ["colorIdentity", "colorIndicator", "colors", "manaValue", "layout", "legalities", "loyalty", "manaCost", "name", "names", "power", "side", "subtypes", "supertypes", "text", "toughness", "type", "types", "rulesText", "printingsName", "printingsCode", "keywords", "playability", "defense"];
+	const relevantProps = ["colorIdentity", "colorIndicator", "colors", "manaValue", "layout", "legalities", "loyalty", "manaCost", "name", "names", "power", "shortenedName", "side", "subtypes", "supertypes", "text", "toughness", "type", "types", "rulesText", "printingsName", "printingsCode", "keywords", "playability", "defense"];
 	for (let i in allCards) {
 		const allProps = Object.keys(allCards[i]);
 		for (let j in allProps) {
@@ -794,7 +829,7 @@ const disperseFiles = function() {
 
 	//Update cards. This file leaves out some properties like printings since they're not necessary on the editor.
 	const allCards = JSON.parse(fs.readFileSync("data_files/allCards.json", "utf8"));
-	writeCardList(allCards, "public_html/public_data_files/allCardsSimple.js", ["name", "names", "rulesText", "power", "toughness", "loyalty", "layout", "types", "type", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "manaCost", "keywords", "colorIdentity", "defense"], "js");
+	writeCardList(allCards, "public_html/public_data_files/allCardsSimple.js", ["name", "names", "shortenedName", "rulesText", "power", "toughness", "loyalty", "layout", "types", "type", "side", "supertypes", "subtypes", "manaValue", "colors", "colorIndicator", "manaCost", "keywords", "colorIdentity", "defense"], "js");
 
 	//Update cards to ignore
 	const cardNamesToIgnore = fs.readFileSync("data_files/cardNamesToIgnore.json", "utf8");
