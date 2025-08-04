@@ -121,7 +121,7 @@ setInterval(function() {
 	if (!fs.existsSync(path.join(rootDir, "data_files/socialsQuestionData.json"))) {
 		return;
 	}
-	const savedQuestionData = JSON.parse(fs.readFileSync(path.join(rootDir, "data_files/socialsQuestionData.json"), "utf8"));
+	const savedQuestionData = JSON.parse(fs.readFileSync("./data_files/socialsQuestionData.json", "utf8"));
 	const cachedQuestionText = JSON.stringify(savedQuestionData.cachedQuestion);
 	if (cachedQuestionText !== lastQuestionData) {
 		sendUnsolicitedMessage("1062471339711139850", savedQuestionData.cachedQuestion.questionSimple);
