@@ -118,6 +118,7 @@ const doStuff = async function() {
 		for (let platformName in result) {
 			const data = result[platformName];
 			if (data.error) {
+				data.error.platform = platformName;
 				throw data.error;
 			}
 		}
@@ -136,6 +137,7 @@ const doStuff = async function() {
 		for (let platformName in result) {
 			const data = result[platformName];
 			if (data.error) {
+				data.error.platform = platformName;
 				throw data.error;
 			}
 
