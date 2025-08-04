@@ -118,7 +118,7 @@ const sendUnsolicitedMessage = function(channelId, message) {
 //Check if the socials bot cached question has changed, and post it if so.
 let lastQuestionData;
 setInterval(function() {
-	if (!fs.existsSync(path.join(rootDir, "data_files/socialsQuestionData.json"))) {
+	if (!fs.existsSync("./data_files/socialsQuestionData.json")) {
 		return;
 	}
 	const savedQuestionData = JSON.parse(fs.readFileSync("./data_files/socialsQuestionData.json", "utf8"));
