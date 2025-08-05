@@ -1,3 +1,4 @@
+
 const { Client, GatewayIntentBits, SlashCommandBuilder } = require('discord.js'),
 			fs = require("fs"),
 			https = require("https");
@@ -116,16 +117,19 @@ const sendUnsolicitedMessage = function(channelId, message) {
 }
 
 //Check if the socials bot cached question has changed, and post it if so.
-let lastQuestionData;
+let lastCachedQuestionText;
 setInterval(function() {
 	if (!fs.existsSync("./data_files/socialsQuestionData.json")) {
 		return;
 	}
 	const savedQuestionData = JSON.parse(fs.readFileSync("./data_files/socialsQuestionData.json", "utf8"));
-	const cachedQuestionText = JSON.stringify(savedQuestionData.cachedQuestion);
-	if (cachedQuestionText !== lastQuestionData) {
-		sendUnsolicitedMessage("1062471339711139850", savedQuestionData.cachedQuestion.questionSimple);
-		sendUnsolicitedMessage("1062471339711139850", savedQuestionData.cachedQuestion.answerSimple);
+	const newCachedQuestionText = JSON.stringify(savedQuestionData.cachedQuestion);
+	if (newCachedQuestionText !== lastCachedQuestionText) {
+		sendUnsolicitedMessage("1062471339711139850", "`Question #" + savedQuestionData.cachedQuestion.id + "`");
+		sendUnsolicitedMessage("1062471339711139850", "`" + savedQuestionData.cachedQuestion.questionSimple + "`");
+		sendUnsolicitedMessage("1062471339711139850", "`" + savedQuestionData.cachedQuestion.answerSimple + "`");
+
+		lastCachedQuestionText = newCachedQuestionText;
 	}
 }, 1000 * 60 * 10);
 
