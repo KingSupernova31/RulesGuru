@@ -451,8 +451,8 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 		this.parentElement.remove();
 	});
 	//in addition to the delete button, we also need the swap-side button
-	let otherSideButton = document.createElement("div");
-	otherSideButton.textContent="🔄"; //I don't want to find an image so I'm using an emoji!
+	let otherSideButton = document.createElement("img");
+	otherSideButton.setAttribute("src", "/globalResources/icons/turnover.png");
 	otherSideButton.setAttribute("class", "templateRuleOtherSideButton");
 	let otherSideText = document.createElement("div");
 	otherSideText.setAttribute("class", "templateRuleOtherSideText");
