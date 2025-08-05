@@ -53,10 +53,9 @@ const templateConvert = function(template, globalCardList, presetTemplates, pseu
 
 		currentValidCards = currentValidCards.filter(function(currentCard) {
 
-			let currentCardValid = true;
 			//Nontraditional cards shouldn't appear in templates.
 			if (currentCard.layout === "other" || currentCard.subtypes.includes("Attraction")) {
-				currentCardValid = false;
+				return false;
 			}
 			let otherSide = null; //this will indicate a card with only one side.
 			let otherFrontForMelds = null; //for meld fronts, indicates other front; for meld backsides, the two fronts are arbitrary
@@ -66,8 +65,8 @@ const templateConvert = function(template, globalCardList, presetTemplates, pseu
 				switch (currentCard.side) {
 					case "a":
 						otherSideName = currentCard.names[currentCard.names.length - 1]; //this works even for melds
-						if (currentCard.side === "meld") {
-							otherFrontForMelds = currentCard.names.slice(0,2).find(name => name !== currentCard.name);
+						if (currentCard.layout === "meld") {
+							otherFrontForMeldsName = currentCard.names.slice(0,2).find(name => name !== currentCard.name);
 						}
 						break;
 					case "b":
@@ -85,51 +84,62 @@ const templateConvert = function(template, globalCardList, presetTemplates, pseu
 					otherFrontForMelds = globalCardList[otherFrontForMeldsName];
 				}
 			}
-			const orGroupsSatisfied = {};
-			for (let i = 0 ; i < expandedTemplate.length ; i++) {
-				if (!currentCardValid) {//If a previous rule has already determined that this card is invalid, we don't need to check if it satisfies this one.
-					continue;
-				}
-				let currentRule = expandedTemplate[i];
-				if (!currentRule.hasOwnProperty("orGroup")) {//Add in .orGroup for rules that don't have that property at all.
-					currentRule.orGroup = null;
-				}
-				if (currentRule.orGroup !== null && !orGroupsSatisfied[currentRule.orGroup]) {
-					orGroupsSatisfied[currentRule.orGroup] = false;
-				}
-				if (currentRule.orGroup !== null && orGroupsSatisfied[currentRule.orGroup]) {//If this rule is in an OR group that has already been satisfied, we can skip checking it.
-					continue;
-				}
-				let cardToCheck = currentCard;
-				if (rule.side = "other") {
-					cardToCheck = otherSide;
-				} else if (rule.side = "other-front-meld") {
-					cardToCheck = otherFrontForMelds;
-				}
-				let currentRuleSatisfied = templateRuleMatchesCard(currentRule, cardToCheck, pseudoSymbolMap);
+			let otherSideCases;
+			if (currentCard.layout === "meld" && currentCard.side === "b") {
+				//if we're dealing with a meld backside, we need to check *both* cases for the front sides
+				//(since the distinction between them is arbitrary)
+				otherSideCases = [
+					{ currentCard, otherSide, otherFrontForMelds },
+					{ currentCard, otherSide: otherFrontForMelds, otherFrontForMelds: otherSide }
+				];
+			} else {
+				//but in the normal case, things are what they are here
+				otherSideCases = [{ currentCard, otherSide, otherFrontForMelds }];
+			}
+			return otherSideCases.some({ currentCard, otherSide, otherFrontForMelds } => { //note: variable shadowing occurs here!
+				let currentCardValid = true;
+				const orGroupsSatisfied = {};
+				for (let i = 0 ; i < expandedTemplate.length ; i++) {
+					if (!currentCardValid) {//If a previous rule has already determined that this card is invalid, we don't need to check if it satisfies this one.
+						continue;
+					}
+					let currentRule = expandedTemplate[i];
+					if (!currentRule.hasOwnProperty("orGroup")) {//Add in .orGroup for rules that don't have that property at all.
+						currentRule.orGroup = null;
+					}
+					if (currentRule.orGroup !== null && !orGroupsSatisfied[currentRule.orGroup]) {
+						orGroupsSatisfied[currentRule.orGroup] = false;
+					}
+					if (currentRule.orGroup !== null && orGroupsSatisfied[currentRule.orGroup]) {//If this rule is in an OR group that has already been satisfied, we can skip checking it.
+						continue;
+					}
+					let cardToCheck = currentCard; //normally we check the current card, but sometimes we have to check the other side
+					if (rule.side = "other") {
+						cardToCheck = otherSide;
+					} else if (rule.side = "other-front-meld") {
+						cardToCheck = otherFrontForMelds;
+					}
+					let currentRuleSatisfied = templateRuleMatchesCard(currentRule, cardToCheck, pseudoSymbolMap);
 
-				if (currentRule.orGroup === null) {//If it's not in a group, the rule being false invalidates the card.
-					if (!currentRuleSatisfied) {
+					if (currentRule.orGroup === null) {//If it's not in a group, the rule being false invalidates the card.
+						if (!currentRuleSatisfied) {
+							currentCardValid = false;
+						}
+					} else {//If it is in a group, then we just mark whether any rule in that group has been satisfied.
+						if (currentRuleSatisfied) {
+							orGroupsSatisfied[currentRule.orGroup] = true;
+						}
+					}
+				}
+				for (let orGroup in orGroupsSatisfied) {
+					if (orGroupsSatisfied[orGroup] === false) {
 						currentCardValid = false;
 					}
-				} else {//If it is in a group, then we just mark whether any rule in that group has been satisfied.
-					if (currentRuleSatisfied) {
-						orGroupsSatisfied[currentRule.orGroup] = true;
-					}
 				}
-			}
-			for (let orGroup in orGroupsSatisfied) {
-				if (orGroupsSatisfied[orGroup] === false) {
-					currentCardValid = false;
-				}
-			}
-			return currentCardValid;
+				return currentCardValid;
+			});
 		});
-		let currentValidCardNames = [];
-		currentValidCards.forEach(function(currentValue) {
-			currentValidCardNames.push(currentValue.name);
-		});
-		return currentValidCardNames;
+		return currentValidCards.map(card => card.name);
 	}
 };
 
