@@ -229,25 +229,20 @@ async function postToTumblr(auth, message, imageUrls = [], replyToPostId) {
             }
         }
 
-        // Handle replies - Tumblr doesn't have direct replies like X,
-        // but we can reblog the original post with our message
+        let response;
+
         if (replyToPostId) {
             const originalPost = await client.blogPosts(auth.blogName, { id: replyToPostId });
-            const response = await client.reblogPost(auth.blogName, {
+            response = await client.reblogPost(auth.blogName, {
                 id: replyToPostId,
                 reblog_key: originalPost.posts[0].reblog_key,
                 comment: message
             });
-            
-            return {
-                success: true,
-                postId: response.id
-            };
+        } else {
+            response = await client.createPost(auth.blogName, {
+                content: content
+            });
         }
-
-        const response = await client.createPost(auth.blogName, {
-            content: content
-        });
         
         return {
             success: true,
@@ -273,11 +268,10 @@ const postThread = async function(messages, imageGroups, replyToPostId, postFunc
         for (let i in messages) {
             const message = messages[i];
             const images = imageGroups[i] || [];
-            const result = await postFunc(platformAuth, message, images, replyToPostId);
+            const result = await postFunc(platformAuth, message, images, previousId);
             if (result.success) {
                 previousId = result.postId;
             } else {
-                //We have to do this rather than throw the error to be caught later because throwing an error object removes its extra properties.
                 return {
                     "success": false,
                     "error": result.error,
@@ -296,22 +290,16 @@ const postThread = async function(messages, imageGroups, replyToPostId, postFunc
     }
 }
 
-const platforms = [
-    { name: 'x', func: postToX, auth: rgAuth.x , "lengthLimit": 280},
-    { name: 'bluesky', func: postToBluesky, auth: rgAuth.bluesky , "lengthLimit": 4096},
-    { name: 'tumblr', func: postToTumblr, auth: rgAuth.tumblr , "lengthLimit": 300},
-];
-
 const validateGlobalPostInput = function(auths, message, imageUrls, replyToPostIds) {
     if (replyToPostIds) {
-        for (let platform of platforms) {
+        for (let platform of platformData) {
             if (!replyToPostIds[platform.name] || replyToPostIds[platform.name].trim().length === 0) {
                 throw new Error(`Missing reply ID for ${platform.name}`);
             }
         }
     }
 
-    for (let platform of platforms) {
+    for (let platform of platformData) {
         if (!platform.auth) {
             throw new Error(`Missing auth for ${platform.name}`);
         }
@@ -320,11 +308,24 @@ const validateGlobalPostInput = function(auths, message, imageUrls, replyToPostI
     return true;
 }
 
-async function postEverywhere(message, imageUrls = [], replyToPostIds) {
+const platformData = [
+    { name: 'x', func: postToX, auth: rgAuth.x , "maxLength": 280},
+    { name: 'bluesky', func: postToBluesky, auth: rgAuth.bluesky , "maxLength": 300},
+    { name: 'tumblr', func: postToTumblr, auth: rgAuth.tumblr , "maxLength": 4096},
+];
+
+async function postEverywhere(message, imageUrls = [], replyToPostIds, onlyPlatforms) {
+
+    let platformsToPostTo;
+    if (onlyPlatforms) {
+        platformsToPostTo = platformData.filter(p => onlyPlatforms.includes(p.name));
+    } else {
+        platformsToPostTo = platformData;
+    }
 
     validateGlobalPostInput(message, imageUrls, replyToPostIds);
 
-    const promises = platforms.map(async platform => {
+    const promises = platformsToPostTo.map(async platform => {
         try {
             const platformReplyId = replyToPostIds ? replyToPostIds[platform.name] : null;
 
@@ -333,6 +334,11 @@ async function postEverywhere(message, imageUrls = [], replyToPostIds) {
             imageGroups[0] = imageUrls;
             
             const result = await postThread(messages, imageGroups, platformReplyId, platform.func, platform.auth);
+            if (result.success) {
+                console.log(`Successfully posted thread of ${messages.length} messages to ${platform.name}.`)
+            } else {
+                console.log(`Failed to post thread of ${messages.length} messages to ${platform.name}.`)
+            }
             return {
                 platform: platform.name,
                 success: result.success,

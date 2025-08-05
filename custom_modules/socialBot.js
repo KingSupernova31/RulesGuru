@@ -30,23 +30,18 @@ const questionSettings = {
 };
 
 async function getRandomQuestions() {
-	try {
-		const response = await fetch(`https://rulesguru.org/api/questions/?json=${encodeURIComponent(JSON.stringify(questionSettings))}`);
+	const response = await fetch(`https://rulesguru.org/api/questions/?json=${encodeURIComponent(JSON.stringify(questionSettings))}`);
 
-		if (!response.ok) {
-			throw new Error(`API request failed: ${response.status} ${response.statusText} ${response.body}`);
-		}
+	if (!response.ok) {
+		throw new Error(`API request failed: ${response.status} ${response.statusText} ${response.body}`);
+	}
 
-		const data = await response.json();
-		
-		if (data && data.length > 0) {
-			return data;
-		} else {
-			throw new Error('No questions returned from API');
-		}
-	} catch (error) {
-		console.error('Error fetching random question:', error);
-		throw error;
+	const data = await response.json();
+	
+	if (data && data.length > 0) {
+		return data;
+	} else {
+		throw new Error('No questions returned from API');
 	}
 }
 
@@ -54,23 +49,23 @@ const sleep = function(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-const questionIsValid = function(question, pastIds) {
+const questionIsValid = function(question, pastQuestionData) {
 	if (question.includedCards.length > globalLimits.imageNumMax) {return false;}
 	if (question.includedCards.length < globalLimits.imageNumMin) {return false;}
 	if (question.questionSimple.length > globalLimits.textLength) {return false;}
-	if (pastIds.includes(question.id)) {return false;}
+	if (pastQuestionData.find(p => p.id === question.id)) {return false;}
 	//X can't include more than one image per reply, and tumbler can't include any images in replies, so we just ban questions with answer-only cards.
 	if (question.includedCards.some(card => !question.questionSimple.includes(card.name))) {return false;}
 
 	return true;
 }
 
-const getQuestionToPost = async function(pastIds) {
+const getQuestionToPost = async function(pastQuestionData) {
 	let questions = [];
 	while (true) {
 		await sleep(2000);
 		questions = await getRandomQuestions();
-		questions = questions.filter(q => questionIsValid(q, pastIds));
+		questions = questions.filter(q => questionIsValid(q, pastQuestionData));
 		if (questions.length > 0) {break;}
 	}
 
@@ -102,9 +97,10 @@ const doStuff = async function() {
 	let savedQuestionData;
 	if (!fs.existsSync(path.join(rootDir, "data_files/socialsQuestionData.json"))) {
 		savedQuestionData = {
-			"pastIds": [],
+			"pastQuestionData": [],
 			"cachedQuestion": null,
 			"liveQuestion": null,
+			"liveQuestionPostIds": null,
 		};
 	} else {
 		savedQuestionData = JSON.parse(fs.readFileSync(path.join(rootDir, "data_files/socialsQuestionData.json"), "utf8"));
@@ -112,18 +108,19 @@ const doStuff = async function() {
 
 	//If there's a question from yesterday, post the answer.
 	if (savedQuestionData.liveQuestion) {
-		const answerText = `Answer: ${savedQuestionData.liveQuestion.question.answerSimple}`;
-		const result = await post(answerText, [], savedQuestionData.liveQuestion.replyToIds);
+		const answerText = `Answer: ${savedQuestionData.liveQuestion.answerSimple}`;
+		const result = await post(answerText, [], savedQuestionData.liveQuestionPostIds);
 
 		for (let platformName in result) {
 			const data = result[platformName];
-			if (data.error) {
+			if (data.error) {//We try to continue past errors so that a problem with one platform's API doesn't interfere with others.
 				data.error.platform = platformName;
-				throw data.error;
+				rgUtils.handleError(data.error);
 			}
 		}
 
 		savedQuestionData.liveQuestion = null;
+		savedQuestionData.liveQuestionPostIds = null;
 	}
 
 	//If there's a question for today, post it and save a reference to the post for the answer.
@@ -131,37 +128,35 @@ const doStuff = async function() {
 
 		const imageURLs = savedQuestionData.cachedQuestion.includedCards.map(card => getImageUrl(card));
 
-		const result = await post(savedQuestionData.cachedQuestion.questionSimple, imageURLs);
+		const result = await post(savedQuestionData.cachedQuestion.questionSimple, imageURLs, null);
 
 		const replyToIds = {};
 		for (let platformName in result) {
 			const data = result[platformName];
 			if (data.error) {
 				data.error.platform = platformName;
-				throw data.error;
+				rgUtils.handleError(data.error);
 			}
 
 			replyToIds[platformName] = data.postId;
 		}
 
+		savedQuestionData.liveQuestion = savedQuestionData.cachedQuestion;
+		savedQuestionData.liveQuestionPostIds = replyToIds;
 
-		savedQuestionData.liveQuestion = {
-			"question": savedQuestionData.cachedQuestion,
-			"replyToIds": replyToIds,
-		}
-		savedQuestionData.pastIds.push({
+		savedQuestionData.pastQuestionData.push({
 			"id": savedQuestionData.liveQuestion.id,
 			"date": Date.now(),
 		});
 		savedQuestionData.cachedQuestion = null;
 	}
 
-	//Filter pastIds to only those in the past 2 years.
-	savedQuestionData.pastIds = savedQuestionData.pastIds.filter(p => p.date > Date.now() - (2 * (365 * 24 * 60 * 60 * 1000)));
+	//Filter past IDs to only those in the past 2 years.
+	savedQuestionData.pastQuestionData = savedQuestionData.pastQuestionData.filter(p => p.date > Date.now() - (2 * (365 * 24 * 60 * 60 * 1000)));
 
 	//Get a question for tomorrow and save it. (Posting it on Discord is handled by the discord bot.)
 	if (!savedQuestionData.cachedQuestion) {
-		savedQuestionData.cachedQuestion = await getQuestionToPost(savedQuestionData.pastIds);
+		savedQuestionData.cachedQuestion = await getQuestionToPost(savedQuestionData.pastQuestionData);
 	}
 
 	//Resave question data.
