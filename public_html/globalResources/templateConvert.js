@@ -33,9 +33,14 @@ const templateConvert = function(template, globalCardList, presetTemplates, pseu
 					//We have to duplicate the object so that modifying its or groups doesn't modify the saved preset permanently.
 					const presetTemplate = JSON.parse(JSON.stringify(presetTemplates.find(presetTemplate => presetTemplate.id === rule.preset))).rules;
 					const presetRules = generateExpandedTemplate(presetTemplate);
-					for (let rule of presetRules) {
-						if (rule.orGroup !== null) {
-							rule.orGroup = rule.orGroup + presetOrGroupNum;
+					for (let presetRule of presetRules) {
+						if (presetRule.orGroup !== null) {
+							presetRule.orGroup = presetRule.orGroup + presetOrGroupNum;
+						}
+					}
+					if (rule.side !== "normal") {
+						for (let presetRule of presetRules) {
+							presetRule.side = rule.side;
 						}
 					}
 					finalRules.push(...presetRules);
