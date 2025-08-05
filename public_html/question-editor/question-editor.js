@@ -1,6 +1,11 @@
 document.getElementById("topBannerRightText").appendChild(document.getElementById("rulesLink"));
 document.getElementById("topBannerRightText").appendChild(document.getElementById("adminAboutLink"));
 
+const otherSideMessage = "Other side satisfies: ";
+const otherFrontMeldMessage = "Additional front side satisfies: ";
+
+let templateAttemptingToSave = null; //template we're attempting to save as a preset
+
 let questionObj = {
 	"cardLists": [],
 	"cardTemplates": []
@@ -290,28 +295,41 @@ document.body.appendChild(keywordDatalist);
 let templateErrors = [];
 const createTemplate = function() {
 	let template = [];
+	let messageToSide = (message => {
+		switch (message) {
+			case "":
+				return "normal";
+			case otherSideMessage:
+				return "other-side";
+			case otherFrontMeldMessage:
+				return "other-front-meld";
+		}
+	});
 	let rules = document.getElementsByClassName("templateRule");
 
 	for (let i = 0 ; i < rules.length ; i++) {
 		let rule;
-		if (rules[i].childNodes.length === 2) {//Presets
+		if (rules[i].childNodes.length === 4) {//Presets
 			rule = {
-				"preset": presetTemplates.find(preset => preset.description === rules[i].childNodes[1].textContent).id,
+				"side": messageToSide(rules[i].childNodes[2].textContent),
+				"preset": presetTemplates.find(preset => preset.description === rules[i].childNodes[3].textContent).id,
 				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
 			}
-		} else if (rules[i].childNodes.length === 4) {//Normal rules
+		} else if (rules[i].childNodes.length === 6) {//Normal rules
 			rule = {
-				"field": rules[i].childNodes[1].textContent,
-				"operator": rules[i].childNodes[2].value,
-				"value": rules[i].childNodes[3].value,
+				"side": messageToSide(rules[i].childNodes[2].textContent),
+				"field": rules[i].childNodes[3].textContent,
+				"operator": rules[i].childNodes[4].value,
+				"value": rules[i].childNodes[5].value,
 				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
 			}
-		} else if (rules[i].childNodes.length === 5) {//Number of
+		} else if (rules[i].childNodes.length === 7) {//Number of
 			rule = {
-				"field": rules[i].childNodes[1].textContent,
-				"fieldOption": rules[i].childNodes[2].value,
-				"operator": rules[i].childNodes[3].value,
-				"value": rules[i].childNodes[4].value,
+				"side": messageToSide(rules[i].childNodes[2].textContent),
+				"field": rules[i].childNodes[3].textContent,
+				"fieldOption": rules[i].childNodes[4].value,
+				"operator": rules[i].childNodes[5].value,
+				"value": rules[i].childNodes[6].value,
 				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
 			}
 		}
@@ -430,7 +448,28 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 	deleteButton.setAttribute("class", "templateRuleDeleteButton");
 	//Delete the rule when clicked.
 	deleteButton.addEventListener("click", function(event) {
-			this.parentElement.remove();
+		this.parentElement.remove();
+	});
+	//in addition to the delete button, we also need the swap-side button
+	let otherSideButton = document.createElement("div");
+	otherSideButton.textContent="🔄"; //I don't want to find an image so I'm using an emoji!
+	otherSideButton.setAttribute("class", "templateRuleOtherSideButton");
+	let otherSideText = document.createElement("div");
+	otherSideText.setAttribute("class", "templateRuleOtherSideText");
+	deleteButton.addEventListener("click", function(event) {
+		//first we have to find the corresponding text element
+		textElement = this.parentNode.childNodes[2]; //HACK
+		if (shiftKeyPressed) {
+			if (textElement.textContent = otherFrontMeldMessage) {
+				textElement.textContent = otherSideMessage;
+			} else {
+				textElement.textContent = otherFrontMeldMessage;
+			}
+		} else if (textElement.textContent === "") {
+			textElement.textContent = otherSideMessage;
+		} else {
+			textElement.textContent = "";
+		}
 	});
 	let rule = document.createElement("div");
 	rule.setAttribute("class", "templateRule");
@@ -603,6 +642,8 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 
 	if (value) {valueInput.value = value;}
 	rule.appendChild(deleteButton);
+	rule.appendChild(otherSideButton);
+	rule.appendChild(otherSideText);
 	rule.appendChild(label);
 	if (fieldOptionsSelect) {
 		rule.appendChild(fieldOptionsSelect);
@@ -674,20 +715,26 @@ const processTemplateBox = function() {
 }
 
 const showPresetNamingBox = function () {
-	document.getElementById("templateNameBox").style.display = "block";
-	document.getElementById("templateEditorGreyout").style.display = "block";
-	document.getElementById("templateName").focus();
-}
-
-const saveTemplateAsPreset = async function () {
 	let template = createTemplate();
-	//let's attempt to validate the template same as if we were applying it
+	if (template.some(rule => rule.side !== "normal")) {
+		alert("Other-side rules are not allowed in presets.");
+		return;
+	}
+	//let's also attempt to validate the template same as if we were applying it
 	let validatedTemplate = validateTemplate(template);
 	if (validatedTemplate.templateErrors.length !== 0) {
 		//error case
 		alert(validatedTemplate.templateErrors.join("\n"));
 		return;
 	}
+	templateAttemptingToSave = template;
+	document.getElementById("templateNameBox").style.display = "block";
+	document.getElementById("templateEditorGreyout").style.display = "block";
+	document.getElementById("templateName").focus();
+}
+
+const saveTemplateAsPreset = async function () {
+	let template = templateAttemptingToSave;
 	const description = document.getElementById("templateName").value;
 	if (description.trim() === "") {
 		alert("Empty descriptions are not allowed");
@@ -758,6 +805,7 @@ const closeTemplateNamingBox = function() {
 	document.getElementById("templateNameBox").style.display = "none";
 	document.getElementById("templateEditorGreyout").style.display = "none";
 	document.getElementById("templateName").value = ""; //reset this so not saved for next time
+	templateAttemptingToSave = null;
 }
 
 const createQuestionObj = function() {

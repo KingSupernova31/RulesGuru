@@ -1190,6 +1190,10 @@ app.post("/savePreset", async function(req, res) {
 		res.status(400).send(`Preset description was empty`);
 		return;
 	}
+	if (preset.rules.some(rule => rule.side !== "normal")) {
+		res.status(400).send("Preset contained other-side rules");
+		return;
+	}
 	if (presetTemplates.find(p => p.description === preset.description)) {
 		res.status(400).send(`Existing preset with description ${preset.description}`);
 		return;

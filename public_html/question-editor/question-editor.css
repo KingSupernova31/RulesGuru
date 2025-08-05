@@ -184,6 +184,15 @@ li {
 	transition: transform 0.2s ease;
 }
 
+.templateRuleOtherSideButton {
+	cursor: pointer;
+}
+
+.templateRuleOtherSideButton:hover {
+	transform: scale(1.5);
+	transition: transform 0.2s ease;
+}
+
 .cardGenerator > .templateButton {
 	display: none;
 }

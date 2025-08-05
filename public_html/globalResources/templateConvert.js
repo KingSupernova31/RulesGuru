@@ -96,7 +96,7 @@ const templateConvert = function(template, globalCardList, presetTemplates, pseu
 				//but in the normal case, things are what they are here
 				otherSideCases = [{ currentCard, otherSide, otherFrontForMelds }];
 			}
-			return otherSideCases.some({ currentCard, otherSide, otherFrontForMelds } => { //note: variable shadowing occurs here!
+			return otherSideCases.some(({ currentCard, otherSide, otherFrontForMelds }) => { //note: variable shadowing occurs here!
 				let currentCardValid = true;
 				const orGroupsSatisfied = {};
 				for (let i = 0 ; i < expandedTemplate.length ; i++) {
@@ -114,9 +114,9 @@ const templateConvert = function(template, globalCardList, presetTemplates, pseu
 						continue;
 					}
 					let cardToCheck = currentCard; //normally we check the current card, but sometimes we have to check the other side
-					if (rule.side = "other") {
+					if (currentRule.side === "other-side") {
 						cardToCheck = otherSide;
-					} else if (rule.side = "other-front-meld") {
+					} else if (currentRule.side === "other-front-meld") {
 						cardToCheck = otherFrontForMelds;
 					}
 					let currentRuleSatisfied = templateRuleMatchesCard(currentRule, cardToCheck, pseudoSymbolMap);
