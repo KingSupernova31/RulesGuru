@@ -1,8 +1,10 @@
 document.getElementById("topBannerRightText").appendChild(document.getElementById("rulesLink"));
 document.getElementById("topBannerRightText").appendChild(document.getElementById("adminAboutLink"));
 
-const otherSideMessage = "Other side satisfies: ";
-const otherFrontMeldMessage = "Additional front side satisfies: ";
+const thisSideMessage = "This card";
+const otherSideMessage = "Other side";
+const otherFrontMeldMessage = "Add'l front";
+const messageOptionalSuffix = "'s";
 
 let templateAttemptingToSave = null; //template we're attempting to save as a preset
 
@@ -297,11 +299,14 @@ const createTemplate = function() {
 	let template = [];
 	let messageToSide = (message => {
 		switch (message) {
-			case "":
-				return "normal";
+			case thisSideMessage:
+			case thisSideMessage + messageOptionalSuffix:
+				return undefined;
 			case otherSideMessage:
+			case otherSideMessage + messageOptionalSuffix:
 				return "other-side";
 			case otherFrontMeldMessage:
+			case otherFrontMeldMessage + messageOptionalSuffix:
 				return "other-front-meld";
 		}
 	});
@@ -441,6 +446,30 @@ const switchModes = function(generatorId) {
 	}
 }
 
+const otherSideButtonHandler = function(event) {
+	//first we have to find the corresponding text element
+	textElement = this.parentNode.childNodes[2]; //HACK
+	let restoreSuffix = false;
+	if (textElement.textContent.endsWith(messageOptionalSuffix)) {
+		restoreSuffix = true;
+		textElement.textContent = textElement.textContent.slice(0,-messageOptionalSuffix.length);
+	}
+	if (shiftKeyPressed) {
+		if (textElement.textContent === otherFrontMeldMessage) {
+			textElement.textContent = otherSideMessage;
+		} else {
+			textElement.textContent = otherFrontMeldMessage;
+		}
+	} else if (textElement.textContent === thisSideMessage) {
+		textElement.textContent = otherSideMessage;
+	} else {
+		textElement.textContent = thisSideMessage;
+	}
+	if (restoreSuffix) {
+		textElement.innerHTML = textElement.textContent + messageOptionalSuffix; //I have no idea why writing to textContent doesn't work here
+	}
+};
+
 let datalistNum = 0;
 const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 	let deleteButton = document.createElement("img");
@@ -456,21 +485,8 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 	otherSideButton.setAttribute("class", "templateRuleOtherSideButton");
 	let otherSideText = document.createElement("div");
 	otherSideText.setAttribute("class", "templateRuleOtherSideText");
-	deleteButton.addEventListener("click", function(event) {
-		//first we have to find the corresponding text element
-		textElement = this.parentNode.childNodes[2]; //HACK
-		if (shiftKeyPressed) {
-			if (textElement.textContent = otherFrontMeldMessage) {
-				textElement.textContent = otherSideMessage;
-			} else {
-				textElement.textContent = otherFrontMeldMessage;
-			}
-		} else if (textElement.textContent === "") {
-			textElement.textContent = otherSideMessage;
-		} else {
-			textElement.textContent = "";
-		}
-	});
+	otherSideText.innerHTML = thisSideMessage + messageOptionalSuffix; //for some reason setting textContent doesn't work here??
+	otherSideButton.addEventListener("click", otherSideButtonHandler);
 	let rule = document.createElement("div");
 	rule.setAttribute("class", "templateRule");
 	if (orGroup !== undefined) {
@@ -716,7 +732,7 @@ const processTemplateBox = function() {
 
 const showPresetNamingBox = function () {
 	let template = createTemplate();
-	if (template.some(rule => rule.side !== "normal")) {
+	if (template.some(rule => rule.side !== undefined)) {
 		alert("Other-side rules are not allowed in presets.");
 		return;
 	}
@@ -2946,6 +2962,14 @@ const addPresetTemplateRule = function(id, ignoreShift) {
 	deleteButton.addEventListener("click", function(event) {
 			this.parentElement.remove();
 	});
+	//in addition to the delete button, we also need the swap-side button
+	let otherSideButton = document.createElement("img");
+	otherSideButton.setAttribute("src", "/globalResources/icons/turnover.png");
+	otherSideButton.setAttribute("class", "templateRuleOtherSideButton");
+	let otherSideText = document.createElement("div");
+	otherSideText.setAttribute("class", "templateRuleOtherSideText");
+	otherSideText.innerHTML = thisSideMessage; //for some reason setting textContent doesn't work here??
+	otherSideButton.addEventListener("click", otherSideButtonHandler);
 	let rule = document.createElement("div");
 	rule.setAttribute("class", "templateRule presetTemplateRule");
 
@@ -2953,6 +2977,8 @@ const addPresetTemplateRule = function(id, ignoreShift) {
 	content.textContent = presetTemplates.find(preset => preset.id === id).description;
 
 	rule.appendChild(deleteButton);
+	rule.appendChild(otherSideButton);
+	rule.appendChild(otherSideText);
 	rule.appendChild(content);
 
 	document.getElementById("templateRules").appendChild(rule);

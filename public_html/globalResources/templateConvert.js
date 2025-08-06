@@ -38,7 +38,7 @@ const templateConvert = function(template, globalCardList, presetTemplates, pseu
 							presetRule.orGroup = presetRule.orGroup + presetOrGroupNum;
 						}
 					}
-					if (rule.side !== "normal") {
+					if (rule.side !== undefined) {
 						for (let presetRule of presetRules) {
 							presetRule.side = rule.side;
 						}
