@@ -106,24 +106,11 @@ const doStuff = async function() {
 		savedQuestionData = JSON.parse(fs.readFileSync(path.join(rootDir, "data_files/socialsQuestionData.json"), "utf8"));
 	}
 
-	//If there's a question from yesterday, post the answer.
-	if (savedQuestionData.liveQuestion) {
-		const answerText = `Answer: ${savedQuestionData.liveQuestion.answerSimple}`;
-		const result = await post(answerText, [], savedQuestionData.liveQuestionPostIds);
+	//First we cache yesterday's answer and post IDs since they've about to be overwritten with today's.
+	const oldQuestionAnswer = savedQuestionData.liveQuestion?.answerSimple;
+	const oldQuestionPostIds = savedQuestionData.liveQuestionPostIds;
 
-		for (let platformName in result) {
-			const data = result[platformName];
-			if (data.error) {//We try to continue past errors so that a problem with one platform's API doesn't interfere with others.
-				data.error.platform = platformName;
-				rgUtils.handleError(data.error);
-			}
-		}
-
-		savedQuestionData.liveQuestion = null;
-		savedQuestionData.liveQuestionPostIds = null;
-	}
-
-	//If there's a question for today, post it and save a reference to the post for the answer.
+	//If there's a question for today, post it and update the live question.
 	if (savedQuestionData.cachedQuestion) {
 
 		const imageURLs = savedQuestionData.cachedQuestion.includedCards.map(card => getImageUrl(card));
@@ -149,6 +136,23 @@ const doStuff = async function() {
 			"date": Date.now(),
 		});
 		savedQuestionData.cachedQuestion = null;
+	}
+
+	//If there's a question from yesterday, post the answer.
+	if (oldQuestionAnswer) {
+		//We pass in a function because the answer text needs to include a link to the next day's post, therefore differs from platform to platform.
+		const getAnswer = function(platform) {
+			return `Answer: ${oldQuestionAnswer}\n\nToday's question: ${platform.getUrl(oldQuestionPostIds[platform.name])}`;
+		};
+		const result = await post(getAnswer, [], oldQuestionPostIds);
+
+		for (let platformName in result) {
+			const data = result[platformName];
+			if (data.error) {//We try to continue past errors so that a problem with one platform's API doesn't interfere with others.
+				data.error.platform = platformName;
+				rgUtils.handleError(data.error);
+			}
+		}
 	}
 
 	//Filter past IDs to only those in the past 2 years.

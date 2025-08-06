@@ -90,12 +90,7 @@ function splitText(text, maxLength) {
 
 async function postToX(auth, message, imageUrls = [], replyToTweetId) {
     try {
-        const client = new XApi({
-            appKey: auth.apiKey,
-            appSecret: auth.apiSecret,
-            accessToken: auth.accessToken,
-            accessSecret: auth.accessSecret,
-        });
+        const client = new XApi(auth.x);
 
         const rwClient = client.readWrite;
         
@@ -139,10 +134,7 @@ async function postToBluesky(auth, message, imageUrls = [], replyToPostUri) {
             service: 'https://bsky.social'
         });
 
-        await agent.login({
-            identifier: auth.username,
-            password: auth.password
-        });
+        await agent.login(auth);
 
         let embeds = [];
         
@@ -201,12 +193,7 @@ async function postToBluesky(auth, message, imageUrls = [], replyToPostUri) {
 async function postToTumblr(auth, message, imageUrls = [], replyToPostId) {
     try {
 
-        const client = tumblr.createClient({
-            consumer_key: auth.consumerKey,
-            consumer_secret: auth.consumerSecret,
-            token: auth.token,
-            token_secret: auth.tokenSecret
-        });
+        const client = tumblr.createClient(auth);
 
         // Build content blocks for NPF format
         let content = [
@@ -290,7 +277,7 @@ const postThread = async function(messages, imageGroups, replyToPostId, postFunc
     }
 }
 
-const validateGlobalPostInput = function(auths, message, imageUrls, replyToPostIds) {
+const validateGlobalPostInput = function(replyToPostIds) {
     if (replyToPostIds) {
         for (let platform of platformData) {
             if (!replyToPostIds[platform.name] || replyToPostIds[platform.name].trim().length === 0) {
@@ -309,12 +296,12 @@ const validateGlobalPostInput = function(auths, message, imageUrls, replyToPostI
 }
 
 const platformData = [
-    { name: 'x', func: postToX, auth: rgAuth.x , "maxLength": 280},
-    { name: 'bluesky', func: postToBluesky, auth: rgAuth.bluesky , "maxLength": 300},
-    { name: 'tumblr', func: postToTumblr, auth: rgAuth.tumblr , "maxLength": 4096},
+    { name: 'x', func: postToX, auth: rgAuth.x , "maxLength": 280, getUrl: function(id) {return `https://x.com/${this.auth.username}/status/${id}`}},
+    { name: 'bluesky', func: postToBluesky, auth: rgAuth.bluesky , "maxLength": 300, getUrl: function(id) {return `https://bsky.app/profile/${this.auth.identifier}/post/${id.split("/").pop()}`}},
+    { name: 'tumblr', func: postToTumblr, auth: rgAuth.tumblr , "maxLength": 4096, getUrl: function(id) {return `https://${this.auth.blogName}.tumblr.com/post/${id}`}},
 ];
 
-async function postEverywhere(message, imageUrls = [], replyToPostIds, onlyPlatforms) {
+async function postEverywhere(messageOrFunc, imageUrls = [], replyToPostIds, onlyPlatforms) {
 
     let platformsToPostTo;
     if (onlyPlatforms) {
@@ -323,13 +310,17 @@ async function postEverywhere(message, imageUrls = [], replyToPostIds, onlyPlatf
         platformsToPostTo = platformData;
     }
 
-    validateGlobalPostInput(message, imageUrls, replyToPostIds);
+    validateGlobalPostInput(replyToPostIds);
 
     const promises = platformsToPostTo.map(async platform => {
         try {
             const platformReplyId = replyToPostIds ? replyToPostIds[platform.name] : null;
+            let platformMessage = messageOrFunc;
+            if (typeof messageOrFunc !== "string") {
+                platformMessage = messageOrFunc(platform);
+            }
 
-            const messages = splitText(message, platform.maxLength);
+            const messages = splitText(platformMessage, platform.maxLength);
             const imageGroups = messages.map(m => []);//In case in the future we want to allow images later in the answer thread.
             imageGroups[0] = imageUrls;
             
