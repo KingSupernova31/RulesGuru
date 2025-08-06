@@ -41,7 +41,7 @@
 					<p>["Simple", "Intermediate"]</p>
 					<p>legality</p>
 					<p>String</p>
-					<p>Can be "Standard", "Pioneer", "Modern", "All of Magic", or "Choose Expansions".</p>
+					<p>Can be "all", "custom", or any of the formats in the sidebar on the homepage. (camelCase.)</p>
 					<p>"Modern"</p>
 					<p>expansions</p>
 					<p>Array of strings (order-agnostic)</p>
@@ -82,6 +82,10 @@
 					<p>id</p>
 					<p>Number</p>
 					<p>The ID of a specific question you want to return. If this property is specified, only that question is returned, and most other fields are ignored. Legality, expansions, playableOnly, cards, and cardsConjunc will still be followed if possible. If any of those fields are left undefined, the defaults will be set to the most permissive option rather than the ones listed in this table.</p>
+					<p>undefined</p>
+					<p>from</p>
+					<p>String</p>
+					<p>A name or other identifier for your application. This isn't required, but we appreciate it, as it lets us know who is using the API and for what.</p>
 					<p>undefined</p>
 				</div>
 				<br><br>
