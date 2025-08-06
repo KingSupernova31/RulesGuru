@@ -1,4 +1,5 @@
 {
+  "name": "RulesGuru",
   "dependencies": {
     "@atproto/api": "0.16.2",
     "body-parser": "2.2.0",
