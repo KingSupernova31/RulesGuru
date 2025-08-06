@@ -90,7 +90,7 @@ function splitText(text, maxLength) {
 
 async function postToX(auth, message, imageUrls = [], replyToTweetId) {
     try {
-        const client = new XApi(auth.x);
+        const client = new XApi(auth);
 
         const rwClient = client.readWrite;
         

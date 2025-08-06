@@ -142,7 +142,7 @@ const doStuff = async function() {
 	if (oldQuestionAnswer) {
 		//We pass in a function because the answer text needs to include a link to the next day's post, therefore differs from platform to platform.
 		const getAnswer = function(platform) {
-			return `Answer: ${oldQuestionAnswer}\n\nToday's question: ${platform.getUrl(oldQuestionPostIds[platform.name])}`;
+			return `Answer: ${oldQuestionAnswer}`;
 		};
 		const result = await post(getAnswer, [], oldQuestionPostIds);
 
