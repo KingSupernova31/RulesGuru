@@ -6,6 +6,23 @@ const otherSideMessage = "Other side";
 const otherFrontMeldMessage = "Add'l front";
 const messageOptionalSuffix = "'s";
 
+const sideToMessage = (side, includeSuffix) => {
+	let message;
+	switch (side) {
+		case undefined:
+			message = thisSideMessage;
+			break;
+		case "other-side":
+			message = otherSideMessage;
+			break;
+		case "other-front-meld":
+			message = otherFrontMeldMessage;
+			break;
+	}
+	if (includeSuffix) message += messageOptionalSuffix;
+	return message;
+}
+
 let templateAttemptingToSave = null; //template we're attempting to save as a preset
 
 let questionObj = {
@@ -234,9 +251,9 @@ const addCardGenerator = function() {
 		document.getElementById("addORGroupButton").textContent = "Add OR group";
 		for (let i in questionObj.cardTemplates[templateNum]) {
 			if (typeof questionObj.cardTemplates[templateNum][i].preset === "number") {
-				addPresetTemplateRule(questionObj.cardTemplates[templateNum][i].preset);
+				addPresetTemplateRule(questionObj.cardTemplates[templateNum][i].preset, true, questionObj.cardTemplates[templateNum][i].side);
 			} else {
-				addTemplateRule(questionObj.cardTemplates[templateNum][i].field, questionObj.cardTemplates[templateNum][i].operator, questionObj.cardTemplates[templateNum][i].value, questionObj.cardTemplates[templateNum][i].fieldOption, questionObj.cardTemplates[templateNum][i].orGroup);
+				addTemplateRule(questionObj.cardTemplates[templateNum][i].field, questionObj.cardTemplates[templateNum][i].operator, questionObj.cardTemplates[templateNum][i].value, questionObj.cardTemplates[templateNum][i].fieldOption, questionObj.cardTemplates[templateNum][i].orGroup, questionObj.cardTemplates[templateNum][i].side);
 			}
 		}
 		oldTemplateValue = createTemplate();
@@ -471,7 +488,7 @@ const otherSideButtonHandler = function(event) {
 };
 
 let datalistNum = 0;
-const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
+const addTemplateRule = function(field, operator, value, fieldOption, orGroup, side) {
 	let deleteButton = document.createElement("img");
 	deleteButton.setAttribute("src", "/globalResources/icons/red-x.png");
 	deleteButton.setAttribute("class", "templateRuleDeleteButton");
@@ -485,7 +502,8 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 	otherSideButton.setAttribute("class", "templateRuleOtherSideButton");
 	let otherSideText = document.createElement("div");
 	otherSideText.setAttribute("class", "templateRuleOtherSideText");
-	otherSideText.innerHTML = thisSideMessage + messageOptionalSuffix; //for some reason setting textContent doesn't work here??
+	otherSideText.innerHTML = sideToMessage(side, true); //for some reason setting textContent doesn't work here??
+	//note how we rely above on side being undefined in the default case!
 	otherSideButton.addEventListener("click", otherSideButtonHandler);
 	let rule = document.createElement("div");
 	rule.setAttribute("class", "templateRule");
@@ -1214,9 +1232,9 @@ const populateFields = function(question) {
 			document.querySelector("#templateBoxHeading").textContent = `Edit template ${i - - 1}`;
 			for (let j in question.cardGenerators[i]) {
 				if (typeof question.cardGenerators[i][j].preset === "number") {
-					addPresetTemplateRule(question.cardGenerators[i][j].preset);
+					addPresetTemplateRule(question.cardGenerators[i][j].preset, true, question.cardGenerators[i][j].side);
 				} else {
-					addTemplateRule(question.cardGenerators[i][j].field, question.cardGenerators[i][j].operator, question.cardGenerators[i][j].value, question.cardGenerators[i][j].fieldOption, question.cardGenerators[i][j].orGroup);
+					addTemplateRule(question.cardGenerators[i][j].field, question.cardGenerators[i][j].operator, question.cardGenerators[i][j].value, question.cardGenerators[i][j].fieldOption, question.cardGenerators[i][j].orGroup, question.cardGenerators[i][j].side);
 				}
 			}
 			processTemplateBox();
@@ -2949,7 +2967,7 @@ document.onkeyup = function(event) {
 	shiftKeyPressed = event.shiftKey;
 }
 
-const addPresetTemplateRule = function(id, ignoreShift) {
+const addPresetTemplateRule = function(id, ignoreShift, side) {
 	if (shiftKeyPressed && !ignoreShift) {
 		addPresetRulesToTemplate();
 		return;
@@ -2968,7 +2986,8 @@ const addPresetTemplateRule = function(id, ignoreShift) {
 	otherSideButton.setAttribute("class", "templateRuleOtherSideButton");
 	let otherSideText = document.createElement("div");
 	otherSideText.setAttribute("class", "templateRuleOtherSideText");
-	otherSideText.innerHTML = thisSideMessage; //for some reason setting textContent doesn't work here??
+	otherSideText.innerHTML = sideToMessage(side, false); //for some reason setting textContent doesn't work here??
+	//also note how we rely above on side being undefined in the default case!
 	otherSideButton.addEventListener("click", otherSideButtonHandler);
 	let rule = document.createElement("div");
 	rule.setAttribute("class", "templateRule presetTemplateRule");
@@ -2998,7 +3017,7 @@ const addPresetRulesToTemplate = function() {
 			addPresetTemplateRule(rule.preset, true);
 		} else {
 			const orGroup = rule.orGroup === null ? null : rule.orGroup + numOrGroupsAlreadyInUse;
-			addTemplateRule(rule.field, rule.operator, rule.value, rule.fieldOption, orGroup);
+			addTemplateRule(rule.field, rule.operator, rule.value, rule.fieldOption, orGroup); //note presets can't use sides!
 		}
 	}
 }
