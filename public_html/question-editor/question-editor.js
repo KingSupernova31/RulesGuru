@@ -500,11 +500,12 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup, s
 	let otherSideButton = document.createElement("img");
 	otherSideButton.setAttribute("src", "/globalResources/icons/turnover.png");
 	otherSideButton.setAttribute("class", "templateRuleOtherSideButton");
+	otherSideButton.addEventListener("click", otherSideButtonHandler);
 	let otherSideText = document.createElement("div");
 	otherSideText.setAttribute("class", "templateRuleOtherSideText");
 	otherSideText.innerHTML = sideToMessage(side, true); //for some reason setting textContent doesn't work here??
 	//note how we rely above on side being undefined in the default case!
-	otherSideButton.addEventListener("click", otherSideButtonHandler);
+	otherSideText.addEventListener("click", labelListener); //this should behave same as label if clicked
 	let rule = document.createElement("div");
 	rule.setAttribute("class", "templateRule");
 	if (orGroup !== undefined) {
@@ -2984,11 +2985,11 @@ const addPresetTemplateRule = function(id, ignoreShift, side) {
 	let otherSideButton = document.createElement("img");
 	otherSideButton.setAttribute("src", "/globalResources/icons/turnover.png");
 	otherSideButton.setAttribute("class", "templateRuleOtherSideButton");
+	otherSideButton.addEventListener("click", otherSideButtonHandler);
 	let otherSideText = document.createElement("div");
 	otherSideText.setAttribute("class", "templateRuleOtherSideText");
 	otherSideText.innerHTML = sideToMessage(side, false); //for some reason setting textContent doesn't work here??
 	//also note how we rely above on side being undefined in the default case!
-	otherSideButton.addEventListener("click", otherSideButtonHandler);
 	let rule = document.createElement("div");
 	rule.setAttribute("class", "templateRule presetTemplateRule");
 
