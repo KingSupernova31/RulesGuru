@@ -264,7 +264,7 @@ li {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	width: 27rem;
+	width: 35.5rem;
 	height: 32.44rem;
 	z-index: 2;
 	display: none;
@@ -332,7 +332,7 @@ li {
 
 .templateRule {
 	display: grid;
-	grid-template-columns: 3% 3% 25% 25% 19% 25%;
+	grid-template-columns: 4% 4% 20% 26% 20% 26%;
 	text-align: left;
 }
 
@@ -347,12 +347,12 @@ li {
 
 .templateRuleWithLongName {
 	display: grid;
-	grid-template-columns: 3% 3% 25% 37% 7% 25%;
+	grid-template-columns: 4% 4% 20% 38% 8% 26%;
 	text-align: left;
 }
 
 .templateRuleWithExtra {
-	grid-template-columns: 3% 3% 25% 17% 20% 7% 25% !important;
+	grid-template-columns: 4% 4% 21% 17% 21% 7% 26% !important;
 }
 
 textarea.templateInput, input.templateInput {
