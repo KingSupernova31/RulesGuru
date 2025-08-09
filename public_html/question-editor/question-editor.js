@@ -1,11 +1,11 @@
 document.getElementById("topBannerRightText").appendChild(document.getElementById("rulesLink"));
 document.getElementById("topBannerRightText").appendChild(document.getElementById("adminAboutLink"));
 
+const sideOptions = ["normal", "other-side", "other-front-meld"];
 const thisSideMessage = "This card";
 const otherSideMessage = "Other side";
 const otherFrontMeldMessage = "Add'l front";
 const messageOptionalSuffix = "'s";
-
 const sideToMessage = (side, includeSuffix) => {
 	let message;
 	switch (side) {
@@ -314,44 +314,31 @@ document.body.appendChild(keywordDatalist);
 let templateErrors = [];
 const createTemplate = function() {
 	let template = [];
-	let messageToSide = (message => {
-		switch (message) {
-			case thisSideMessage:
-			case thisSideMessage + messageOptionalSuffix:
-				return "normal";
-			case otherSideMessage:
-			case otherSideMessage + messageOptionalSuffix:
-				return "other-side";
-			case otherFrontMeldMessage:
-			case otherFrontMeldMessage + messageOptionalSuffix:
-				return "other-front-meld";
-		}
-	});
 	let rules = document.getElementsByClassName("templateRule");
 
 	for (let i = 0 ; i < rules.length ; i++) {
 		let rule;
-		if (rules[i].childNodes.length === 4) {//Presets
+		if (rules[i].childNodes.length === 3) {//Presets
 			rule = {
-				"side": messageToSide(rules[i].childNodes[2].textContent),
-				"preset": presetTemplates.find(preset => preset.description === rules[i].childNodes[3].textContent).id,
+				"side": rules[i].childNodes[1].value,
+				"preset": presetTemplates.find(preset => preset.description === rules[i].childNodes[2].textContent).id,
 				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
 			}
-		} else if (rules[i].childNodes.length === 6) {//Normal rules
+		} else if (rules[i].childNodes.length === 5) {//Normal rules
 			rule = {
-				"side": messageToSide(rules[i].childNodes[2].textContent),
-				"field": rules[i].childNodes[3].textContent,
+				"side": rules[i].childNodes[1].value,
+				"field": rules[i].childNodes[2].textContent,
+				"operator": rules[i].childNodes[3].value,
+				"value": rules[i].childNodes[4].value,
+				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
+			}
+		} else if (rules[i].childNodes.length === 6) {//Number of
+			rule = {
+				"side": rules[i].childNodes[1].value,
+				"field": rules[i].childNodes[2].textContent,
+				"fieldOption": rules[i].childNodes[3].value,
 				"operator": rules[i].childNodes[4].value,
 				"value": rules[i].childNodes[5].value,
-				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
-			}
-		} else if (rules[i].childNodes.length === 7) {//Number of
-			rule = {
-				"side": messageToSide(rules[i].childNodes[2].textContent),
-				"field": rules[i].childNodes[3].textContent,
-				"fieldOption": rules[i].childNodes[4].value,
-				"operator": rules[i].childNodes[5].value,
-				"value": rules[i].childNodes[6].value,
 				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
 			}
 		}
@@ -463,30 +450,6 @@ const switchModes = function(generatorId) {
 	}
 }
 
-const otherSideButtonHandler = function(event) {
-	//first we have to find the corresponding text element
-	textElement = this.parentNode.childNodes[2]; //HACK
-	let restoreSuffix = false;
-	if (textElement.textContent.endsWith(messageOptionalSuffix)) {
-		restoreSuffix = true;
-		textElement.textContent = textElement.textContent.slice(0,-messageOptionalSuffix.length);
-	}
-	if (shiftKeyPressed) {
-		if (textElement.textContent === otherFrontMeldMessage) {
-			textElement.textContent = otherSideMessage;
-		} else {
-			textElement.textContent = otherFrontMeldMessage;
-		}
-	} else if (textElement.textContent === thisSideMessage) {
-		textElement.textContent = otherSideMessage;
-	} else {
-		textElement.textContent = thisSideMessage;
-	}
-	if (restoreSuffix) {
-		textElement.innerHTML = textElement.textContent + messageOptionalSuffix; //I have no idea why writing to textContent doesn't work here
-	}
-};
-
 let datalistNum = 0;
 const addTemplateRule = function(field, operator, value, fieldOption, orGroup, side = "normal") {
 	let deleteButton = document.createElement("img");
@@ -496,15 +459,17 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup, s
 	deleteButton.addEventListener("click", function(event) {
 		this.parentElement.remove();
 	});
-	//in addition to the delete button, we also need the swap-side button
-	let otherSideButton = document.createElement("img");
-	otherSideButton.setAttribute("src", "/globalResources/icons/turnover.png");
-	otherSideButton.setAttribute("class", "templateRuleOtherSideButton");
-	otherSideButton.addEventListener("click", otherSideButtonHandler);
-	let otherSideText = document.createElement("div");
-	otherSideText.setAttribute("class", "templateRuleOtherSideText");
-	otherSideText.innerHTML = sideToMessage(side, true); //for some reason setting textContent doesn't work here??
-	otherSideText.addEventListener("click", labelListener); //this should behave same as label if clicked
+	let otherSideMenu = document.createElement("select");
+	otherSideMenu.setAttribute("class", "templateRuleOtherSideMenu");
+	for (const possibleSide of sideOptions) {
+		let option = document.createElement("option");
+		option.value = possibleSide;
+		option.textContent = sideToMessage(possibleSide, true);
+		if (possibleSide === side) {
+			option.selected = true;
+		}
+		otherSideMenu.add(option);
+	}
 	let rule = document.createElement("div");
 	rule.setAttribute("class", "templateRule");
 	if (orGroup !== undefined) {
@@ -676,8 +641,7 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup, s
 
 	if (value) {valueInput.value = value;}
 	rule.appendChild(deleteButton);
-	rule.appendChild(otherSideButton);
-	rule.appendChild(otherSideText);
+	rule.appendChild(otherSideMenu);
 	rule.appendChild(label);
 	if (fieldOptionsSelect) {
 		rule.appendChild(fieldOptionsSelect);
@@ -2980,14 +2944,17 @@ const addPresetTemplateRule = function(id, ignoreShift, side = "normal") {
 	deleteButton.addEventListener("click", function(event) {
 			this.parentElement.remove();
 	});
-	//in addition to the delete button, we also need the swap-side button
-	let otherSideButton = document.createElement("img");
-	otherSideButton.setAttribute("src", "/globalResources/icons/turnover.png");
-	otherSideButton.setAttribute("class", "templateRuleOtherSideButton");
-	otherSideButton.addEventListener("click", otherSideButtonHandler);
-	let otherSideText = document.createElement("div");
-	otherSideText.setAttribute("class", "templateRuleOtherSideText");
-	otherSideText.innerHTML = sideToMessage(side, false); //for some reason setting textContent doesn't work here??
+	let otherSideMenu = document.createElement("select");
+	otherSideMenu.setAttribute("class", "templateRuleOtherSideMenu");
+	for (const possibleSide of sideOptions) {
+		let option = document.createElement("option");
+		option.value = possibleSide;
+		option.textContent = sideToMessage(possibleSide, false);
+		if (possibleSide === side) {
+			option.selected = true;
+		}
+		otherSideMenu.add(option);
+	}
 	let rule = document.createElement("div");
 	rule.setAttribute("class", "templateRule presetTemplateRule");
 
@@ -2995,8 +2962,7 @@ const addPresetTemplateRule = function(id, ignoreShift, side = "normal") {
 	content.textContent = presetTemplates.find(preset => preset.id === id).description;
 
 	rule.appendChild(deleteButton);
-	rule.appendChild(otherSideButton);
-	rule.appendChild(otherSideText);
+	rule.appendChild(otherSideMenu);
 	rule.appendChild(content);
 
 	document.getElementById("templateRules").appendChild(rule);
