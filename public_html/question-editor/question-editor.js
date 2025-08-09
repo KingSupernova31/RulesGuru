@@ -9,7 +9,7 @@ const messageOptionalSuffix = "'s";
 const sideToMessage = (side, includeSuffix) => {
 	let message;
 	switch (side) {
-		case undefined:
+		case "normal":
 			message = thisSideMessage;
 			break;
 		case "other-side":
@@ -318,7 +318,7 @@ const createTemplate = function() {
 		switch (message) {
 			case thisSideMessage:
 			case thisSideMessage + messageOptionalSuffix:
-				return undefined;
+				return "normal";
 			case otherSideMessage:
 			case otherSideMessage + messageOptionalSuffix:
 				return "other-side";
@@ -488,7 +488,7 @@ const otherSideButtonHandler = function(event) {
 };
 
 let datalistNum = 0;
-const addTemplateRule = function(field, operator, value, fieldOption, orGroup, side) {
+const addTemplateRule = function(field, operator, value, fieldOption, orGroup, side = "normal") {
 	let deleteButton = document.createElement("img");
 	deleteButton.setAttribute("src", "/globalResources/icons/red-x.png");
 	deleteButton.setAttribute("class", "templateRuleDeleteButton");
@@ -504,7 +504,6 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup, s
 	let otherSideText = document.createElement("div");
 	otherSideText.setAttribute("class", "templateRuleOtherSideText");
 	otherSideText.innerHTML = sideToMessage(side, true); //for some reason setting textContent doesn't work here??
-	//note how we rely above on side being undefined in the default case!
 	otherSideText.addEventListener("click", labelListener); //this should behave same as label if clicked
 	let rule = document.createElement("div");
 	rule.setAttribute("class", "templateRule");
@@ -751,7 +750,7 @@ const processTemplateBox = function() {
 
 const showPresetNamingBox = function () {
 	let template = createTemplate();
-	if (template.some(rule => rule.side !== undefined)) {
+	if (template.some(rule => rule.side !== "normal")) {
 		alert("Other-side rules are not allowed in presets.");
 		return;
 	}
@@ -2968,7 +2967,7 @@ document.onkeyup = function(event) {
 	shiftKeyPressed = event.shiftKey;
 }
 
-const addPresetTemplateRule = function(id, ignoreShift, side) {
+const addPresetTemplateRule = function(id, ignoreShift, side = "normal") {
 	if (shiftKeyPressed && !ignoreShift) {
 		addPresetRulesToTemplate();
 		return;
@@ -2989,7 +2988,6 @@ const addPresetTemplateRule = function(id, ignoreShift, side) {
 	let otherSideText = document.createElement("div");
 	otherSideText.setAttribute("class", "templateRuleOtherSideText");
 	otherSideText.innerHTML = sideToMessage(side, false); //for some reason setting textContent doesn't work here??
-	//also note how we rely above on side being undefined in the default case!
 	let rule = document.createElement("div");
 	rule.setAttribute("class", "templateRule presetTemplateRule");
 

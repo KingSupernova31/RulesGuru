@@ -1190,7 +1190,7 @@ app.post("/savePreset", async function(req, res) {
 		res.status(400).send(`Preset description was empty`);
 		return;
 	}
-	if (preset.rules.some(rule => rule.side !== undefined)) {
+	if (preset.rules.some(rule => rule.side !== "normal")) {
 		res.status(400).send("Preset contained other-side rules");
 		return;
 	}
