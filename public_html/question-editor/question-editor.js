@@ -4,7 +4,7 @@ document.getElementById("topBannerRightText").appendChild(document.getElementByI
 const sideOptions = ["normal", "other-side", "other-front-meld"];
 const thisSideMessage = "This card";
 const otherSideMessage = "Other side";
-const otherFrontMeldMessage = "Add'l front";
+const otherFrontMeldMessage = "Second front";
 const messageOptionalSuffix = "'s";
 const sideToMessage = (side, includeSuffix) => {
 	let message;

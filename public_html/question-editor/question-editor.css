@@ -332,7 +332,7 @@ li {
 
 .templateRule {
 	display: grid;
-	grid-template-columns: 4% 21% 27% 21% 27%;
+	grid-template-columns: 4% 24% 24% 21% 27%;
 	text-align: left;
 }
 
@@ -347,12 +347,12 @@ li {
 
 .templateRuleWithLongName {
 	display: grid;
-	grid-template-columns: 4% 21% 39% 9% 27%;
+	grid-template-columns: 4% 24% 36% 9% 27%;
 	text-align: left;
 }
 
 .templateRuleWithExtra {
-	grid-template-columns: 4% 22% 18% 22% 7% 27% !important;
+	grid-template-columns: 4% 24% 16% 22% 7% 27% !important;
 }
 
 textarea.templateInput, input.templateInput {
