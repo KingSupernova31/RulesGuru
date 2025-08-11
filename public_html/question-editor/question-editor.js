@@ -595,11 +595,11 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup, s
 		if (["Rules text", "Mana cost"].includes(field)) {
 			valueInput = document.createElement("textarea");
 			valueInput.addEventListener("focus", function() {
-				this.parentNode.childNodes[3].style.height = "6rem";
+				this.parentNode.childNodes[4].style.height = "6rem";
 			});
 			valueInput.addEventListener("blur", function() {
-				this.parentNode.childNodes[3].style.width = "";
-				this.parentNode.childNodes[3].style.height = "";
+				this.parentNode.childNodes[4].style.width = "";
+				this.parentNode.childNodes[4].style.height = "";
 			});
 		} else {
 			valueInput = document.createElement("input");
