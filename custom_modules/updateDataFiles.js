@@ -517,6 +517,7 @@ const updateAllCards = function(verbose = false) {
 	for (let i in allCards) {
 		if (allCards[i].layout === "prototype") {
 			allCards[i].side = "a";
+			const prototypedName = i + " (prototyped)";
 
 			const copy = Object.assign({}, allCards[i]);
 			copy.side = "b";
@@ -525,8 +526,11 @@ const updateAllCards = function(verbose = false) {
 			copy.toughness = copy.text.match(/Prototype .* — \d+\/(\d+)/)[1];
 			copy.colors = getCharacteristicsFromManaCost(copy.manaCost).colors;
 			copy.manaValue = getCharacteristicsFromManaCost(copy.manaCost).manaValue;
-			copy.name = copy.name + " (prototyped)";
+			copy.name = prototypedName;
 			allCards[copy.name] = copy;
+
+			allCards[i].names = [i, prototypedName];
+			allCards[prototypedName].names = [i, prototypedName];
 		}
 	}
 

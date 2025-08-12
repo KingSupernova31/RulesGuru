@@ -1,6 +1,30 @@
 document.getElementById("topBannerRightText").appendChild(document.getElementById("rulesLink"));
 document.getElementById("topBannerRightText").appendChild(document.getElementById("adminAboutLink"));
 
+const sideOptions = ["normal", "other-side", "other-front-meld"];
+const thisSideMessage = "This card";
+const otherSideMessage = "Other side";
+const otherFrontMeldMessage = "Second front";
+const messageOptionalSuffix = "'s";
+const sideToMessage = (side, includeSuffix) => {
+	let message;
+	switch (side) {
+		case "normal":
+			message = thisSideMessage;
+			break;
+		case "other-side":
+			message = otherSideMessage;
+			break;
+		case "other-front-meld":
+			message = otherFrontMeldMessage;
+			break;
+	}
+	if (includeSuffix) message += messageOptionalSuffix;
+	return message;
+}
+
+let templateAttemptingToSave = null; //template we're attempting to save as a preset
+
 let questionObj = {
 	"cardLists": [],
 	"cardTemplates": []
@@ -227,9 +251,9 @@ const addCardGenerator = function() {
 		document.getElementById("addORGroupButton").textContent = "Add OR group";
 		for (let i in questionObj.cardTemplates[templateNum]) {
 			if (typeof questionObj.cardTemplates[templateNum][i].preset === "number") {
-				addPresetTemplateRule(questionObj.cardTemplates[templateNum][i].preset);
+				addPresetTemplateRule(questionObj.cardTemplates[templateNum][i].preset, true, questionObj.cardTemplates[templateNum][i].side);
 			} else {
-				addTemplateRule(questionObj.cardTemplates[templateNum][i].field, questionObj.cardTemplates[templateNum][i].operator, questionObj.cardTemplates[templateNum][i].value, questionObj.cardTemplates[templateNum][i].fieldOption, questionObj.cardTemplates[templateNum][i].orGroup);
+				addTemplateRule(questionObj.cardTemplates[templateNum][i].field, questionObj.cardTemplates[templateNum][i].operator, questionObj.cardTemplates[templateNum][i].value, questionObj.cardTemplates[templateNum][i].fieldOption, questionObj.cardTemplates[templateNum][i].orGroup, questionObj.cardTemplates[templateNum][i].side);
 			}
 		}
 		oldTemplateValue = createTemplate();
@@ -294,24 +318,27 @@ const createTemplate = function() {
 
 	for (let i = 0 ; i < rules.length ; i++) {
 		let rule;
-		if (rules[i].childNodes.length === 2) {//Presets
+		if (rules[i].childNodes.length === 3) {//Presets
 			rule = {
-				"preset": presetTemplates.find(preset => preset.description === rules[i].childNodes[1].textContent).id,
+				"side": rules[i].childNodes[1].value,
+				"preset": presetTemplates.find(preset => preset.description === rules[i].childNodes[2].textContent).id,
 				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
 			}
-		} else if (rules[i].childNodes.length === 4) {//Normal rules
+		} else if (rules[i].childNodes.length === 5) {//Normal rules
 			rule = {
-				"field": rules[i].childNodes[1].textContent,
-				"operator": rules[i].childNodes[2].value,
-				"value": rules[i].childNodes[3].value,
-				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
-			}
-		} else if (rules[i].childNodes.length === 5) {//Number of
-			rule = {
-				"field": rules[i].childNodes[1].textContent,
-				"fieldOption": rules[i].childNodes[2].value,
+				"side": rules[i].childNodes[1].value,
+				"field": rules[i].childNodes[2].textContent,
 				"operator": rules[i].childNodes[3].value,
 				"value": rules[i].childNodes[4].value,
+				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
+			}
+		} else if (rules[i].childNodes.length === 6) {//Number of
+			rule = {
+				"side": rules[i].childNodes[1].value,
+				"field": rules[i].childNodes[2].textContent,
+				"fieldOption": rules[i].childNodes[3].value,
+				"operator": rules[i].childNodes[4].value,
+				"value": rules[i].childNodes[5].value,
 				"orGroup": isNaN(Number(rules[i].dataset.orgroup)) ? null : Number(rules[i].dataset.orgroup),
 			}
 		}
@@ -424,14 +451,25 @@ const switchModes = function(generatorId) {
 }
 
 let datalistNum = 0;
-const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
+const addTemplateRule = function(field, operator, value, fieldOption, orGroup, side = "normal") {
 	let deleteButton = document.createElement("img");
 	deleteButton.setAttribute("src", "/globalResources/icons/red-x.png");
 	deleteButton.setAttribute("class", "templateRuleDeleteButton");
 	//Delete the rule when clicked.
 	deleteButton.addEventListener("click", function(event) {
-			this.parentElement.remove();
+		this.parentElement.remove();
 	});
+	let otherSideMenu = document.createElement("select");
+	otherSideMenu.setAttribute("class", "templateRuleOtherSideMenu");
+	for (const possibleSide of sideOptions) {
+		let option = document.createElement("option");
+		option.value = possibleSide;
+		option.textContent = sideToMessage(possibleSide, true);
+		if (possibleSide === side) {
+			option.selected = true;
+		}
+		otherSideMenu.add(option);
+	}
 	let rule = document.createElement("div");
 	rule.setAttribute("class", "templateRule");
 	if (orGroup !== undefined) {
@@ -557,11 +595,11 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 		if (["Rules text", "Mana cost"].includes(field)) {
 			valueInput = document.createElement("textarea");
 			valueInput.addEventListener("focus", function() {
-				this.parentNode.childNodes[3].style.height = "6rem";
+				this.parentNode.childNodes[4].style.height = "6rem";
 			});
 			valueInput.addEventListener("blur", function() {
-				this.parentNode.childNodes[3].style.width = "";
-				this.parentNode.childNodes[3].style.height = "";
+				this.parentNode.childNodes[4].style.width = "";
+				this.parentNode.childNodes[4].style.height = "";
 			});
 		} else {
 			valueInput = document.createElement("input");
@@ -603,6 +641,7 @@ const addTemplateRule = function(field, operator, value, fieldOption, orGroup) {
 
 	if (value) {valueInput.value = value;}
 	rule.appendChild(deleteButton);
+	rule.appendChild(otherSideMenu);
 	rule.appendChild(label);
 	if (fieldOptionsSelect) {
 		rule.appendChild(fieldOptionsSelect);
@@ -674,20 +713,26 @@ const processTemplateBox = function() {
 }
 
 const showPresetNamingBox = function () {
-	document.getElementById("templateNameBox").style.display = "block";
-	document.getElementById("templateEditorGreyout").style.display = "block";
-	document.getElementById("templateName").focus();
-}
-
-const saveTemplateAsPreset = async function () {
 	let template = createTemplate();
-	//let's attempt to validate the template same as if we were applying it
+	if (template.some(rule => rule.side !== "normal")) {
+		alert("Other-side rules are not allowed in presets.");
+		return;
+	}
+	//let's also attempt to validate the template same as if we were applying it
 	let validatedTemplate = validateTemplate(template);
 	if (validatedTemplate.templateErrors.length !== 0) {
 		//error case
 		alert(validatedTemplate.templateErrors.join("\n"));
 		return;
 	}
+	templateAttemptingToSave = template;
+	document.getElementById("templateNameBox").style.display = "block";
+	document.getElementById("templateEditorGreyout").style.display = "block";
+	document.getElementById("templateName").focus();
+}
+
+const saveTemplateAsPreset = async function () {
+	let template = templateAttemptingToSave;
 	const description = document.getElementById("templateName").value;
 	if (description.trim() === "") {
 		alert("Empty descriptions are not allowed");
@@ -758,6 +803,7 @@ const closeTemplateNamingBox = function() {
 	document.getElementById("templateNameBox").style.display = "none";
 	document.getElementById("templateEditorGreyout").style.display = "none";
 	document.getElementById("templateName").value = ""; //reset this so not saved for next time
+	templateAttemptingToSave = null;
 }
 
 const createQuestionObj = function() {
@@ -1150,9 +1196,9 @@ const populateFields = function(question) {
 			document.querySelector("#templateBoxHeading").textContent = `Edit template ${i - - 1}`;
 			for (let j in question.cardGenerators[i]) {
 				if (typeof question.cardGenerators[i][j].preset === "number") {
-					addPresetTemplateRule(question.cardGenerators[i][j].preset);
+					addPresetTemplateRule(question.cardGenerators[i][j].preset, true, question.cardGenerators[i][j].side);
 				} else {
-					addTemplateRule(question.cardGenerators[i][j].field, question.cardGenerators[i][j].operator, question.cardGenerators[i][j].value, question.cardGenerators[i][j].fieldOption, question.cardGenerators[i][j].orGroup);
+					addTemplateRule(question.cardGenerators[i][j].field, question.cardGenerators[i][j].operator, question.cardGenerators[i][j].value, question.cardGenerators[i][j].fieldOption, question.cardGenerators[i][j].orGroup, question.cardGenerators[i][j].side);
 				}
 			}
 			processTemplateBox();
@@ -2885,7 +2931,7 @@ document.onkeyup = function(event) {
 	shiftKeyPressed = event.shiftKey;
 }
 
-const addPresetTemplateRule = function(id, ignoreShift) {
+const addPresetTemplateRule = function(id, ignoreShift, side = "normal") {
 	if (shiftKeyPressed && !ignoreShift) {
 		addPresetRulesToTemplate();
 		return;
@@ -2898,6 +2944,17 @@ const addPresetTemplateRule = function(id, ignoreShift) {
 	deleteButton.addEventListener("click", function(event) {
 			this.parentElement.remove();
 	});
+	let otherSideMenu = document.createElement("select");
+	otherSideMenu.setAttribute("class", "templateRuleOtherSideMenu");
+	for (const possibleSide of sideOptions) {
+		let option = document.createElement("option");
+		option.value = possibleSide;
+		option.textContent = sideToMessage(possibleSide, false);
+		if (possibleSide === side) {
+			option.selected = true;
+		}
+		otherSideMenu.add(option);
+	}
 	let rule = document.createElement("div");
 	rule.setAttribute("class", "templateRule presetTemplateRule");
 
@@ -2905,6 +2962,7 @@ const addPresetTemplateRule = function(id, ignoreShift) {
 	content.textContent = presetTemplates.find(preset => preset.id === id).description;
 
 	rule.appendChild(deleteButton);
+	rule.appendChild(otherSideMenu);
 	rule.appendChild(content);
 
 	document.getElementById("templateRules").appendChild(rule);
@@ -2924,7 +2982,7 @@ const addPresetRulesToTemplate = function() {
 			addPresetTemplateRule(rule.preset, true);
 		} else {
 			const orGroup = rule.orGroup === null ? null : rule.orGroup + numOrGroupsAlreadyInUse;
-			addTemplateRule(rule.field, rule.operator, rule.value, rule.fieldOption, orGroup);
+			addTemplateRule(rule.field, rule.operator, rule.value, rule.fieldOption, orGroup); //note presets can't use sides!
 		}
 	}
 }

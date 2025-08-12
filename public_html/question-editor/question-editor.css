@@ -184,6 +184,15 @@ li {
 	transition: transform 0.2s ease;
 }
 
+.templateRuleOtherSideButton {
+	cursor: pointer;
+}
+
+.templateRuleOtherSideButton:hover {
+	transform: scale(1.5);
+	transition: transform 0.2s ease;
+}
+
 .cardGenerator > .templateButton {
 	display: none;
 }
@@ -255,7 +264,7 @@ li {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	width: 27rem;
+	width: 35rem;
 	height: 32.44rem;
 	z-index: 2;
 	display: none;
@@ -323,7 +332,7 @@ li {
 
 .templateRule {
 	display: grid;
-	grid-template-columns: 4% 35% 26% 35%;
+	grid-template-columns: 4% 24% 24% 21% 27%;
 	text-align: left;
 }
 
@@ -338,12 +347,12 @@ li {
 
 .templateRuleWithLongName {
 	display: grid;
-	grid-template-columns: 4% 51% 10% 35%;
+	grid-template-columns: 4% 24% 36% 9% 27%;
 	text-align: left;
 }
 
 .templateRuleWithExtra {
-	grid-template-columns: 4% 23% 28% 10% 35% !important;
+	grid-template-columns: 4% 24% 16% 22% 7% 27% !important;
 }
 
 textarea.templateInput, input.templateInput {
