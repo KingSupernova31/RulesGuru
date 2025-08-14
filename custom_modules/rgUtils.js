@@ -54,12 +54,19 @@ const sendEmail = function(recipientEmail, subject, message, callback, replyTo) 
 let emailCheckActive = false;
 let lastSent = 0;
 const createEmailCheck = function() {
+	console.log(7)
 	if (emailCheckActive) {return;}
 	emailCheckActive = true;
 
 	const interval = setInterval(() => {
 		if (Date.now() - lastSent < 500) {return;}
-		if (pendingEmails.length === 0) {return;}
+
+		if (pendingEmails.length === 0) {
+			clearInterval(interval);
+			emailCheckActive = false;
+			return;
+		}
+		
 		const {recipientEmail, subject, message, callback, replyTo} = pendingEmails.shift();
 		console.log(`Sending email to ${recipientEmail}: ${subject}`);
 		transporter.sendMail({
@@ -77,10 +84,6 @@ const createEmailCheck = function() {
 			}
 		});
 		lastSent = Date.now();
-
-		if (pendingEmails.length === 0) {
-			clearInterval(interval);
-		}
 	}, 100);
 }
 
