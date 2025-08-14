@@ -54,7 +54,6 @@ const sendEmail = function(recipientEmail, subject, message, callback, replyTo) 
 let emailCheckActive = false;
 let lastSent = 0;
 const createEmailCheck = function() {
-	console.log(7)
 	if (emailCheckActive) {return;}
 	emailCheckActive = true;
 
