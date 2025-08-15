@@ -1134,6 +1134,10 @@ app.post("/getSpecificAdminQuestion", async function(req, res) {
 });
 
 app.post("/getQuestionsList", function(req, res) {
+	if (req.body.settings) {//Necessary to not spam me with errors if someone has an outdated version of RG open in a tab somewhere.
+		res.status(400).send("Invalid JSON");
+		return;
+	}
 	const allCards = canonicalAllCards;
 	const validQuestionsList = [];
 
