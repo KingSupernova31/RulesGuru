@@ -549,7 +549,11 @@ bindButtonAction(document.getElementById("nextQuestion"), displayNextRandomQuest
 
 //Questions list
 let questionsListOpen = false;
+let questionListToggleDebounceActive = false;
 const toggleQuestionsList = function() {
+	//because on mobile a touch can trigger this twice, we'll need to debounce this function
+	if (questionListToggleDebounceActive) return;
+	questionListToggleDebounceActive = true;
 	if (questionsListOpen) {
 		document.getElementById("questionsListArea").style.transform = "translate(-9.3rem)";
 		document.getElementById("moveForQuestionsList").style.width = "";
@@ -561,6 +565,7 @@ const toggleQuestionsList = function() {
 		document.getElementById("sidebarShowQuestionsList").innerHTML = "Hide All";
 		questionsListOpen = true;
 	}
+	setTimeout(() => questionListToggleDebounceActive = false, 10); //I have no idea how long is appropriate but this seems to work
 }
 bindButtonAction(document.getElementById("sidebarShowQuestionsList"), toggleQuestionsList);
 
