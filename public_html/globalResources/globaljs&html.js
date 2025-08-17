@@ -101,7 +101,11 @@ document.addEventListener("touchstart", function(event) {
 
 //Handle left clicks, middle clicks, and pressing enter on buttons. Strings as the "action" are treated as a url to open, funtions are executed regardless of the type of click/press.
 const bindButtonAction = function(element, action) {
+	const debounceInterval = 3; //milliseconds; chosen arbitrarily
+	element.blockedEvent = null; //our own field we're adding -- used to prevent the touchend+mouseup problem on mobile
 	element.addEventListener("mouseup", function(event) {
+		if (this.blockedEvent === "mouseup") return;
+		this.blockedEvent = "touchend"; //block touchend during the debounce period
 		if (typeof action === "string") {
 			if (event.button === 0) {
 				location.href = action;
@@ -112,6 +116,7 @@ const bindButtonAction = function(element, action) {
 		if (typeof action === "function") {
 			action(event);
 		}
+		setTimeout(() => this.blockedEvent = null, debounceInterval);
 	});
 	element.addEventListener("keyup", function(event) {
 		if (event.keyCode === 13) {
@@ -128,12 +133,15 @@ const bindButtonAction = function(element, action) {
 		}
 	});
 	element.addEventListener("touchend", function(event) {
+		if (this.blockedEvent === "touchend") return;
+		this.blockedEvent = "mouseup"; //block mouseup during the debounce period
 		if (typeof action === "string") {
 			location.href = action;
 		}
 		if (typeof action === "function") {
 			action(event);
 		}
+		setTimeout(() => this.blockedEvent = null, debounceInterval);
 	});
 }
 
