@@ -321,7 +321,7 @@ const doNothingUseful = function() {
 }
 
 //Button handlers:
-document.getElementById("showAnswer").addEventLister("click", toggleAnswer);
+document.getElementById("showAnswer").addEventListener("click", toggleAnswer);
 document.getElementById("nextQuestion").addEventListener("click", doNothingUseful);
 
 const checkForUpdate = function() {
