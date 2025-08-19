@@ -246,25 +246,20 @@ body > h1:first-of-type {
 }
 
 #bannerName0, #bannerNameMobile0 {
-	color: white;
 	font-size: 1.9rem;
-	text-decoration: none;
 }
 
 #bannerName1, #bannerNameMobile1 {
 	color: #80a0ff;
 	font-size: 1.9rem;
-	text-decoration: none;
 }
 
 #bannerName:hover #bannerName0, #bannerNameMobile:hover #bannerNameMobile0 {
 	color: #80a0ff;
-	text-decoration: none;
 }
 
 #bannerName:hover #bannerName1, #bannerNameMobile:hover #bannerNameMobile1 {
 	color: white;
-	text-decoration: none;
 }
 
 .undistinguishedLink {
