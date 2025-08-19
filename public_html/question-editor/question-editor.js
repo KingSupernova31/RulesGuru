@@ -1582,7 +1582,7 @@ const displayTemplateCardSet = function(template, num) {
 }
 
 let questionsListOpen = false;
-bindButtonAction(document.getElementById("showQuestionsListButton"), async function() {
+document.getElementById("showQuestionsListButton").addEventListener("click", async function() {
 	if (questionsListOpen) {
 		document.getElementById("questionsListCount").style.display = "none";
 		document.getElementById("questionsListDisplay").style.display = "none";
@@ -1964,7 +1964,7 @@ const validateSync = function(question) {
 
 //Handle preview window.
 let previewWindow;
-bindButtonAction(document.getElementById("previewButton"), function() {
+document.getElementById("previewButton").addEventListener("click", function() {
 	if (previewWindow === undefined || previewWindow.parent === null) {
 		openPreview();
 	} else {
@@ -2190,12 +2190,12 @@ if (window.location.href.includes("?")) {
 	}
 }
 
-bindButtonAction(document.getElementById("showTagEditorButton"), function() {
+document.getElementById("showTagEditorButton").addEventListener("click", function() {
 	document.getElementById("tagEditor").style.display = "block";
 	document.getElementById("ownerOptionsGreyout").style.display = "block";
 });
 
-bindButtonAction(document.getElementById("showAdminEditorButton"), function() {
+document.getElementById("showAdminEditorButton").addEventListener("click", function() {
 	document.getElementById("adminEditor").style.display = "block";
 	document.getElementById("ownerOptionsGreyout").style.display = "block";
 	getAdminData();
@@ -2234,7 +2234,7 @@ document.getElementById("tagEditorSuggestionsSelect").addEventListener("change",
 	}
 });
 
-bindButtonAction(document.getElementById("tagEditorCancelButton"), function() {
+document.getElementById("tagEditorCancelButton").addEventListener("click", function() {
 	document.getElementById("tagEditor").style.display = "none";
 	document.getElementById("ownerOptionsGreyout").style.display = "none";
 	document.getElementById("tagEditorAddRemoveInput1").value = "";
@@ -2253,13 +2253,13 @@ const clearAdminEditorFields = function() {
 	document.getElementById("adminEditorInputEditLogEmails").value = "False";
 }
 
-bindButtonAction(document.getElementById("adminEditorCancelButton"), function() {
+document.getElementById("adminEditorCancelButton").addEventListener("click", function() {
 	document.getElementById("adminEditor").style.display = "none";
 	document.getElementById("ownerOptionsGreyout").style.display = "none";
 	clearAdminEditorFields();
 });
 
-bindButtonAction(document.getElementById("bulkUpdateCitationsButton"), function() {
+document.getElementById("bulkUpdateCitationsButton").addEventListener("click", function() {
 	document.getElementById("bulkCitationsEditor").style.display = "block";
 	document.getElementById("ownerOptionsGreyout").style.display = "block";
 });
@@ -2322,7 +2322,7 @@ const getBulkCitationData = function() {
 	}
 }
 
-bindButtonAction(document.getElementById("bulkCitationsConfirmButton"), async function() {
+document.getElementById("bulkCitationsConfirmButton").addEventListener("click", async function() {
 	
 	const value = getBulkCitationData();
 
@@ -2384,7 +2384,7 @@ bindButtonAction(document.getElementById("bulkCitationsConfirmButton"), async fu
 	clearBulkCitationsFields();
 });
 
-bindButtonAction(document.getElementById("bulkCitationsCancelButton"), function() {
+document.getElementById("bulkCitationsCancelButton").addEventListener("click", function() {
 	const hasContent = document.getElementById("bulkCitationsRemovedText").value.trim() !== "" ||
 		document.getElementById("bulkCitationsAddedText").value.trim() !== "" ||
 		document.getElementById("bulkCitationsMovedText").value.trim() !== "";
@@ -2420,7 +2420,7 @@ const switchTabs = function(event) {
 
 const tagEditorTabs = document.getElementsByClassName("tagEditorTab");
 for (let i = 0 ; i < tagEditorTabs.length ; i++) {
-	bindButtonAction(tagEditorTabs[i], switchTabs);
+	tagEditorTabs[i].addEventListener("click", switchTabs);
 }
 
 const populateTagsEditorList = function() {
@@ -2471,7 +2471,7 @@ document.getElementById("tagEditorAddRemoveInput2").addEventListener("input", fu
 let newEvent = new Event("mouseup");
 document.getElementById("tagEditorTabSuggestions").dispatchEvent(newEvent);
 
-bindButtonAction(document.getElementById("loginButton"), login);
+document.getElementById("loginButton").addEventListener("click", login);
 
 window.addEventListener("beforeunload", function(event) {
 	if (previewWindow) {
@@ -2691,7 +2691,7 @@ if (document.getElementById("password").value.length > 0) {
 	login();
 }
 
-bindButtonAction(document.getElementById("logOutButton"), function() {
+document.getElementById("logOutButton").addEventListener("click", function() {
 	localStorage.setItem("adminPassword", "");
 	location.reload();
 });
@@ -2827,7 +2827,7 @@ const updateAndForceStatus = function(newStatus, newId) {
 	}, 0);
 };
 
-bindButtonAction(document.getElementById("forceUpdateButton"), function() {
+document.getElementById("forceUpdateButton").addEventListener("click", function() {
 	let newStatus;
 	if (document.getElementById("forceStatusPending").checked) {
 		newStatus = "pending";

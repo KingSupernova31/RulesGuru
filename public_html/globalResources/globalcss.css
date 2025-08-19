@@ -262,6 +262,10 @@ body > h1:first-of-type {
 	color: white;
 }
 
+.undistinguishedLink {
+	all: inherit;
+}
+
 .tooltip, .fakeTooltip {
 	position: fixed;
 	background-color: white;
