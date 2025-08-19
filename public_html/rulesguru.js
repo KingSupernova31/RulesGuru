@@ -541,11 +541,10 @@ const returnToHome = function(addToHistory) {
 };
 
 //Button handlers:
-bindButtonAction(document.getElementById("viewQuestions"), displayNextRandomQuestion);
-bindButtonAction(document.getElementById("sidebarViewQuestion"), displayNextRandomQuestion);
-bindButtonAction(document.getElementById("submitQuestionButton"), "/submit");
+document.getElementById("viewQuestions").addEventListener("click", displayNextRandomQuestion);
+document.getElementById("sidebarViewQuestion").addEventListener("click", displayNextRandomQuestion);
 document.getElementById("showAnswer").addEventListener("click", toggleAnswer);
-bindButtonAction(document.getElementById("nextQuestion"), displayNextRandomQuestion);
+document.getElementById("nextQuestion").addEventListener("click", displayNextRandomQuestion);
 
 //Questions list
 let questionsListOpen = false;
@@ -562,9 +561,9 @@ const toggleQuestionsList = function() {
 		questionsListOpen = true;
 	}
 }
-bindButtonAction(document.getElementById("sidebarShowQuestionsList"), toggleQuestionsList);
+document.getElementById("sidebarShowQuestionsList").addEventListener("click", toggleQuestionsList);
 
-bindButtonAction(document.getElementById("questionsListHideButton"), toggleQuestionsList);
+document.getElementById("questionsListHideButton").addEventListener("click", toggleQuestionsList);
 
 //Make a request for all questions that fit the current parameters.
 const getQuestionsList = async function(callback) {

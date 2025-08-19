@@ -321,8 +321,8 @@ const doNothingUseful = function() {
 }
 
 //Button handlers:
-bindButtonAction(document.getElementById("showAnswer"), function() {toggleAnswer();});
-bindButtonAction(document.getElementById("nextQuestion"), doNothingUseful);
+document.getElementById("showAnswer").addEventLister("click", toggleAnswer);
+document.getElementById("nextQuestion").addEventListener("click", doNothingUseful);
 
 const checkForUpdate = function() {
 	if (window.parentData.updateAll) {

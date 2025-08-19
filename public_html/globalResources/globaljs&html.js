@@ -22,8 +22,8 @@ document.querySelector("head").insertAdjacentHTML("beforeend", `
 
 document.querySelector("body").insertAdjacentHTML("beforeend", `
 <div id="topBanner">
-	<h1 id="bannerName"><span id="bannerName0">Rules</span><span id="bannerName1">Guru</span></h1>
-	<h1 id="bannerNameMobile"><span id="bannerNameMobile0">R</span><span id="bannerNameMobile1">G</span></h1>
+	<h1 id="bannerName"><a href="/" class="undistinguishedLink"><span id="bannerName0">Rules</span><span id="bannerName1">Guru</span></a></h1>
+	<h1 id="bannerNameMobile"><a href="/" class="undistinguishedLink"><span id="bannerNameMobile0">R</span><span id="bannerNameMobile1">G</span></a></h1>
 	<div id="topBannerRightText">
 		<a href="/about" id="aboutLink">
 			<img src="/globalResources/icons/about.png" class="bannerImage">
@@ -99,52 +99,6 @@ document.addEventListener("touchstart", function(event) {
 	}
 });
 
-//Handle left clicks, middle clicks, and pressing enter on buttons. Strings as the "action" are treated as a url to open, funtions are executed regardless of the type of click/press.
-const bindButtonAction = function(element, action) {
-	const debounceInterval = 3; //milliseconds; chosen arbitrarily
-	element.blockedEvent = null; //our own field we're adding -- used to prevent the touchend+mouseup problem on mobile
-	element.addEventListener("mouseup", function(event) {
-		if (this.blockedEvent === "mouseup") return;
-		this.blockedEvent = "touchend"; //block touchend during the debounce period
-		if (typeof action === "string") {
-			if (event.button === 0) {
-				location.href = action;
-			} else if (event.button === 1) {
-				window.open(action);
-			}
-		}
-		if (typeof action === "function") {
-			action(event);
-		}
-		setTimeout(() => this.blockedEvent = null, debounceInterval);
-	});
-	element.addEventListener("keyup", function(event) {
-		if (event.keyCode === 13) {
-			if (typeof action === "string") {
-				if (event.button === 0) {
-					location.href = action;
-				} else if (event.button === 1) {
-					window.open(action);
-				}
-			}
-			if (typeof action === "function") {
-				action(event);
-			}
-		}
-	});
-	element.addEventListener("touchend", function(event) {
-		if (this.blockedEvent === "touchend") return;
-		this.blockedEvent = "mouseup"; //block mouseup during the debounce period
-		if (typeof action === "string") {
-			location.href = action;
-		}
-		if (typeof action === "function") {
-			action(event);
-		}
-		setTimeout(() => this.blockedEvent = null, debounceInterval);
-	});
-}
-
 //Handle tooltips.
 let delay = 0;
 const mousemoveTooltip = function(event) {
@@ -203,13 +157,11 @@ document.addEventListener("touchstart", function touchDetect(event) {
 });
 
 //Button handlers:
-bindButtonAction(document.getElementById("bannerName"), "/");
-bindButtonAction(document.getElementById("bannerNameMobile"), "/");
-bindButtonAction(document.getElementById("donations"), function() {
+document.getElementById("donations").addEventListener("click", function() {
 	document.getElementById('donateForm').submit();
 });
 document.getElementById("openContactFormButton").addEventListener("click", openContactForm);
-bindButtonAction(document.getElementById("contactFormSubmitButton"), async function(event) {
+document.getElementById("contactFormSubmitButton").addEventListener("click", async function(event) {
 	document.getElementById("contactFormPopup").style.display = "none";
 	if (document.getElementById("contactFormContent").value && !/^Message about question #\d+:\n*$/.test(document.getElementById("contactFormContent").value)) {
 		localStorage.setItem("contactFormEmail", document.getElementById("contactFormEmailField").value);
@@ -299,5 +251,5 @@ const shuffle = function(array) {
 }
 
 if (document.getElementById("contactFormTextLink")) {
-	bindButtonAction(document.getElementById("contactFormTextLink"), openContactForm);
+	document.getElementById("contactFormTextLink").addEventListener("click", openContactForm);
 }
