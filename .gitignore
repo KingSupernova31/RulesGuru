@@ -10,5 +10,8 @@ public_html/public_data_files/
 #Contains sensitive data so can't be committed.
 privateData.json
 
+#Contains arbitrary Magic files that someone wanted to save
+public_html/archive/*
+
 #Nobody likes you:
 .DS_Store

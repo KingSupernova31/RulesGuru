@@ -12,7 +12,8 @@ const express = require("express"),
 		rgUtils = require("./custom_modules/rgUtils.js"),
 		shuffle = require("./custom_modules/shuffle.js"),
 		bulkUpdateCitations = require("./custom_modules/bulkUpdateCitations.js"),
-		questionMatchesSettings = require("./custom_modules/questionMatchesSettings.js");
+		questionMatchesSettings = require("./custom_modules/questionMatchesSettings.js"),
+		serveIndex = require("serve-index");
 
 rgUtils.setUpErrorHandling();
 
@@ -55,6 +56,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.static("./public_html"));
+app.use("/", serveIndex("public_html", { icons: true }));
 
 let server;
 

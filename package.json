@@ -14,6 +14,7 @@
     "nodemailer": "7.0.5",
     "pm2": "6.0.8",
     "request": "2.88.2",
+    "serve-index": "^1.9.1",
     "sqlite3": "5.1.7",
     "tumblr.js": "5.0.1",
     "twitter-api-v2": "1.24.0"
