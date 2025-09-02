@@ -996,8 +996,9 @@ const updateNeeded = async function() {
 	return newMeta !== oldMeta;
 }
 
-const convertAllKeywords = function(allKeywordsText) {
+const convertAllKeywords = function(allKeywordsText, flavorWordsText) {
 	const allKeywords = JSON.parse(replaceDoppelgangerChars(allKeywordsText));
+	const flavorWords = JSON.parse(flavorWordsText).data;
 	if (Object.keys(allKeywords).length === 3 && allKeywords.keywordAbilities.length > 30) {
 		for (let i in allKeywords.abilityWords) {
 			allKeywords.abilityWords[i] = allKeywords.abilityWords[i][0].toUpperCase() + allKeywords.abilityWords[i].slice(1);
@@ -1006,7 +1007,7 @@ const convertAllKeywords = function(allKeywordsText) {
 			allKeywords.keywordAbilities[i] = allKeywords.keywordAbilities[i].toLowerCase();
 			allKeywords.keywordAbilities[i] = allKeywords.keywordAbilities[i][0].toUpperCase() + allKeywords.keywordAbilities[i].slice(1);
 		}
-		allKeywords.flavorWords = ["Acid Breath", "Animate Walking Statue", "Anitmagic Cone", "Archery", "Bardic Inspiration", "Beacon of Hope", "Bear Form", "Befriend Them", "Bewitching Whispers", "Binding Contract", "Brave the Stench", "Break Their Chains", "Charge Them", "Clever Conjurer", "Climb Over", "Combat Inspiration", "Cold Breath", "Cone of Cold", "Cunning Action", "Cure Wounds", "Dispel Magic", "Displacement", "Dissolve", "Distract the Guard", "Divine Intervention", "Dominate Monster", "Drag Below", "Engulf", "Fear Ray", "Fend Them Off", "Fight the Current", "Find a Crossing", "Flurry of Blows", "Foil Their Scheme", "Form a Party", "Gentle Repose", "Grant an Advantage", "Hide", "Interrogate Them", "Intimidate Them", "Journey On", "Keen Senses", "Learn Their Secrets", "Life Drain", "Lift the Curse", "Lightning Breath", "Magical Tinkering", "Make a Retreat", "Make Camp", "Poison Breath", "Pry It Open", "Psionic Spells", "Rappel Down", "Rejuvenation", "Rouse the Party", "Search the Body", "Search the Room", "Set Off Traps", "Siege Monster", "Smash It", "Smash the Chest", "Song of Rest", "Split", "Stand and Fight", "Start a Brawl", "Steal Its Eyes", "Stunning Strike", "Tail Spikes", "Teleport", "Tie Up", "Tragic Backstory", "Trapped!", "Two-Weapon Fighting", "Whirlwind", "Whispers of the Grave", "Wild Magic Surge"];
+		allKeywords.flavorWords = flavorWords;
 		fs.writeFileSync(path.join(rootDir, "data_files/allKeywords.json"), JSON.stringify(allKeywords));
 	} else {
 		throw new Error("allKeywordsUpdate keywordAbilities too short");
@@ -1142,8 +1143,10 @@ const doStuff = async function() {
 	//Keywords
 	const allKeywordsText = await downloadFile("https://api.academyruins.com/cr/keywords", path.join(rootDir, "data_files/rawAllKeywords.json"));
 	console.log(time() + "rawAllKeywords downloaded");
-	convertAllKeywords(allKeywordsText);
-	console.log(time() + "allKeywords converted");
+	const flavorWordsText = await downloadFile("https://api.scryfall.com/catalog/flavor-words", path.join(rootDir, "data_files/rawFlavorWords.json"));
+	console.log(time() + "flavor words downloaded");
+	convertAllKeywords(allKeywordsText, flavorWordsText);
+	console.log(time() + "allKeywords (and flavor words) converted");
 
 	//Rules
 	const crText = await downloadFile("https://api.academyruins.com/cr", path.join(rootDir, "data_files/rawCr.json"));
