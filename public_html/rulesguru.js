@@ -578,7 +578,7 @@ const getQuestionsList = async function(callback) {
 			body: JSON.stringify(sidebarSettings)
 		});
 		if (!response.ok) {
-			await sleep(200);
+			await sleep(500);
 			continue;
 		}
 

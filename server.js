@@ -56,7 +56,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.static("./public_html"));
-app.use("/", serveIndex("public_html", { icons: true }));
+app.use("/archive", serveIndex("./public_html/archive", { icons: true }));
 
 let server;
 
