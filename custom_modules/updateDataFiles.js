@@ -836,7 +836,7 @@ const allCardsProbablyValid = function(allCards) {//MTGJSON has a tendency to br
 		}
 
 		//Check for any multi-part cards in the original files that slipped through.
-		if (allCards[i].name.includes("//") && !allCards[i].layout.includes("split")) {
+		if (allCards[i].name.includes(" // ") && !allCards[i].layout.includes("split")) {
 			return `${allCards[i].name} exists. It should not.`;
 		}
 
