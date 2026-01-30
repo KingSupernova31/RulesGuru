@@ -1,0 +1,796 @@
+[
+	{
+		"keyword": "deathtouch"
+	},
+	{
+		"keyword": "defender"
+	},
+	{
+		"keyword": "double strike"
+	},
+	{
+		"keyword": "enchant",
+		"argument": "required"
+	},
+	{
+		"keyword": "equip",
+		"argument": "optional",
+		"cost": "required",
+		"variants": [{
+			"keyword": "equip planeswalker",
+			"cost": "required"
+		}]
+	},
+	{
+		"keyword": "first strike"
+	},
+	{
+		"keyword": "flash"
+	},
+	{
+		"keyword": "flying"
+	},
+	{
+		"keyword": "haste"
+	},
+	{
+		"keyword": "hexproof",
+		"variants": [{
+			"keyword": "hexproof from",
+			"argument": "required",
+			"fromMultiple": "from"
+		}]
+	},
+	{
+		"keyword": "indestructible"
+	},
+	{
+		"keyword": "intimidate"
+	},
+	{
+		"keyword": "landwalk",
+		"argument": "required",
+		"argumentType": "prefix",
+		"keywordText": "walk"
+	},
+	{
+		"keyword": "lifelink"
+	},
+	{
+		"keyword": "protection",
+		"keywordText": "protection from",
+		"argument": "required",
+		"fromMultiple": "from"
+	},
+	{
+		"keyword": "reach"
+	},
+	{
+		"keyword": "shroud"
+	},
+	{
+		"keyword": "trample",
+		"variants": [{
+			"keyword": "trample over planeswalkers"
+		}]
+	},
+	{
+		"keyword": "vigilance"
+	},
+	{
+		"keyword": "ward",
+		"cost": "required"
+	},
+	{
+		"keyword": "banding",
+		"variants": [{
+			"keyword": "bands with other",
+			"argument": "required"
+		}]
+	},
+	{
+		"keyword": "rampage",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "cumulative upkeep",
+		"cost": "required"
+	},
+	{
+		"keyword": "flanking"
+	},
+	{
+		"keyword": "phasing"
+	},
+	{
+		"keyword": "buyback",
+		"cost": "required"
+	},
+	{
+		"keyword": "shadow"
+	},
+	{
+		"keyword": "cycling",
+		"cost": "required",
+		"variants": [{
+			"keyword": "typecycling",
+			"keywordText": "cycling",
+			"argument": "required",
+			"argumentType": "prefix",
+			"cost": "required"
+		}]
+	},
+	{
+		"keyword": "echo",
+		"cost": "required"
+	},
+	{
+		"keyword": "horsemanship"
+	},
+	{
+		"keyword": "fading",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "kicker",
+		"cost": "required",
+		"costMultiple": true,
+		"variants": [
+			{
+				"keyword": "multikicker",
+				"cost": "required"
+			},
+			{
+				"keyword": "sticker kicker",
+				"cost": "required"
+			}
+		]
+	},
+	{
+		"keyword": "flashback",
+		"cost": "required"
+	},
+	{
+		"keyword": "madness",
+		"cost": "required"
+	},
+	{
+		"keyword": "fear"
+	},
+	{
+		"keyword": "morph",
+		"cost": "required",
+		"variants": [{
+			"keyword": "megamorph",
+			"cost": "required"
+		}]
+	},
+	{
+		"keyword": "amplify",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "provoke"
+	},
+	{
+		"keyword": "storm"
+	},
+	{
+		"keyword": "affinity",
+		"keywordText": "affinity for",
+		"argument": "required"
+	},
+	{
+		"keyword": "entwine",
+		"cost": "required"
+	},
+	{
+		"keyword": "modular",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "sunburst",
+		"actsAsNumber": true
+	},
+	{
+		"keyword": "bushido",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "soulshift",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "splice",
+		"keywordText": "splice onto",
+		"argument": "required",
+		"cost": "required"
+	},
+	{
+		"keyword": "offering",
+		"argument": "required",
+		"argumentType": "before"
+	},
+	{
+		"keyword": "ninjutsu",
+		"cost": "required",
+		"variants": [{
+			"keyword": "commander ninjutsu",
+			"cost": "required"
+		}]
+	},
+	{
+		"keyword": "epic"
+	},
+	{
+		"keyword": "convoke"
+	},
+	{
+		"keyword": "dredge",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "transmute",
+		"cost": "required"
+	},
+	{
+		"keyword": "bloodthirst",
+		"argument": "required",
+		"argumentType": "numeric",
+		"variants": [{
+			"keyword": "bloodthirst X"
+		}]
+	},
+	{
+		"keyword": "haunt"
+	},
+	{
+		"keyword": "replicate",
+		"cost": "required"
+	},
+	{
+		"keyword": "forecast",
+		"argument": "required",
+		"argumentType": "dashed"
+	},
+	{
+		"keyword": "graft",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "recover",
+		"cost": "required"
+	},
+	{
+		"keyword": "ripple",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "split second"
+	},
+	{
+		"keyword": "suspend",
+		"argument": "required",
+		"argumentType": "numeric",
+		"cost": "required"
+	},
+	{
+		"keyword": "vanishing",
+		"argument": "optional",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "absorb",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "aura swap",
+		"cost": "required"
+	},
+	{
+		"keyword": "delve"
+	},
+	{
+		"keyword": "fortify",
+		"cost": "required"
+	},
+	{
+		"keyword": "frenzy",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "gravestorm"
+	},
+	{
+		"keyword": "poisonous",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "transfigure",
+		"cost": "required"
+	},
+	{
+		"keyword": "champion",
+		"keywordText": ["champion a", "champion an"],
+		"argument": "required"
+	},
+	{
+		"keyword": "changeling"
+	},
+	{
+		"keyword": "evoke",
+		"cost": "required"
+	},
+	{
+		"keyword": "hideaway",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "prowl",
+		"cost": "required"
+	},
+	{
+		"keyword": "reinforce",
+		"argument": "required",
+		"argumentType": "numeric",
+		"cost": "required"
+	},
+	{
+		"keyword": "conspire"
+	},
+	{
+		"keyword": "persist"
+	},
+	{
+		"keyword": "wither"
+	},
+	{
+		"keyword": "retrace"
+	},
+	{
+		"keyword": "devour",
+		"variant": "optional",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "exalted"
+	},
+	{
+		"keyword": "unearth",
+		"cost": "required"
+	},
+	{
+		"keyword": "cascade"
+	},
+	{
+		"keyword": "annihilator",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "level up",
+		"cost": "required"
+	},
+	{
+		"keyword": "rebound"
+	},
+	{
+		"keyword": "umbra armor"
+	},
+	{
+		"keyword": "infect"
+	},
+	{
+		"keyword": "battle cry"
+	},
+	{
+		"keyword": "living weapon"
+	},
+	{
+		"keyword": "undying"
+	},
+	{
+		"keyword": "miracle",
+		"cost": "required"
+	},
+	{
+		"keyword": "soulbond"
+	},
+	{
+		"keyword": "overload",
+		"cost": "required"
+	},
+	{
+		"keyword": "scavenge",
+		"cost": "required"
+	},
+	{
+		"keyword": "unleash"
+	},
+	{
+		"keyword": "cipher"
+	},
+	{
+		"keyword": "evolve"
+	},
+	{
+		"keyword": "extort"
+	},
+	{
+		"keyword": "fuse"
+	},
+	{
+		"keyword": "bestow",
+		"cost": "required"
+	},
+	{
+		"keyword": "tribute",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "dethrone"
+	},
+	{
+		"keyword": "hidden agenda",
+		"variants": [{
+			"keyword": "double agenda"
+		}]
+	},
+	{
+		"keyword": "outlast",
+		"cost": "required"
+	},
+	{
+		"keyword": "prowess"
+	},
+	{
+		"keyword": "dash",
+		"cost": "required"
+	},
+	{
+		"keyword": "exploit"
+	},
+	{
+		"keyword": "menace"
+	},
+	{
+		"keyword": "renown",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "awaken",
+		"argument": "required",
+		"argumentType": "numeric",
+		"cost": "required"
+	},
+	{
+		"keyword": "devoid"
+	},
+	{
+		"keyword": "ingest"
+	},
+	{
+		"keyword": "myriad"
+	},
+	{
+		"keyword": "surge",
+		"cost": "required"
+	},
+	{
+		"keyword": "skulk"
+	},
+	{
+		"keyword": "emerge",
+		"cost": "required",
+		"variants": [{
+			"keyword": "emerge from",
+			"argument": "required",
+			"cost": "required"
+		}]
+	},
+	{
+		"keyword": "escalate",
+		"cost": "required"
+	},
+	{
+		"keyword": "melee"
+	},
+	{
+		"keyword": "crew",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "fabricate",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "partner",
+		"variant": "optional",
+		"variantType": "dashed",
+		"variants": [
+			{
+				"keyword": "partner with",
+				"argument": "required"
+			},
+			{
+				"keyword": "choose a Background"
+			},
+			{
+				"keyword": "Doctor's companion"
+			}
+		]
+	},
+	{
+		"keyword": "undaunted"
+	},
+	{
+		"keyword": "improvise"
+	},
+	{
+		"keyword": "aftermath"
+	},
+	{
+		"keyword": "embalm",
+		"cost": "required"
+	},
+	{
+		"keyword": "eternalize",
+		"cost": "required"
+	},
+	{
+		"keyword": "afflict",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "ascend"
+	},
+	{
+		"keyword": "assist"
+	},
+	{
+		"keyword": "jump-start"
+	},
+	{
+		"keyword": "mentor"
+	},
+	{
+		"keyword": "afterlife",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "riot"
+	},
+	{
+		"keyword": "spectacle",
+		"cost": "required"
+	},
+	{
+		"keyword": "escape",
+		"cost": "required"
+	},
+	{
+		"keyword": "companion",
+		"argument": "required",
+		"argumentType": "dashed"
+	},
+	{
+		"keyword": "mutate",
+		"cost": "required"
+	},
+	{
+		"keyword": "encore",
+		"cost": "required"
+	},
+	{
+		"keyword": "boast",
+		"argument": "required",
+		"argumentType": "dashed"
+	},
+	{
+		"keyword": "foretell",
+		"cost": "required"
+	},
+	{
+		"keyword": "demonstrate"
+	},
+	{
+		"keyword": "daybound"
+	},
+	{
+		"keyword": "nightbound"
+	},
+	{
+		"keyword": "disturb",
+		"cost": "required"
+	},
+	{
+		"keyword": "decayed"
+	},
+	{
+		"keyword": "cleave",
+		"cost": "required"
+	},
+	{
+		"keyword": "training"
+	},
+	{
+		"keyword": "compleated"
+	},
+	{
+		"keyword": "reconfigure",
+		"cost": "required"
+	},
+	{
+		"keyword": "blitz",
+		"cost": "required"
+	},
+	{
+		"keyword": "casualty",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "enlist"
+	},
+	{
+		"keyword": "read ahead"
+	},
+	{
+		"keyword": "ravenous"
+	},
+	{
+		"keyword": "squad",
+		"cost": "required"
+	},
+	{
+		"keyword": "space sculptor"
+	},
+	{
+		"keyword": "prototype",
+		"cost": "required",
+		"argument": "required",
+		"reverseOrder": true
+	},
+	{
+		"keyword": "living metal"
+	},
+	{
+		"keyword": "more than meets the eye",
+		"cost": "required"
+	},
+	{
+		"keyword": "for mirrodin!"
+	},
+	{
+		"keyword": "toxic",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "backup",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "bargain"
+	},
+	{
+		"keyword": "craft",
+		"keywordText": "craft with",
+		"argument": "required",
+		"cost": "required"
+	},
+	{
+		"keyword": "disguise",
+		"cost": "required"
+	},
+	{
+		"keyword": "solved",
+		"argument": "required",
+		"argumentType": "dashed"
+	},
+	{
+		"keyword": "plot",
+		"cost": "required"
+	},
+	{
+		"keyword": "saddle",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "spree"
+	},
+	{
+		"keyword": "freerunning",
+		"cost": "required"
+	},
+	{
+		"keyword": "gift",
+		"keywordText": ["gift a", "gift an"],
+		"variant": "required"
+	},
+	{
+		"keyword": "offspring",
+		"cost": "required"
+	},
+	{
+		"keyword": "impending",
+		"argument": "required",
+		"argumentType": "numeric",
+		"cost": "required"
+	},
+	{
+		"keyword": "exhaust",
+		"argument": "required",
+		"argumentType": "dashed"
+	},
+	{
+		"keyword": "max speed",
+		"argument": "required",
+		"argumentType": "dashed"
+	},
+	{
+		"keyword": "start your engines!"
+	},
+	{
+		"keyword": "harmonize",
+		"cost": "required"
+	},
+	{
+		"keyword": "mobilize",
+		"argument": "required",
+		"argumentType": "numeric"
+	},
+	{
+		"keyword": "job select"
+	},
+	{
+		"keyword": "tiered"
+	},
+	{
+		"keyword": "station"
+	},
+	{
+		"keyword": "warp",
+		"cost": "required"
+	},
+	{
+		"keyword": "∞",
+		"argument": "required",
+		"argumentType": "dashed"
+	},
+	{
+		"keyword": "mayhem",
+		"cost": "optional"
+	},
+	{
+		"keyword": "web-slinging",
+		"cost": "required"
+	},
+	{
+		"keyword": "firebending",
+		"argument": "required",
+		"argumentType": "numeric"
+	}
+]
