@@ -101,6 +101,8 @@ const updateAllCards = function(verbose = false) {
 			//sometimes Scryfall only returns the alternate Fast and not the alternate Furious??
 			alt__card_b["name"] = "Fasto // Furiouso"
 			alt__card_b["faceName"] = "Furiouso"
+		} else {
+			alt__card_a.layout = "normal" //HACK!! but what else to do here?
 		}
 		notFlatAllCards["Fast // Furious"]   = [norm_card_a, norm_card_b]
 		notFlatAllCards["Fasto // Furiouso"] = alt__card_b ? [alt__card_a, alt__card_b] : [alt__card_a];
