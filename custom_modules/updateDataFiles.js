@@ -11,6 +11,8 @@ const rootDir = path.join(__dirname, "..");
 const rgUtils = require(path.join(rootDir, "custom_modules/rgUtils.js"));
 rgUtils.setUpErrorHandling();
 
+const keywordParser = require("./keywordParser");
+
 //This script will crash when creating/dispersing the files if it doesn't have enough memory, so we just crash it here to not waste time downloading all the files first.
 if (v8.getHeapStatistics().heap_size_limit < 10**9) {
 	throw new Error("Not enough memory allocated.");
@@ -447,6 +449,7 @@ const updateAllCards = function(verbose = false) {
 		if ((allCards[i].layout === "split" || allCards[i].layout === "aftermath") && allCards[i].side === "a") {
 			let aName = allCards[i].name;
 			// bName is the element of names that aName isn't
+			if (allCards[i].names) {
 			let bName = allCards[i].names[0];
 			if(bName === aName){
 				bName = allCards[i].names[1];
@@ -469,6 +472,7 @@ const updateAllCards = function(verbose = false) {
 			currentCard.layout = "split (full)";
 			delete currentCard.side;
 			combinedCards[currentCard.name] = currentCard;
+			}
 		}
 	}
 	Object.assign(allCards, combinedCards);
@@ -658,6 +662,13 @@ const updateAllCards = function(verbose = false) {
 				delete allCards[i][allProps[j]];
 			}
 		}
+	}
+
+	const keywordDetails = JSON5.parse(fs.readFileSync("custom_modules/keywordDetails.json", "utf8"));
+
+	for (let i in allCards) {
+		//add keyword details with the new keyword parser
+		allCards[i].keywordDetails = keywordParser.parse(allCards[i].rulesText, keywordDetails);
 	}
 
 	//Remove MTGJSON's hallucinatory keywords.
