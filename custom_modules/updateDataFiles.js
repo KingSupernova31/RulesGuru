@@ -96,11 +96,14 @@ const updateAllCards = function(verbose = false) {
 		let alt__card_a = cards.find((card) => (card["faceName"] == "Fast"    && card["text"].startsWith("Target creature")))
 		let alt__card_b = cards.find((card) => (card["faceName"] == "Furious" && card["text"].startsWith("Target creature")))
 		alt__card_a["name"] = "Fasto // Furiouso"
-		alt__card_b["name"] = "Fasto // Furiouso"
 		alt__card_a["faceName"] = "Fasto"
-		alt__card_b["faceName"] = "Furiouso"
+		if (alt__card_b) {
+			//sometimes Scryfall only returns the alternate Fast and not the alternate Furious??
+			alt__card_b["name"] = "Fasto // Furiouso"
+			alt__card_b["faceName"] = "Furiouso"
+		}
 		notFlatAllCards["Fast // Furious"]   = [norm_card_a, norm_card_b]
-		notFlatAllCards["Fasto // Furiouso"] = [alt__card_a, alt__card_b]
+		notFlatAllCards["Fasto // Furiouso"] = alt__card_b ? [alt__card_a, alt__card_b] : [alt__card_a];
 	}
 
 	// Add in dungeons manually
