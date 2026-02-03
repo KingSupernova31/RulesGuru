@@ -10,7 +10,8 @@
 	},
 	{
 		"keyword": "enchant",
-		"argument": "required"
+		"argument": "required",
+		"allowsCommas": true
 	},
 	{
 		"keyword": "equip",
@@ -38,7 +39,8 @@
 		"variants": [{
 			"keyword": "hexproof from",
 			"argument": "required",
-			"fromMultiple": "from"
+			"fromMultiple": "from",
+			"allowsCommas": true
 		}]
 	},
 	{
@@ -60,7 +62,8 @@
 		"keyword": "protection",
 		"keywordText": "protection from",
 		"argument": "required",
-		"fromMultiple": "from"
+		"fromMultiple": "from",
+		"allowsCommas": true
 	},
 	{
 		"keyword": "reach"
@@ -528,7 +531,8 @@
 		"variants": [
 			{
 				"keyword": "partner with",
-				"argument": "required"
+				"argument": "required",
+				"allowsCommas": true
 			},
 			{
 				"keyword": "choose a Background"
@@ -698,7 +702,8 @@
 		"keyword": "craft",
 		"keywordText": "craft with",
 		"argument": "required",
-		"cost": "required"
+		"cost": "required",
+		"allowsCommas": true
 	},
 	{
 		"keyword": "disguise",

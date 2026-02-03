@@ -1,17 +1,21 @@
 //NOTE: officially, "protection from everything" is a variant, but I chose to leave it as argument
 
 function parseRulesTextForKeywordAbilities(rulesText, keywords) {
-	const numberKeywords = keywords.filter(keyword => keyword.actsAsNumber).map(keyword => keyword.keyword); //I'm assuming no variants do this
+	const numberKeywords = keywords.filter(
+		keyword => keyword.actsAsNumber
+	).map(
+		keyword => keyword.keyword.toLowerCase()
+	); //I'm assuming no variants do this
 	let keywordsFound = [];
-	const lines = rulesText.split(/\r?\n/);
+	const lines = rulesText.split(/(\r?\n|;)/); //we consider semicolons to act like line breaks
 	lines: for (const line of lines) {
 		let keywordsFoundOnLine = [];
-		const segments = line.split(/[,;]\s*/);
+		const segments = line.split(",");
 		for (const segment of segments) {
 			//we're going to check each segment to see if it's a keyword.
 			//if it's *not* a keyword, we discard the entire line, since
 			//no line ever contains both keyword and non-keyword segments.
-			const { parse, wholeLine } = parseSegment(segment, line, keywords, numberKeywords);
+			const { parse, wholeLine } = parseSegment(segment.trim(), line.trim(), keywords, numberKeywords);
 			const parses = handleArrays(parse);
 			if (parse !== null) {
 				if (wholeLine) {
@@ -75,7 +79,7 @@ function parseTextAsKeyword(text, keyword, numberKeywords) {
 	//the thing is, keywords may have variants.  so we better check all the variants.
 	//put keyword last, check variants before it (they often have longer keyword text)
 	const variants = keyword.variants ? [...keyword.variants, keyword] : [keyword];
-	let wholeLine = Boolean(keyword.fromMultiple);
+	let wholeLine = Boolean(keyword.fromMultiple) || keyword.allowsCommas;
 	for (const variant of variants) {
 		const { parse, wholeLine: variantWholeLine } = parseTextAsKeywordOrVariant(text, variant, numberKeywords);
 		wholeLine ||= variantWholeLine;
@@ -101,6 +105,7 @@ function parseTextAsKeyword(text, keyword, numberKeywords) {
 
 function parseTextAsKeywordOrVariant(text, variant, numberKeywords) {
 	const keywordText = variant.keywordText || variant.keyword;
+	const wholeLineFromVariant = Boolean(variant.fromMultiple) || variant.allowsCommas;
 	if (Array.isArray(keywordText)) {
 		//if the keyword text is an array, meaning multiple possibilities,
 		//we'll have to try each one. I don't want to write a separate function
@@ -113,7 +118,7 @@ function parseTextAsKeywordOrVariant(text, variant, numberKeywords) {
 			);
 			if (parse !== null) return { parse, wholeLine };
 		}
-		return { parse: null, wholeLine: Boolean(variant.fromMultiple) };
+		return { parse: null, wholeLine: wholeLineFromVariant };
 	}
 	//now: does it match the keyword/variant?
 	//depends on the case.
@@ -125,19 +130,19 @@ function parseTextAsKeywordOrVariant(text, variant, numberKeywords) {
 			if (index !== -1) {
 				const argument = text.slice(0, index) || null;
 				if (argument === null && requiredness === "required") {
-					return { parse: null, wholeLine: Boolean(variant.fromMultiple) };
+					return { parse: null, wholeLine: wholeLineFromVariant };
 				}
 				const rest = text.slice(index + keywordText.length).trim();
 				const isActuallyVariant = variant.variantType === "prefix"; //as opposed to argument
 				const { parse, wholeLine } = parseRestExcludingPrefix(rest, variant, numberKeywords, isActuallyVariant);
-				if (parse === null) return { parse: null, wholeLine: wholeLine || Boolean(variant.fromMultiple)};
+				if (parse === null) return { parse: null, wholeLine: wholeLine || wholeLineFromVariant };
 				if (variant.variantType) {
 					return {
 						parse: {
 							...parse,
 							variant: argument
 						},
-						wholeLine: wholeLine || Boolean(variant.fromMultiple)
+						wholeLine: wholeLine || wholeLineFromVariant
 					};
 				} else {
 					return {
@@ -145,11 +150,11 @@ function parseTextAsKeywordOrVariant(text, variant, numberKeywords) {
 							...parse,
 							argument
 						},
-						wholeLine //fromMultiple must be false here!
+						wholeLine: wholeLine || wholeLineFromVariant
 					};
 				}
 			} else {
-				return { parse: null, wholeLine: Boolean(variant.fromMultiple) };
+				return { parse: null, wholeLine: wholeLineFromVariant };
 			}
 		}
 		case "before": {
@@ -160,20 +165,20 @@ function parseTextAsKeywordOrVariant(text, variant, numberKeywords) {
 			if (match) {
 				const argument = match[1].trim() || null;
 				if (argument === null && requiredness === "required") {
-					return { parse: null, wholeLine: Boolean(variant.fromMultiple) };
+					return { parse: null, wholeLine: wholeLineFromVariant };
 				}
 				const rest = match[2].trim();
 				//yes I copypasted some code here
 				const isActuallyVariant = variant.variantType === "before"; //as opposed to argument
 				const { parse, wholeLine } = parseRestExcludingPrefix(rest, variant, numberKeywords, isActuallyVariant);
-				if (parse === null) return { parse: null, wholeLine: wholeLine || Boolean(variant.fromMultiple)};
+				if (parse === null) return { parse: null, wholeLine: wholeLine || wholeLineFromVariant };
 				if (variant.variantType) {
 					return {
 						parse: {
 							...parse,
 							variant: argument
 						},
-						wholeLine: wholeLine || Boolean(variant.fromMultiple)
+						wholeLine: wholeLine || wholeLineFromVariant
 					};
 				} else {
 					return {
@@ -181,7 +186,7 @@ function parseTextAsKeywordOrVariant(text, variant, numberKeywords) {
 							...parse,
 							argument
 						},
-						wholeLine
+						wholeLine: wholeLine || wholeLineFromVariant
 					};
 				}
 			} else {
@@ -190,20 +195,20 @@ function parseTextAsKeywordOrVariant(text, variant, numberKeywords) {
 						parse: {
 							keyword: variant.keyword
 						},
-						wholeLine: Boolean(variant.fromMultiple)
+						wholeLine: wholeLineFromVariant
 					};
 				} else {
-					return { parse: null, wholeLine: Boolean(variant.fromMultiple) };
+					return { parse: null, wholeLine: wholeLineFromVariant };
 				}
 			}
 		}
 		default: {
-			const match = text.match(new RegExp(`^${keywordText}\\b(.*)`, "i"))
+			const match = text.match(new RegExp(`^${keywordText}(\\b|\\s|$)(.*)`, "i"))
 			if (match) {
-				const rest = match[1].trim();
+				const rest = match[2].trim();
 				return parseRest(rest, variant, numberKeywords);
 			} else {
-				return { parse: null, wholeLine: Boolean(variant.fromMultiple) };
+				return { parse: null, wholeLine: wholeLineFromVariant };
 			}
 		}
 	}
@@ -239,6 +244,7 @@ function parseRestExcludingPrefix(rest, keyword, numberKeywords, isActuallyVaria
 }
 
 function parseRest(rest, keyword, numberKeywords) {
+	const wholeLineFromKeyword = Boolean(keyword.fromMultiple) || keyword.allowsCommas;
 	if (!keyword.variant) {
 		//if there's no variant, we can skip straight to the argument and cost
 		return parseArgumentAndCost(rest, keyword, numberKeywords);
@@ -281,7 +287,7 @@ function parseRest(rest, keyword, numberKeywords) {
 			Boolean(keyword.cost) //allow lonely X only when there's a cost
 		);
 		const { parse: recursiveParse, wholeLine: wholeLineFromRecursion } = parseArgumentAndCost(argumentText || "", keyword, numberKeywords);
-		const wholeLine = wholeLineFromSplit || wholeLineFromRecursion || Boolean(keyword.fromMultiple);
+		const wholeLine = wholeLineFromSplit || wholeLineFromRecursion || wholeLineFromKeyword;
 		if (variant === "" && keyword.variant === "required") {
 			return { parse: null, wholeLine };
 		}
@@ -307,7 +313,7 @@ function parseRest(rest, keyword, numberKeywords) {
 			numberKeywords
 		);
 		if (recursiveParse === null) {
-			return { parse: null, wholeLine: wholeLine || Boolean(keyword.fromMultiple) };
+			return { parse: null, wholeLine: wholeLine || wholeLineFromKeyword };
 		}
 		return {
 			parse: {
@@ -315,36 +321,37 @@ function parseRest(rest, keyword, numberKeywords) {
 				variant: recursiveParse.argument,
 				argument: undefined
 			},
-			wholeLine: wholeLine || Boolean(keyword.fromMultiple)
+			wholeLine: wholeLine || wholeLineFromKeyword
 		};
 	}
 }
 
 function parseArgumentAndCost(rest, keyword, numberKeywords) {
+	const wholeLineFromKeyword = Boolean(keyword.fromMultiple) || keyword.allowsCommas;
 	if (!keyword.argument) {
 		//if there's no argument, just handle cost
 		if (keyword.cost) {
 			const { cost, wholeLine } = checkCost(rest, keyword.costMultiple, false);
 			if (cost === null && (keyword.cost === "required" || rest !== "")) {
-				return { parse: null, wholeLine: false }; //don't need to worry about fromMultiple
+				return { parse: null, wholeLine: wholeLine || wholeLineFromKeyword }
 			}
 			return {
 				parse: {
 					keyword: keyword.keyword,
 					cost
 				},
-				wholeLine //can leave this as-is
+				wholeLine //can leave this as-is; no argument, just cost, and we found it, so nothing to worry about
 			};
 		} else if (rest === "") {
 			return {
 				parse: {
 					keyword: keyword.keyword
 				},
-				wholeLine: Boolean(keyword.fromMultiple)
+				wholeLine: wholeLineFromKeyword
 			};
 		} else {
 			//no keyword, no cost, but there's something left over? uh-oh
-			return { parse: null, wholeLine: Boolean(keyword.fromMultiple) };
+			return { parse: null, wholeLine: wholeLineFromKeyword };
 		}
 	} else if (keyword.reverseOrder) {
 		//reverseOrder reverses the order of argument and cost. so cost, then dash, then argument
@@ -355,10 +362,10 @@ function parseArgumentAndCost(rest, keyword, numberKeywords) {
 			(argument === null && keyword.argument === "required") ||
 			(cost === null && keyword.cost === "required")
 		) {
-			return { parse: null, wholeLine: false };
+			return { parse: null, wholeLine: wholeLine || wholeLineFromKeyword };
 		}
 		if (!isManaCost(cost)) {
-			return { parse: null, wholeLine: false };
+			return { parse: null, wholeLine: wholeLine || wholeLineFromKeyword };
 		}
 		return {
 			parse: {
@@ -366,7 +373,7 @@ function parseArgumentAndCost(rest, keyword, numberKeywords) {
 				argument,
 				cost
 			},
-			wholeLine //can leave this as-is
+			wholeLine: wholeLine || wholeLineFromKeyword
 		};
 	} else if (keyword.argumentType === "dashed") {
 		//in this case, there can *only* be a argument. nothing else.
@@ -411,7 +418,7 @@ function parseArgumentAndCost(rest, keyword, numberKeywords) {
 			} = splitOnCostStart(rest, keyword.costMultiple, true)); //allow an X restriction
 		}
 		const { argument, wholeLine: wholeLineFromArgument } = checkType(argumentText, keyword.argumentType, numberKeywords, true); //allow X since there's a cost
-		const wholeLine = wholeLineFromCost || wholeLineFromArgument;
+		const wholeLine = wholeLineFromCost || wholeLineFromArgument || wholeLineFromKeyword;
 		//check: if X is present, make sure it's in a way that makes sense
 		//(note that "X, where..." doesn't have these requirements)
 		if (argument === "X" !== Boolean((cost || "").match(/\bX\b/))) {
@@ -454,7 +461,7 @@ function parseArgumentAndCost(rest, keyword, numberKeywords) {
 				//two
 				args = [match[1], match[2]]
 			} else {
-				if (rest.length > 0 && !rest.includes(",")) {
+				if (rest.length > 0) { //may (unfortunately) contain commas! see Nevinyrral e.g.
 					//one
 					args = [rest];
 				}
@@ -480,14 +487,14 @@ function parseArgumentAndCost(rest, keyword, numberKeywords) {
 		//in this case just do a check
 		const { argument, wholeLine } = checkType(rest, keyword.argumentType, numberKeywords, false);
 		if (argument === null && (keyword.argument === "required" || rest !== "")) {
-			return { parse: null, wholeLine: wholeLine || Boolean(keyword.fromMultiple) };
+			return { parse: null, wholeLine: wholeLine || wholeLineFromKeyword };
 		}
 		return {
 			parse: {
 				keyword: keyword.keyword,
 				argument
 			},
-			wholeLine: wholeLine || Boolean(keyword.fromMultiple)
+			wholeLine: wholeLine || wholeLineFromKeyword
 		};
 	}
 }
@@ -556,7 +563,7 @@ function checkType(text, type, numberKeywords, allowLonelyX) { //NOTE: returns a
 				//...except in some cases we allow it anyway, if allowLonelyX is set...
 				return { argument: allowLonelyX ? text : null, wholeLine: true };
 			} else if (text.startsWith("—")) {
-				const argument = text.slice(1).trim();
+				const argument = text.slice(1).trim().toLowerCase();
 				if (numberKeywords.includes(argument)) {
 					return { argument, wholeLine: false };
 				} else {
@@ -626,7 +633,7 @@ function splitOnNumericStart(text, numberKeywords, allowLonelyX) {
 			//in this case, we need to check whether it's followed
 			//by a numeric keyword
 			const argument = text.slice(dashIndex).trim(); //note: INCLUDE the dash! for later processing
-			if (numberKeywords.includes(argument.slice(1))) { //better remove it here though
+			if (numberKeywords.includes(argument.slice(1).toLowerCase())) { //better remove it here though
 				return {
 					variant: text.slice(0, dashIndex).trim(),
 					argument,
