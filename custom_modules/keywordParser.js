@@ -283,8 +283,7 @@ function parseRest(rest, keyword, numberKeywords) {
 		const { variant, argument: argumentText, wholeLine: wholeLineFromSplit } = splitByArgumentType(
 			rest,
 			keyword.argumentType,
-			numberKeywords,
-			Boolean(keyword.cost) //allow lonely X only when there's a cost
+			numberKeywords
 		);
 		const { parse: recursiveParse, wholeLine: wholeLineFromRecursion } = parseArgumentAndCost(argumentText || "", keyword, numberKeywords);
 		const wholeLine = wholeLineFromSplit || wholeLineFromRecursion || wholeLineFromKeyword;
@@ -331,7 +330,7 @@ function parseArgumentAndCost(rest, keyword, numberKeywords) {
 	if (!keyword.argument) {
 		//if there's no argument, just handle cost
 		if (keyword.cost) {
-			const { cost, wholeLine } = checkCost(rest, keyword.costMultiple, false);
+			const { cost, wholeLine } = checkCost(rest, keyword.costMultiple);
 			if (cost === null && (keyword.cost === "required" || rest !== "")) {
 				return { parse: null, wholeLine: wholeLine || wholeLineFromKeyword }
 			}
@@ -356,14 +355,14 @@ function parseArgumentAndCost(rest, keyword, numberKeywords) {
 	} else if (keyword.reverseOrder) {
 		//reverseOrder reverses the order of argument and cost. so cost, then dash, then argument
 		const { variant: cost, argument, wholeLine } = splitOnDash(rest);
-		//check that cost looks like a cost -- we won't use checkCost here as it's not the right mechanism;
-		//this needs to be a mana cost
 		if (
 			(argument === null && keyword.argument === "required") ||
 			(cost === null && keyword.cost === "required")
 		) {
 			return { parse: null, wholeLine: wholeLine || wholeLineFromKeyword };
 		}
+		//check that cost looks like a cost -- we won't use checkCost here as it's not the right mechanism;
+		//this needs to be a mana cost (and no qualifiers!)
 		if (!isManaCost(cost)) {
 			return { parse: null, wholeLine: wholeLine || wholeLineFromKeyword };
 		}
@@ -409,23 +408,32 @@ function parseArgumentAndCost(rest, keyword, numberKeywords) {
 		if (keyword.argumentType === "numeric") {
 			//yeah we gotta jigger things around some
 			({ variant: argumentText, argument: cost, wholeLine: wholeLineFromCost } = splitOnDash(rest));
+			costText = cost || ""; //the only way we can fail to get a cost here is if it's empty (sorry)
 		} else {
 			({
 				argument: argumentText,
 				cost,
 				costText,
 				wholeLine: wholeLineFromCost
-			} = splitOnCostStart(rest, keyword.costMultiple, true)); //allow an X restriction
+			} = splitOnCostStart(rest, keyword.costMultiple));
 		}
-		const { argument, wholeLine: wholeLineFromArgument } = checkType(argumentText, keyword.argumentType, numberKeywords, true); //allow X since there's a cost
+		const {
+			argument,
+			cost: qualifier,
+			wholeLine: wholeLineFromArgument
+		} = checkType(argumentText, keyword.argumentType, numberKeywords);
 		const wholeLine = wholeLineFromCost || wholeLineFromArgument || wholeLineFromKeyword;
-		//check: if X is present, make sure it's in a way that makes sense
+		//check: if the argument is X, make sure X also appears in the cost or qualifier
 		//(note that "X, where..." doesn't have these requirements)
-		if (argument === "X" !== Boolean((cost || "").match(/\bX\b/))) {
+		if (
+			argument === "X" &&
+			!((cost || "").match(/\bX\b/)) &&
+			!((qualifier || "").match(/\bX\b/)))
+		{
 			return { parse: null, wholeLine };
 		}
-		//I wanted to have an additional check here, that if "X can't be 0" appears, that
-		//X also appears elsewhere in the cost, but hell with it.  it's too much of a pain
+		//Note: the following check for cost does *not* treat a qualifier as a cost!
+		//It wants an actual cost!
 		if (
 			((keyword.argument === "required" || argumentText !== "") && argument === null) ||
 			((keyword.cost === "required" || costText !== "") && cost === null)
@@ -436,7 +444,7 @@ function parseArgumentAndCost(rest, keyword, numberKeywords) {
 			parse: {
 				keyword: keyword.keyword,
 				argument,
-				cost
+				cost: cost || qualifier
 			},
 			wholeLine
 		};
@@ -485,21 +493,22 @@ function parseArgumentAndCost(rest, keyword, numberKeywords) {
 		};
 	} else {
 		//in this case just do a check
-		const { argument, wholeLine } = checkType(rest, keyword.argumentType, numberKeywords, false);
+		const { argument, cost, wholeLine } = checkType(rest, keyword.argumentType, numberKeywords);
 		if (argument === null && (keyword.argument === "required" || rest !== "")) {
 			return { parse: null, wholeLine: wholeLine || wholeLineFromKeyword };
 		}
 		return {
 			parse: {
 				keyword: keyword.keyword,
-				argument
+				argument,
+				cost //really a qualiier
 			},
 			wholeLine: wholeLine || wholeLineFromKeyword
 		};
 	}
 }
 
-function checkCost(text, allowMultiple, allowXRestriction) {
+function checkCost(text, allowMultiple) {
 	//does this look basically like a cost?
 	if (allowMultiple) {
 		const costs = parseMultipleCosts(text);
@@ -507,7 +516,12 @@ function checkCost(text, allowMultiple, allowXRestriction) {
 			return { cost: costs, wholeLine: false };
 		}
 	}
-	if (isManaCost(text, allowXRestriction)) return { cost: text, wholeLine: false };
+	//the following RE differs from the one in isManaCost in that it allows a qualifier after
+	const match = text.match(/^(\{[a-zA-Z0-9\/]+\})+(\s+or\s+(\{[a-zA-Z0-9\/]+\})+)?(\.\s+(.*))?$/);
+	if (match) {
+		//if the qualifier part matched, we need to check the whole line
+		return { cost: text, wholeLine: Boolean(match[4]) };
+	}
 	if (text.startsWith("—")) {
 		const cost = text.slice(1).trim() || null;
 		return { cost, wholeLine: true };
@@ -515,18 +529,9 @@ function checkCost(text, allowMultiple, allowXRestriction) {
 	return { cost: null, wholeLine: false };
 }
 
-function isManaCost(text, allowXRestriction) {
-	//does this look basically like a mana cost? but allow or'ing some
-	if (!allowXRestriction) {
-		return Boolean(text.match(/^(\{[a-zA-Z0-9\/]+\})+(\s+or\s+(\{[a-zA-Z0-9\/]+\})+)?$/));
-	} else {
-		return Boolean(text.match(/^(\{[a-zA-Z0-9\/]+\})+(\s+or\s+(\{[a-zA-Z0-9\/]+\})+)?(\.\s+X\s+.*)?$/));
-	}
-}
-
-function isDirectManaCost(text) {
-	//does this look basically like a mana cost?
-	return Boolean(text.match(/^(\{[a-zA-Z0-9\/]+\})+$/));
+function isManaCost(text) {
+	//does this look basically like a mana cost? but allow or'ing two of them
+	return Boolean(text.match(/^(\{[a-zA-Z0-9\/]+\})+(\s+or\s+(\{[a-zA-Z0-9\/]+\})+)?$/));
 }
 
 function parseMultipleCosts(text) {
@@ -538,7 +543,7 @@ function parseMultipleCosts(text) {
 	}
 }
 
-function checkType(text, type, numberKeywords, allowLonelyX) { //NOTE: returns argument even though may be variant
+function checkType(text, type, numberKeywords) { //NOTE: returns argument even though may be variant
 	switch(type) {
 		//we assume it's not "prefix" or "before" as those are handled above
 		case undefined:
@@ -561,7 +566,7 @@ function checkType(text, type, numberKeywords, allowLonelyX) { //NOTE: returns a
 				//if we've got an X, uh-oh, we may need the whole line!
 				//(where's the comma? not in this segment!)
 				//...except in some cases we allow it anyway, if allowLonelyX is set...
-				return { argument: allowLonelyX ? text : null, wholeLine: true };
+				return { argument: text, wholeLine: true };
 			} else if (text.startsWith("—")) {
 				const argument = text.slice(1).trim().toLowerCase();
 				if (numberKeywords.includes(argument)) {
@@ -569,8 +574,23 @@ function checkType(text, type, numberKeywords, allowLonelyX) { //NOTE: returns a
 				} else {
 					return { argument: null, wholeLine: false };
 				}
+			} else if (text.startsWith("X. ")) {
+				return {
+					argument: "X",
+					cost: text.slice(2).trim(), //!! we count qualifiers as costs
+					wholeLine: true
+				};
 			} else {
-				return { argument: null, wholeLine: false };
+				const match = text.match(/^([0-9]+)\.\s+(.*)$/);
+				if (match) {
+					return {
+						argument: match[1],
+						cost: match[2], //again!
+						wholeLine: true
+					};
+				} else {
+					return { argument: null, wholeLine: false };
+				}
 			}
 		case "dashed":
 			if (text.startsWith("—")) {
@@ -582,7 +602,7 @@ function checkType(text, type, numberKeywords, allowLonelyX) { //NOTE: returns a
 	}
 }
 
-function splitOnCostStart(text, allowMultiple, allowXRestriction) {
+function splitOnCostStart(text, allowMultiple) {
 	let braceIndex = text.indexOf("{");
 	if (braceIndex === -1) braceIndex = Infinity;
 	let dashIndex = text.indexOf("—");
@@ -591,43 +611,40 @@ function splitOnCostStart(text, allowMultiple, allowXRestriction) {
 	if (index !== Infinity) {
 		const costText = text.slice(index);
 		const argument = text.slice(0, index).trim(); //note: depending on context this could be a variant
-		const { cost, wholeLine } = checkCost(costText, allowMultiple, allowXRestriction);
+		const { cost, wholeLine } = checkCost(costText, allowMultiple);
 		return { argument, cost, costText, wholeLine };
 	}
 	//otherwise, both are infinity
 	return { argument: text, cost: null, costText: "", wholeLine: false };
 }
 
-function splitByArgumentType(text, type, numberKeywords, allowLonelyX) {
+function splitByArgumentType(text, type, numberKeywords) {
 	switch(type) {
 		//note that case undefined should never occur!!
 		case "numeric":
-			return splitOnNumericStart(text, numberKeywords, allowLonelyX);
+			return splitOnNumericStart(text, numberKeywords);
 		case "dashed":
 			return splitOnDash(text);
 	}
 }
 
-function splitOnNumericStart(text, numberKeywords, allowLonelyX) {
+function splitOnNumericStart(text, numberKeywords) {
 	const numMatch = text.match(/\d/);
 	const numIndex = numMatch ? numMatch.index : Infinity;
 	let xIndex = text.indexOf("X, where X is");
 	if (xIndex === -1) xIndex = Infinity;
-	let bareXIndex = text.indexOf("X—");
+	let xDashIndex = text.indexOf("X—");
+	if (xDashIndex === -1) xIndex = Infinity;
+	let xDotIndex = text.indexOf("X.");
+	if (xDotIndex === -1) xIndex = Infinity;
+	let bareXIndex = Math.min(xDashIndex, xDotIndex); //an X followed by a dash or period, instead of comma, is considered "bare"
 	if (bareXIndex === -1) bareXIndex = text.endsWith("X") ? text.length - 1 : Infinity;
 	let dashIndex = text.indexOf("—");
 	if (dashIndex === -1) dashIndex = Infinity;
-	const nonDashIndex = allowLonelyX
-		? Math.min(numIndex, xIndex, bareXIndex)
-		: Math.min(numIndex, xIndex);
+	const nonDashIndex = Math.min(numIndex, xIndex, bareXIndex);
 	const index = Math.min(dashIndex, nonDashIndex);
 	if (index === Infinity) {
-		if (bareXIndex !== Infinity) {
-			//note that this can only happen if allowLonelyX is false
-			return { variant: text, argument: null, wholeLine: true };
-		} else {
-			return { variant: text, argument: null, wholeLine: false };
-		}
+		return { variant: text, argument: null, wholeLine: false };
 	} else {
 		if (dashIndex < nonDashIndex) {
 			//in this case, we need to check whether it's followed
